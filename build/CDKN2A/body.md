@@ -387,11 +387,11 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | CDKN2A | down-regulates | CDK6 | binding |
 | CDKN2A | down-regulates | CDK2 | binding |
 
-## Transcription factor regulatory data
+## Regulation
 
 **Is transcription factor: True**
 
-**Downstream targets: 1**
+**Downstream targets (CollecTRI): 1**
 
 | Target | Regulation |
 | --- | --- |
@@ -402,7 +402,42 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | Motif | Name | Family |
 | --- | --- | --- |
 
-**Upstream regulators (top):** AFF4, AHR, AP1, ASXL1, ATF2, ATF6, BCL11A, BCL3, BCL6, BMI1, CDX2, CEBPB, CREB1, CREB3, CTBP1, CTBP2, CTCF, CTNNBL1, DBP, DDB1
+**Upstream regulators (CollecTRI, top):** AFF4, AHR, AP1, ASXL1, ATF2, ATF6, BCL11A, BCL3, BCL6, BMI1, CDX2, CEBPB, CREB1, CREB3, CTBP1, CTBP2, CTCF, CTNNBL1, DBP, DDB1
+
+**miRNA regulators (miRDB): 51** targeting CDKN2A, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+
+| miRNA | Max score | Avg score | miRNA target_count |
+| --- | --- | --- | --- |
+| HSA-MIR-5011-5P | 100.00 | 83.46 | 5820 |
+| HSA-MIR-3646 | 100.00 | 73.56 | 5283 |
+| HSA-MIR-1277-5P | 100.00 | 73.95 | 5056 |
+| HSA-MIR-3662 | 99.99 | 73.82 | 5684 |
+| HSA-MIR-507 | 99.97 | 70.11 | 1915 |
+| HSA-MIR-128-3P | 99.95 | 71.17 | 2484 |
+| HSA-MIR-216A-3P | 99.95 | 71.19 | 2505 |
+| HSA-MIR-153-5P | 99.89 | 73.86 | 6317 |
+| HSA-MIR-4302 | 99.89 | 67.94 | 1187 |
+| HSA-MIR-3681-3P | 99.88 | 70.46 | 2254 |
+| HSA-MIR-4447 | 99.85 | 67.81 | 2900 |
+| HSA-MIR-4799-5P | 99.82 | 70.60 | 2663 |
+| MMU-MIR-742-3P | 99.79 | 69.04 | 1276 |
+| RNO-MIR-3541 | 99.76 | 68.12 | 572 |
+| HSA-MIR-1296-3P | 99.72 | 64.04 | 636 |
+| HSA-MIR-3714 | 99.71 | 70.74 | 2671 |
+| HSA-MIR-4310 | 99.59 | 68.84 | 2527 |
+| HSA-MIR-4519 | 99.48 | 66.10 | 859 |
+| HSA-MIR-365A-3P | 99.43 | 70.02 | 836 |
+| HSA-MIR-365B-3P | 99.43 | 70.02 | 836 |
+| MMU-MIR-7681-5P | 99.37 | 65.56 | 674 |
+| HSA-MIR-6507-5P | 99.36 | 70.46 | 2524 |
+| HSA-MIR-190B-3P | 99.33 | 68.29 | 1382 |
+| HSA-MIR-4727-5P | 99.23 | 67.55 | 1154 |
+| HSA-MIR-1286 | 99.09 | 66.23 | 1046 |
+| HSA-MIR-1257 | 98.97 | 68.02 | 1133 |
+| MMU-MIR-7083-3P | 98.95 | 67.51 | 920 |
+| HSA-MIR-4755-3P | 98.77 | 65.59 | 1915 |
+| MMU-MIR-5710 | 98.72 | 67.14 | 769 |
+| HSA-MIR-6796-3P | 98.68 | 65.49 | 689 |
 
 ## Drug & pharmacology data
 
