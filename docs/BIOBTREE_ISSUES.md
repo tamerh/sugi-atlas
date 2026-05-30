@@ -1,95 +1,54 @@
 # biobtree MCP — Issues & Improvement Requests
 
-**Date:** 2026-05-28
-**Context:** Found while evaluating local LLMs (Qwen3 family) as agents driving the biobtree MCP server (`http://localhost:8000/mcp`, tools: `biobtree_search`, `biobtree_map`, `biobtree_entry`) to generate grounded gene/disease reference pages. Benchmark gene: **TP53**.
+**Initial filing:** 2026-05-28
+**Last updated:** 2026-05-30
 
-**Headline:** Most of these are *error-/empty-response signaling* problems. They are survivable for a strong model (Claude Haiku copes, at the cost of extra calls), but they actively **break weaker/local models**, which cannot tell "I queried wrong" from "the data does not exist." In one case below, a capable local model (Qwen3-30B-A3B-Instruct-2507) **looped 25 times and failed to produce any answer** purely because of issue #2.
+**Context:** Found while building a deterministic gene/disease reference-page
+collector (Sugi Atlas) on top of the local biobtree REST API
+(`http://127.0.0.1:8000/api`, with `/search`, `/entry`, `/map`) and the MCP
+server (`biobtree_search` / `biobtree_map` / `biobtree_entry`).
 
-biobtree has all the needed data — every TP53 field (incl. GRCh38 coordinates) is retrievable with the right call. The problems are about *guiding the caller to the right call and signaling failure clearly*.
-
----
-
-## Issue #1 — ~~`not_found` is overloaded~~  RESOLVED 2026-05-30
-
-A query that is **malformed / resolves to an empty path** returns the **same** `not_found` as a genuinely **nonexistent entity**.
-
-**Repro:**
-```
-map(terms="TP53", chain=">>hgnc>>ensembl>>entrez>>mim>>refseq")
-→ { "stats": {"queried":1, "total":0}, "mappings": null, "not_found": ["TP53"] }
-```
-…even though each shorter hop works fine:
-```
-map("TP53", ">>hgnc")          → 2 mappings
-map("TP53", ">>ensembl")       → 3 mappings
-map("TP53", ">>hgnc>>ensembl") → 1 mapping
-```
-
-**Impact:** A model reads `not_found:[TP53]` as "TP53 has no data" and either gives up (writes "Not found") or falls back to hallucinated knowledge. This single ambiguity caused most of the field omissions/hallucinations we observed.
-
-**Suggested fix:** Distinguish the two cases. e.g. for a recognized input whose chain yields nothing: `"status": "empty_path", "message": "Input recognized but the requested chain produced no mappings; try a shorter chain."` vs. `"status": "unknown_input"` for a truly unknown term.
+Numbers are stable — when an issue resolves it stays here as a one-line entry
+under "Resolved" so commit/PR references against the original number stay
+unambiguous. Bodies are removed once resolved to keep the doc compact.
 
 ---
 
-## Issue #2 — ~~Unknown dataset returns bare 400~~  RESOLVED 2026-05-30
+## Resolved upstream
 
-Using a wrong/aliased dataset name returns an opaque error with no hint.
-
-**Repro:**
-```
-map(terms="HGNC:11998", chain=">>hgnc>>omim")
-→ { "error": "Biobtree API error: 400" }
-```
-The correct dataset is **`mim`**, not `omim`:
-```
-map(terms="HGNC:11998", chain=">>hgnc>>mim")
-→ mappings: ["191170"]   ✅ (the OMIM gene ID)
-```
-
-**Impact (observed):** Qwen3-30B-A3B-Instruct-2507 — otherwise our best-behaved local model, using correct idioms and refusing to hallucinate — got stuck repeatedly calling `>>hgnc>>omim`, receiving `API error 400`, trying side-paths (mondo/gencc/clinvar), and looping. It hit the 25-step cap **without ever producing an answer**. The bare 400 gave it nothing to learn from, and it never discovered `mim`.
-
-**Suggested fix:** Replace bare 400s with actionable text: `"unknown dataset 'omim' — did you mean 'mim'? Valid datasets: ..."`. Optionally accept `omim` as an alias for `mim`.
+| # | Title | Resolved |
+|---|---|---|
+| #1 | `not_found` overloaded — same response for "unknown input" vs "input recognized, chain dead-ends" | 2026-05-30 — now returns `message: "Recognized but no mapping for this chain: <input>. Try a shorter chain."` |
+| #2 | Bare 400 on unknown dataset name | 2026-05-30 — now returns `"unknown dataset: 'omim'. Did you mean 'mim'?"` |
+| #3 | Statless empty blob on certain bad chains | 2026-05-30 — consistent shape with explicit `message` field on every outcome |
+| #5 | `map` source-dataset semantics non-obvious (e.g. `map(HGNC:11998, ">>ensembl")` silently empty) | 2026-05-30 — same signaling work as #1/#3 |
+| #7 | `map` mixes species, no human filter | 2026-05-30 — `[genome=="homo_sapiens"]` chain filter now supported |
+| #8 | `map` pagination "broken" — was a wrong param name (`p` not `page`); FastAPI silently dropped the unknown one | resolved 2026-05-28 (caller side) |
+| #11 | `>>uniprot>>ufeature` leaked ortholog features (P04637 query returned mouse Tp53 rows) | 2026-05-30 — single-accession queries now return only that accession's features. Atlas's `id.startswith(u + "_")` post-filter removed |
 
 ---
 
-## Issue #3 — ~~Statless empty blobs on bad chains~~  RESOLVED 2026-05-30
-
-A third distinct empty-response shape — neither an error nor a `not_found`, and missing the usual `stats`.
-
-**Repro:**
-```
-map(terms="TP53", chain=">>omim")        → { } with stats=None, mappings=None, no not_found
-map(terms="TP53", chain=">>hgnc>>omim")  → { } with stats=None, mappings=None, no not_found
-```
-(compare: `map("TP53", ">>mim")` → proper `not_found:["TP53"]`)
-
-**Impact:** Inconsistent response schemas make it impossible for a caller (or our parser) to reliably detect "this failed." Three different "nothing came back" shapes exist (`not_found`, `error 400`, statless empty).
-
-**Suggested fix:** One consistent response envelope with an explicit status field for every outcome (ok / empty / unknown_input / unknown_dataset / error).
-
----
+## Open
 
 ## Issue #4 — Long multi-hop chains fail silently / intersectively
 
-Every individual hop can succeed while the combined chain returns empty (see Issue #1 repro). There is no signal indicating *which* hop broke the chain.
+Every individual hop can succeed while the combined chain returns empty,
+with no signal indicating *which* hop broke the chain.
 
-**Suggested fix:** Either return partial results up to the break (with a note of where it stopped), or document prominently that **short single-hop chains are the reliable pattern** and multi-hop chains are best-effort.
-
----
-
-## Issue #5 — ~~`map` source semantics non-obvious~~  RESOLVED 2026-05-30 (clarified via the same signaling work as #1/#3)
-
-`map` looks the input up in the **first** dataset of the chain. Mapping *from a resolved ID* only works if the chain starts at that ID's own dataset:
+**Repro (still relevant 2026-05-30):**
 ```
-map("HGNC:11998", ">>ensembl")        → not_found    (chain starts at ensembl; HGNC:11998 isn't an ensembl term — correct, but confusing)
-map("HGNC:11998", ">>hgnc>>ensembl")  → works        (chain starts at hgnc ✅)
-map("7157",       ">>ensembl")        → not_found
+map("TP53", ">>hgnc>>ensembl>>entrez>>mim>>refseq")
+→ message: "Recognized but no mapping for this chain: TP53. Try a shorter chain."
 ```
-The `biobtree_map` tool description says *"HGNC:* or gene symbols → >>hgnc"*, which implies HGNC IDs are valid map inputs but does **not** make clear the chain must *start* at `>>hgnc`. Right after a model gets `HGNC:11998` from `search`, its natural next step `map(HGNC:11998, >>ensembl)` fails.
 
-**Note:** This `not_found` is technically *correct* behavior — it's a documentation/affordance gap, not a bug.
+After the #1/#3 signaling work, the caller now learns the chain produced
+nothing, but still can't tell *which hop* dropped to zero (each individual
+hop succeeds; some pair in the middle has no edge between them).
 
-**Suggested fix:** Clarify in the tool description that the chain must begin with the input's own dataset; ideally auto-detect the source dataset from the ID prefix (`HGNC:` → hgnc, `ENSG` → ensembl, numeric → entrez, etc.).
+**Suggested fix:** return per-hop diagnostics — either a partial result up
+to the break with a note of where it stopped, or a `chain_diagnostics`
+field that says "hop 4 (mim→refseq) returned 0 rows". Either makes the
+debugging path orders of magnitude faster.
 
 ---
 
@@ -102,245 +61,162 @@ The `biobtree_map` tool description says *"HGNC:* or gene symbols → >>hgnc"*, 
 entry("HGNC:11998", "hgnc")
 → xrefs: ["ensembl|1", "entrez|1", "mim|1", "refseq|93", ...]   (counts only)
 ```
-So you know an OMIM/Ensembl/Entrez link exists, but must issue a separate `map` per dataset to get the actual value. There is no single "give me all the cross-references" call, which multiplies round-trips and the chance a weak model drops a field.
 
-**Suggested fix:** An option to resolve xrefs to their target IDs (e.g. `entry(..., expand_xrefs=true)`), or a convenience that returns all standard gene IDs in one call.
+So you know an OMIM/Ensembl/Entrez link exists, but must issue a separate
+`map` per dataset to get the actual value. There is no single
+"give me all the cross-references" call, which multiplies round-trips and
+the chance a weak model drops a field.
 
----
+**Suggested fix:** an option to resolve xrefs to their target IDs
+(`entry(..., expand_xrefs=true)`), or a convenience that returns all
+standard gene IDs in one call.
 
-## Issue #7 — ~~`map` mixes species, no human filter~~  RESOLVED 2026-05-30 (now supports `[genome=="homo_sapiens"]` filter)
-
-For a gene symbol, `map` returns orthologs across species with no way to restrict to the query organism.
-
-**Repro:**
-```
-map("TP53", ">>ensembl")
-→ ENSG00000141510 (homo_sapiens), ENSRNOG00000010756 (rat), ENSDARG00000035559 (zebrafish)
-```
-
-**Impact:** The caller must post-filter to `homo_sapiens`; a weak model may report a non-human row.
-
-**Suggested fix:** Optional `species`/`taxon` filter, or default to the species implied by the query.
+**Atlas impact:** non-blocking — Atlas enumerates IDs via `map_all` per
+chain. Quality-of-life win for weak callers.
 
 ---
 
-## Priority for us
+## Issue #9 — UniProt entry payload is too thin (no CC, no `reviewed`, no isoforms)
 
-1. **#2** (bare 400 on bad dataset name) — directly broke a capable model; cheapest, highest-impact fix.
-2. **#1 / #3** (ambiguous & inconsistent empty/`not_found` signaling) — root cause of most omissions and hallucinations.
-3. **#5** (map source-dataset doc clarity).
-4. **#4, #6, #7** — efficiency / ergonomics.
+Today `GET /api/entry?i=<acc>&s=uniprot` returns only:
+`names / alternative_names / sequence / id / name`.
 
-The first three would let a small local model recover from its own mistakes instead of giving up or hallucinating — which is the difference between "usable" and "not" for local-model automation.
+The full UniProt flat-file (e.g. `https://rest.uniprot.org/uniprotkb/P04637.txt`)
+carries far richer content that's missing here. Three categories of asks,
+in priority order:
+
+**(1) CC ("Comments") narrative blocks** — the curated free-text
+descriptions UniProt is famous for: `FUNCTION`, `SUBUNIT`,
+`SUBCELLULAR LOCATION`, `TISSUE SPECIFICITY`, `DEVELOPMENTAL STAGE`, `PTM`,
+`DISEASE`, `DISRUPTION PHENOTYPE`, `INDUCTION`, `DOMAIN`, `MISCELLANEOUS`,
+etc. This is *the* highest-leverage piece of UniProt for any AI/agent
+consumer — the paragraph an AI quotes when answering "tell me about gene X"
+almost always paraphrases UniProt's `FUNCTION`.
+
+**(2) `reviewed` flag** — whether the accession is reviewed (Swiss-Prot)
+vs unreviewed (TrEMBL). Currently the only way to tell is to use
+`>>hgnc>>uniprot` as a workaround (HGNC xrefs only the curated set).
+
+**(3) Named alternative products** (`ALTERNATIVE PRODUCTS` section) —
+isoform names like p53α/β/γ for TP53, K-Ras4A/K-Ras4B for KRAS, etc.
+
+**Suggested response shape:**
+```json
+{
+  "Attributes": {
+    "Uniprot": {
+      "id": "P04637",
+      "name": "P53_HUMAN",
+      "reviewed": true,
+      "names": [...],
+      "alternative_names": [...],
+      "sequence": "...",
+      "comments": {
+        "FUNCTION": "Multifunctional transcription factor that induces cell cycle arrest, DNA repair or apoptosis...",
+        "SUBUNIT": "Forms homodimers and homotetramers. Interacts with MDM2...",
+        "SUBCELLULAR_LOCATION": "Cytoplasm. Nucleus. Nucleus, PML body.",
+        "TISSUE_SPECIFICITY": "Ubiquitous; isoforms are expressed in a wide range of normal tissues...",
+        "PTM": "Phosphorylated on Ser-15 by ATM, ATR and DNA-PK...",
+        "DISEASE": "Li-Fraumeni syndrome 1 (LFS1) [MIM:151623]: An autosomal dominant familial cancer syndrome..."
+      },
+      "isoforms": [
+        {"id": "P04637-1", "name": "p53alpha", "synonyms": ["p53"], "is_canonical": true},
+        {"id": "P04637-2", "name": "p53beta", "synonyms": [], "is_canonical": false}
+      ]
+    }
+  }
+}
+```
+
+Notes for the implementer:
+- Headers normalized to underscore-snake-case (`SUBCELLULAR_LOCATION`).
+- Evidence codes (`{ECO:0000269|PubMed:9774970}`) — strip on the way out
+  for clean consumer-side JSON.
+- biobtree already parses UniProt for the existing thin payload; surfacing
+  the additional fields is incremental work on the same parser.
+
+**Atlas impact:** **biggest single content gap.** Audit (`docs/research/
+03_page_audit.md`) flagged "no curated narrative" as the #1 reason an AI
+agent picks UniProt/NCBI over Atlas today. Path C item #1 in
+`docs/research/NEXT.md` is paused on this. Partial mitigation now available
+via CIViC gene-level paragraphs (recent biobtree addition), but only for
+cancer-relevant genes — UniProt CC is still required for the long tail.
 
 ---
-
-# Additional issues — deterministic REST collector (Claude, 2026-05-28)
-
-Found while building a deterministic data collector that drives the biobtree
-**REST API** (`http://127.0.0.1:8000/api`, `search`/`entry`/`map`) directly from
-code (no model) to gather gene-page data. Distinct from the MCP-agent issues
-above; no overlap with #1–#7.
-
-## Issue #8 — ~~`map` pagination is broken~~ RESOLVED: wrong param name (`p` not `page`)
-
-**RESOLVED 2026-05-28** — pagination is NOT broken. The map cursor param is **`p`**,
-not `page`. Feeding the `next_token` back as `&p=<token>` advances correctly:
-BRCA1 → refseq returns **759 unique IDs over 15 pages** and the MANE `NM_007294`
-*is* reachable. The original report (and our collector) passed `&page=` — and
-**FastAPI silently drops unknown query params**, so the cursor was ignored and
-every request re-served page 1 with the same `next_token`, giving the illusion of
-a stuck cursor.
-
-```
-curl "http://127.0.0.1:8000/api/map?i=ENSG00000012048&m=>>ensembl>>refseq"   # next_token=...
-curl "...&p=<next_token>"   # advances ✓   (vs &page=<token> which is ignored)
-```
-
-**The real (legitimate) issue is ergonomics / silent failure** (same class as
-#1–#3): the response field is `next_token` but the param is `p` — nothing tells
-the caller to feed one into the other, and `page` is the natural wrong guess.
-FastAPI swallowing the unknown param means a wrong guess fails *silently* instead
-of erroring.
-
-**Suggested fix:** name the request param `next_token` (match the response field)
-or accept `page` as an alias; reject unknown query params with a 400 so wrong
-guesses surface instead of silently re-serving page 1.
-
-**Collector:** fixed to use `p=` — high-fan-out chains (full refseq/transcript/
-interaction lists, real ClinVar per-class breakdown) are now retrieved completely.
-
-## Issue #9 — No `reviewed` flag on UniProt (map or entry)
-
-`>>ensembl>>uniprot` returns bare accessions (`schema: id`) mixing reviewed
-(Swiss-Prot) and unreviewed (TrEMBL) with no way to tell them apart; a
-`[reviewed==true]` filter returns nothing, and the uniprot `entry` exposes only
-`names/alternative_names/sequence/id/name`.
-
-**Workaround:** treat `>>hgnc>>uniprot` as the canonical reviewed set (HGNC
-xrefs only curated Swiss-Prot product(s); >1 for dual-product genes like CDKN2A
-→ P42771 + Q8N726).
-
-**Suggested fix:** expose a `reviewed` boolean on uniprot map rows / entry.
 
 ## Issue #10 — `>>uniprot>>alphafold` is empty for very large proteins
 
-> **FIXED in code (2026-05-30) — ships in prod next release (~2026-05-31).** Commit `fb3f917`.
+> **FIXED in code 2026-05-30 (commit `fb3f917`) — ships in prod next release
+> (~2026-05-31).**
 >
-> *Correction to the report's premise:* the current AlphaFold DB (v6) does **not**
-> ship fragmented models for the headline examples. ATM (Q13315), BRCA2 (P51587) and
-> the DMD canonical sequence return **0 models** from the AlphaFold prediction API —
-> AlphaFold dropped large-protein fragments from the SwissProt tar, and most are
-> absent entirely now. Of the ~1,243 reviewed proteins >2700 aa, only ~1/3 have any
-> model at all (DMD, for instance, only has models for its shorter isoforms).
+> *Correction to the report's original premise:* current AlphaFold DB (v6)
+> does **not** ship fragmented `AF-<acc>-F1..Fn` models for the headline
+> examples. ATM (Q13315), BRCA2 (P51587) and the DMD canonical sequence
+> return **0 models** from the AlphaFold prediction API — AlphaFold dropped
+> large-protein fragments from the SwissProt tar and most are absent
+> entirely now. Of the ~1,243 reviewed proteins >2700 aa, only ~1/3 have
+> any model at all (DMD only has models for shorter isoforms).
 >
-> **Fix:** an opt-in backfill (`largeProteinBackfill=yes` on the alphafold dataset)
-> enumerates reviewed proteins >2700 aa via UniProt REST, queries the AlphaFold
-> prediction API per accession, and ingests whatever models actually exist (canonical
-> fragments and/or isoform models) as one aggregate `AlphaFoldAttr` per protein
-> (length-weighted mean pLDDT, pooled confidence fractions, total residues, fragment
-> count). Proteins AlphaFold genuinely no longer models stay empty — no dead links.
-> Off by default (it makes ~1,243 live API calls); enable the flag and re-run the
-> alphafold update to populate.
+> **Fix:** an opt-in backfill (`largeProteinBackfill=yes` on the alphafold
+> dataset) enumerates reviewed proteins >2700 aa via UniProt REST, queries
+> the AlphaFold prediction API per accession, and ingests whatever models
+> exist (canonical fragments and/or isoform models) as one aggregate
+> `AlphaFoldAttr` per protein (length-weighted mean pLDDT, pooled
+> confidence fractions, total residues, fragment count). Off by default
+> (~1,243 live API calls); enable + re-run alphafold update to populate.
 
-For proteins >~2700 aa (ATM Q13315, BRCA2 P51587, DMD P11532) the alphafold map
-returns 0 rows, although AlphaFold DB has fragmented models (AF-<acc>-F1..Fn) —
-i.e. no pLDDT/id for exactly the proteins AF had to fragment.
+For proteins >~2700 aa (ATM Q13315, BRCA2 P51587, DMD P11532) the alphafold
+map returns 0 rows.
 
-**Workaround:** construct `AF-<acc>-F1` for every reviewed protein; attach pLDDT
-only when the map provides it (F2..Fn not enumerated).
+**Atlas workaround (still in place):** construct `AF-<acc>-F1` for every
+reviewed protein and attach pLDDT only when the map provides it. Will lift
+to consume the new aggregate attribute when the next release lands.
 
-**Suggested fix:** index fragmented AlphaFold models with per-fragment metrics.
+---
 
-## Issue #11 — ~~`>>uniprot>>ufeature` leaks ortholog features~~  RESOLVED 2026-05-30
+## Issue #12 — `pubchem_activity` index is empty for KRAS (and similar targets)
 
-Querying `ufeature` from a **unique, unambiguous UniProt accession** returns
-features keyed by *other* accessions (cross-species orthologs), not just the
-queried one. This is distinct from #7 (gene-symbol species mixing): a UniProt
-accession like `P04637` is uniquely human — there is no ambiguity to resolve.
-
-**Repro (TP53 / P04637):**
-```
-map(i="P04637", m=">>uniprot>>ufeature")   # paginated to depth, then count by prefix
-→ total fetched: 2278
-  prefix counts: P04637=1518 (human, correct)
-                 P13481=40   (chimp Tp53)
-                 P56423=40   (cotton-rat Tp53)
-                 P56424=40   (woodchuck Tp53)
-                 P61260=40   (cat Tp53)
-                 O09185=39   (mouse Tp53)
-                 Q00366=39, Q8SPZ3=39, Q9TTA1=39, Q9WUR6=39, ...
-```
-The result schema is `id|type|description|location_begin|location_end` where
-`id` is `{source_uniprot_acc}_F{n}` — i.e. the feature ID itself encodes the
-*source* accession, which can be any ortholog, not the one queried.
-
-**Likely root cause:** the `uniprot → ufeature` edge appears to be indexed at
-the **gene / ortholog-cluster level**, not per-accession — so any query within
-the cluster returns the whole cluster's features.
-
-**Impact:**
-1. *Correctness risk if not filtered.* A caller that trusts the result will
-   conflate ortholog features with the queried protein (e.g. a "DNA-binding
-   region 102–292" from the mouse Tp53 entry rendered as a human TP53 feature).
-2. *Indirect coverage loss.* Pagination is finite (we cap at 100 pages × 100
-   rows = 10000). For a heavily-orthologized human protein with a very large
-   ufeature set, ortholog rows can push some human features past the cap before
-   they're returned — and the caller has no signal that this is happening.
-3. *Same class as #7's signaling problem* — the response shape gives no hint
-   that mixed-species results are being returned.
-
-**Workaround (deterministic collector):** paginate deep, then post-filter
-`id.startswith(query_accession + "_")` per reviewed UniProt product. Working,
-but unnecessary if the index were per-accession.
-
-**Suggested fix:** index `ufeature` (and any other annotation edge keyed off
-UniProt) per-accession; for a unique accession query, return only that
-accession's features. If the cluster-level join is intentional, add an
-explicit `?species=` / `?accession=<exact>` filter to scope the result, and
-document the behavior.
-
-## Issue #12 — `pubchem_activity` index has coverage gaps for high-profile targets (e.g. KRAS)
-
-> **FIXED in code (2026-05-30) — ships in prod next release (~2026-05-31).** Commit `fb3f917`.
+> **FIXED in code 2026-05-30 (commit `fb3f917`) — ships in prod next release
+> (~2026-05-31).**
 >
-> *Actual root cause (differs from the snapshot/subset hypothesis):* the ingested
-> `bioactivities.tsv.gz` leaves its **Protein Accession and Gene ID columns empty**
-> for the vast majority of rows (verified: all of the first 200k rows), so the
-> activity→protein edge was never built. The authoritative per-assay target mapping
-> lives in a **separate file biobtree did not join** — `Aid2GeneidAccessionUniProt.gz`.
-> KRAS proves it: gene 3845 has 256 assays, 216 mapped to P01116 there, but none in
-> the activity rows themselves. (So it was not a stale-snapshot problem — the records
-> are present, just unlinkable from the activity file alone.)
+> *Actual root cause (differs from the snapshot-subset hypothesis in the
+> original filing):* the ingested `bioactivities.tsv.gz` leaves its
+> **Protein Accession and Gene ID columns empty** for the vast majority of
+> rows (verified: all of the first 200k rows), so the activity→protein edge
+> was never built. The authoritative per-assay target mapping lives in a
+> **separate file biobtree did not join** — `Aid2GeneidAccessionUniProt.gz`.
+> KRAS proves it: gene 3845 has 256 assays, 216 mapped to P01116 there, but
+> none in the activity rows themselves.
 >
-> **Fix:** join `Aid2GeneidAccessionUniProt.gz` keyed by AID (panel-limit 25 to drop
-> a handful of unresolvable mega-panels) to emit activity→uniprot; plus derive uniprot
-> from the curated Entrez entry for rows that do carry a gene_id. Restores
-> `>>uniprot>>pubchem_activity` for KRAS (P01116) and ~369k assays overall.
-> *Note:* the data lands once the pubchem_activity re-update → regenerate → reindex
-> completes; until that new db version is activated the prod index still shows the old
-> (empty-for-KRAS) state.
+> **Fix:** join `Aid2GeneidAccessionUniProt.gz` keyed by AID (panel-limit 25
+> to drop a handful of unresolvable mega-panels) to emit activity→uniprot;
+> plus derive uniprot from the curated Entrez entry for rows that do carry
+> a gene_id. Restores `>>uniprot>>pubchem_activity` for KRAS and ~369k
+> assays overall.
 
-`>>uniprot>>pubchem_activity` is empty (n=0) for several targets where the
-corresponding **PubChem BioAssay corpus does carry binding data** — most
-strikingly **KRAS (P01116)**, where ChEMBL activity (100 rows) and BindingDB
-(100 rows) both show healthy coverage via biobtree, but PubChem activity is
-zero via every route we tried.
-
-**Cross-route confirmation (all 0 for KRAS):**
+KRAS via every Atlas-tried route returned n=0:
 ```
 >>uniprot>>pubchem_activity                          n=0   (direct)
 >>hgnc>>uniprot>>pubchem_activity                    n=0   (via hgnc)
->>hgnc>>entrez>>pubchem_activity                     n=0   (via entrez gene_id)
+>>hgnc>>entrez>>pubchem_activity                     n=0   (via entrez)
 >>uniprot>>chembl_target>>pubchem_activity           n=0   (via chembl_target)
 ```
 
-**Side-by-side counts** (same `>>uniprot>>...` route, top of page 1):
+While `>>uniprot>>bindingdb` n=100 and `>>uniprot>>chembl_target>>chembl_activity`
+n=100 both work fine for KRAS — confirming KRAS has curated binding data,
+just not in biobtree's pubchem_activity slice.
 
-| Gene  | pubchem_activity | bindingdb | chembl_activity |
-|-------|------------------|-----------|-----------------|
-| BRAF  | 100              | 100       | —               |
-| AKT1  | 100              | 100       | —               |
-| EGFR  | 6100             | —         | —               |
-| TP53  | 506              | —         | —               |
-| BRCA1 | 28               | 35        | —               |
-| **KRAS** | **0**         | **100**   | **100**         |
-| CDKN2A| 0                | 0         | —               |
-| TTN   | 0                | 0         | —               |
+**Atlas mitigation (kept in place):** §10 now wires `chembl_activity`
+alongside `pubchem_activity` (commit `189f98a`). Both blocks render where
+data exists; KRAS now has 5,239 ChEMBL activities (4,825 potent at
+pChembl≥5). When the pubchem_activity fix lands the PubChem block will
+backfill automatically.
 
-For CDKN2A/TTN the 0/0 pattern is consistent (not classic drug-binding
-targets). For KRAS, BindingDB-and-ChEMBL-rich-but-PubChem-empty is anomalous.
-
-**Reverse-direction confirmation:** sotorasib (CID 137278711, the canonical
-KRAS-G12C drug) is indexed in biobtree's pubchem dataset — its xrefs
-include `bindingdb|1`, `chembl_molecule|1`, `ctd|1`, `pharmgkb|1`, `chebi|1`,
-`mesh|1`, `cas|3` — but **no `pubchem_activity` xref**. So even the textbook
-KRAS-G12C inhibitor's bioassay records aren't present in biobtree's
-`pubchem_activity` dataset.
-
-**Hypothesis:** biobtree's `pubchem_activity` ingest is a **selective subset
-of PubChem BioAssay** — likely one batch / one snapshot — rather than the
-full corpus. For targets where the relevant assays are mostly post-2020
-(KRAS-G12C work being the obvious case), the records may post-date the
-snapshot or not be in the ingested slice.
-
-**Suggested fix:** re-ingest PubChem BioAssay from a current snapshot and
-verify coverage with a spot check on a few well-characterized but
-recently-developed drug targets (KRAS-G12C, the menin–MLL interface, etc.).
-Alternatively, document explicitly which subset of PubChem BioAssay is
-covered so callers can fall back to ChEMBL+BindingDB for the missing slice
-(Atlas already does this — both routes are wired).
-
-**Impact for Atlas:** KRAS's drug-pharmacology section shows 0 PubChem
-actives despite the well-known sotorasib/adagrasib story. The ChEMBL and
-BindingDB routes provide partial coverage; the canonical "G12C-binding"
-narrative would require either PubChem activity ingest to catch up, or
-Atlas to add chembl_activity wiring alongside the existing chembl_molecule
-(separately tracked in NEXT.md).
+---
 
 ## Issue #13 — `pharmgkb_guideline` / `pharmgkb_clinical` / `pharmgkb_variant` edges present but empty
 
-These edges exist in `/api/help?topic=edges` (and have existed in the
+These edges exist in `/api/help?topic=edges` (and were present in the
 2026-05-30 refresh batch alongside the new datasets), but every query route
 returns n=0, including for the canonical pharmacogenes where these
 annotations are well-known to exist in PharmGKB.
@@ -354,27 +230,27 @@ map(i="HGNC:2621", m=">>hgnc>>pharmgkb_variant")    → n=0
 
 CYP2C19 has at least 18 CPIC dosing guidelines and dozens of clinical
 annotations on pharmgkb.org. Other canonical pharmacogenes (CYP2D6, TPMT,
-DPYD, VKORC1, SLCO1B1) are equally well-represented in the upstream
-PharmGKB data and equally empty in biobtree.
+DPYD, VKORC1, SLCO1B1) are equally well-represented in upstream PharmGKB
+and equally empty here.
 
-`pharmgkb_gene` is populated and works fine (Atlas's §10 already wires
+`pharmgkb_gene` is populated and works fine (Atlas's §10 wires
 `>>hgnc>>pharmgkb_gene`); `pharmgkb_pathway` is also populated. The
 empties cluster on the **clinical / guideline / variant** trio.
 
 **Hypothesis:** these three datasets' edges are declared but the ingest
 either:
-(a) hasn't pulled the actual PharmGKB data files for these record types yet
-    (the "annotated but not loaded" case), or
-(b) is keyed off a join that isn't matching — e.g. variant ↔ rsID where
-    the rsID linkage from gene didn't index the variant side.
+1. hasn't pulled the actual PharmGKB data files for these record types
+   yet (the "annotated but not loaded" case), or
+2. is keyed off a join that isn't matching — e.g. variant ↔ rsID where
+   the rsID linkage from gene didn't index the variant side.
 
-**Suggested fix:** confirm whether the PharmGKB annotation/guideline/
-variant tables are in the ingest pipeline at all. If they are, check the
-join key (CYP2C19 should match by `gene_id`, `symbol`, or via its uniprot
-P33261). If they aren't, schedule the ingest.
+**Suggested fix:** confirm whether the PharmGKB
+annotation/guideline/variant tables are in the ingest pipeline. If they
+are, check the join key (CYP2C19 should match by `gene_id`, `symbol`, or
+via uniprot P33261). If they aren't, schedule the ingest.
 
-**Impact for Atlas:** PharmGKB clinical guidelines (CPIC dosing tables)
-are the single most-cited PGx-decision source in clinical pharmacology.
-Without them, Atlas's §10 PharmGKB block can only state "yes there's a
-pharmgkb_gene entry"; the *contents* (the actual dosing rules) are
-unreachable. For drugs-section pages this will be more pronounced.
+**Atlas impact:** PharmGKB clinical guidelines (CPIC dosing tables) are
+the single most-cited PGx-decision source in clinical pharmacology.
+Without them, Atlas's §10 PharmGKB block can only state "there's a
+pharmgkb_gene entry"; the *contents* are unreachable. Will be more
+pronounced once drug-pages are tackled.
