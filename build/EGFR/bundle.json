@@ -213,6 +213,77 @@
       }
     ],
     "bindingdb_sampled": 175,
+    "cellosaurus_category_counts": {
+      "Cancer cell line": 468,
+      "Factor-dependent cell line": 130,
+      "Finite cell line": 1,
+      "Spontaneously immortalized cell line": 45,
+      "Telomerase immortalized cell line": 1,
+      "Transformed cell line": 8
+    },
+    "cellosaurus_samples": [
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0014",
+        "name": "RPMI-8226",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0037",
+        "name": "A-431",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0092",
+        "name": "NALM-6",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0509",
+        "name": "RPMI-8226/MR20",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0526",
+        "name": "SK-MEL-28",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0F29",
+        "name": "DFCI-LU011",
+        "sex": "Male"
+      },
+      {
+        "category": "Spontaneously immortalized cell line",
+        "id": "CVCL_0H89",
+        "name": "39ER22",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0U51",
+        "name": "NALM-6/SP-B",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_1063",
+        "name": "A-388",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_1066",
+        "name": "ABC-1",
+        "sex": "Male"
+      }
+    ],
+    "cellosaurus_total": 653,
     "chembl_activities": [
       {
         "id": "CHEMBL_ACT_1043415",

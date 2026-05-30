@@ -1048,6 +1048,23 @@ Representative assays:
 | [CHEMBL1614029](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1614029/) | Functional | PUBCHEM_BIOASSAY: Assay for Inhibitors of the ERK Signaling Pathway using a Homogeneous Screening Assay: EGFR L858R Kinase Inhibition. (Class of assay: confirmatory) [Related pubchem assays: 1454, 995 ] |
 | [CHEMBL3635803](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL3635803/) | ADMET | Inhibition of wild type EGFR phosphorylation in human A431 cells after 60 mins by mesoscale multiplex assay |
 
+**Cellosaurus cell lines (653):** 468 cancer cell line, 130 factor-dependent cell line, 45 spontaneously immortalized cell line, 8 transformed cell line, 1 finite cell line, 1 telomerase immortalized cell line
+
+First 10 cell lines (id-ordered, not curated):
+
+| Cellosaurus | Name | Category | Sex |
+| --- | --- | --- | --- |
+| [CVCL_0014](https://www.cellosaurus.org/CVCL_0014) | RPMI-8226 | Cancer cell line | Male |
+| [CVCL_0037](https://www.cellosaurus.org/CVCL_0037) | A-431 | Cancer cell line | Female |
+| [CVCL_0092](https://www.cellosaurus.org/CVCL_0092) | NALM-6 | Cancer cell line | Male |
+| [CVCL_0509](https://www.cellosaurus.org/CVCL_0509) | RPMI-8226/MR20 | Cancer cell line | Male |
+| [CVCL_0526](https://www.cellosaurus.org/CVCL_0526) | SK-MEL-28 | Cancer cell line | Male |
+| [CVCL_0F29](https://www.cellosaurus.org/CVCL_0F29) | DFCI-LU011 | Cancer cell line | Male |
+| [CVCL_0H89](https://www.cellosaurus.org/CVCL_0H89) | 39ER22 | Spontaneously immortalized cell line | Female |
+| [CVCL_0U51](https://www.cellosaurus.org/CVCL_0U51) | NALM-6/SP-B | Cancer cell line | Male |
+| [CVCL_1063](https://www.cellosaurus.org/CVCL_1063) | A-388 | Cancer cell line | Male |
+| [CVCL_1066](https://www.cellosaurus.org/CVCL_1066) | ABC-1 | Cancer cell line | Male |
+
 **Clinical trials for the gene's associated diseases (331, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
