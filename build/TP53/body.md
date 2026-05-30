@@ -991,6 +991,16 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | [Capsaicin](http://ctdbase.org/detail.go?type=chem&acc=D002211) | increases^reaction, affects^response to substance, increases^activity, increases^phosphorylation, increases^degradation, decreases^degradation, affects^reaction, decreases^expression, decreases^reaction, increases^expression | 12 |
 | [Methotrexate](http://ctdbase.org/detail.go?type=chem&acc=D008727) | decreases^reaction, increases^expression, increases^acetylation, increases^phosphorylation, affects^reaction, increases^reaction, increases^response to substance, decreases^expression, increases^stability, increases^activity | 12 |
 
+**ChEMBL screening assays (863 unique, capped per target):** 769 binding, 83 admet, 10 functional, 1 toxicity
+
+Representative assays:
+
+| Assay ID | Type | Description |
+| --- | --- | --- |
+| [CHEMBL1040569](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1040569/) | Binding | Inhibition of MDM2-p53 interaction in human SJSA1 cells assessed as p53 activation by Western blot |
+| [CHEMBL907753](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL907753/) | Functional | Induction of p53 dependent transcription in SJSA cell line by reporter gene assay |
+| [CHEMBL3762104](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL3762104/) | ADMET | Activation of p53 in human MCF10A cells assessed as upregulation of p21Clip1/WAF1 mRNA expression at 0.1 to 1 uM after 12 hrs by RT-PCR analysis |
+
 **Clinical trials for the gene's associated diseases (419, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

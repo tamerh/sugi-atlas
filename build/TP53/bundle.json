@@ -425,6 +425,30 @@
     ],
     "chembl_activity_potent_count": 6100,
     "chembl_activity_total": 6100,
+    "chembl_assay_samples": [
+      {
+        "desc": "Inhibition of MDM2-p53 interaction in human SJSA1 cells assessed as p53 activation by Western blot",
+        "id": "CHEMBL1040569",
+        "type": "Binding"
+      },
+      {
+        "desc": "Induction of p53 dependent transcription in SJSA cell line by reporter gene assay",
+        "id": "CHEMBL907753",
+        "type": "Functional"
+      },
+      {
+        "desc": "Activation of p53 in human MCF10A cells assessed as upregulation of p21Clip1/WAF1 mRNA expression at 0.1 to 1 uM after 12 hrs by RT-PCR analysis",
+        "id": "CHEMBL3762104",
+        "type": "ADMET"
+      }
+    ],
+    "chembl_assay_total": 863,
+    "chembl_assay_type_counts": {
+      "ADMET": 83,
+      "Binding": 769,
+      "Functional": 10,
+      "Toxicity": 1
+    },
     "chembl_targets": [
       {
         "id": "CHEMBL1907611",
