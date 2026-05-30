@@ -21526,6 +21526,189 @@
     ],
     "is_transcription_factor": true,
     "jaspar_motifs": [],
+    "mirna_count": 217,
+    "mirna_regulators": [
+      {
+        "avg_score": "66.01",
+        "id": "HSA-MIR-574-5P",
+        "max_score": "100.00",
+        "target_count": "989"
+      },
+      {
+        "avg_score": "74.78",
+        "id": "MMU-MIR-126A-5P",
+        "max_score": "100.00",
+        "target_count": "1432"
+      },
+      {
+        "avg_score": "84.42",
+        "id": "MMU-MIR-7116-3P",
+        "max_score": "100.00",
+        "target_count": "7037"
+      },
+      {
+        "avg_score": "80.41",
+        "id": "MMU-MIR-6903-3P",
+        "max_score": "100.00",
+        "target_count": "2392"
+      },
+      {
+        "avg_score": "83.23",
+        "id": "MMU-MIR-6951-3P",
+        "max_score": "100.00",
+        "target_count": "6785"
+      },
+      {
+        "avg_score": "67.75",
+        "id": "MMU-MIR-709",
+        "max_score": "100.00",
+        "target_count": "1788"
+      },
+      {
+        "avg_score": "75.42",
+        "id": "MMU-MIR-881-5P",
+        "max_score": "100.00",
+        "target_count": "1687"
+      },
+      {
+        "avg_score": "71.77",
+        "id": "MMU-MIR-493-5P",
+        "max_score": "100.00",
+        "target_count": "1465"
+      },
+      {
+        "avg_score": "76.26",
+        "id": "MMU-MIR-467A-3P",
+        "max_score": "100.00",
+        "target_count": "2736"
+      },
+      {
+        "avg_score": "76.33",
+        "id": "MMU-MIR-669B-3P",
+        "max_score": "100.00",
+        "target_count": "2744"
+      },
+      {
+        "avg_score": "76.26",
+        "id": "MMU-MIR-669F-3P",
+        "max_score": "100.00",
+        "target_count": "2734"
+      },
+      {
+        "avg_score": "73.95",
+        "id": "HSA-MIR-1277-5P",
+        "max_score": "100.00",
+        "target_count": "5056"
+      },
+      {
+        "avg_score": "83.46",
+        "id": "HSA-MIR-5011-5P",
+        "max_score": "100.00",
+        "target_count": "5820"
+      },
+      {
+        "avg_score": "76.31",
+        "id": "HSA-MIR-30A-5P",
+        "max_score": "100.00",
+        "target_count": "3233"
+      },
+      {
+        "avg_score": "76.29",
+        "id": "HSA-MIR-30B-5P",
+        "max_score": "100.00",
+        "target_count": "3248"
+      },
+      {
+        "avg_score": "76.29",
+        "id": "HSA-MIR-30C-5P",
+        "max_score": "100.00",
+        "target_count": "3248"
+      },
+      {
+        "avg_score": "76.32",
+        "id": "HSA-MIR-30D-5P",
+        "max_score": "100.00",
+        "target_count": "3233"
+      },
+      {
+        "avg_score": "76.32",
+        "id": "HSA-MIR-30E-5P",
+        "max_score": "100.00",
+        "target_count": "3242"
+      },
+      {
+        "avg_score": "80.35",
+        "id": "HSA-MIR-190A-3P",
+        "max_score": "100.00",
+        "target_count": "5520"
+      },
+      {
+        "avg_score": "75.36",
+        "id": "HSA-MIR-4282",
+        "max_score": "99.99",
+        "target_count": "6408"
+      },
+      {
+        "avg_score": "69.70",
+        "id": "HSA-MIR-4531",
+        "max_score": "99.99",
+        "target_count": "3181"
+      },
+      {
+        "avg_score": "75.34",
+        "id": "HSA-MIR-371B-5P",
+        "max_score": "99.99",
+        "target_count": "4759"
+      },
+      {
+        "avg_score": "75.00",
+        "id": "HSA-MIR-4775",
+        "max_score": "99.98",
+        "target_count": "6394"
+      },
+      {
+        "avg_score": "73.34",
+        "id": "HSA-MIR-520D-5P",
+        "max_score": "99.98",
+        "target_count": "4883"
+      },
+      {
+        "avg_score": "73.43",
+        "id": "HSA-MIR-524-5P",
+        "max_score": "99.98",
+        "target_count": "4882"
+      },
+      {
+        "avg_score": "75.36",
+        "id": "HSA-MIR-373-5P",
+        "max_score": "99.98",
+        "target_count": "4753"
+      },
+      {
+        "avg_score": "75.58",
+        "id": "HSA-MIR-616-5P",
+        "max_score": "99.98",
+        "target_count": "4775"
+      },
+      {
+        "avg_score": "74.14",
+        "id": "MMU-MIR-290B-5P",
+        "max_score": "99.97",
+        "target_count": "2571"
+      },
+      {
+        "avg_score": "75.06",
+        "id": "HSA-MIR-3148",
+        "max_score": "99.97",
+        "target_count": "6478"
+      },
+      {
+        "avg_score": "73.62",
+        "id": "HSA-MIR-607",
+        "max_score": "99.97",
+        "target_count": "5593"
+      }
+    ],
     "section": "09_tf_regulation",
     "symbol": "TTN",
     "upstream_regulators": [

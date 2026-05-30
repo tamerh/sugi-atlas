@@ -739,11 +739,11 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | PRKCA | up-regulates activity | TTN | phosphorylation |
 | MAPK1 | up-regulates quantity | TTN | phosphorylation |
 
-## Transcription factor regulatory data
+## Regulation
 
 **Is transcription factor: True**
 
-**Downstream targets: 1**
+**Downstream targets (CollecTRI): 1**
 
 | Target | Regulation |
 | --- | --- |
@@ -754,7 +754,42 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | Motif | Name | Family |
 | --- | --- | --- |
 
-**Upstream regulators (top):** EN1
+**Upstream regulators (CollecTRI, top):** EN1
+
+**miRNA regulators (miRDB): 217** targeting TTN, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+
+| miRNA | Max score | Avg score | miRNA target_count |
+| --- | --- | --- | --- |
+| HSA-MIR-574-5P | 100.00 | 66.01 | 989 |
+| MMU-MIR-126A-5P | 100.00 | 74.78 | 1432 |
+| MMU-MIR-7116-3P | 100.00 | 84.42 | 7037 |
+| MMU-MIR-6903-3P | 100.00 | 80.41 | 2392 |
+| MMU-MIR-6951-3P | 100.00 | 83.23 | 6785 |
+| MMU-MIR-709 | 100.00 | 67.75 | 1788 |
+| MMU-MIR-881-5P | 100.00 | 75.42 | 1687 |
+| MMU-MIR-493-5P | 100.00 | 71.77 | 1465 |
+| MMU-MIR-467A-3P | 100.00 | 76.26 | 2736 |
+| MMU-MIR-669B-3P | 100.00 | 76.33 | 2744 |
+| MMU-MIR-669F-3P | 100.00 | 76.26 | 2734 |
+| HSA-MIR-1277-5P | 100.00 | 73.95 | 5056 |
+| HSA-MIR-5011-5P | 100.00 | 83.46 | 5820 |
+| HSA-MIR-30A-5P | 100.00 | 76.31 | 3233 |
+| HSA-MIR-30B-5P | 100.00 | 76.29 | 3248 |
+| HSA-MIR-30C-5P | 100.00 | 76.29 | 3248 |
+| HSA-MIR-30D-5P | 100.00 | 76.32 | 3233 |
+| HSA-MIR-30E-5P | 100.00 | 76.32 | 3242 |
+| HSA-MIR-190A-3P | 100.00 | 80.35 | 5520 |
+| HSA-MIR-4282 | 99.99 | 75.36 | 6408 |
+| HSA-MIR-4531 | 99.99 | 69.70 | 3181 |
+| HSA-MIR-371B-5P | 99.99 | 75.34 | 4759 |
+| HSA-MIR-4775 | 99.98 | 75.00 | 6394 |
+| HSA-MIR-520D-5P | 99.98 | 73.34 | 4883 |
+| HSA-MIR-524-5P | 99.98 | 73.43 | 4882 |
+| HSA-MIR-373-5P | 99.98 | 75.36 | 4753 |
+| HSA-MIR-616-5P | 99.98 | 75.58 | 4775 |
+| MMU-MIR-290B-5P | 99.97 | 74.14 | 2571 |
+| HSA-MIR-3148 | 99.97 | 75.06 | 6478 |
+| HSA-MIR-607 | 99.97 | 73.62 | 5593 |
 
 ## Drug & pharmacology data
 
