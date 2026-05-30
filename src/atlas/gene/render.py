@@ -80,6 +80,17 @@ def r_protein_ids(b):
                    [(d["id"], d.get("name"), d.get("type")) for d in b.get("interpro", [])]))
     L.append(f"\n**Pfam:** " + ", ".join(f"`{x}`" for x in b.get("pfam", [])))
     L.append(f"\n**Antibody resources:** {b.get('antibody_count', 0)}")
+    # BRENDA enzyme classification — EC number + name + summary stats.
+    # Non-enzyme proteins (TFs, inhibitors) have empty brenda_ec; block elides.
+    brenda = b.get("brenda_ec") or []
+    if brenda:
+        L.append(f"\n**Enzyme classification (BRENDA):**\n")
+        for e in brenda:
+            ec = e.get("ec") or ""
+            L.append(f"- [EC {ec}](https://www.brenda-enzymes.org/enzyme.php?ecno={ec}) — "
+                     f"{e.get('name') or ''} *(BRENDA: {e.get('organism_count', 0)} organisms, "
+                     f"{e.get('substrate_count', 0)} substrates, {e.get('inhibitor_count', 0)} inhibitors, "
+                     f"{e.get('km_count', 0)} Km, {e.get('kcat_count', 0)} kcat entries)*")
     # UniProt sequence features (annotated functional + structural sites)
     uc = b.get("ufeature_counts") or {}
     if uc:

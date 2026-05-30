@@ -40,6 +40,7 @@ UPSTREAM = {
     "pfam":              ("Pfam",                                  "https://www.ebi.ac.uk/interpro/entry/pfam/"),
     "antibody":          ("Antibodypedia",                         "https://www.antibodypedia.com/"),
     "ufeature":          ("UniProt sequence features",             "https://www.uniprot.org/"),
+    "brenda":            ("BRENDA enzyme database",                "https://www.brenda-enzymes.org/"),
     # structure
     "pdb":               ("RCSB PDB",                              "https://www.rcsb.org/"),
     "alphafold":         ("AlphaFold DB",                          "https://alphafold.ebi.ac.uk/"),

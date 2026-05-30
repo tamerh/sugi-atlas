@@ -11,8 +11,10 @@ CHAINS = (
     ">>uniprot>>pfam",
     ">>uniprot>>antibody",
     ">>uniprot>>ufeature",
+    ">>uniprot>>brenda",
 )
-DATASETS = ("uniprot", "ensembl", "refseq", "interpro", "pfam", "antibody", "ufeature")
+DATASETS = ("uniprot", "ensembl", "refseq", "interpro", "pfam", "antibody",
+            "ufeature", "brenda")
 
 def collect(a):
     bundle = {
@@ -39,6 +41,7 @@ def collect(a):
     # needed anymore.)
     interpro, pfam, antibody = {}, set(), 0
     ufeatures = []
+    brenda_ec = []
     for u in a.reviewed_uniprots:
         for t in map_all(u, ">>uniprot>>interpro"):
             interpro[t["id"]] = {"id": t["id"], "name": t.get("short_name"),
@@ -50,11 +53,23 @@ def collect(a):
                               "description": t.get("description"),
                               "begin": t.get("location_begin"),
                               "end": t.get("location_end")})
+        # BRENDA enzyme classification — EC number + name + summary stats.
+        # Non-enzyme proteins (TFs, inhibitors) return nothing; the bundle
+        # list stays empty and the render block elides.
+        for t in map_all(u, ">>uniprot>>brenda"):
+            brenda_ec.append({"uniprot": u, "ec": t.get("id"),
+                              "name": t.get("recommended_name"),
+                              "organism_count": t.get("organism_count"),
+                              "substrate_count": t.get("substrate_count"),
+                              "inhibitor_count": t.get("inhibitor_count"),
+                              "km_count": t.get("km_count"),
+                              "kcat_count": t.get("kcat_count")})
     bundle["interpro"] = list(interpro.values())
     bundle["pfam"] = sorted(pfam)
     bundle["antibody_count"] = antibody
     bundle["ufeature_counts"] = dict(Counter(f["type"] for f in ufeatures))
     bundle["ufeatures"] = ufeatures
+    bundle["brenda_ec"] = brenda_ec
     return bundle
 
 SECTION = Section(
@@ -62,6 +77,7 @@ SECTION = Section(
     description="UniProt accessions (canonical+all), RefSeq proteins, InterPro/Pfam domains, antibodies, UniProt features",
     needs=("hgnc_id", "ensembl_id", "reviewed_uniprots", "canonical_uniprot"),
     produces=("reviewed_uniprot", "uniprot_all", "refseq_protein", "interpro",
-              "pfam", "antibody_count", "ufeatures", "ufeature_counts"),
+              "pfam", "antibody_count", "ufeatures", "ufeature_counts",
+              "brenda_ec"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
