@@ -1001,6 +1001,23 @@ Representative assays:
 | [CHEMBL907753](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL907753/) | Functional | Induction of p53 dependent transcription in SJSA cell line by reporter gene assay |
 | [CHEMBL3762104](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL3762104/) | ADMET | Activation of p53 in human MCF10A cells assessed as upregulation of p21Clip1/WAF1 mRNA expression at 0.1 to 1 uM after 12 hrs by RT-PCR analysis |
 
+**Cellosaurus cell lines (6,100):** 5,983 cancer cell line, 32 transformed cell line, 20 spontaneously immortalized cell line, 17 induced pluripotent stem cell, 16 telomerase immortalized cell line, 13 finite cell line, 10 embryonic stem cell, 7 undefined cell line type, 2 hybrid cell line
+
+First 10 cell lines (id-ordered, not curated):
+
+| Cellosaurus | Name | Category | Sex |
+| --- | --- | --- | --- |
+| [CVCL_0001](https://www.cellosaurus.org/CVCL_0001) | HEL | Cancer cell line | Male |
+| [CVCL_0002](https://www.cellosaurus.org/CVCL_0002) | HL-60 | Cancer cell line | Female |
+| [CVCL_0004](https://www.cellosaurus.org/CVCL_0004) | K-562 | Cancer cell line | Female |
+| [CVCL_0005](https://www.cellosaurus.org/CVCL_0005) | NB4 | Cancer cell line | Female |
+| [CVCL_0006](https://www.cellosaurus.org/CVCL_0006) | THP-1 | Cancer cell line | Male |
+| [CVCL_0007](https://www.cellosaurus.org/CVCL_0007) | U-937 | Cancer cell line | Male |
+| [CVCL_0008](https://www.cellosaurus.org/CVCL_0008) | Daudi | Cancer cell line | Male |
+| [CVCL_0009](https://www.cellosaurus.org/CVCL_0009) | HDLM-2 | Cancer cell line | Male |
+| [CVCL_0011](https://www.cellosaurus.org/CVCL_0011) | KM-3 | Cancer cell line | Female |
+| [CVCL_0012](https://www.cellosaurus.org/CVCL_0012) | LP-1 | Cancer cell line | Female |
+
 **Clinical trials for the gene's associated diseases (419, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

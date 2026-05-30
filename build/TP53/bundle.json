@@ -211,6 +211,80 @@
       }
     ],
     "bindingdb_sampled": 214,
+    "cellosaurus_category_counts": {
+      "Cancer cell line": 5983,
+      "Embryonic stem cell": 10,
+      "Finite cell line": 13,
+      "Hybrid cell line": 2,
+      "Induced pluripotent stem cell": 17,
+      "Spontaneously immortalized cell line": 20,
+      "Telomerase immortalized cell line": 16,
+      "Transformed cell line": 32,
+      "Undefined cell line type": 7
+    },
+    "cellosaurus_samples": [
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0001",
+        "name": "HEL",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0002",
+        "name": "HL-60",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0004",
+        "name": "K-562",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0005",
+        "name": "NB4",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0006",
+        "name": "THP-1",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0007",
+        "name": "U-937",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0008",
+        "name": "Daudi",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0009",
+        "name": "HDLM-2",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0011",
+        "name": "KM-3",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0012",
+        "name": "LP-1",
+        "sex": "Female"
+      }
+    ],
+    "cellosaurus_total": 6100,
     "chembl_activities": [
       {
         "id": "CHEMBL_ACT_24994558",
