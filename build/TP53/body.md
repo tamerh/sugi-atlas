@@ -1149,3 +1149,38 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | GCST007269_171 | Pulse pressure | 8.000000e-23 |
 | GCST008362_2 | Birth weight | 2.000000e-11 |
 | GCST008423_10 | Uterine fibroids | 3.000000e-33 |
+
+**MeSH disease descriptors (35):**
+
+| Descriptor | Name | Tree numbers |
+| --- | --- | --- |
+| [D000230](https://www.ncbi.nlm.nih.gov/mesh/?term=D000230) | Adenocarcinoma | C04.557.470.200.025 |
+| [D029503](https://www.ncbi.nlm.nih.gov/mesh/?term=D029503) | Anemia, Diamond-Blackfan | C15.378.050.085.080.090; C15.378.050.750.500; C15.378.190.223.500.500.090; C16.320.077.090 |
+| [D001254](https://www.ncbi.nlm.nih.gov/mesh/?term=D001254) | Astrocytoma | C04.557.465.625.600.380.080; C04.557.470.670.380.080; C04.557.580.625.600.380.080 |
+| [D001943](https://www.ncbi.nlm.nih.gov/mesh/?term=D001943) | Breast Neoplasms | C04.588.180; C17.800.090.500 |
+| [D006528](https://www.ncbi.nlm.nih.gov/mesh/?term=D006528) | Carcinoma, Hepatocellular | C04.557.470.200.025.255; C04.588.274.623.160; C06.301.623.160; C06.552.697.160 |
+| [D002285](https://www.ncbi.nlm.nih.gov/mesh/?term=D002285) | Carcinoma, Intraductal, Noninfiltrating | C04.557.470.200.025.275; C04.557.470.200.240.187.250; C04.557.470.615.275 |
+| [D002294](https://www.ncbi.nlm.nih.gov/mesh/?term=D002294) | Carcinoma, Squamous Cell | C04.557.470.200.400; C04.557.470.700.400 |
+| [D003110](https://www.ncbi.nlm.nih.gov/mesh/?term=D003110) | Colonic Neoplasms | C04.588.274.476.411.307.180; C06.301.371.411.307.180; C06.405.249.411.307.180; C06.405.469.158.356.180; C06.405.469.491.307.180 |
+| [D019871](https://www.ncbi.nlm.nih.gov/mesh/?term=D019871) | Dyskeratosis Congenita | C15.378.190.223.500.750; C16.131.831.150; C16.320.322.108; C16.320.850.235; C17.800.804.150; C17.800.827.235 |
+| [D018197](https://www.ncbi.nlm.nih.gov/mesh/?term=D018197) | Hepatoblastoma | C04.557.435.380 |
+| [D061325](https://www.ncbi.nlm.nih.gov/mesh/?term=D061325) | Hereditary Breast and Ovarian Cancer Syndrome | C04.588.180.483; C04.588.322.455.431; C04.700.517; C12.050.351.500.056.630.705.431; C12.050.351.937.418.685.431; C12.100.250.056.630.705.431; C12.900.418.685.431; C16.320.700.517; C17.800.090.500.483; C19.344.410.431; C19.391.630.705.431 |
+| [D015451](https://www.ncbi.nlm.nih.gov/mesh/?term=D015451) | Leukemia, Lymphocytic, Chronic, B-Cell | C04.557.337.428.080.125; C15.378.508.428.080.125; C15.604.515.560.080.125; C20.683.515.528.080.125; C23.550.291.500.483 |
+| [D007947](https://www.ncbi.nlm.nih.gov/mesh/?term=D007947) | Leukemia, Megakaryoblastic, Acute | C04.557.337.539.275.450; C15.378.508.539.275.450 |
+| [D015470](https://www.ncbi.nlm.nih.gov/mesh/?term=D015470) | Leukemia, Myeloid, Acute | C04.557.337.539.275; C15.378.508.539.275 |
+| [D016864](https://www.ncbi.nlm.nih.gov/mesh/?term=D016864) | Li-Fraumeni Syndrome | C04.700.600; C16.320.700.600; C18.452.284.520 |
+| [D008223](https://www.ncbi.nlm.nih.gov/mesh/?term=D008223) | Lymphoma | C04.557.386; C15.604.515.569; C20.683.515.761 |
+| [D016403](https://www.ncbi.nlm.nih.gov/mesh/?term=D016403) | Lymphoma, Large B-Cell, Diffuse | C04.557.386.480.150.585; C15.604.515.569.480.150.585; C20.683.515.761.480.150.585 |
+| [D008228](https://www.ncbi.nlm.nih.gov/mesh/?term=D008228) | Lymphoma, Non-Hodgkin | C04.557.386.480; C15.604.515.569.480; C20.683.515.761.480 |
+| [D009101](https://www.ncbi.nlm.nih.gov/mesh/?term=D009101) | Multiple Myeloma | C04.557.595.500; C14.907.454.460; C15.378.147.780.650; C15.378.463.515.460; C20.683.515.845; C20.683.780.650 |
+| [D000077274](https://www.ncbi.nlm.nih.gov/mesh/?term=D000077274) | Nasopharyngeal Carcinoma | C04.557.470.200.623; C04.588.443.665.710.650.500; C07.550.350.650.500; C07.550.745.650.500; C09.647.710.650.500; C09.775.350.650.500; C09.775.549.650.500 |
+| [D009386](https://www.ncbi.nlm.nih.gov/mesh/?term=D009386) | Neoplastic Syndromes, Hereditary | C04.700; C16.320.700 |
+| [D020288](https://www.ncbi.nlm.nih.gov/mesh/?term=D020288) | Papilloma, Choroid Plexus | C04.588.614.250.195.205.200.500; C10.228.140.211.280.300.500; C10.551.240.250.200.200.500 |
+| [D011471](https://www.ncbi.nlm.nih.gov/mesh/?term=D011471) | Prostatic Neoplasms | C04.588.945.440.770; C12.100.500.260.750; C12.100.500.565.625; C12.200.294.260.750; C12.200.294.565.625; C12.200.758.409.750; C12.900.619.750 |
+| [D012208](https://www.ncbi.nlm.nih.gov/mesh/?term=D012208) | Rhabdomyosarcoma | C04.557.450.590.550.660; C04.557.450.795.550.660 |
+| [D012509](https://www.ncbi.nlm.nih.gov/mesh/?term=D012509) | Sarcoma | C04.557.450.795 |
+| [D013274](https://www.ncbi.nlm.nih.gov/mesh/?term=D013274) | Stomach Neoplasms | C04.588.274.476.767; C06.301.371.767; C06.405.249.767; C06.405.748.789 |
+| [D065646](https://www.ncbi.nlm.nih.gov/mesh/?term=D065646) | Thyroid Carcinoma, Anaplastic | C04.557.470.200.725 |
+| [C538339](https://www.ncbi.nlm.nih.gov/mesh/?term=C538339) |  |  |
+| [D00007727](https://www.ncbi.nlm.nih.gov/mesh/?term=D00007727) |  |  |
+| [C535575](https://www.ncbi.nlm.nih.gov/mesh/?term=C535575) |  |  |

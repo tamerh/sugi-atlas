@@ -6799,6 +6799,341 @@
       }
     ],
     "hpo_total": 224,
+    "mesh_descriptors": [
+      {
+        "id": "D000230",
+        "is_supplementary": false,
+        "name": "Adenocarcinoma",
+        "tree_numbers": [
+          "C04.557.470.200.025"
+        ]
+      },
+      {
+        "id": "D029503",
+        "is_supplementary": false,
+        "name": "Anemia, Diamond-Blackfan",
+        "tree_numbers": [
+          "C15.378.050.085.080.090",
+          "C15.378.050.750.500",
+          "C15.378.190.223.500.500.090",
+          "C16.320.077.090"
+        ]
+      },
+      {
+        "id": "D001254",
+        "is_supplementary": false,
+        "name": "Astrocytoma",
+        "tree_numbers": [
+          "C04.557.465.625.600.380.080",
+          "C04.557.470.670.380.080",
+          "C04.557.580.625.600.380.080"
+        ]
+      },
+      {
+        "id": "D001943",
+        "is_supplementary": false,
+        "name": "Breast Neoplasms",
+        "tree_numbers": [
+          "C04.588.180",
+          "C17.800.090.500"
+        ]
+      },
+      {
+        "id": "D006528",
+        "is_supplementary": false,
+        "name": "Carcinoma, Hepatocellular",
+        "tree_numbers": [
+          "C04.557.470.200.025.255",
+          "C04.588.274.623.160",
+          "C06.301.623.160",
+          "C06.552.697.160"
+        ]
+      },
+      {
+        "id": "D002285",
+        "is_supplementary": false,
+        "name": "Carcinoma, Intraductal, Noninfiltrating",
+        "tree_numbers": [
+          "C04.557.470.200.025.275",
+          "C04.557.470.200.240.187.250",
+          "C04.557.470.615.275"
+        ]
+      },
+      {
+        "id": "D002294",
+        "is_supplementary": false,
+        "name": "Carcinoma, Squamous Cell",
+        "tree_numbers": [
+          "C04.557.470.200.400",
+          "C04.557.470.700.400"
+        ]
+      },
+      {
+        "id": "D003110",
+        "is_supplementary": false,
+        "name": "Colonic Neoplasms",
+        "tree_numbers": [
+          "C04.588.274.476.411.307.180",
+          "C06.301.371.411.307.180",
+          "C06.405.249.411.307.180",
+          "C06.405.469.158.356.180",
+          "C06.405.469.491.307.180"
+        ]
+      },
+      {
+        "id": "D019871",
+        "is_supplementary": false,
+        "name": "Dyskeratosis Congenita",
+        "tree_numbers": [
+          "C15.378.190.223.500.750",
+          "C16.131.831.150",
+          "C16.320.322.108",
+          "C16.320.850.235",
+          "C17.800.804.150",
+          "C17.800.827.235"
+        ]
+      },
+      {
+        "id": "D018197",
+        "is_supplementary": false,
+        "name": "Hepatoblastoma",
+        "tree_numbers": [
+          "C04.557.435.380"
+        ]
+      },
+      {
+        "id": "D061325",
+        "is_supplementary": false,
+        "name": "Hereditary Breast and Ovarian Cancer Syndrome",
+        "tree_numbers": [
+          "C04.588.180.483",
+          "C04.588.322.455.431",
+          "C04.700.517",
+          "C12.050.351.500.056.630.705.431",
+          "C12.050.351.937.418.685.431",
+          "C12.100.250.056.630.705.431",
+          "C12.900.418.685.431",
+          "C16.320.700.517",
+          "C17.800.090.500.483",
+          "C19.344.410.431",
+          "C19.391.630.705.431"
+        ]
+      },
+      {
+        "id": "D015451",
+        "is_supplementary": false,
+        "name": "Leukemia, Lymphocytic, Chronic, B-Cell",
+        "tree_numbers": [
+          "C04.557.337.428.080.125",
+          "C15.378.508.428.080.125",
+          "C15.604.515.560.080.125",
+          "C20.683.515.528.080.125",
+          "C23.550.291.500.483"
+        ]
+      },
+      {
+        "id": "D007947",
+        "is_supplementary": false,
+        "name": "Leukemia, Megakaryoblastic, Acute",
+        "tree_numbers": [
+          "C04.557.337.539.275.450",
+          "C15.378.508.539.275.450"
+        ]
+      },
+      {
+        "id": "D015470",
+        "is_supplementary": false,
+        "name": "Leukemia, Myeloid, Acute",
+        "tree_numbers": [
+          "C04.557.337.539.275",
+          "C15.378.508.539.275"
+        ]
+      },
+      {
+        "id": "D016864",
+        "is_supplementary": false,
+        "name": "Li-Fraumeni Syndrome",
+        "tree_numbers": [
+          "C04.700.600",
+          "C16.320.700.600",
+          "C18.452.284.520"
+        ]
+      },
+      {
+        "id": "D008223",
+        "is_supplementary": false,
+        "name": "Lymphoma",
+        "tree_numbers": [
+          "C04.557.386",
+          "C15.604.515.569",
+          "C20.683.515.761"
+        ]
+      },
+      {
+        "id": "D016403",
+        "is_supplementary": false,
+        "name": "Lymphoma, Large B-Cell, Diffuse",
+        "tree_numbers": [
+          "C04.557.386.480.150.585",
+          "C15.604.515.569.480.150.585",
+          "C20.683.515.761.480.150.585"
+        ]
+      },
+      {
+        "id": "D008228",
+        "is_supplementary": false,
+        "name": "Lymphoma, Non-Hodgkin",
+        "tree_numbers": [
+          "C04.557.386.480",
+          "C15.604.515.569.480",
+          "C20.683.515.761.480"
+        ]
+      },
+      {
+        "id": "D009101",
+        "is_supplementary": false,
+        "name": "Multiple Myeloma",
+        "tree_numbers": [
+          "C04.557.595.500",
+          "C14.907.454.460",
+          "C15.378.147.780.650",
+          "C15.378.463.515.460",
+          "C20.683.515.845",
+          "C20.683.780.650"
+        ]
+      },
+      {
+        "id": "D000077274",
+        "is_supplementary": false,
+        "name": "Nasopharyngeal Carcinoma",
+        "tree_numbers": [
+          "C04.557.470.200.623",
+          "C04.588.443.665.710.650.500",
+          "C07.550.350.650.500",
+          "C07.550.745.650.500",
+          "C09.647.710.650.500",
+          "C09.775.350.650.500",
+          "C09.775.549.650.500"
+        ]
+      },
+      {
+        "id": "D009386",
+        "is_supplementary": false,
+        "name": "Neoplastic Syndromes, Hereditary",
+        "tree_numbers": [
+          "C04.700",
+          "C16.320.700"
+        ]
+      },
+      {
+        "id": "D020288",
+        "is_supplementary": false,
+        "name": "Papilloma, Choroid Plexus",
+        "tree_numbers": [
+          "C04.588.614.250.195.205.200.500",
+          "C10.228.140.211.280.300.500",
+          "C10.551.240.250.200.200.500"
+        ]
+      },
+      {
+        "id": "D011471",
+        "is_supplementary": false,
+        "name": "Prostatic Neoplasms",
+        "tree_numbers": [
+          "C04.588.945.440.770",
+          "C12.100.500.260.750",
+          "C12.100.500.565.625",
+          "C12.200.294.260.750",
+          "C12.200.294.565.625",
+          "C12.200.758.409.750",
+          "C12.900.619.750"
+        ]
+      },
+      {
+        "id": "D012208",
+        "is_supplementary": false,
+        "name": "Rhabdomyosarcoma",
+        "tree_numbers": [
+          "C04.557.450.590.550.660",
+          "C04.557.450.795.550.660"
+        ]
+      },
+      {
+        "id": "D012509",
+        "is_supplementary": false,
+        "name": "Sarcoma",
+        "tree_numbers": [
+          "C04.557.450.795"
+        ]
+      },
+      {
+        "id": "D013274",
+        "is_supplementary": false,
+        "name": "Stomach Neoplasms",
+        "tree_numbers": [
+          "C04.588.274.476.767",
+          "C06.301.371.767",
+          "C06.405.249.767",
+          "C06.405.748.789"
+        ]
+      },
+      {
+        "id": "D065646",
+        "is_supplementary": false,
+        "name": "Thyroid Carcinoma, Anaplastic",
+        "tree_numbers": [
+          "C04.557.470.200.725"
+        ]
+      },
+      {
+        "id": "C538339",
+        "is_supplementary": false,
+        "name": "",
+        "tree_numbers": []
+      },
+      {
+        "id": "D00007727",
+        "is_supplementary": false,
+        "name": "",
+        "tree_numbers": []
+      },
+      {
+        "id": "C535575",
+        "is_supplementary": false,
+        "name": "",
+        "tree_numbers": []
+      },
+      {
+        "id": "C538231",
+        "is_supplementary": false,
+        "name": "",
+        "tree_numbers": []
+      },
+      {
+        "id": "C565972",
+        "is_supplementary": true,
+        "name": "Adrenocortical Carcinoma, Hereditary",
+        "tree_numbers": []
+      },
+      {
+        "id": "C562840",
+        "is_supplementary": true,
+        "name": "Breast Cancer, Familial",
+        "tree_numbers": []
+      },
+      {
+        "id": "C562943",
+        "is_supplementary": true,
+        "name": "Choroid Plexus Carcinoma",
+        "tree_numbers": []
+      },
+      {
+        "id": "C535837",
+        "is_supplementary": true,
+        "name": "Pancreatic carcinoma, familial",
+        "tree_numbers": []
+      }
+    ],
     "mondo": [
       {
         "id": "MONDO:0015356",
