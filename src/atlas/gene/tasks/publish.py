@@ -4,6 +4,7 @@ import json, os, shutil
 from datetime import datetime, timezone
 from atlas import __version__ as V
 from atlas.pipeline import assemble_page, biobtree_version
+from atlas.page.jsonld import build_jsonld, as_jsonld_string
 
 ctx = json.load(open(os.path.join(os.environ["ENJU_RUN_DIR"], "context.json")))
 symbol = ctx["iteration"]["symbol"]
@@ -26,6 +27,12 @@ meta = {
 }
 page = assemble_page(symbol, summary, body, meta, bundle=bundle)
 open(f"{out}/page.md", "w").write(page)
+
+# schema.org Gene JSON-LD sidecar — machine clients fetch this directly via
+# the <link rel="alternate" type="application/ld+json"> hint (added by Hugo
+# theme; the file itself lives here next to page.md).
+open(f"{out}/entity.jsonld", "w").write(as_jsonld_string(build_jsonld(bundle)))
+
 for f in ("bundle.json", "body.md", "summary.md", "judge.json", "body_gate.json"):
     src = f"build/{symbol}/{f}"
     if os.path.exists(src):

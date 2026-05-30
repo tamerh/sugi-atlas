@@ -54,12 +54,18 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     lead = ""
     if bundle is not None:
         from atlas.page.declarative import declarative_sentence
+        from atlas.page.jsonld import build_jsonld, as_script_tag
         sentence = declarative_sentence(bundle)
         # Pull the YYYY-MM-DD from the ISO `generated_at` for a human-visible
         # freshness signal (HTTP Last-Modified is set by Hugo from this same field).
         date = (meta.get("generated_at") or "")[:10]
         updated = f"*Updated: {date}*" if date else ""
-        lead = sentence + "\n\n" + (updated + "\n\n" if updated else "")
+        # schema.org Gene JSON-LD — federated-identity signal (sameAs to NCBI/
+        # UniProt/Ensembl/HGNC/OMIM). Lives at the top of the body so AI
+        # crawlers see it on the rendered page; also written as entity.jsonld
+        # sidecar by the publish step for direct machine fetch.
+        jsonld_tag = as_script_tag(build_jsonld(bundle))
+        lead = jsonld_tag + "\n\n" + sentence + "\n\n" + (updated + "\n\n" if updated else "")
 
     if summary_text:
         model = meta.get("summary_model", "Qwen3-235B")
