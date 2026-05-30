@@ -2384,6 +2384,11 @@
     ]
   },
   "12": {
+    "civic": {
+      "description": "BRCA1 mutations in the germline have become a hallmark for hereditary breast and ovarian cancers. Variants that have been demonstrated to reduce the function of the protein have been shown to increase the risk for these cancers, as well as prostate and pancreatic cancer. These findings have been the impetus for the increased popularity of genetic testing of healthy individuals to assess risk. Recent studies in ovarian cancer have also demonstrated that BRCA mutation status can predict treatment response. A number of trials assessing BRCA mutation status have shown an improved response to platinum agents, and more recently has led to the FDA-approval of PARP inhibitors for BRCA-positive ovarian cancers. These studies have resulted in the Society of Gynecologic Oncology to recommend germline BRCA testing in all patients with a diagnosis of ovarian cancer.",
+      "id": "6",
+      "name": "BRCA1"
+    },
     "disease_omim": [
       "MIM:604370",
       "MIM:114480",
@@ -3515,6 +3520,11 @@
       }
     ],
     "hpo_total": 166,
+    "intogen": {
+      "cancer_types": "BLCA,BRCA,MEL,OVT",
+      "role": "LoF",
+      "symbol": "BRCA1"
+    },
     "mesh_descriptors": [
       {
         "id": "D001943",
