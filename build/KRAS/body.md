@@ -1164,3 +1164,28 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | GCST009144_31 | Disease progression in age-related macular degeneration (adjusted for baseline) | 3.000000e-06 |
 | GCST90011898_15 | Alanine aminotransferase levels | 3.000000e-08 |
 | GCST90013407_55 | Liver enzyme levels (gamma-glutamyl transferase) | 4.000000e-20 |
+
+**MeSH disease descriptors (20):**
+
+| Descriptor | Name | Tree numbers |
+| --- | --- | --- |
+| [D002289](https://www.ncbi.nlm.nih.gov/mesh/?term=D002289) | Carcinoma, Non-Small-Cell Lung | C04.588.894.797.520.109.220.249; C08.381.540.140.500; C08.785.520.100.220.500 |
+| [D024741](https://www.ncbi.nlm.nih.gov/mesh/?term=D024741) | Cardiomyopathy, Hypertrophic, Familial | C14.280.238.100.500; C14.280.484.048.750.070.160.500; C16.320.160 |
+| [D061325](https://www.ncbi.nlm.nih.gov/mesh/?term=D061325) | Hereditary Breast and Ovarian Cancer Syndrome | C04.588.180.483; C04.588.322.455.431; C04.700.517; C12.050.351.500.056.630.705.431; C12.050.351.937.418.685.431; C12.100.250.056.630.705.431; C12.900.418.685.431; C16.320.700.517; C17.800.090.500.483; C19.344.410.431; C19.391.630.705.431 |
+| [D002538](https://www.ncbi.nlm.nih.gov/mesh/?term=D002538) | Intracranial Arteriovenous Malformations | C10.228.140.300.520; C10.500.190.500; C14.240.850.750.295; C14.240.850.875.500; C14.907.150.295; C14.907.253.560.400; C16.131.240.850.750.295; C16.131.240.850.875.500; C16.131.666.190.500 |
+| [D015470](https://www.ncbi.nlm.nih.gov/mesh/?term=D015470) | Leukemia, Myeloid, Acute | C04.557.337.539.275; C15.378.508.539.275 |
+| [D054429](https://www.ncbi.nlm.nih.gov/mesh/?term=D054429) | Leukemia, Myelomonocytic, Juvenile | C04.557.337.539.525; C15.378.190.615.520; C15.378.508.539.525 |
+| [D009101](https://www.ncbi.nlm.nih.gov/mesh/?term=D009101) | Multiple Myeloma | C04.557.595.500; C14.907.454.460; C15.378.147.780.650; C15.378.463.515.460; C20.683.515.845; C20.683.780.650 |
+| [D009634](https://www.ncbi.nlm.nih.gov/mesh/?term=D009634) | Noonan Syndrome | C05.660.207.690; C14.240.400.787; C14.280.400.787; C16.131.240.400.784; C16.131.621.207.690; C17.300.690 |
+| [D012509](https://www.ncbi.nlm.nih.gov/mesh/?term=D012509) | Sarcoma | C04.557.450.795 |
+| [D013724](https://www.ncbi.nlm.nih.gov/mesh/?term=D013724) | Teratoma | C04.557.465.910 |
+| [D054079](https://www.ncbi.nlm.nih.gov/mesh/?term=D054079) | Vascular Malformations | C14.240.850; C16.131.240.850 |
+| [C538231](https://www.ncbi.nlm.nih.gov/mesh/?term=C538231) |  |  |
+| [C563969](https://www.ncbi.nlm.nih.gov/mesh/?term=C563969) | Aplasia Cutis Congenita with Epibulbar Dermoids *(supp.)* |  |
+| [C562840](https://www.ncbi.nlm.nih.gov/mesh/?term=C562840) | Breast Cancer, Familial *(supp.)* |  |
+| [C535579](https://www.ncbi.nlm.nih.gov/mesh/?term=C535579) | Cardiofaciocutaneous syndrome *(supp.)* |  |
+| [C535736](https://www.ncbi.nlm.nih.gov/mesh/?term=C535736) | Encephalocraniocutaneous lipomatosis *(supp.)* |  |
+| [C580062](https://www.ncbi.nlm.nih.gov/mesh/?term=C580062) | Epidermal Nevus *(supp.)* |  |
+| [C537846](https://www.ncbi.nlm.nih.gov/mesh/?term=C537846) | Noonan like syndrome *(supp.)* |  |
+| [C537847](https://www.ncbi.nlm.nih.gov/mesh/?term=C537847) | Noonan syndrome 3 *(supp.)* |  |
+| [C535837](https://www.ncbi.nlm.nih.gov/mesh/?term=C535837) | Pancreatic carcinoma, familial *(supp.)* |  |

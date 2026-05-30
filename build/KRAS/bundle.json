@@ -5345,6 +5345,186 @@
       }
     ],
     "hpo_total": 372,
+    "mesh_descriptors": [
+      {
+        "id": "D002289",
+        "is_supplementary": false,
+        "name": "Carcinoma, Non-Small-Cell Lung",
+        "tree_numbers": [
+          "C04.588.894.797.520.109.220.249",
+          "C08.381.540.140.500",
+          "C08.785.520.100.220.500"
+        ]
+      },
+      {
+        "id": "D024741",
+        "is_supplementary": false,
+        "name": "Cardiomyopathy, Hypertrophic, Familial",
+        "tree_numbers": [
+          "C14.280.238.100.500",
+          "C14.280.484.048.750.070.160.500",
+          "C16.320.160"
+        ]
+      },
+      {
+        "id": "D061325",
+        "is_supplementary": false,
+        "name": "Hereditary Breast and Ovarian Cancer Syndrome",
+        "tree_numbers": [
+          "C04.588.180.483",
+          "C04.588.322.455.431",
+          "C04.700.517",
+          "C12.050.351.500.056.630.705.431",
+          "C12.050.351.937.418.685.431",
+          "C12.100.250.056.630.705.431",
+          "C12.900.418.685.431",
+          "C16.320.700.517",
+          "C17.800.090.500.483",
+          "C19.344.410.431",
+          "C19.391.630.705.431"
+        ]
+      },
+      {
+        "id": "D002538",
+        "is_supplementary": false,
+        "name": "Intracranial Arteriovenous Malformations",
+        "tree_numbers": [
+          "C10.228.140.300.520",
+          "C10.500.190.500",
+          "C14.240.850.750.295",
+          "C14.240.850.875.500",
+          "C14.907.150.295",
+          "C14.907.253.560.400",
+          "C16.131.240.850.750.295",
+          "C16.131.240.850.875.500",
+          "C16.131.666.190.500"
+        ]
+      },
+      {
+        "id": "D015470",
+        "is_supplementary": false,
+        "name": "Leukemia, Myeloid, Acute",
+        "tree_numbers": [
+          "C04.557.337.539.275",
+          "C15.378.508.539.275"
+        ]
+      },
+      {
+        "id": "D054429",
+        "is_supplementary": false,
+        "name": "Leukemia, Myelomonocytic, Juvenile",
+        "tree_numbers": [
+          "C04.557.337.539.525",
+          "C15.378.190.615.520",
+          "C15.378.508.539.525"
+        ]
+      },
+      {
+        "id": "D009101",
+        "is_supplementary": false,
+        "name": "Multiple Myeloma",
+        "tree_numbers": [
+          "C04.557.595.500",
+          "C14.907.454.460",
+          "C15.378.147.780.650",
+          "C15.378.463.515.460",
+          "C20.683.515.845",
+          "C20.683.780.650"
+        ]
+      },
+      {
+        "id": "D009634",
+        "is_supplementary": false,
+        "name": "Noonan Syndrome",
+        "tree_numbers": [
+          "C05.660.207.690",
+          "C14.240.400.787",
+          "C14.280.400.787",
+          "C16.131.240.400.784",
+          "C16.131.621.207.690",
+          "C17.300.690"
+        ]
+      },
+      {
+        "id": "D012509",
+        "is_supplementary": false,
+        "name": "Sarcoma",
+        "tree_numbers": [
+          "C04.557.450.795"
+        ]
+      },
+      {
+        "id": "D013724",
+        "is_supplementary": false,
+        "name": "Teratoma",
+        "tree_numbers": [
+          "C04.557.465.910"
+        ]
+      },
+      {
+        "id": "D054079",
+        "is_supplementary": false,
+        "name": "Vascular Malformations",
+        "tree_numbers": [
+          "C14.240.850",
+          "C16.131.240.850"
+        ]
+      },
+      {
+        "id": "C538231",
+        "is_supplementary": false,
+        "name": "",
+        "tree_numbers": []
+      },
+      {
+        "id": "C563969",
+        "is_supplementary": true,
+        "name": "Aplasia Cutis Congenita with Epibulbar Dermoids",
+        "tree_numbers": []
+      },
+      {
+        "id": "C562840",
+        "is_supplementary": true,
+        "name": "Breast Cancer, Familial",
+        "tree_numbers": []
+      },
+      {
+        "id": "C535579",
+        "is_supplementary": true,
+        "name": "Cardiofaciocutaneous syndrome",
+        "tree_numbers": []
+      },
+      {
+        "id": "C535736",
+        "is_supplementary": true,
+        "name": "Encephalocraniocutaneous lipomatosis",
+        "tree_numbers": []
+      },
+      {
+        "id": "C580062",
+        "is_supplementary": true,
+        "name": "Epidermal Nevus",
+        "tree_numbers": []
+      },
+      {
+        "id": "C537846",
+        "is_supplementary": true,
+        "name": "Noonan like syndrome",
+        "tree_numbers": []
+      },
+      {
+        "id": "C537847",
+        "is_supplementary": true,
+        "name": "Noonan syndrome 3",
+        "tree_numbers": []
+      },
+      {
+        "id": "C535837",
+        "is_supplementary": true,
+        "name": "Pancreatic carcinoma, familial",
+        "tree_numbers": []
+      }
+    ],
     "mondo": [
       {
         "id": "MONDO:0021060",
