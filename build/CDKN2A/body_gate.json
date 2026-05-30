@@ -4,16 +4,16 @@
   "diff": [
     {
       "section": "10",
-      "key": "chembl_activity_potent_count",
+      "key": "ctd_interaction_total",
       "old": 0,
       "new": 1,
       "kind": "added"
     },
     {
       "section": "10",
-      "key": "chembl_activity_total",
+      "key": "ctd_interactions",
       "old": 0,
-      "new": 1,
+      "new": 30,
       "kind": "added"
     }
   ]
