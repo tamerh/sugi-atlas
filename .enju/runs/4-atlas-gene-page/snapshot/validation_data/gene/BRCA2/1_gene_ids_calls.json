@@ -1,0 +1,44 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA2",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1101",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1101",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1101",
+      "chain": ">hgnc>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1101",
+      "chain": ">hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000139618",
+      "dataset": "ensembl"
+    }
+  }
+]

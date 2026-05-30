@@ -1,0 +1,97 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AKT1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>clinvar",
+      "page": "-1[]HGNC:391,10,HGNC:391,100,1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>clinvar",
+      "page": "-1[]HGNC:391,10,HGNC:391,102,3][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>clinvar",
+      "page": "-1[]HGNC:391,10,HGNC:391,131,5][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>clinvar",
+      "page": "-1[]HGNC:391,10,HGNC:391,92,7][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>clinvar",
+      "page": "-1[]HGNC:391,10,HGNC:391,10,9][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>transcript>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:391",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>spliceai"
+    }
+  }
+]

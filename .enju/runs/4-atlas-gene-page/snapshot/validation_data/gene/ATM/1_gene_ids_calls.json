@@ -1,0 +1,44 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM gene human",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">>ensembl>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">>ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">>ensembl>>hgnc>>mim"
+    }
+  }
+]

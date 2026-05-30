@@ -1,0 +1,1488 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM gene human",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">>ensembl>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">>ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">>ensembl>>hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM gene",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>ccds"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "NM_000051",
+      "chain": ">refseq>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENST00000675843",
+      "dataset": "transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000675843",
+      "chain": ">transcript>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q13315",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>pfam"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>smart"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>supfam"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR000403",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR003151",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR003152",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR011009",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR014009",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR016024",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR018936",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR021668",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR036940",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR038980",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR044107",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF00454",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF02259",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF02260",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF11640",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00146",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM01342",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM01343",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SSF48371",
+      "dataset": "supfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SSF56112",
+      "dataset": "supfam"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "antibody"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM protein human"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q13315",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q13315",
+      "dataset": "alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Q13315",
+      "dataset": "alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AF-Q13315",
+      "dataset": "alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM human gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM mouse"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM rat"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM zebrafish"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM drosophila"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM C elegans"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM yeast"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ataxia telangiectasia"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "telomere fusion"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "tefu drosophila"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "11920",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "300711",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "403064",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "41839",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "cep-1"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "C elegans kinase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "tel1 yeast"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "172616",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "yeast ATM serine kinase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "MEC1"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "TEL1"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "TEL1 Saccharomyces"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "O74630",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O74630",
+      "chain": ">>uniprot>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "2539209",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "11920",
+      "chain": ">>entrez>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "300711",
+      "chain": ">>entrez>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "403064",
+      "chain": ">>entrez>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "41839",
+      "chain": ">>entrez>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "172616",
+      "chain": ">>entrez>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Saccharomyces cerevisiae tel1"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "MEC1 yeast kinase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "baker yeast kinase checkpoint"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P38111",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38111",
+      "chain": ">>uniprot>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "852433",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P38110",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38110",
+      "chain": ">>uniprot>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM human gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar[germline_classification==\"Pathogenic/Likely pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>spliceai"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar[germline_classification==\"Pathogenic/Likely pathogenic\"]",
+      "page": "-1[]HGNC:795,10,HGNC:795,107,36["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>spliceai",
+      "page": "-1[]HGNC:795,10,HGNC:795,19,2["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]",
+      "page": "-1[]Q13315,1,Q13315,63,15["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar[germline_classification==\"Pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar[germline_classification==\"Likely pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar[germline_classification==\"Uncertain significance\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar[germline_classification==\"Likely benign\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>clinvar[germline_classification==\"Benign\"]"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>msigdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:795,10,HGNC:795,85,2]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:795,10,HGNC:795,149,5]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:795,10,HGNC:795,15,7]["
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM human protein",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q13315",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>string_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>biogrid_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>intact"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>esm2_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>diamond_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>string_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O96017,P38398,Q14676,Q12888,P43246,Q8WXE1,P52701,P40692,P16104,O14757,P04637,P51587,Q9BXW9,P13010,O43313",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q06609,Q8N2W9,Q00987,Q9Y6K9,P49959,O60934,Q92993,P12956,O15297,Q13547,O75943,Q09472,Q6ZW49,P60484,Q99728",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "A0JM49,A2AKG8,A4D1B5,B0V0U5,B1AUR6,E1BGH8,E1C231,E1C2U2,E1C2Z0,F4J8G7,F6S215,H3BNL8,O23277,O43149,O60281",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O94822,P78527,P97313,Q13129,Q13395,Q15573,Q15751,Q1RLU1,Q2KJI3,Q3B7U2,Q3TQQ9,Q3UPC7,Q3URQ0,Q4R7B1,Q5H9S7",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "C5J7W8,O14356,O74630,P32600,P35169,P42338,P54677,Q13535,Q5BHE2,Q62388,Q6CAD2,Q6CP76,Q6CT34,Q6FRZ9,Q6FX42",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM human gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM protein",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q13315",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">>uniprot>>jaspar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:PMAIP1",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "collectri",
+      "page": "0,0,1,125"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:GADD45A",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "E2F1:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "TP63:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MYC:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:CDKN1A",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:BAX",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:CFLAR",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:VEGFA",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:FAS",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:PCNA",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:TP53",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FOXO3:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SP1:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "BRCA1:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:E2F1",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:TNFRSF10B",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:DUSP1",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:FOXM1",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:TERF1",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:MCL1",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ATM:PBK",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "AHR:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "DMAP1:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "AR:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "RELA:ATM",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q13315",
+      "chain": ">uniprot>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3797",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "M6620, AZD0156, M3814"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL3989870",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL4297899",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL4297629",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "berzosertib, nedisertib, AZD0156",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PA61",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3797",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM inhibitor"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3989870,CHEMBL4297899,CHEMBL4297629",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>scxa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>go"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM expression tissue",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>gwas"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>hpo",
+      "page": "-1[]HGNC:795,10,HGNC:795,115,1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>mim>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>mim>>orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "607585",
+      "dataset": "mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>clinvar>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ATM",
+      "chain": ">>hgnc>>clinvar>>orphanet"
+    }
+  }
+]

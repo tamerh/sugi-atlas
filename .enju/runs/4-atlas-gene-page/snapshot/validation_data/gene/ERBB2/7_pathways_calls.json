@@ -1,0 +1,62 @@
+[
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ERBB2",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ERBB2",
+      "chain": ">hgnc>>msigdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">uniprot>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">uniprot>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ERBB2",
+      "chain": ">hgnc>>msigdb",
+      "page": "-1[]HGNC:3430,10,HGNC:3430,135,1]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ERBB2",
+      "chain": ">hgnc>>msigdb",
+      "page": "-1[]HGNC:3430,10,HGNC:3430,157,2]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ERBB2",
+      "chain": ">hgnc>>msigdb",
+      "page": "-1[]HGNC:3430,10,HGNC:3430,154,4]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ERBB2",
+      "chain": ">hgnc>>msigdb",
+      "page": "-1[]HGNC:3430,10,HGNC:3430,155,5]["
+    }
+  }
+]

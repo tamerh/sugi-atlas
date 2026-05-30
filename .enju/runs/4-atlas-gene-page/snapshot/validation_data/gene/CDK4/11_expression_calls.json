@@ -1,0 +1,148 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4, cyclin-dependent kinase 4",
+      "dataset": "gtex"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000135446",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1773",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CDK4",
+      "chain": ">>hgnc>>ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000135446",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000135446",
+      "dataset": "scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P11802",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">>uniprot>>hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">>uniprot>>expressionatlas"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000135446",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P11802",
+      "dataset": "expressionatlas"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>scxa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>cl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4",
+      "dataset": "gtex"
+    }
+  }
+]

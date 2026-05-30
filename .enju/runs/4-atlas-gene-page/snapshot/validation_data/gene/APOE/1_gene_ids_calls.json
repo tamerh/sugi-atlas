@@ -1,0 +1,36 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APOE"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:613",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000130203",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "348",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">hgnc>>mim"
+    }
+  }
+]

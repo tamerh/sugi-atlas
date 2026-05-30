@@ -1,0 +1,91 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:620",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:620",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000142192",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000142192",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000149",
+      "dataset": "wormbase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Saccharomyces cerevisiae APP ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000022892",
+      "chain": ">ensembl>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSRNOG00000006997",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "FBGN0000108",
+      "chain": ">flybase>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000022892,ENSDARG00000055543,ENSDARG00000104279,WBGENE00000149",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "FBGN0000108"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "FBGN0000108",
+      "chain": ">ensembl>>entrez"
+    }
+  }
+]

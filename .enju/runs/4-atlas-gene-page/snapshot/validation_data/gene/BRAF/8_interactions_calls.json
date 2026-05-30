@@ -1,0 +1,86 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRAF human protein",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRAF",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1097",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1097",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P15056",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P15056",
+      "chain": ">>uniprot>>string_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P15056",
+      "chain": ">>uniprot>>intact"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P15056",
+      "chain": ">>uniprot>>biogrid_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P15056",
+      "chain": ">>uniprot>>diamond_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P15056",
+      "chain": ">>uniprot>>esm2_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04049,Q02750,P01116,P01111,P01112,P07900,P08238,P42336,P60484,P46940,Q9HCM3,P21359,P42771,P04637,Q07889,P40692,P24385,P07557,Q06124,P36507,P54278,P49815,Q9UBS0,P52701,P29992,Q9NZQ7,O75874,Q8IVT5,Q13315,O14746",
+      "chain": ">>uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P34908,Q04982,Q5R5M7,A7J1T0,A7J1T2,A7MBB4,O43283,Q5R8X7,P11345,P27037,P27038,P04049,P05625,P09560,P10398,P25848,P27966,P28028,P36894,P36895",
+      "chain": ">>uniprot>>hgnc"
+    }
+  }
+]

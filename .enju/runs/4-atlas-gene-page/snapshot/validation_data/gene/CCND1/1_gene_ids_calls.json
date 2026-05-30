@@ -1,0 +1,36 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1582",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "595",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>mim"
+    }
+  }
+]

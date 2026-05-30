@@ -1,0 +1,908 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1582",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "595",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">>ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">>ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">>ensembl>>ccds"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENST00000913508",
+      "dataset": "transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000913508",
+      "chain": ">>transcript>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P24385",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "F5H437",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q6FI00",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385,F5H437,Q6FI00",
+      "chain": ">uniprot>>interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385,F5H437,Q6FI00",
+      "chain": ">uniprot>>pfam"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385,F5H437,Q6FI00",
+      "chain": ">uniprot>>smart"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385,F5H437,Q6FI00",
+      "chain": ">uniprot>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR004367",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR006671",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR013763",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR036915",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR039361",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR048258",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF00134",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF02984",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00385",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM01332",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385,F5H437,Q6FI00",
+      "chain": ">uniprot>>hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385,F5H437,Q6FI00",
+      "chain": ">uniprot>>panther"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">>ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P24385",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">>uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">>uniprot>>alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Cyclin D yeast",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSMUSG00000070348",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSRNOG00000020918",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSDARG00000101637",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FBGN0010315",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000867",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000070348,ENSRNOG00000020918,ENSDARG00000101637,FBGN0010315,WBGENE00000867",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1 Saccharomyces cerevisiae"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CLN1 CLN2 CLN3 yeast"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "cyclin yeast Saccharomyces"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>ortholog>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Saccharomyces cerevisiae"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1582",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>spliceai"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>spliceai",
+      "page": "-1[]HGNC:1582,10,HGNC:1582,40,2["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]",
+      "page": "-1[]P24385,1,P24385,182,13["
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CCND1",
+      "dataset": "spliceai"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">hgnc>>msigdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "595",
+      "chain": ">entrez>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "595",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P24385",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>string_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>biogrid_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>intact"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>esm2_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>diamond_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802,P24941,Q00534,P38936,P46527,P06493,P03372,P10415,P01106,Q96S94,P42771,P04637,P35222,P31749,P0DP08,P40763,Q00987,P11142,Q01094,P15056,P04626,Q9UJU2,P60484,P38398,Q92831,P42574,P55211,P06400,P10275,Q07820",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P50756,Q91780,Q04827,P25322,P30280,P39948,Q5R5D0,Q5R6J5,Q0P5D3,Q2KI22,P30281,P30282,Q5E9K7,Q3MHH5,Q52QT8,P39950,P51945,O96020,O42575,P53782",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O96020,Q5E9K7,O42575,P25322,P39948,P39949,P47794,P30280,P55169,P49706,P30281,P48961,P50755,Q2KI22,Q64HP0,Q14094,P49707,P01501,O01501,P41002",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>collectri"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>collectri",
+      "page": "-1[]ENSG00000110092,2,ENSG00000110092,141,1]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>collectri",
+      "page": "-1[]ENSG00000110092,2,ENSG00000110092,161,2]["
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P24385",
+      "chain": ">uniprot>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3610",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1907601",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1907601",
+      "chain": ">chembl_target>>chembl_molecule",
+      "page": "-1[]CHEMBL1907601,24,CHEMBL1907601,86,1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL2111455",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL2111455",
+      "chain": ">chembl_target>>chembl_molecule",
+      "page": "-1[]CHEMBL2111455,24,CHEMBL2111455,51,0][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL2095942",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "palbociclib"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ribociclib"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "abemaciclib"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL189963",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL3545110",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL3301610",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL189963",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3545110",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3301610",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PA75",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "PA75",
+      "chain": ">pharmgkb_gene>>pharmgkb"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>scxa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CCND1",
+      "chain": ">hgnc>>hpa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "gtex"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CCND1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">>hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">>hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">>hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">>hgnc>>gwas"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">>hgnc>>clinvar>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1582",
+      "chain": ">>hgnc>>clinvar>>orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "168461",
+      "dataset": "mim"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "892",
+      "dataset": "orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "101016",
+      "dataset": "orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MONDO:0008667",
+      "dataset": "mondo"
+    }
+  }
+]

@@ -1,0 +1,78 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000117713",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000117713",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000117713",
+      "chain": ">ensembl>>scxa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P35957",
+      "chain": ">uniprot>>go"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000117713",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "E-GEOD-100618",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A",
+      "dataset": "gtopdb"
+    }
+  }
+]

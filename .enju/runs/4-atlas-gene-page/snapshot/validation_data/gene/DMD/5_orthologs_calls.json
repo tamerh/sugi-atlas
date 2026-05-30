@@ -1,0 +1,201 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:2928",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000198947",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ENSG00000198947",
+      "dataset": "ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSMUSG00000045103",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSRNOG00000046366",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSDARG00000008487",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSUMUG00000021229",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "dystrophin",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "dmd",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Drosophila melanogaster dystrophin"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Caenorhabditis elegans dystrophin"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Saccharomyces cerevisiae dystrophin"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000045103",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSRNOG00000046366",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSDARG00000008487",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD",
+      "dataset": "ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Drosophila",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "dys-1"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "dystrobrevin"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00001131",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "WBGENE00001131",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "dm actin-binding"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "drosophila spectrin"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Dys Drosophila"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "dystrophin-related"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "FBgn Drosophila"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Drosophila muscular"
+    }
+  }
+]

@@ -1,0 +1,111 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ERBB2"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P04626",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>clinvar",
+      "page": "-1[]ENSG00000141736,2,ENSG00000141736,90,3]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">>uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">>uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>clinvar",
+      "page": "-1[]ENSG00000141736,2,ENSG00000141736,73,5]["
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ENST00000269571",
+      "dataset": "transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>clinvar",
+      "page": "-1[]ENSG00000141736,2,ENSG00000141736,164,6]["
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENST00000269571",
+      "dataset": "transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">>uniprot>>alphamissense[am_class==\"likely_pathogenic\"]",
+      "page": "-1[]P04626,1,P04626,167,17]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>clinvar",
+      "page": "-1[]ENSG00000141736,2,ENSG00000141736,142,7]["
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ERBB2",
+      "dataset": "hgnc"
+    }
+  }
+]
