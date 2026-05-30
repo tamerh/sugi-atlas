@@ -486,6 +486,14 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | [Irinotecan](http://ctdbase.org/detail.go?type=chem&acc=D000077146) | increases^response to substance, affects^expression, decreases^expression | 2 |
 | [Acetylcysteine](http://ctdbase.org/detail.go?type=chem&acc=D000111) | increases^reaction, decreases^reaction, increases^expression, affects^binding, increases^abundance | 2 |
 
+**ChEMBL screening assays (2 unique, capped per target):** 2 binding
+
+Representative assays:
+
+| Assay ID | Type | Description |
+| --- | --- | --- |
+| [CHEMBL4678413](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4678413/) | Binding | Inhibition of GFP-tagged p16INK4A (unknown orgin) expressed in human dermal fibroblast at 20 uM after 24 hrs by renilla/firefly dual-luciferase reporter assay relative to control |
+
 **Clinical trials for the gene's associated diseases (224, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
