@@ -1,9 +1,27 @@
 {
-  "verdict": "first_run",
-  "summary": "no snapshot yet \u2014 run --update to create baseline",
+  "verdict": "drift",
+  "summary": "0 changed, 3 added, 0 removed",
   "diff": [
     {
-      "kind": "first_run"
+      "section": "10",
+      "key": "cellosaurus_category_counts",
+      "old": 0,
+      "new": 6,
+      "kind": "added"
+    },
+    {
+      "section": "10",
+      "key": "cellosaurus_samples",
+      "old": 0,
+      "new": 10,
+      "kind": "added"
+    },
+    {
+      "section": "10",
+      "key": "cellosaurus_total",
+      "old": 0,
+      "new": 1,
+      "kind": "added"
     }
   ]
 }
