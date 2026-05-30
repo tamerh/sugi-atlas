@@ -699,6 +699,23 @@ Representative assays:
 | [CHEMBL1613817](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1613817/) | Functional | PUBCHEM_BIOASSAY: qHTS Assay for Inhibitors of BRCT-Phosphoprotein Interaction (Green Fluorophore). (Class of assay: confirmatory) |
 | [CHEMBL1785941](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1785941/) | Binding | Inhibition of BRCA1 by fluorescence polarization assay |
 
+**Cellosaurus cell lines (108):** 51 cancer cell line, 33 transformed cell line, 19 induced pluripotent stem cell, 2 embryonic stem cell, 1 spontaneously immortalized cell line, 1 finite cell line, 1 telomerase immortalized cell line
+
+First 10 cell lines (id-ordered, not curated):
+
+| Cellosaurus | Name | Category | Sex |
+| --- | --- | --- | --- |
+| [CVCL_0290](https://www.cellosaurus.org/CVCL_0290) | HCC1937 | Cancer cell line | Female |
+| [CVCL_0623](https://www.cellosaurus.org/CVCL_0623) | MDA-MB-436 | Cancer cell line | Female |
+| [CVCL_1304](https://www.cellosaurus.org/CVCL_1304) | IGROV-1 | Cancer cell line | Female |
+| [CVCL_1781](https://www.cellosaurus.org/CVCL_1781) | UACC-812 | Cancer cell line | Female |
+| [CVCL_2420](https://www.cellosaurus.org/CVCL_2420) | COV362 | Cancer cell line | Female |
+| [CVCL_2421](https://www.cellosaurus.org/CVCL_2421) | COV362.4 | Cancer cell line | Female |
+| [CVCL_3281](https://www.cellosaurus.org/CVCL_3281) | HCC1937 BL | Transformed cell line | Female |
+| [CVCL_3377](https://www.cellosaurus.org/CVCL_3377) | HCC3153 | Cancer cell line | Female |
+| [CVCL_3422](https://www.cellosaurus.org/CVCL_3422) | SUM149PT | Cancer cell line | Female |
+| [CVCL_4V48](https://www.cellosaurus.org/CVCL_4V48) | IGROV(T100r) | Cancer cell line | Female |
+
 **Clinical trials for the gene's associated diseases (190, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

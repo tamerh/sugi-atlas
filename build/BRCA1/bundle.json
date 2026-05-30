@@ -213,6 +213,78 @@
       }
     ],
     "bindingdb_sampled": 35,
+    "cellosaurus_category_counts": {
+      "Cancer cell line": 51,
+      "Embryonic stem cell": 2,
+      "Finite cell line": 1,
+      "Induced pluripotent stem cell": 19,
+      "Spontaneously immortalized cell line": 1,
+      "Telomerase immortalized cell line": 1,
+      "Transformed cell line": 33
+    },
+    "cellosaurus_samples": [
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0290",
+        "name": "HCC1937",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0623",
+        "name": "MDA-MB-436",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_1304",
+        "name": "IGROV-1",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_1781",
+        "name": "UACC-812",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_2420",
+        "name": "COV362",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_2421",
+        "name": "COV362.4",
+        "sex": "Female"
+      },
+      {
+        "category": "Transformed cell line",
+        "id": "CVCL_3281",
+        "name": "HCC1937 BL",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_3377",
+        "name": "HCC3153",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_3422",
+        "name": "SUM149PT",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_4V48",
+        "name": "IGROV(T100r)",
+        "sex": "Female"
+      }
+    ],
+    "cellosaurus_total": 108,
     "chembl_activities": [
       {
         "id": "CHEMBL_ACT_10852205",
