@@ -108,6 +108,8 @@ snapshot → dist) and visible on the six reference-gene pages. Per `git log`:
 | #13 pharmgkb_guideline / _clinical / _variant empty | open | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
 | #14 reactome pathway entries with empty `name` | open (just filed) | Disease §14 renders "Unnamed pathway (R-HSA-N…)" for 1-2 pathways per cohort; graceful fallback in place |
 | #15 chembl_molecule parent/child salt-form linkage exposed only via `childs` on parent | open (just filed) | Disease §13 pays ~30 extra entry calls per disease to dedupe salt-form drugs (TAMOXIFEN + TAMOXIFEN CITRATE, DOCETAXEL + DOCETAXEL ANHYDROUS); workaround acceptable now, won't scale to drug pages |
+| #16 No `list-ids` endpoint for a dataset (corpus enumeration) | open (just filed) | **Blocks all-diseases / all-genes scale-out.** Today we depend on external Mondo .obo / HGNC TSV dumps for full enumeration; brittle and defeats the "biobtree is single source" model. |
+| #17 No bulk xref-count check (one /entry per id to filter by signal) | open (just filed) | Even with #16 resolved, filtering ~25k Mondo nodes by Atlas-relevant signal (gwas/civic/clinvar/gencc xrefs) needs 25k entry calls. Suggest adding xref counts to search/list response schemas. |
 
 ## Pre-launch / cross-repo work (defer to launch day)
 
@@ -176,7 +178,13 @@ UniProt CC question.
 
 **OPEN — deferred to future iteration:**
 - [ ] **LLM executive summaries** for the 18 disease pages (Task #42)
-- [ ] **Full 61-disease backlog** (43 more diseases to run)
+- [ ] **Full 61-disease backlog** (43 more diseases to run; use
+      `bin/run_disease_backlog.py` or the Enju workflow at
+      `src/atlas/disease/enju.yaml`)
+- [ ] **All-diseases scale-out** beyond the curated 61: 🕓 blocked on
+      BIOBTREE_ISSUES #16 (no `list-ids` endpoint) + #17 (no bulk
+      xref-count check). Today's external-dump workaround is brittle;
+      proper fix is upstream so biobtree remains the single source.
 - [ ] **Disease body_gate threshold tuning** — first_run vs drift mechanics
       are gene-tuned; disease may need its own thresholds
 - [ ] **Disease declarative-lead sentence** (gene side has one; disease
