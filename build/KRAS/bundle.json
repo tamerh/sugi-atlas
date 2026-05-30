@@ -502,11 +502,17 @@
     "chembl_assay_samples": [
       {
         "desc": "Binding affinity to K-Ras G12D mutant-GDP complex",
+        "doc_id": "CHEMBL2086330",
+        "doc_journal": "Bioorg Med Chem Lett",
+        "doc_title": "Ras inhibition via direct Ras binding--is there a path forward?",
         "id": "CHEMBL2089529",
         "type": "Binding"
       },
       {
         "desc": "In-vivo target engagement at KRAS G12C mutant in athymic nude-Foxn1nu mouse xenografted with human NCI-H358 cells assessed as KRAS G12C modification level in tumor lysate at 10 mg/kg, po dosed via gavage as single administration measured af",
+        "doc_id": "CHEMBL4610106",
+        "doc_journal": "J Med Chem",
+        "doc_title": "Identification of the Clinical Development Candidate MRTX849, a Covalent KRASG12C Inhibitor for the Treatment of Cancer.",
         "id": "CHEMBL4612363",
         "type": "Functional"
       }

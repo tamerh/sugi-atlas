@@ -1066,12 +1066,12 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 
 **ChEMBL screening assays (722 unique, capped per target):** 708 binding, 14 functional
 
-Representative assays:
+Representative assays (with source publication via chembl_document):
 
-| Assay ID | Type | Description |
-| --- | --- | --- |
-| [CHEMBL2089529](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL2089529/) | Binding | Binding affinity to K-Ras G12D mutant-GDP complex |
-| [CHEMBL4612363](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4612363/) | Functional | In-vivo target engagement at KRAS G12C mutant in athymic nude-Foxn1nu mouse xenografted with human NCI-H358 cells assessed as KRAS G12C modification level in tumor lysate at 10 mg/kg, po dosed via gavage as single administration measured af |
+| Assay ID | Type | Description | Source paper |
+| --- | --- | --- | --- |
+| [CHEMBL2089529](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL2089529/) | Binding | Binding affinity to K-Ras G12D mutant-GDP complex | [Ras inhibition via direct Ras binding--is there a path forward?](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL2086330/) — *Bioorg Med Chem Lett* |
+| [CHEMBL4612363](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4612363/) | Functional | In-vivo target engagement at KRAS G12C mutant in athymic nude-Foxn1nu mouse xenografted with human NCI-H358 cells assessed as KRAS G12C modification level in tumor lysate at 10 mg/kg, po dosed via gavage as single administration measured af | [Identification of the Clinical Development Candidate MRTX849, a Covalent KRASG12C Inhib…](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL4610106/) — *J Med Chem* |
 
 **Cellosaurus cell lines (5,318):** 5,268 cancer cell line, 22 spontaneously immortalized cell line, 12 induced pluripotent stem cell, 7 transformed cell line, 4 telomerase immortalized cell line, 2 hybrid cell line, 2 factor-dependent cell line, 1 finite cell line
 
