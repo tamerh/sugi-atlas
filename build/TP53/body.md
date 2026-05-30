@@ -1017,38 +1017,38 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 
 **Top tissues by expression (281 total):**
 
-| Tissue | Score | Rank | Quality |
-| --- | --- | --- | --- |
-| ventricular zone | 95.11 | 2280 | gold quality |
-| ganglionic eminence | 94.13 | 2740 | gold quality |
-| tendon of biceps brachii | 92.63 | 3440 | gold quality |
-| monocyte | 90.86 | 4260 | gold quality |
-| stromal cell of endometrium | 90.85 | 4270 | gold quality |
-| leukocyte | 90.78 | 4300 | gold quality |
-| mononuclear cell | 90.55 | 4410 | gold quality |
-| skin of abdomen | 90.47 | 4440 | gold quality |
-| rectum | 90.40 | 4470 | gold quality |
-| granulocyte | 90.35 | 4500 | gold quality |
-| skin of leg | 90.30 | 4520 | gold quality |
-| smooth muscle tissue | 90.23 | 4560 | gold quality |
-| mucosa of transverse colon | 90.20 | 4570 | gold quality |
-| embryo | 90.05 | 4640 | gold quality |
-| sural nerve | 89.63 | 4830 | gold quality |
-| right ovary | 89.59 | 4850 | gold quality |
-| left ovary | 89.12 | 5070 | gold quality |
-| esophagus mucosa | 88.83 | 5210 | gold quality |
-| colonic epithelium | 88.70 | 5270 | gold quality |
-| zone of skin | 88.47 | 5380 | gold quality |
-| left uterine tube | 88.31 | 5450 | gold quality |
-| vermiform appendix | 88.27 | 5470 | gold quality |
-| right coronary artery | 88.24 | 5480 | gold quality |
-| spleen | 88.22 | 5490 | gold quality |
-| ovary | 88.01 | 5590 | gold quality |
-| lymph node | 87.97 | 5610 | gold quality |
-| ectocervix | 87.88 | 5650 | gold quality |
-| vagina | 87.72 | 5730 | gold quality |
-| body of uterus | 87.70 | 5740 | gold quality |
-| transverse colon | 87.60 | 5780 | gold quality |
+| Tissue | Anatomy ID | Score | Rank | Quality |
+| --- | --- | --- | --- | --- |
+| [ventricular zone](https://bioregistry.io/UBERON:0003053) | UBERON:0003053 | 95.11 | 2280 | gold quality |
+| [ganglionic eminence](https://bioregistry.io/UBERON:0004023) | UBERON:0004023 | 94.13 | 2740 | gold quality |
+| [tendon of biceps brachii](https://bioregistry.io/UBERON:0008188) | UBERON:0008188 | 92.63 | 3440 | gold quality |
+| [monocyte](https://bioregistry.io/CL:0000576) | CL:0000576 | 90.86 | 4260 | gold quality |
+| [stromal cell of endometrium](https://bioregistry.io/CL:0002255) | CL:0002255 | 90.85 | 4270 | gold quality |
+| [leukocyte](https://bioregistry.io/CL:0000738) | CL:0000738 | 90.78 | 4300 | gold quality |
+| [mononuclear cell](https://bioregistry.io/CL:0000842) | CL:0000842 | 90.55 | 4410 | gold quality |
+| [skin of abdomen](https://bioregistry.io/UBERON:0001416) | UBERON:0001416 | 90.47 | 4440 | gold quality |
+| [rectum](https://bioregistry.io/UBERON:0001052) | UBERON:0001052 | 90.40 | 4470 | gold quality |
+| [granulocyte](https://bioregistry.io/CL:0000094) | CL:0000094 | 90.35 | 4500 | gold quality |
+| [skin of leg](https://bioregistry.io/UBERON:0001511) | UBERON:0001511 | 90.30 | 4520 | gold quality |
+| [smooth muscle tissue](https://bioregistry.io/UBERON:0001135) | UBERON:0001135 | 90.23 | 4560 | gold quality |
+| [mucosa of transverse colon](https://bioregistry.io/UBERON:0004991) | UBERON:0004991 | 90.20 | 4570 | gold quality |
+| [embryo](https://bioregistry.io/UBERON:0000922) | UBERON:0000922 | 90.05 | 4640 | gold quality |
+| [sural nerve](https://bioregistry.io/UBERON:0015488) | UBERON:0015488 | 89.63 | 4830 | gold quality |
+| [right ovary](https://bioregistry.io/UBERON:0002118) | UBERON:0002118 | 89.59 | 4850 | gold quality |
+| [left ovary](https://bioregistry.io/UBERON:0002119) | UBERON:0002119 | 89.12 | 5070 | gold quality |
+| [esophagus mucosa](https://bioregistry.io/UBERON:0002469) | UBERON:0002469 | 88.83 | 5210 | gold quality |
+| [colonic epithelium](https://bioregistry.io/UBERON:0000397) | UBERON:0000397 | 88.70 | 5270 | gold quality |
+| [zone of skin](https://bioregistry.io/UBERON:0000014) | UBERON:0000014 | 88.47 | 5380 | gold quality |
+| [left uterine tube](https://bioregistry.io/UBERON:0001303) | UBERON:0001303 | 88.31 | 5450 | gold quality |
+| [vermiform appendix](https://bioregistry.io/UBERON:0001154) | UBERON:0001154 | 88.27 | 5470 | gold quality |
+| [right coronary artery](https://bioregistry.io/UBERON:0001625) | UBERON:0001625 | 88.24 | 5480 | gold quality |
+| [spleen](https://bioregistry.io/UBERON:0002106) | UBERON:0002106 | 88.22 | 5490 | gold quality |
+| [ovary](https://bioregistry.io/UBERON:0000992) | UBERON:0000992 | 88.01 | 5590 | gold quality |
+| [lymph node](https://bioregistry.io/UBERON:0000029) | UBERON:0000029 | 87.97 | 5610 | gold quality |
+| [ectocervix](https://bioregistry.io/UBERON:0012249) | UBERON:0012249 | 87.88 | 5650 | gold quality |
+| [vagina](https://bioregistry.io/UBERON:0000996) | UBERON:0000996 | 87.72 | 5730 | gold quality |
+| [body of uterus](https://bioregistry.io/UBERON:0009853) | UBERON:0009853 | 87.70 | 5740 | gold quality |
+| [transverse colon](https://bioregistry.io/UBERON:0001157) | UBERON:0001157 | 87.60 | 5780 | gold quality |
 
 **Single-cell datasets (1):**
 

@@ -5132,180 +5132,210 @@
     "tissue_count": 281,
     "top_tissues": [
       {
+        "anatomy_id": "UBERON:0003053",
         "quality": "gold quality",
         "rank": "2280",
         "score": "95.11",
         "tissue": "ventricular zone"
       },
       {
+        "anatomy_id": "UBERON:0004023",
         "quality": "gold quality",
         "rank": "2740",
         "score": "94.13",
         "tissue": "ganglionic eminence"
       },
       {
+        "anatomy_id": "UBERON:0008188",
         "quality": "gold quality",
         "rank": "3440",
         "score": "92.63",
         "tissue": "tendon of biceps brachii"
       },
       {
+        "anatomy_id": "CL:0000576",
         "quality": "gold quality",
         "rank": "4260",
         "score": "90.86",
         "tissue": "monocyte"
       },
       {
+        "anatomy_id": "CL:0002255",
         "quality": "gold quality",
         "rank": "4270",
         "score": "90.85",
         "tissue": "stromal cell of endometrium"
       },
       {
+        "anatomy_id": "CL:0000738",
         "quality": "gold quality",
         "rank": "4300",
         "score": "90.78",
         "tissue": "leukocyte"
       },
       {
+        "anatomy_id": "CL:0000842",
         "quality": "gold quality",
         "rank": "4410",
         "score": "90.55",
         "tissue": "mononuclear cell"
       },
       {
+        "anatomy_id": "UBERON:0001416",
         "quality": "gold quality",
         "rank": "4440",
         "score": "90.47",
         "tissue": "skin of abdomen"
       },
       {
+        "anatomy_id": "UBERON:0001052",
         "quality": "gold quality",
         "rank": "4470",
         "score": "90.40",
         "tissue": "rectum"
       },
       {
+        "anatomy_id": "CL:0000094",
         "quality": "gold quality",
         "rank": "4500",
         "score": "90.35",
         "tissue": "granulocyte"
       },
       {
+        "anatomy_id": "UBERON:0001511",
         "quality": "gold quality",
         "rank": "4520",
         "score": "90.30",
         "tissue": "skin of leg"
       },
       {
+        "anatomy_id": "UBERON:0001135",
         "quality": "gold quality",
         "rank": "4560",
         "score": "90.23",
         "tissue": "smooth muscle tissue"
       },
       {
+        "anatomy_id": "UBERON:0004991",
         "quality": "gold quality",
         "rank": "4570",
         "score": "90.20",
         "tissue": "mucosa of transverse colon"
       },
       {
+        "anatomy_id": "UBERON:0000922",
         "quality": "gold quality",
         "rank": "4640",
         "score": "90.05",
         "tissue": "embryo"
       },
       {
+        "anatomy_id": "UBERON:0015488",
         "quality": "gold quality",
         "rank": "4830",
         "score": "89.63",
         "tissue": "sural nerve"
       },
       {
+        "anatomy_id": "UBERON:0002118",
         "quality": "gold quality",
         "rank": "4850",
         "score": "89.59",
         "tissue": "right ovary"
       },
       {
+        "anatomy_id": "UBERON:0002119",
         "quality": "gold quality",
         "rank": "5070",
         "score": "89.12",
         "tissue": "left ovary"
       },
       {
+        "anatomy_id": "UBERON:0002469",
         "quality": "gold quality",
         "rank": "5210",
         "score": "88.83",
         "tissue": "esophagus mucosa"
       },
       {
+        "anatomy_id": "UBERON:0000397",
         "quality": "gold quality",
         "rank": "5270",
         "score": "88.70",
         "tissue": "colonic epithelium"
       },
       {
+        "anatomy_id": "UBERON:0000014",
         "quality": "gold quality",
         "rank": "5380",
         "score": "88.47",
         "tissue": "zone of skin"
       },
       {
+        "anatomy_id": "UBERON:0001303",
         "quality": "gold quality",
         "rank": "5450",
         "score": "88.31",
         "tissue": "left uterine tube"
       },
       {
+        "anatomy_id": "UBERON:0001154",
         "quality": "gold quality",
         "rank": "5470",
         "score": "88.27",
         "tissue": "vermiform appendix"
       },
       {
+        "anatomy_id": "UBERON:0001625",
         "quality": "gold quality",
         "rank": "5480",
         "score": "88.24",
         "tissue": "right coronary artery"
       },
       {
+        "anatomy_id": "UBERON:0002106",
         "quality": "gold quality",
         "rank": "5490",
         "score": "88.22",
         "tissue": "spleen"
       },
       {
+        "anatomy_id": "UBERON:0000992",
         "quality": "gold quality",
         "rank": "5590",
         "score": "88.01",
         "tissue": "ovary"
       },
       {
+        "anatomy_id": "UBERON:0000029",
         "quality": "gold quality",
         "rank": "5610",
         "score": "87.97",
         "tissue": "lymph node"
       },
       {
+        "anatomy_id": "UBERON:0012249",
         "quality": "gold quality",
         "rank": "5650",
         "score": "87.88",
         "tissue": "ectocervix"
       },
       {
+        "anatomy_id": "UBERON:0000996",
         "quality": "gold quality",
         "rank": "5730",
         "score": "87.72",
         "tissue": "vagina"
       },
       {
+        "anatomy_id": "UBERON:0009853",
         "quality": "gold quality",
         "rank": "5740",
         "score": "87.70",
         "tissue": "body of uterus"
       },
       {
+        "anatomy_id": "UBERON:0001157",
         "quality": "gold quality",
         "rank": "5780",
         "score": "87.60",
