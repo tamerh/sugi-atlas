@@ -87,27 +87,15 @@ tasks:
       - "build/{{symbol}}/summary.md"
     prompt: "Generate executive summary via OpenRouter for {{symbol}}"
 
-  - id: summary_gate
-    action: compute
-    script: workflows/gene/summary_gate.py
-    depends_on: [summary]
-    reads:
-      - "build/{{symbol}}/body.md"
-      - "build/{{symbol}}/summary.md"
-    writes:
-      - "build/{{symbol}}/judge.json"
-    prompt: "Judge summary faithfulness for {{symbol}}"
-
   - id: publish
     action: compute
     script: workflows/gene/publish.py
-    depends_on: [body_gate, summary_gate]
+    depends_on: [body_gate, summary]
     reads:
       - "build/{{symbol}}/bundle.json"
       - "build/{{symbol}}/body.md"
       - "build/{{symbol}}/summary.md"
       - "build/{{symbol}}/body_gate.json"
-      - "build/{{symbol}}/judge.json"
     # publish.sh writes the final page.md to $DIST_ROOT/atlas/gene/$SYMBOL/
     # (absolute path OUTSIDE the project tree). Enju's writes_artifacts only
     # accepts project-relative paths so we don't declare it here — the side

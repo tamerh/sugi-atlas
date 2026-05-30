@@ -45,7 +45,10 @@ def assemble_page(symbol, summary_text, body_md, meta):
     fm.append("")
     head = "\n".join(fm)
     if summary_text:
-        return head + "## Summary\n\n" + summary_text.strip() + "\n\n" + body_md + "\n"
+        model = meta.get("summary_model", "Qwen3-235B")
+        disclosure = (f"*Summary written by {model} from the deterministic data below. "
+                      f"Facts in the tables that follow are the authoritative source.*")
+        return head + "## Summary\n\n" + disclosure + "\n\n" + summary_text.strip() + "\n\n" + body_md + "\n"
     return head + body_md + "\n"
 
 def run_summary(body_md, symbol, model):

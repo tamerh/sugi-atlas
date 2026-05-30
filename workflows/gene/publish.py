@@ -15,10 +15,14 @@ os.makedirs(out, exist_ok=True)
 bundle  = json.load(open(f"build/{symbol}/bundle.json"))
 body    = open(f"build/{symbol}/body.md").read()
 summary = open(f"build/{symbol}/summary.md").read().strip()
+summary_model = ctx["params"].get("summary_model") or "qwen/qwen3-235b-a22b-2507|Together"
+# strip provider suffix + path for the human-facing disclosure line
+display_model = summary_model.split("|", 1)[0].split("/", 1)[-1]
 meta = {
     "title": symbol, "symbol": symbol, "entity_type": "gene",
     "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "atlas_version": V, "biobtree_version": biobtree_version(),
+    "summary_model": display_model,
 }
 page = assemble_page(symbol, summary, body, meta)
 open(f"{out}/page.md", "w").write(page)
