@@ -68,8 +68,8 @@
 | ENST00000945268 | protein_coding |
 | ENST00000945269 | protein_coding |
 
-**RefSeq mRNA: 371** — MANE Select: `NM_007294`
-`NM_001407571`, `NM_001407581`, `NM_001407582`, `NM_001407583`, `NM_001407585`, `NM_001407587`, `NM_001407590`, `NM_001407591`, `NM_001407593`, `NM_001407594`, `NM_001407596`, `NM_001407597`, `NM_001407598`, `NM_001407602`, `NM_001407603`, `NM_001407605`, `NM_001407610`, `NM_001407611`, `NM_001407612`, `NM_001407613`, `NM_001407614`, `NM_001407615`, `NM_001407616`, `NM_001407617`, `NM_001407618`, `NM_001407619`, `NM_001407620`, `NM_001407621`, `NM_001407622`, `NM_001407623`, `NM_001407624`, `NM_001407625`, `NM_001407626`, `NM_001407627`, `NM_001407628`, `NM_001407629`, `NM_001407630`, `NM_001407631`, `NM_001407632`, `NM_001407633`, `NM_001407634`, `NM_001407635`, `NM_001407636`, `NM_001407637`, `NM_001407638`, `NM_001407639`, `NM_001407640`, `NM_001407641`, `NM_001407642`, `NM_001407644`, `NM_001407645`, `NM_001407646`, `NM_001407647`, `NM_001407648`, `NM_001407649`, `NM_001407652`, `NM_001407653`, `NM_001407654`, `NM_001407655`, `NM_001407656`, `NM_001407657`, `NM_001407658`, `NM_001407659`, `NM_001407660`, `NM_001407661`, `NM_001407662`, `NM_001407663`, `NM_001407664`, `NM_001407665`, `NM_001407666`, `NM_001407667`, `NM_001407668`, `NM_001407669`, `NM_001407670`, `NM_001407671`, `NM_001407672`, `NM_001407673`, `NM_001407674`, `NM_001407675`, `NM_001407676`, `NM_001407677`, `NM_001407678`, `NM_001407679`, `NM_001407680`, `NM_001407681`, `NM_001407682`, `NM_001407683`, `NM_001407684`, `NM_001407685`, `NM_001407686`, `NM_001407687`, `NM_001407688`, `NM_001407689`, `NM_001407690`, `NM_001407691`, `NM_001407692`, `NM_001407694`, `NM_001407695`, `NM_001407696`, `NM_001407697`, `NM_001407698`, `NM_001407724`, `NM_001407725`, `NM_001407726`, `NM_001407727`, `NM_001407728`, `NM_001407729`, `NM_001407730`, `NM_001407731`, `NM_001407732`, `NM_001407733`, `NM_001407734`, `NM_001407735`, `NM_001407736`, `NM_001407737`, `NM_001407738`, `NM_001407739`, `NM_001407740`, `NM_001407741`, `NM_001407742`, `NM_001407743`, `NM_001407744`, `NM_001407745`, `NM_001407746`, `NM_001407747`, `NM_001407748`, `NM_001407749`, `NM_001407750`, `NM_001407751`, `NM_001407752`, `NM_001407838`, `NM_001407839`, `NM_001407841`, `NM_001407842`, `NM_001407843`, `NM_001407844`, `NM_001407845`, `NM_001407846`, `NM_001407847`, `NM_001407848`, `NM_001407849`, `NM_001407850`, `NM_001407851`, `NM_001407852`, `NM_001407853`, `NM_001407854`, `NM_001407858`, `NM_001407859`, `NM_001407860`, `NM_001407861`, `NM_001407862`, `NM_001407863`, `NM_001407874`, `NM_001407875`, `NM_001407879`, `NM_001407881`, `NM_001407882`, `NM_001407884`, `NM_001407885`, `NM_001407886`, `NM_001407887`, `NM_001407889`, `NM_001407894`, `NM_001407895`, `NM_001407896`, `NM_001407897`, `NM_001407898`, `NM_001407899`, `NM_001407900`, `NM_001407902`, `NM_001407904`, `NM_001407906`, `NM_001407907`, `NM_001407908`, `NM_001407909`, `NM_001407910`, `NM_001407915`, `NM_001407916`, `NM_001407917`, `NM_001407918`, `NM_001407919`, `NM_001407920`, `NM_001407921`, `NM_001407922`, `NM_001407923`, `NM_001407924`, `NM_001407925`, `NM_001407926`, `NM_001407927`, `NM_001407928`, `NM_001407929`, `NM_001407930`, `NM_001407931`, `NM_001407932`, `NM_001407933`, `NM_001407934`, `NM_001407935`, `NM_001407936`, `NM_001407937`, `NM_001407938`, `NM_001407939`, `NM_001407940`, `NM_001407941`, `NM_001407942`, `NM_001407943`, `NM_001407944`, `NM_001407945`, `NM_001407946`, `NM_001407947`, `NM_001407948`, `NM_001407949`, `NM_001407950`, `NM_001407951`, `NM_001407952`, `NM_001407953`, `NM_001407954`, `NM_001407955`, `NM_001407956`, `NM_001407957`, `NM_001407958`, `NM_001407959`, `NM_001407960`, `NM_001407962`, `NM_001407963`, `NM_001407964`, `NM_001407965`, `NM_001407966`, `NM_001407967`, `NM_001407968`, `NM_001407969`, `NM_001407970`, `NM_001407971`, `NM_001407972`, `NM_001407973`, `NM_001407974`, `NM_001407975`, `NM_001407976`, `NM_001407977`, `NM_001407978`, `NM_001407979`, `NM_001407980`, `NM_001407981`, `NM_001407982`, `NM_001407983`, `NM_001407984`, `NM_001407985`, `NM_001407986`, `NM_001407990`, `NM_001407991`, `NM_001407992`, `NM_001407993`, `NM_001408392`, `NM_001408396`, `NM_001408397`, `NM_001408398`, `NM_001408399`, `NM_001408400`, `NM_001408401`, `NM_001408402`, `NM_001408403`, `NM_001408404`, `NM_001408406`, `NM_001408407`, `NM_001408408`, `NM_001408409`, `NM_001408410`, `NM_001408411`, `NM_001408412`, `NM_001408413`, `NM_001408414`, `NM_001408415`, `NM_001408416`, `NM_001408418`, `NM_001408419`, `NM_001408420`, `NM_001408421`, `NM_001408422`, `NM_001408423`, `NM_001408424`, `NM_001408425`, `NM_001408426`, `NM_001408427`, `NM_001408428`, `NM_001408429`, `NM_001408430`, `NM_001408431`, `NM_001408432`, `NM_001408433`, `NM_001408434`, `NM_001408435`, `NM_001408436`, `NM_001408437`, `NM_001408438`, `NM_001408439`, `NM_001408440`, `NM_001408441`, `NM_001408442`, `NM_001408443`, `NM_001408444`, `NM_001408445`, `NM_001408446`, `NM_001408447`, `NM_001408448`, `NM_001408450`, `NM_001408451`, `NM_001408452`, `NM_001408453`, `NM_001408454`, `NM_001408455`, `NM_001408456`, `NM_001408457`, `NM_001408458`, `NM_001408459`, `NM_001408460`, `NM_001408461`, `NM_001408462`, `NM_001408463`, `NM_001408464`, `NM_001408465`, `NM_001408466`, `NM_001408467`, `NM_001408468`, `NM_001408469`, `NM_001408470`, `NM_001408472`, `NM_001408473`, `NM_001408474`, `NM_001408475`, `NM_001408476`, `NM_001408478`, `NM_001408479`, `NM_001408480`, `NM_001408481`, `NM_001408482`, `NM_001408483`, `NM_001408484`, `NM_001408485`, `NM_001408489`, `NM_001408490`, `NM_001408491`, `NM_001408492`, `NM_001408493`, `NM_001408494`, `NM_001408495`, `NM_001408496`, `NM_001408497`, `NM_001408498`, `NM_001408499`, `NM_001408500`, `NM_001408501`, `NM_001408502`, `NM_001408503`, `NM_001408504`, `NM_001408505`, `NM_001408506`, `NM_001408507`, `NM_001408508`, `NM_001408509`, `NM_001408510`, `NM_001408511`, `NM_001408512`, `NM_001408513`, `NM_001408514`, `NM_007294`, `NM_007297`, `NM_007298`, `NM_007299`, `NM_007300`, `NM_009764`, `NM_012514`, `NM_118225`
+**RefSeq mRNA: 368** — MANE Select: `NM_007294`
+`NM_001407571`, `NM_001407581`, `NM_001407582`, `NM_001407583`, `NM_001407585`, `NM_001407587`, `NM_001407590`, `NM_001407591`, `NM_001407593`, `NM_001407594`, `NM_001407596`, `NM_001407597`, `NM_001407598`, `NM_001407602`, `NM_001407603`, `NM_001407605`, `NM_001407610`, `NM_001407611`, `NM_001407612`, `NM_001407613`, `NM_001407614`, `NM_001407615`, `NM_001407616`, `NM_001407617`, `NM_001407618`, `NM_001407619`, `NM_001407620`, `NM_001407621`, `NM_001407622`, `NM_001407623`, `NM_001407624`, `NM_001407625`, `NM_001407626`, `NM_001407627`, `NM_001407628`, `NM_001407629`, `NM_001407630`, `NM_001407631`, `NM_001407632`, `NM_001407633`, `NM_001407634`, `NM_001407635`, `NM_001407636`, `NM_001407637`, `NM_001407638`, `NM_001407639`, `NM_001407640`, `NM_001407641`, `NM_001407642`, `NM_001407644`, `NM_001407645`, `NM_001407646`, `NM_001407647`, `NM_001407648`, `NM_001407649`, `NM_001407652`, `NM_001407653`, `NM_001407654`, `NM_001407655`, `NM_001407656`, `NM_001407657`, `NM_001407658`, `NM_001407659`, `NM_001407660`, `NM_001407661`, `NM_001407662`, `NM_001407663`, `NM_001407664`, `NM_001407665`, `NM_001407666`, `NM_001407667`, `NM_001407668`, `NM_001407669`, `NM_001407670`, `NM_001407671`, `NM_001407672`, `NM_001407673`, `NM_001407674`, `NM_001407675`, `NM_001407676`, `NM_001407677`, `NM_001407678`, `NM_001407679`, `NM_001407680`, `NM_001407681`, `NM_001407682`, `NM_001407683`, `NM_001407684`, `NM_001407685`, `NM_001407686`, `NM_001407687`, `NM_001407688`, `NM_001407689`, `NM_001407690`, `NM_001407691`, `NM_001407692`, `NM_001407694`, `NM_001407695`, `NM_001407696`, `NM_001407697`, `NM_001407698`, `NM_001407724`, `NM_001407725`, `NM_001407726`, `NM_001407727`, `NM_001407728`, `NM_001407729`, `NM_001407730`, `NM_001407731`, `NM_001407732`, `NM_001407733`, `NM_001407734`, `NM_001407735`, `NM_001407736`, `NM_001407737`, `NM_001407738`, `NM_001407739`, `NM_001407740`, `NM_001407741`, `NM_001407742`, `NM_001407743`, `NM_001407744`, `NM_001407745`, `NM_001407746`, `NM_001407747`, `NM_001407748`, `NM_001407749`, `NM_001407750`, `NM_001407751`, `NM_001407752`, `NM_001407838`, `NM_001407839`, `NM_001407841`, `NM_001407842`, `NM_001407843`, `NM_001407844`, `NM_001407845`, `NM_001407846`, `NM_001407847`, `NM_001407848`, `NM_001407849`, `NM_001407850`, `NM_001407851`, `NM_001407852`, `NM_001407853`, `NM_001407854`, `NM_001407858`, `NM_001407859`, `NM_001407860`, `NM_001407861`, `NM_001407862`, `NM_001407863`, `NM_001407874`, `NM_001407875`, `NM_001407879`, `NM_001407881`, `NM_001407882`, `NM_001407884`, `NM_001407885`, `NM_001407886`, `NM_001407887`, `NM_001407889`, `NM_001407894`, `NM_001407895`, `NM_001407896`, `NM_001407897`, `NM_001407898`, `NM_001407899`, `NM_001407900`, `NM_001407902`, `NM_001407904`, `NM_001407906`, `NM_001407907`, `NM_001407908`, `NM_001407909`, `NM_001407910`, `NM_001407915`, `NM_001407916`, `NM_001407917`, `NM_001407918`, `NM_001407919`, `NM_001407920`, `NM_001407921`, `NM_001407922`, `NM_001407923`, `NM_001407924`, `NM_001407925`, `NM_001407926`, `NM_001407927`, `NM_001407928`, `NM_001407929`, `NM_001407930`, `NM_001407931`, `NM_001407932`, `NM_001407933`, `NM_001407934`, `NM_001407935`, `NM_001407936`, `NM_001407937`, `NM_001407938`, `NM_001407939`, `NM_001407940`, `NM_001407941`, `NM_001407942`, `NM_001407943`, `NM_001407944`, `NM_001407945`, `NM_001407946`, `NM_001407947`, `NM_001407948`, `NM_001407949`, `NM_001407950`, `NM_001407951`, `NM_001407952`, `NM_001407953`, `NM_001407954`, `NM_001407955`, `NM_001407956`, `NM_001407957`, `NM_001407958`, `NM_001407959`, `NM_001407960`, `NM_001407962`, `NM_001407963`, `NM_001407964`, `NM_001407965`, `NM_001407966`, `NM_001407967`, `NM_001407968`, `NM_001407969`, `NM_001407970`, `NM_001407971`, `NM_001407972`, `NM_001407973`, `NM_001407974`, `NM_001407975`, `NM_001407976`, `NM_001407977`, `NM_001407978`, `NM_001407979`, `NM_001407980`, `NM_001407981`, `NM_001407982`, `NM_001407983`, `NM_001407984`, `NM_001407985`, `NM_001407986`, `NM_001407990`, `NM_001407991`, `NM_001407992`, `NM_001407993`, `NM_001408392`, `NM_001408396`, `NM_001408397`, `NM_001408398`, `NM_001408399`, `NM_001408400`, `NM_001408401`, `NM_001408402`, `NM_001408403`, `NM_001408404`, `NM_001408406`, `NM_001408407`, `NM_001408408`, `NM_001408409`, `NM_001408410`, `NM_001408411`, `NM_001408412`, `NM_001408413`, `NM_001408414`, `NM_001408415`, `NM_001408416`, `NM_001408418`, `NM_001408419`, `NM_001408420`, `NM_001408421`, `NM_001408422`, `NM_001408423`, `NM_001408424`, `NM_001408425`, `NM_001408426`, `NM_001408427`, `NM_001408428`, `NM_001408429`, `NM_001408430`, `NM_001408431`, `NM_001408432`, `NM_001408433`, `NM_001408434`, `NM_001408435`, `NM_001408436`, `NM_001408437`, `NM_001408438`, `NM_001408439`, `NM_001408440`, `NM_001408441`, `NM_001408442`, `NM_001408443`, `NM_001408444`, `NM_001408445`, `NM_001408446`, `NM_001408447`, `NM_001408448`, `NM_001408450`, `NM_001408451`, `NM_001408452`, `NM_001408453`, `NM_001408454`, `NM_001408455`, `NM_001408456`, `NM_001408457`, `NM_001408458`, `NM_001408459`, `NM_001408460`, `NM_001408461`, `NM_001408462`, `NM_001408463`, `NM_001408464`, `NM_001408465`, `NM_001408466`, `NM_001408467`, `NM_001408468`, `NM_001408469`, `NM_001408470`, `NM_001408472`, `NM_001408473`, `NM_001408474`, `NM_001408475`, `NM_001408476`, `NM_001408478`, `NM_001408479`, `NM_001408480`, `NM_001408481`, `NM_001408482`, `NM_001408483`, `NM_001408484`, `NM_001408485`, `NM_001408489`, `NM_001408490`, `NM_001408491`, `NM_001408492`, `NM_001408493`, `NM_001408494`, `NM_001408495`, `NM_001408496`, `NM_001408497`, `NM_001408498`, `NM_001408499`, `NM_001408500`, `NM_001408501`, `NM_001408502`, `NM_001408503`, `NM_001408504`, `NM_001408505`, `NM_001408506`, `NM_001408507`, `NM_001408508`, `NM_001408509`, `NM_001408510`, `NM_001408511`, `NM_001408512`, `NM_001408513`, `NM_001408514`, `NM_007294`, `NM_007297`, `NM_007298`, `NM_007299`, `NM_007300`
 
 **CCDS:** `CCDS11453`, `CCDS11454`, `CCDS11455`, `CCDS11456`, `CCDS11459`
 
@@ -105,9 +105,9 @@
 
 **Canonical reviewed UniProt:** `P38398` (reviewed: P38398)
 
-**All UniProt accessions (22):** `A0A0U1RRA9`, `A0A2R8Y6Y9`, `A0A2R8Y7V5`, `A0A494C182`, `A0A8V8TPY7`, `A0A9Y1QPT7`, `A0A9Y1QQK3`, `C6YB45`, `C9IZW4`, `E7ENB7`, `E7EQW4`, `E7EUM2`, `E7EWN5`, `E9PC22`, `P38398`, `G1UI37`, `H0Y850`, `H0Y8B8`, `H0Y8D8`, `K7EJW3`, `K7EPC7`, `Q3B891`
+**All UniProt accessions (22):** `P38398`, `A0A0U1RRA9`, `A0A2R8Y6Y9`, `A0A2R8Y7V5`, `A0A494C182`, `A0A8V8TPY7`, `A0A9Y1QPT7`, `A0A9Y1QQK3`, `C6YB45`, `C9IZW4`, `E7ENB7`, `E7EQW4`, `E7EUM2`, `E7EWN5`, `E9PC22`, `G1UI37`, `H0Y850`, `H0Y8B8`, `H0Y8D8`, `K7EJW3`, `K7EPC7`, `Q3B891`
 
-**RefSeq proteins (371):** `NP_001394500`, `NP_001394510`, `NP_001394511`, `NP_001394512`, `NP_001394514`, `NP_001394516`, `NP_001394519`, `NP_001394520`, `NP_001394522`, `NP_001394523`, `NP_001394525`, `NP_001394526`, `NP_001394527`, `NP_001394531`, `NP_001394532`, `NP_001394534`, `NP_001394539`, `NP_001394540`, `NP_001394541`, `NP_001394542`, `NP_001394543`, `NP_001394544`, `NP_001394545`, `NP_001394546`, `NP_001394547`, `NP_001394548`, `NP_001394549`, `NP_001394550`, `NP_001394551`, `NP_001394552`, `NP_001394553`, `NP_001394554`, `NP_001394555`, `NP_001394556`, `NP_001394557`, `NP_001394558`, `NP_001394559`, `NP_001394560`, `NP_001394561`, `NP_001394562`, `NP_001394563`, `NP_001394564`, `NP_001394565`, `NP_001394566`, `NP_001394567`, `NP_001394568`, `NP_001394569`, `NP_001394570`, `NP_001394571`, `NP_001394573`, `NP_001394574`, `NP_001394575`, `NP_001394576`, `NP_001394577`, `NP_001394578`, `NP_001394581`, `NP_001394582`, `NP_001394583`, `NP_001394584`, `NP_001394585`, `NP_001394586`, `NP_001394587`, `NP_001394588`, `NP_001394589`, `NP_001394590`, `NP_001394591`, `NP_001394592`, `NP_001394593`, `NP_001394594`, `NP_001394595`, `NP_001394596`, `NP_001394597`, `NP_001394598`, `NP_001394599`, `NP_001394600`, `NP_001394601`, `NP_001394602`, `NP_001394603`, `NP_001394604`, `NP_001394605`, `NP_001394606`, `NP_001394607`, `NP_001394608`, `NP_001394609`, `NP_001394610`, `NP_001394611`, `NP_001394612`, `NP_001394613`, `NP_001394614`, `NP_001394615`, `NP_001394616`, `NP_001394617`, `NP_001394618`, `NP_001394619`, `NP_001394620`, `NP_001394621`, `NP_001394623`, `NP_001394624`, `NP_001394625`, `NP_001394626`, `NP_001394627`, `NP_001394653`, `NP_001394654`, `NP_001394655`, `NP_001394656`, `NP_001394657`, `NP_001394658`, `NP_001394659`, `NP_001394660`, `NP_001394661`, `NP_001394662`, `NP_001394663`, `NP_001394664`, `NP_001394665`, `NP_001394666`, `NP_001394667`, `NP_001394668`, `NP_001394669`, `NP_001394670`, `NP_001394671`, `NP_001394672`, `NP_001394673`, `NP_001394674`, `NP_001394675`, `NP_001394676`, `NP_001394677`, `NP_001394678`, `NP_001394679`, `NP_001394680`, `NP_001394681`, `NP_001394767`, `NP_001394768`, `NP_001394770`, `NP_001394771`, `NP_001394772`, `NP_001394773`, `NP_001394774`, `NP_001394775`, `NP_001394776`, `NP_001394777`, `NP_001394778`, `NP_001394779`, `NP_001394780`, `NP_001394781`, `NP_001394782`, `NP_001394783`, `NP_001394787`, `NP_001394788`, `NP_001394789`, `NP_001394790`, `NP_001394791`, `NP_001394792`, `NP_001394803`, `NP_001394804`, `NP_001394808`, `NP_001394810`, `NP_001394811`, `NP_001394813`, `NP_001394814`, `NP_001394815`, `NP_001394816`, `NP_001394818`, `NP_001394823`, `NP_001394824`, `NP_001394825`, `NP_001394826`, `NP_001394827`, `NP_001394828`, `NP_001394829`, `NP_001394831`, `NP_001394833`, `NP_001394835`, `NP_001394836`, `NP_001394837`, `NP_001394838`, `NP_001394839`, `NP_001394844`, `NP_001394845`, `NP_001394846`, `NP_001394847`, `NP_001394848`, `NP_001394849`, `NP_001394850`, `NP_001394851`, `NP_001394852`, `NP_001394853`, `NP_001394854`, `NP_001394855`, `NP_001394856`, `NP_001394857`, `NP_001394858`, `NP_001394859`, `NP_001394860`, `NP_001394861`, `NP_001394862`, `NP_001394863`, `NP_001394864`, `NP_001394865`, `NP_001394866`, `NP_001394867`, `NP_001394868`, `NP_001394869`, `NP_001394870`, `NP_001394871`, `NP_001394872`, `NP_001394873`, `NP_001394874`, `NP_001394875`, `NP_001394876`, `NP_001394877`, `NP_001394878`, `NP_001394879`, `NP_001394880`, `NP_001394881`, `NP_001394882`, `NP_001394883`, `NP_001394884`, `NP_001394885`, `NP_001394886`, `NP_001394887`, `NP_001394888`, `NP_001394889`, `NP_001394891`, `NP_001394892`, `NP_001394893`, `NP_001394894`, `NP_001394895`, `NP_001394896`, `NP_001394897`, `NP_001394898`, `NP_001394899`, `NP_001394900`, `NP_001394901`, `NP_001394902`, `NP_001394903`, `NP_001394904`, `NP_001394905`, `NP_001394906`, `NP_001394907`, `NP_001394908`, `NP_001394909`, `NP_001394910`, `NP_001394911`, `NP_001394912`, `NP_001394913`, `NP_001394914`, `NP_001394915`, `NP_001394919`, `NP_001394920`, `NP_001394921`, `NP_001394922`, `NP_001395321`, `NP_001395325`, `NP_001395326`, `NP_001395327`, `NP_001395328`, `NP_001395329`, `NP_001395330`, `NP_001395331`, `NP_001395332`, `NP_001395333`, `NP_001395335`, `NP_001395336`, `NP_001395337`, `NP_001395338`, `NP_001395339`, `NP_001395340`, `NP_001395341`, `NP_001395342`, `NP_001395343`, `NP_001395344`, `NP_001395345`, `NP_001395347`, `NP_001395348`, `NP_001395349`, `NP_001395350`, `NP_001395351`, `NP_001395352`, `NP_001395353`, `NP_001395354`, `NP_001395355`, `NP_001395356`, `NP_001395357`, `NP_001395358`, `NP_001395359`, `NP_001395360`, `NP_001395361`, `NP_001395362`, `NP_001395363`, `NP_001395364`, `NP_001395365`, `NP_001395366`, `NP_001395367`, `NP_001395368`, `NP_001395369`, `NP_001395370`, `NP_001395371`, `NP_001395372`, `NP_001395373`, `NP_001395374`, `NP_001395375`, `NP_001395376`, `NP_001395377`, `NP_001395379`, `NP_001395380`, `NP_001395381`, `NP_001395382`, `NP_001395383`, `NP_001395384`, `NP_001395385`, `NP_001395386`, `NP_001395387`, `NP_001395388`, `NP_001395389`, `NP_001395390`, `NP_001395391`, `NP_001395392`, `NP_001395393`, `NP_001395394`, `NP_001395395`, `NP_001395396`, `NP_001395397`, `NP_001395398`, `NP_001395399`, `NP_001395401`, `NP_001395402`, `NP_001395403`, `NP_001395404`, `NP_001395405`, `NP_001395407`, `NP_001395408`, `NP_001395409`, `NP_001395410`, `NP_001395411`, `NP_001395412`, `NP_001395413`, `NP_001395414`, `NP_001395418`, `NP_001395419`, `NP_001395420`, `NP_001395421`, `NP_001395422`, `NP_001395423`, `NP_001395424`, `NP_001395425`, `NP_001395426`, `NP_001395427`, `NP_001395428`, `NP_001395429`, `NP_001395430`, `NP_001395431`, `NP_001395432`, `NP_001395433`, `NP_001395434`, `NP_001395435`, `NP_001395436`, `NP_001395437`, `NP_001395438`, `NP_001395439`, `NP_001395440`, `NP_001395441`, `NP_001395442`, `NP_001395443`, `NP_009225`*, `NP_009228`, `NP_009229`, `NP_009230`, `NP_009231`, `NP_033894`, `NP_036646`, `NP_193839`  (*=MANE)
+**RefSeq proteins (368):** `NP_001394500`, `NP_001394510`, `NP_001394511`, `NP_001394512`, `NP_001394514`, `NP_001394516`, `NP_001394519`, `NP_001394520`, `NP_001394522`, `NP_001394523`, `NP_001394525`, `NP_001394526`, `NP_001394527`, `NP_001394531`, `NP_001394532`, `NP_001394534`, `NP_001394539`, `NP_001394540`, `NP_001394541`, `NP_001394542`, `NP_001394543`, `NP_001394544`, `NP_001394545`, `NP_001394546`, `NP_001394547`, `NP_001394548`, `NP_001394549`, `NP_001394550`, `NP_001394551`, `NP_001394552`, `NP_001394553`, `NP_001394554`, `NP_001394555`, `NP_001394556`, `NP_001394557`, `NP_001394558`, `NP_001394559`, `NP_001394560`, `NP_001394561`, `NP_001394562`, `NP_001394563`, `NP_001394564`, `NP_001394565`, `NP_001394566`, `NP_001394567`, `NP_001394568`, `NP_001394569`, `NP_001394570`, `NP_001394571`, `NP_001394573`, `NP_001394574`, `NP_001394575`, `NP_001394576`, `NP_001394577`, `NP_001394578`, `NP_001394581`, `NP_001394582`, `NP_001394583`, `NP_001394584`, `NP_001394585`, `NP_001394586`, `NP_001394587`, `NP_001394588`, `NP_001394589`, `NP_001394590`, `NP_001394591`, `NP_001394592`, `NP_001394593`, `NP_001394594`, `NP_001394595`, `NP_001394596`, `NP_001394597`, `NP_001394598`, `NP_001394599`, `NP_001394600`, `NP_001394601`, `NP_001394602`, `NP_001394603`, `NP_001394604`, `NP_001394605`, `NP_001394606`, `NP_001394607`, `NP_001394608`, `NP_001394609`, `NP_001394610`, `NP_001394611`, `NP_001394612`, `NP_001394613`, `NP_001394614`, `NP_001394615`, `NP_001394616`, `NP_001394617`, `NP_001394618`, `NP_001394619`, `NP_001394620`, `NP_001394621`, `NP_001394623`, `NP_001394624`, `NP_001394625`, `NP_001394626`, `NP_001394627`, `NP_001394653`, `NP_001394654`, `NP_001394655`, `NP_001394656`, `NP_001394657`, `NP_001394658`, `NP_001394659`, `NP_001394660`, `NP_001394661`, `NP_001394662`, `NP_001394663`, `NP_001394664`, `NP_001394665`, `NP_001394666`, `NP_001394667`, `NP_001394668`, `NP_001394669`, `NP_001394670`, `NP_001394671`, `NP_001394672`, `NP_001394673`, `NP_001394674`, `NP_001394675`, `NP_001394676`, `NP_001394677`, `NP_001394678`, `NP_001394679`, `NP_001394680`, `NP_001394681`, `NP_001394767`, `NP_001394768`, `NP_001394770`, `NP_001394771`, `NP_001394772`, `NP_001394773`, `NP_001394774`, `NP_001394775`, `NP_001394776`, `NP_001394777`, `NP_001394778`, `NP_001394779`, `NP_001394780`, `NP_001394781`, `NP_001394782`, `NP_001394783`, `NP_001394787`, `NP_001394788`, `NP_001394789`, `NP_001394790`, `NP_001394791`, `NP_001394792`, `NP_001394803`, `NP_001394804`, `NP_001394808`, `NP_001394810`, `NP_001394811`, `NP_001394813`, `NP_001394814`, `NP_001394815`, `NP_001394816`, `NP_001394818`, `NP_001394823`, `NP_001394824`, `NP_001394825`, `NP_001394826`, `NP_001394827`, `NP_001394828`, `NP_001394829`, `NP_001394831`, `NP_001394833`, `NP_001394835`, `NP_001394836`, `NP_001394837`, `NP_001394838`, `NP_001394839`, `NP_001394844`, `NP_001394845`, `NP_001394846`, `NP_001394847`, `NP_001394848`, `NP_001394849`, `NP_001394850`, `NP_001394851`, `NP_001394852`, `NP_001394853`, `NP_001394854`, `NP_001394855`, `NP_001394856`, `NP_001394857`, `NP_001394858`, `NP_001394859`, `NP_001394860`, `NP_001394861`, `NP_001394862`, `NP_001394863`, `NP_001394864`, `NP_001394865`, `NP_001394866`, `NP_001394867`, `NP_001394868`, `NP_001394869`, `NP_001394870`, `NP_001394871`, `NP_001394872`, `NP_001394873`, `NP_001394874`, `NP_001394875`, `NP_001394876`, `NP_001394877`, `NP_001394878`, `NP_001394879`, `NP_001394880`, `NP_001394881`, `NP_001394882`, `NP_001394883`, `NP_001394884`, `NP_001394885`, `NP_001394886`, `NP_001394887`, `NP_001394888`, `NP_001394889`, `NP_001394891`, `NP_001394892`, `NP_001394893`, `NP_001394894`, `NP_001394895`, `NP_001394896`, `NP_001394897`, `NP_001394898`, `NP_001394899`, `NP_001394900`, `NP_001394901`, `NP_001394902`, `NP_001394903`, `NP_001394904`, `NP_001394905`, `NP_001394906`, `NP_001394907`, `NP_001394908`, `NP_001394909`, `NP_001394910`, `NP_001394911`, `NP_001394912`, `NP_001394913`, `NP_001394914`, `NP_001394915`, `NP_001394919`, `NP_001394920`, `NP_001394921`, `NP_001394922`, `NP_001395321`, `NP_001395325`, `NP_001395326`, `NP_001395327`, `NP_001395328`, `NP_001395329`, `NP_001395330`, `NP_001395331`, `NP_001395332`, `NP_001395333`, `NP_001395335`, `NP_001395336`, `NP_001395337`, `NP_001395338`, `NP_001395339`, `NP_001395340`, `NP_001395341`, `NP_001395342`, `NP_001395343`, `NP_001395344`, `NP_001395345`, `NP_001395347`, `NP_001395348`, `NP_001395349`, `NP_001395350`, `NP_001395351`, `NP_001395352`, `NP_001395353`, `NP_001395354`, `NP_001395355`, `NP_001395356`, `NP_001395357`, `NP_001395358`, `NP_001395359`, `NP_001395360`, `NP_001395361`, `NP_001395362`, `NP_001395363`, `NP_001395364`, `NP_001395365`, `NP_001395366`, `NP_001395367`, `NP_001395368`, `NP_001395369`, `NP_001395370`, `NP_001395371`, `NP_001395372`, `NP_001395373`, `NP_001395374`, `NP_001395375`, `NP_001395376`, `NP_001395377`, `NP_001395379`, `NP_001395380`, `NP_001395381`, `NP_001395382`, `NP_001395383`, `NP_001395384`, `NP_001395385`, `NP_001395386`, `NP_001395387`, `NP_001395388`, `NP_001395389`, `NP_001395390`, `NP_001395391`, `NP_001395392`, `NP_001395393`, `NP_001395394`, `NP_001395395`, `NP_001395396`, `NP_001395397`, `NP_001395398`, `NP_001395399`, `NP_001395401`, `NP_001395402`, `NP_001395403`, `NP_001395404`, `NP_001395405`, `NP_001395407`, `NP_001395408`, `NP_001395409`, `NP_001395410`, `NP_001395411`, `NP_001395412`, `NP_001395413`, `NP_001395414`, `NP_001395418`, `NP_001395419`, `NP_001395420`, `NP_001395421`, `NP_001395422`, `NP_001395423`, `NP_001395424`, `NP_001395425`, `NP_001395426`, `NP_001395427`, `NP_001395428`, `NP_001395429`, `NP_001395430`, `NP_001395431`, `NP_001395432`, `NP_001395433`, `NP_001395434`, `NP_001395435`, `NP_001395436`, `NP_001395437`, `NP_001395438`, `NP_001395439`, `NP_001395440`, `NP_001395441`, `NP_001395442`, `NP_001395443`, `NP_009225`*, `NP_009228`, `NP_009229`, `NP_009230`, `NP_009231`  (*=MANE)
 
 **Domains & families (InterPro):**
 
@@ -218,15 +218,15 @@
 
 ## Clinical variants & AI predictions
 
-**ClinVar: 15445 variants total.** Per-class counts are floors (≥ shown; pagination cap):
+**ClinVar: 15323 variants total.** Per-class counts are floors (≥ shown; pagination cap):
 
 | Classification | Count (floor) |
 | --- | --- |
-| Pathogenic | 4004 |
-| Likely pathogenic | 322 |
-| Uncertain significance | 2417 |
-| Likely benign | 2714 |
-| Benign | 731 |
+| Pathogenic | 3991 |
+| Likely pathogenic | 326 |
+| Uncertain significance | 2460 |
+| Likely benign | 2706 |
+| Benign | 729 |
 
 **Top pathogenic / likely-pathogenic (30):**
 
@@ -386,7 +386,7 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 
 ## Protein interactions & networks
 
-**STRING (2050), top by confidence (×1000):**
+**STRING (6100), top by confidence (×1000):**
 
 | Partner | Score |
 | --- | --- |
@@ -523,40 +523,40 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 
 **Upstream regulators (CollecTRI, top):** AHR, AP1, APEX1, ARNT, ASPM, BHLHE41, BRCA1, CHD8, CREB1, CREBBP, CTBP1, CTBP2, CTCF, CTCFL, CTNNBL1, DLX4, DNMT1, DNMT3A, DNMT3B, E2F1
 
-**miRNA regulators (miRDB): 121** targeting BRCA1, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+**miRNA regulators (miRDB): 43** targeting BRCA1, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
 
 | miRNA | Max score | Avg score | miRNA target_count |
 | --- | --- | --- | --- |
-| HSA-MIR-3163 | 100.00 | 77.23 | 8605 |
-| HSA-MIR-5692A | 100.00 | 74.40 | 6850 |
-| MMU-MIR-669N | 99.99 | 68.53 | 1287 |
 | HSA-MIR-548P | 99.98 | 72.25 | 3784 |
 | HSA-MIR-493-5P | 99.96 | 72.47 | 2382 |
 | HSA-MIR-1250-3P | 99.96 | 70.04 | 4038 |
 | HSA-MIR-545-3P | 99.95 | 70.74 | 2783 |
 | HSA-LET-7C-3P | 99.95 | 73.42 | 2862 |
-| HSA-MIR-4525 | 99.94 | 64.38 | 675 |
-| HSA-MIR-5010-5P | 99.94 | 64.11 | 705 |
-| MMU-MIR-712-5P | 99.94 | 69.23 | 1189 |
-| MMU-MIR-21B | 99.92 | 70.45 | 1512 |
 | HSA-MIR-6499-3P | 99.90 | 66.38 | 1212 |
-| MMU-MIR-22-5P | 99.88 | 68.28 | 843 |
-| MMU-MIR-1B-5P | 99.88 | 70.16 | 970 |
-| MMU-MIR-29A-3P | 99.87 | 73.25 | 1228 |
-| MMU-MIR-29B-3P | 99.87 | 73.22 | 1228 |
-| MMU-MIR-29C-3P | 99.87 | 73.24 | 1227 |
-| HSA-MIR-221-5P | 99.86 | 65.45 | 1052 |
-| HSA-MIR-8073 | 99.86 | 65.21 | 1118 |
-| HSA-MIR-4447 | 99.85 | 67.81 | 2900 |
-| MMU-MIR-6516-5P | 99.84 | 69.95 | 755 |
 | HSA-MIR-5010-3P | 99.83 | 70.60 | 2357 |
 | HSA-MIR-6875-3P | 99.82 | 70.26 | 2983 |
 | HSA-MIR-944 | 99.82 | 70.85 | 3042 |
-| MMU-MIR-382-3P | 99.76 | 69.72 | 1083 |
-| HSA-MIR-92A-2-5P | 99.75 | 67.01 | 2164 |
-| HSA-MIR-199A-3P | 99.75 | 70.48 | 929 |
-| HSA-MIR-199B-3P | 99.75 | 70.48 | 929 |
-| HSA-MIR-3129-5P | 99.75 | 70.46 | 914 |
+| HSA-MIR-132-3P | 99.73 | 70.56 | 1424 |
+| HSA-MIR-212-3P | 99.73 | 70.65 | 1424 |
+| HSA-MIR-1303 | 99.65 | 69.77 | 1662 |
+| HSA-MIR-2113 | 99.58 | 71.22 | 1521 |
+| HSA-MIR-4441 | 99.49 | 66.56 | 3216 |
+| HSA-MIR-3915 | 99.45 | 68.49 | 1905 |
+| HSA-MIR-6839-3P | 99.39 | 68.86 | 1301 |
+| HSA-MIR-4506 | 99.34 | 67.47 | 526 |
+| HSA-MIR-7158-5P | 99.25 | 67.95 | 796 |
+| HSA-MIR-4291 | 99.20 | 68.88 | 2969 |
+| HSA-MIR-6071 | 99.16 | 67.77 | 1780 |
+| HSA-MIR-6749-3P | 99.00 | 65.73 | 1443 |
+| HSA-MIR-224-3P | 98.91 | 68.42 | 1815 |
+| HSA-MIR-522-3P | 98.91 | 68.56 | 1817 |
+| HSA-MIR-760 | 98.81 | 66.65 | 1392 |
+| HSA-MIR-4656 | 98.79 | 66.22 | 1306 |
+| HSA-MIR-629-5P | 98.78 | 68.72 | 1032 |
+| HSA-MIR-4742-3P | 98.73 | 69.82 | 1803 |
+| HSA-MIR-6868-3P | 98.63 | 69.64 | 2259 |
+| HSA-MIR-1246 | 98.54 | 66.21 | 959 |
+| HSA-MIR-6516-5P | 98.42 | 70.19 | 1551 |
 
 ## Drug & pharmacology data
 
@@ -651,40 +651,40 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | [53310143](https://pubchem.ncbi.nlm.nih.gov/compound/53310143) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 4.6000 | uM |
 | [53310423](https://pubchem.ncbi.nlm.nih.gov/compound/53310423) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 7.1000 | uM |
 
-**CTD chemical–gene interactions (human, 189 total), top 30 by PubMed support:**
+**CTD chemical–gene interactions (human, 191 total), top 30 by PubMed support:**
 
 | Chemical | Actions (CV verbs) | PubMed papers |
 | --- | --- | --- |
-| [Estradiol](http://ctdbase.org/detail.go?type=chem&acc=D004958) | affects^reaction, affects^binding, increases^reaction, increases^phosphorylation, affects^localization, affects^cotreatment, decreases^expression, decreases^reaction, increases^expression, increases^activity | 15 |
-| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | increases^abundance, increases^expression, affects^reaction, affects^response to substance, affects^methylation, decreases^reaction, affects^binding, increases^reaction, decreases^expression | 11 |
-| [Tetrachlorodibenzodioxin](http://ctdbase.org/detail.go?type=chem&acc=D013749) | affects^expression, affects^reaction, affects^binding, increases^activity, increases^reaction, affects^cotreatment, decreases^expression, decreases^reaction, increases^expression, increases^methylation | 9 |
-| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | affects^binding, increases^abundance, increases^response to substance, decreases^reaction, increases^expression, increases^reaction, decreases^expression, increases^methylation, affects^expression, affects^cotreatment | 8 |
-| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | increases^phosphorylation, increases^reaction, decreases^activity, increases^expression, decreases^reaction, increases^activity, increases^response to substance, decreases^response to substance | 8 |
-| [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | affects^reaction, increases^reaction, increases^expression, increases^activity, affects^response to substance, affects^cotreatment, increases^methylation, decreases^expression | 7 |
-| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | affects^cotreatment, increases^expression, affects^binding, decreases^reaction, affects^expression, affects^phosphorylation, affects^localization, increases^reaction, affects^reaction, decreases^expression, increases^methylation | 7 |
-| [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | affects^binding, decreases^reaction, increases^expression, decreases^expression | 6 |
-| [Fulvestrant](http://ctdbase.org/detail.go?type=chem&acc=D000077267) | decreases^reaction, increases^expression, decreases^expression, affects^cotreatment, increases^methylation | 4 |
-| [Cannabidiol](http://ctdbase.org/detail.go?type=chem&acc=D002185) | affects^cotreatment, increases^expression, decreases^expression | 4 |
-| [Fluorouracil](http://ctdbase.org/detail.go?type=chem&acc=D005472) | decreases^reaction, decreases^expression, increases^expression | 4 |
-| [lasiocarpine](http://ctdbase.org/detail.go?type=chem&acc=C005136) | decreases^expression, increases^metabolic processing, increases^expression | 3 |
-| [indole-3-carbinol](http://ctdbase.org/detail.go?type=chem&acc=C016517) | increases^expression, affects^binding, decreases^reaction, increases^activity, increases^reaction, affects^cotreatment | 3 |
-| [(+)-JQ1 compound](http://ctdbase.org/detail.go?type=chem&acc=C561695) | increases^response to substance, decreases^expression | 3 |
-| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | affects^methylation, increases^expression, affects^cotreatment, decreases^expression, increases^abundance | 3 |
+| [Estradiol](http://ctdbase.org/detail.go?type=chem&acc=D004958) | decreases^reaction, affects^reaction, increases^activity, affects^cotreatment, decreases^expression, increases^expression, affects^binding, increases^reaction, increases^phosphorylation, affects^localization | 15 |
+| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | affects^binding, decreases^expression, affects^methylation, decreases^reaction, increases^expression, increases^reaction, increases^abundance, affects^reaction, affects^response to substance | 11 |
+| [Tetrachlorodibenzodioxin](http://ctdbase.org/detail.go?type=chem&acc=D013749) | affects^reaction, decreases^reaction, affects^binding, increases^activity, increases^reaction, affects^cotreatment, decreases^expression, increases^methylation, increases^expression, affects^expression | 9 |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | affects^cotreatment, affects^binding, increases^reaction, decreases^reaction, increases^expression, affects^expression, decreases^expression, increases^abundance, increases^methylation, increases^response to substance | 8 |
+| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | increases^phosphorylation, increases^reaction, increases^expression, increases^activity, increases^response to substance, decreases^response to substance, decreases^activity, decreases^reaction | 8 |
+| [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | affects^cotreatment, increases^expression, affects^reaction, affects^response to substance, increases^methylation, decreases^expression, increases^activity, increases^reaction | 7 |
+| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | affects^cotreatment, affects^binding, decreases^reaction, increases^reaction, affects^reaction, affects^phosphorylation, affects^localization, increases^methylation, increases^expression, affects^expression, decreases^expression | 7 |
+| [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | decreases^expression, affects^binding, decreases^reaction, increases^expression | 6 |
+| [lasiocarpine](http://ctdbase.org/detail.go?type=chem&acc=C005136) | affects^cotreatment, affects^expression, decreases^expression, increases^metabolic processing, increases^expression | 4 |
+| [Fulvestrant](http://ctdbase.org/detail.go?type=chem&acc=D000077267) | increases^expression, decreases^expression, affects^cotreatment, increases^methylation, decreases^reaction | 4 |
+| [Cannabidiol](http://ctdbase.org/detail.go?type=chem&acc=D002185) | increases^expression, decreases^expression, affects^cotreatment | 4 |
+| [Fluorouracil](http://ctdbase.org/detail.go?type=chem&acc=D005472) | decreases^expression, increases^expression, decreases^reaction | 4 |
+| [indole-3-carbinol](http://ctdbase.org/detail.go?type=chem&acc=C016517) | decreases^reaction, increases^activity, increases^reaction, affects^cotreatment, increases^expression, affects^binding | 3 |
+| [(+)-JQ1 compound](http://ctdbase.org/detail.go?type=chem&acc=C561695) | decreases^expression, increases^response to substance | 3 |
+| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | affects^cotreatment, decreases^expression, increases^abundance, affects^methylation, increases^expression | 3 |
 | [Cadmium](http://ctdbase.org/detail.go?type=chem&acc=D002104) | decreases^expression, decreases^phosphorylation | 3 |
 | [Etoposide](http://ctdbase.org/detail.go?type=chem&acc=D005047) | decreases^reaction, increases^expression, decreases^expression, affects^localization | 3 |
-| [Methotrexate](http://ctdbase.org/detail.go?type=chem&acc=D008727) | increases^reaction, increases^response to substance, affects^cotreatment, decreases^expression, increases^expression | 3 |
+| [Methotrexate](http://ctdbase.org/detail.go?type=chem&acc=D008727) | decreases^expression, increases^expression, increases^reaction, increases^response to substance, affects^cotreatment | 3 |
 | [Oxygen](http://ctdbase.org/detail.go?type=chem&acc=D010100) | decreases^expression | 3 |
 | [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | decreases^expression, increases^expression | 3 |
-| [Tamoxifen](http://ctdbase.org/detail.go?type=chem&acc=D013629) | affects^binding, increases^reaction, decreases^expression, increases^response to substance, affects^cotreatment, affects^activity, affects^reaction, decreases^reaction, increases^expression | 3 |
+| [Tamoxifen](http://ctdbase.org/detail.go?type=chem&acc=D013629) | increases^expression, affects^activity, affects^binding, affects^reaction, increases^reaction, decreases^expression, affects^cotreatment, increases^response to substance, decreases^reaction | 3 |
 | [Tretinoin](http://ctdbase.org/detail.go?type=chem&acc=D014212) | decreases^expression, increases^expression | 3 |
 | [Valproic Acid](http://ctdbase.org/detail.go?type=chem&acc=D014635) | decreases^expression, increases^methylation | 3 |
-| [7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide](http://ctdbase.org/detail.go?type=chem&acc=D015123) | affects^expression, decreases^expression, increases^reaction | 3 |
+| [7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide](http://ctdbase.org/detail.go?type=chem&acc=D015123) | decreases^expression, increases^reaction, affects^expression | 3 |
 | [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | decreases^expression, decreases^phosphorylation, increases^expression, increases^reaction | 3 |
-| [Genistein](http://ctdbase.org/detail.go?type=chem&acc=D019833) | decreases^reaction, increases^expression, affects^cotreatment | 3 |
+| [Genistein](http://ctdbase.org/detail.go?type=chem&acc=D019833) | increases^expression, affects^cotreatment, decreases^reaction | 3 |
 | [4-biphenylamine](http://ctdbase.org/detail.go?type=chem&acc=C006757) | decreases^expression, decreases^reaction | 2 |
 | [alpha-naphthoflavone](http://ctdbase.org/detail.go?type=chem&acc=C011512) | decreases^reaction, increases^expression, affects^binding, increases^activity | 2 |
+| [trichostatin A](http://ctdbase.org/detail.go?type=chem&acc=C012589) | affects^cotreatment, affects^expression, decreases^expression | 2 |
 | [epigallocatechin gallate](http://ctdbase.org/detail.go?type=chem&acc=C045651) | increases^expression, affects^cotreatment, decreases^expression | 2 |
-| [NSC 674495](http://ctdbase.org/detail.go?type=chem&acc=C122062) | affects^binding, increases^expression, increases^reaction | 2 |
 
 **Clinical trials for the gene's associated diseases (190, via MONDO — disease-level, not drug-specific):**
 
@@ -770,7 +770,7 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 
 ## Disease associations
 
-**OMIM:** gene `MIM:113705` | disease phenotypes: MIM:604370, MIM:114480, MIM:614320, MIM:617883, MIM:109800, MIM:260350, MIM:613659, MIM:601228, MIM:114500, MIM:300049, MIM:167000, MIM:175860, MIM:227650, MIM:612555, MIM:608812, MIM:120435, MIM:176807, MIM:211980, MIM:113970
+**OMIM:** gene `MIM:113705` | disease phenotypes: MIM:604370, MIM:114480, MIM:614320, MIM:617883, MIM:109800, MIM:613659, MIM:260350, MIM:601228, MIM:114500, MIM:300049, MIM:167000, MIM:175860, MIM:227650, MIM:612555, MIM:608812, MIM:120435, MIM:176807, MIM:211980, MIM:113970
 
 **GenCC curated gene-disease:**
 
@@ -778,6 +778,8 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | --- | --- | --- |
 | breast-ovarian cancer, familial, susceptibility to, 1 | Definitive | Autosomal dominant |
 | Fanconi anemia, complementation group S | Moderate | Autosomal recessive |
+| Fanconi anemia, complementation group S | Definitive | Autosomal recessive |
+| BRCA1-related cancer predisposition | Definitive | Autosomal dominant |
 | breast-ovarian cancer, familial, susceptibility to, 1 | Strong | Autosomal dominant |
 | pancreatic cancer, susceptibility to, 4 | Moderate | Autosomal dominant |
 | breast-ovarian cancer, familial, susceptibility to, 1 | Strong | Autosomal dominant |
@@ -786,7 +788,7 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | Fanconi anemia | Supportive | Autosomal recessive |
 | Fanconi anemia, complementation group S | Strong | Autosomal recessive |
 
-**Mondo (44):** hereditary breast ovarian cancer syndrome (MONDO:0003582), hereditary neoplastic syndrome (MONDO:0015356), breast-ovarian cancer, familial, susceptibility to, 1 (MONDO:0011450), hereditary breast carcinoma (MONDO:0016419), breast cancer (MONDO:0007254), pancreatic cancer, susceptibility to, 4 (MONDO:0013685), Fanconi anemia, complementation group S (MONDO:0054748), colon carcinoma (MONDO:0002032), urinary bladder cancer (MONDO:0001187), BRCA1-related cancer predisposition (MONDO:0700268), familial pancreatic carcinoma (MONDO:0015278), ovarian neoplasm (MONDO:0021068), breast carcinoma (MONDO:0004989), ovarian carcinoma (MONDO:0005140), malignant pancreatic neoplasm (MONDO:0009831)
+**Mondo (44):** hereditary breast ovarian cancer syndrome (MONDO:0003582), hereditary neoplastic syndrome (MONDO:0015356), breast-ovarian cancer, familial, susceptibility to, 1 (MONDO:0011450), hereditary breast carcinoma (MONDO:0016419), breast cancer (MONDO:0007254), pancreatic cancer, susceptibility to, 4 (MONDO:0013685), Fanconi anemia, complementation group S (MONDO:0054748), colon carcinoma (MONDO:0002032), urinary bladder cancer (MONDO:0001187), BRCA1-related cancer predisposition (MONDO:0700268), ovarian neoplasm (MONDO:0021068), breast carcinoma (MONDO:0004989), ovarian carcinoma (MONDO:0005140), malignant pancreatic neoplasm (MONDO:0009831), breast neoplasm (MONDO:0021100)
 
 **Orphanet (18):** Hereditary breast and/or ovarian cancer syndrome (Orphanet:145), Inherited cancer-predisposing syndrome (Orphanet:140162), Hereditary breast cancer (Orphanet:227535), Familial pancreatic carcinoma (Orphanet:1333), Pilocytic astrocytoma (Orphanet:251612), Hereditary mixed polyposis syndrome (Orphanet:157794), Periventricular nodular heterotopia (Orphanet:98892), Rare ovarian cancer (Orphanet:213500), Punctate palmoplantar keratoderma type 2 (Orphanet:79502), Rare carcinoma of pancreas (Orphanet:217074), Fanconi anemia (Orphanet:84), Familial prostate cancer (Orphanet:1331), Lynch syndrome (Orphanet:144), Rhabdomyosarcoma (Orphanet:780), Infant-type hemispheric glioma (Orphanet:695136)
 
@@ -829,12 +831,12 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 
 | Study | Trait | p-value |
 | --- | --- | --- |
-| GCST005312_44 | Menopause (age at onset) | 8.000000e-11 |
-| GCST005863_3 | Menopause (age at onset) | 1.000000e-08 |
+| GCST005312_18 | Menopause (age at onset) | 8.000000e-11 |
+| GCST005863_18 | Menopause (age at onset) | 1.000000e-08 |
 | GCST009823_7 | Gynecologic disease (multivariate analysis) | 1.000000e-08 |
-| GCST009829_3 | Ovarian cancer (MTAG) | 5.000000e-08 |
+| GCST009829_2 | Ovarian cancer (MTAG) | 5.000000e-08 |
 | GCST009830_31 | Ovarian cancer | 3.000000e-08 |
-| GCST90002394_251 | Monocyte percentage of white cells | 1.000000e-10 |
+| GCST90002394_371 | Monocyte percentage of white cells | 1.000000e-10 |
 | GCST90011899_184 | Aspartate aminotransferase levels | 1.000000e-12 |
 
 **MeSH disease descriptors (16):**

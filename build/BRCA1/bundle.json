@@ -31,7 +31,10 @@
     "xref_counts": {
       "alphafold": 1,
       "ccds": 5,
-      "clinvar": 15445,
+      "cellosaurus": 108,
+      "civic": 1,
+      "civic_evidence": 59,
+      "clinvar": 15323,
       "collectri": 140,
       "cosmic": 1,
       "ena": 1,
@@ -40,15 +43,16 @@
       "fantom5_enhancer": 21,
       "fantom5_gene": 1,
       "fantom5_promoter": 5,
-      "gencc": 9,
+      "gencc": 11,
       "gwas": 7,
       "hpo": 166,
+      "intogen": 1,
       "mim": 1,
       "msigdb": 1002,
       "orphanet": 9,
       "pharmgkb_gene": 1,
       "pubmed": 2,
-      "refseq": 759,
+      "refseq": 1,
       "spliceai": 3719,
       "uniprot": 1,
       "vega": 1
@@ -429,20 +433,20 @@
         "type": "SINGLE PROTEIN"
       }
     ],
-    "ctd_interaction_total": 189,
+    "ctd_interaction_total": 191,
     "ctd_interactions": [
       {
         "actions": [
+          "decreases^reaction",
           "affects^reaction",
+          "increases^activity",
+          "affects^cotreatment",
+          "decreases^expression",
+          "increases^expression",
           "affects^binding",
           "increases^reaction",
           "increases^phosphorylation",
-          "affects^localization",
-          "affects^cotreatment",
-          "decreases^expression",
-          "decreases^reaction",
-          "increases^expression",
-          "increases^activity"
+          "affects^localization"
         ],
         "chemical": "Estradiol",
         "chemical_id": "D004958",
@@ -451,15 +455,15 @@
       },
       {
         "actions": [
-          "increases^abundance",
-          "increases^expression",
-          "affects^reaction",
-          "affects^response to substance",
+          "affects^binding",
+          "decreases^expression",
           "affects^methylation",
           "decreases^reaction",
-          "affects^binding",
+          "increases^expression",
           "increases^reaction",
-          "decreases^expression"
+          "increases^abundance",
+          "affects^reaction",
+          "affects^response to substance"
         ],
         "chemical": "Benzo(a)pyrene",
         "chemical_id": "D001564",
@@ -468,16 +472,16 @@
       },
       {
         "actions": [
-          "affects^expression",
           "affects^reaction",
+          "decreases^reaction",
           "affects^binding",
           "increases^activity",
           "increases^reaction",
           "affects^cotreatment",
           "decreases^expression",
-          "decreases^reaction",
+          "increases^methylation",
           "increases^expression",
-          "increases^methylation"
+          "affects^expression"
         ],
         "chemical": "Tetrachlorodibenzodioxin",
         "chemical_id": "D013749",
@@ -486,16 +490,16 @@
       },
       {
         "actions": [
+          "affects^cotreatment",
           "affects^binding",
-          "increases^abundance",
-          "increases^response to substance",
+          "increases^reaction",
           "decreases^reaction",
           "increases^expression",
-          "increases^reaction",
-          "decreases^expression",
-          "increases^methylation",
           "affects^expression",
-          "affects^cotreatment"
+          "decreases^expression",
+          "increases^abundance",
+          "increases^methylation",
+          "increases^response to substance"
         ],
         "chemical": "sodium arsenite",
         "chemical_id": "C017947",
@@ -506,12 +510,12 @@
         "actions": [
           "increases^phosphorylation",
           "increases^reaction",
-          "decreases^activity",
           "increases^expression",
-          "decreases^reaction",
           "increases^activity",
           "increases^response to substance",
-          "decreases^response to substance"
+          "decreases^response to substance",
+          "decreases^activity",
+          "decreases^reaction"
         ],
         "chemical": "Cisplatin",
         "chemical_id": "D002945",
@@ -520,14 +524,14 @@
       },
       {
         "actions": [
-          "affects^reaction",
-          "increases^reaction",
-          "increases^expression",
-          "increases^activity",
-          "affects^response to substance",
           "affects^cotreatment",
+          "increases^expression",
+          "affects^reaction",
+          "affects^response to substance",
           "increases^methylation",
-          "decreases^expression"
+          "decreases^expression",
+          "increases^activity",
+          "increases^reaction"
         ],
         "chemical": "bisphenol A",
         "chemical_id": "C006780",
@@ -537,16 +541,16 @@
       {
         "actions": [
           "affects^cotreatment",
-          "increases^expression",
           "affects^binding",
           "decreases^reaction",
-          "affects^expression",
-          "affects^phosphorylation",
-          "affects^localization",
           "increases^reaction",
           "affects^reaction",
-          "decreases^expression",
-          "increases^methylation"
+          "affects^phosphorylation",
+          "affects^localization",
+          "increases^methylation",
+          "increases^expression",
+          "affects^expression",
+          "decreases^expression"
         ],
         "chemical": "Resveratrol",
         "chemical_id": "D000077185",
@@ -555,10 +559,10 @@
       },
       {
         "actions": [
+          "decreases^expression",
           "affects^binding",
           "decreases^reaction",
-          "increases^expression",
-          "decreases^expression"
+          "increases^expression"
         ],
         "chemical": "Doxorubicin",
         "chemical_id": "D004317",
@@ -567,11 +571,24 @@
       },
       {
         "actions": [
-          "decreases^reaction",
+          "affects^cotreatment",
+          "affects^expression",
+          "decreases^expression",
+          "increases^metabolic processing",
+          "increases^expression"
+        ],
+        "chemical": "lasiocarpine",
+        "chemical_id": "C005136",
+        "id": "C005136_672_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
           "increases^expression",
           "decreases^expression",
           "affects^cotreatment",
-          "increases^methylation"
+          "increases^methylation",
+          "decreases^reaction"
         ],
         "chemical": "Fulvestrant",
         "chemical_id": "D000077267",
@@ -580,9 +597,9 @@
       },
       {
         "actions": [
-          "affects^cotreatment",
           "increases^expression",
-          "decreases^expression"
+          "decreases^expression",
+          "affects^cotreatment"
         ],
         "chemical": "Cannabidiol",
         "chemical_id": "D002185",
@@ -591,9 +608,9 @@
       },
       {
         "actions": [
-          "decreases^reaction",
           "decreases^expression",
-          "increases^expression"
+          "increases^expression",
+          "decreases^reaction"
         ],
         "chemical": "Fluorouracil",
         "chemical_id": "D005472",
@@ -602,23 +619,12 @@
       },
       {
         "actions": [
-          "decreases^expression",
-          "increases^metabolic processing",
-          "increases^expression"
-        ],
-        "chemical": "lasiocarpine",
-        "chemical_id": "C005136",
-        "id": "C005136_672_9606",
-        "pmids": "3"
-      },
-      {
-        "actions": [
-          "increases^expression",
-          "affects^binding",
           "decreases^reaction",
           "increases^activity",
           "increases^reaction",
-          "affects^cotreatment"
+          "affects^cotreatment",
+          "increases^expression",
+          "affects^binding"
         ],
         "chemical": "indole-3-carbinol",
         "chemical_id": "C016517",
@@ -627,8 +633,8 @@
       },
       {
         "actions": [
-          "increases^response to substance",
-          "decreases^expression"
+          "decreases^expression",
+          "increases^response to substance"
         ],
         "chemical": "(+)-JQ1 compound",
         "chemical_id": "C561695",
@@ -637,11 +643,11 @@
       },
       {
         "actions": [
-          "affects^methylation",
-          "increases^expression",
           "affects^cotreatment",
           "decreases^expression",
-          "increases^abundance"
+          "increases^abundance",
+          "affects^methylation",
+          "increases^expression"
         ],
         "chemical": "Arsenic",
         "chemical_id": "D001151",
@@ -672,11 +678,11 @@
       },
       {
         "actions": [
+          "decreases^expression",
+          "increases^expression",
           "increases^reaction",
           "increases^response to substance",
-          "affects^cotreatment",
-          "decreases^expression",
-          "increases^expression"
+          "affects^cotreatment"
         ],
         "chemical": "Methotrexate",
         "chemical_id": "D008727",
@@ -704,15 +710,15 @@
       },
       {
         "actions": [
+          "increases^expression",
+          "affects^activity",
           "affects^binding",
+          "affects^reaction",
           "increases^reaction",
           "decreases^expression",
-          "increases^response to substance",
           "affects^cotreatment",
-          "affects^activity",
-          "affects^reaction",
-          "decreases^reaction",
-          "increases^expression"
+          "increases^response to substance",
+          "decreases^reaction"
         ],
         "chemical": "Tamoxifen",
         "chemical_id": "D013629",
@@ -741,9 +747,9 @@
       },
       {
         "actions": [
-          "affects^expression",
           "decreases^expression",
-          "increases^reaction"
+          "increases^reaction",
+          "affects^expression"
         ],
         "chemical": "7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide",
         "chemical_id": "D015123",
@@ -764,9 +770,9 @@
       },
       {
         "actions": [
-          "decreases^reaction",
           "increases^expression",
-          "affects^cotreatment"
+          "affects^cotreatment",
+          "decreases^reaction"
         ],
         "chemical": "Genistein",
         "chemical_id": "D019833",
@@ -797,6 +803,17 @@
       },
       {
         "actions": [
+          "affects^cotreatment",
+          "affects^expression",
+          "decreases^expression"
+        ],
+        "chemical": "trichostatin A",
+        "chemical_id": "C012589",
+        "id": "C012589_672_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
           "increases^expression",
           "affects^cotreatment",
           "decreases^expression"
@@ -804,17 +821,6 @@
         "chemical": "epigallocatechin gallate",
         "chemical_id": "C045651",
         "id": "C045651_672_9606",
-        "pmids": "2"
-      },
-      {
-        "actions": [
-          "affects^binding",
-          "increases^expression",
-          "increases^reaction"
-        ],
-        "chemical": "NSC 674495",
-        "chemical_id": "C122062",
-        "id": "C122062_672_9606",
         "pmids": "2"
       }
     ],
@@ -2384,8 +2390,8 @@
       "MIM:614320",
       "MIM:617883",
       "MIM:109800",
-      "MIM:260350",
       "MIM:613659",
+      "MIM:260350",
       "MIM:601228",
       "MIM:114500",
       "MIM:300049",
@@ -2409,6 +2415,16 @@
         "classification": "Moderate",
         "disease": "Fanconi anemia, complementation group S",
         "inheritance": "Autosomal recessive"
+      },
+      {
+        "classification": "Definitive",
+        "disease": "Fanconi anemia, complementation group S",
+        "inheritance": "Autosomal recessive"
+      },
+      {
+        "classification": "Definitive",
+        "disease": "BRCA1-related cancer predisposition",
+        "inheritance": "Autosomal dominant"
       },
       {
         "classification": "Strong",
@@ -2451,12 +2467,12 @@
     ],
     "gwas": [
       {
-        "id": "GCST005312_44",
+        "id": "GCST005312_18",
         "p_value": "8.000000e-11",
         "trait": "Menopause (age at onset)"
       },
       {
-        "id": "GCST005863_3",
+        "id": "GCST005863_18",
         "p_value": "1.000000e-08",
         "trait": "Menopause (age at onset)"
       },
@@ -2466,7 +2482,7 @@
         "trait": "Gynecologic disease (multivariate analysis)"
       },
       {
-        "id": "GCST009829_3",
+        "id": "GCST009829_2",
         "p_value": "5.000000e-08",
         "trait": "Ovarian cancer (MTAG)"
       },
@@ -2476,7 +2492,7 @@
         "trait": "Ovarian cancer"
       },
       {
-        "id": "GCST90002394_251",
+        "id": "GCST90002394_371",
         "p_value": "1.000000e-10",
         "trait": "Monocyte percentage of white cells"
       },
@@ -2494,16 +2510,22 @@
       "GCST009830",
       "GCST90002394",
       "GCST90011899",
+      "GCST90077626",
       "GCST90079107",
       "GCST90079108",
+      "GCST90079602",
+      "GCST90079603",
+      "GCST90079604",
       "GCST90079605",
       "GCST90079606",
-      "GCST90081349",
+      "GCST90081612",
       "GCST90083093",
       "GCST90083094",
+      "GCST90083588",
+      "GCST90083589",
+      "GCST90083590",
       "GCST90083591",
       "GCST90083592",
-      "GCST90085335",
       "GCST90101893",
       "GCST90104178",
       "GCST90134567",
@@ -2560,8 +2582,39 @@
       "GCST90693351",
       "GCST90702470",
       "GCST90702483",
+      "GCST90726666",
+      "GCST90726828",
+      "GCST011795",
+      "GCST012203",
+      "GCST90011811",
+      "GCST90041807",
+      "GCST90041895",
+      "GCST90043914",
+      "GCST90060090",
+      "GCST90246023",
+      "GCST90255399",
+      "GCST90255471",
+      "GCST90267408",
+      "GCST90267409",
+      "GCST90308765",
+      "GCST90435578",
+      "GCST90475567",
+      "GCST90477178",
+      "GCST90477179",
+      "GCST90479781",
+      "GCST90651289",
       "GCST90041858",
       "GCST90043898",
+      "GCST90077631",
+      "GCST90079115",
+      "GCST90079116",
+      "GCST90079611",
+      "GCST90079612",
+      "GCST90081617",
+      "GCST90083101",
+      "GCST90083102",
+      "GCST90083597",
+      "GCST90083598",
       "GCST90095079",
       "GCST90095080",
       "GCST90104599",
@@ -2576,6 +2629,12 @@
       "GCST90104608",
       "GCST90104609",
       "GCST90104610",
+      "GCST90296729",
+      "GCST90296730",
+      "GCST90296731",
+      "GCST90296732",
+      "GCST90296733",
+      "GCST90296734",
       "GCST90435615",
       "GCST90435619",
       "GCST90435620",
@@ -2594,219 +2653,187 @@
       "GCST90503279",
       "GCST90651416",
       "GCST90651980",
-      "GCST90043847",
-      "GCST90104163",
-      "GCST90104894",
-      "GCST90104895",
-      "GCST90104896",
-      "GCST90308756",
-      "GCST90308764",
-      "GCST90319844",
-      "GCST90435577",
-      "GCST90455528",
-      "GCST90477175",
-      "GCST90479780",
-      "GCST90481486",
-      "GCST90559273",
-      "GCST90559274",
-      "GCST90559275",
-      "GCST90559276",
-      "GCST90559277",
-      "GCST90651046",
-      "GCST90651054",
-      "GCST90651061",
-      "GCST90651069",
-      "GCST90651360",
-      "GCST90296469",
-      "GCST90296470",
-      "GCST90296479",
-      "GCST90296480",
-      "GCST000052",
-      "GCST000053",
-      "GCST000113",
-      "GCST000168",
-      "GCST000169",
-      "GCST000270",
-      "GCST000472",
-      "GCST000722",
-      "GCST000843",
-      "GCST000948",
-      "GCST000989",
-      "GCST001161",
-      "GCST001544",
-      "GCST001731",
-      "GCST001787",
-      "GCST001792",
-      "GCST001794",
-      "GCST001832",
-      "GCST002099",
-      "GCST002340",
-      "GCST002411",
-      "GCST002415",
-      "GCST002454",
-      "GCST002512",
-      "GCST002513",
-      "GCST002528",
-      "GCST002561",
-      "GCST002596",
-      "GCST002816",
-      "GCST002820",
-      "GCST002919",
-      "GCST003017",
-      "GCST003208",
-      "GCST003209",
-      "GCST003229",
-      "GCST003230",
-      "GCST003231",
-      "GCST003385",
-      "GCST003386",
-      "GCST003387",
-      "GCST003420",
-      "GCST003494",
+      "GCST90727250",
+      "GCST90837326",
+      "GCST90041850",
+      "GCST90043893",
+      "GCST90079111",
+      "GCST90079609",
+      "GCST90083097",
+      "GCST90083595",
+      "GCST90454203",
+      "GCST000035",
+      "GCST000036",
+      "GCST000037",
+      "GCST000079",
+      "GCST000162",
+      "GCST000187",
+      "GCST000343",
+      "GCST000365",
+      "GCST000637",
+      "GCST000678",
+      "GCST000709",
+      "GCST000801",
+      "GCST000811",
+      "GCST000846",
+      "GCST000867",
+      "GCST000952",
+      "GCST001012",
+      "GCST001224",
+      "GCST001298",
+      "GCST001373",
+      "GCST001420",
+      "GCST001457",
+      "GCST001489",
+      "GCST001648",
+      "GCST001667",
+      "GCST001683",
+      "GCST001816",
+      "GCST001831",
+      "GCST001869",
+      "GCST001879",
+      "GCST001916",
+      "GCST001930",
+      "GCST001937",
+      "GCST002234",
+      "GCST002265",
+      "GCST002346",
+      "GCST002537",
+      "GCST002662",
+      "GCST002727",
+      "GCST002735",
+      "GCST002847",
+      "GCST002861",
+      "GCST002895",
+      "GCST002901",
+      "GCST002902",
+      "GCST002903",
+      "GCST003520",
       "GCST003587",
       "GCST003588",
-      "GCST003799",
-      "GCST003873",
-      "GCST003874",
-      "GCST004168",
-      "GCST004839",
-      "GCST004840",
-      "GCST004895",
-      "GCST005148",
-      "GCST005149",
-      "GCST005150",
-      "GCST005152",
-      "GCST005591",
-      "GCST005856",
+      "GCST003782",
+      "GCST003845",
+      "GCST004229",
+      "GCST004836",
+      "GCST004837",
+      "GCST004948",
+      "GCST004949",
+      "GCST004950",
+      "GCST004988",
+      "GCST005075",
+      "GCST005077",
+      "GCST005106",
+      "GCST005110",
+      "GCST005111",
+      "GCST005112",
       "GCST006035",
-      "GCST006131",
-      "GCST007552",
-      "GCST007856",
-      "GCST007992",
-      "GCST008372",
-      "GCST008977",
-      "GCST009869",
-      "GCST011108",
-      "GCST011298",
-      "GCST011973",
-      "GCST012176",
-      "GCST012202",
-      "GCST012205",
-      "GCST012206",
-      "GCST012421",
-      "GCST012876",
-      "GCST012877",
-      "GCST012878",
-      "GCST012879",
-      "GCST012880",
-      "GCST90013697",
-      "GCST90013737",
-      "GCST90013772",
-      "GCST90013862",
-      "GCST90013866",
-      "GCST90018588",
-      "GCST90018808",
-      "GCST90027054",
-      "GCST90093302",
-      "GCST90093303",
-      "GCST90095126",
-      "GCST90095127",
-      "GCST90095128",
-      "GCST90101725",
-      "GCST90101895",
-      "GCST90102456",
-      "GCST90102457",
-      "GCST90102458",
-      "GCST90102459",
-      "GCST90102510",
-      "GCST90105079",
-      "GCST90129505",
-      "GCST90162552",
-      "GCST90179123",
-      "GCST90179124",
-      "GCST90243993",
-      "GCST90243994",
-      "GCST90243995",
-      "GCST90243996",
-      "GCST90243997",
-      "GCST90243998",
-      "GCST90243999",
-      "GCST90244000",
-      "GCST90244001",
-      "GCST90244553",
-      "GCST90250827",
-      "GCST90250828",
-      "GCST90250829",
-      "GCST90255675",
-      "GCST90255676",
-      "GCST90255677",
-      "GCST90267392",
-      "GCST90267393",
-      "GCST90267394",
-      "GCST90267395",
-      "GCST90267396",
-      "GCST90267397",
-      "GCST90271715",
-      "GCST90308753",
-      "GCST90428118",
-      "GCST90435268",
-      "GCST90446191",
-      "GCST90446192",
-      "GCST90446193",
-      "GCST90446194",
-      "GCST90446195",
-      "GCST90446196",
-      "GCST90446197",
-      "GCST90446198",
-      "GCST90446199",
-      "GCST90446200",
-      "GCST90446201",
-      "GCST90446202",
-      "GCST90446203",
-      "GCST90446204",
-      "GCST90446205",
-      "GCST90446206",
-      "GCST90446207",
-      "GCST90446208",
-      "GCST90446487",
-      "GCST90455527",
-      "GCST90472804",
-      "GCST90475566",
-      "GCST90477176",
-      "GCST90477177",
-      "GCST90479783",
-      "GCST90502765",
-      "GCST90502810",
-      "GCST90502811",
-      "GCST90502812",
-      "GCST90502813",
-      "GCST90502814",
-      "GCST90502815",
-      "GCST90502816",
-      "GCST90502817",
-      "GCST90502818",
-      "GCST90502819",
-      "GCST90502820",
-      "GCST90503118",
-      "GCST90504004",
-      "GCST90504005",
-      "GCST90504006",
-      "GCST90570627",
-      "GCST90570630",
-      "GCST90651043",
-      "GCST90651058",
-      "GCST90651244",
-      "GCST90693318",
-      "GCST90693323",
-      "GCST90693328",
-      "GCST90693332",
-      "GCST90693336",
-      "GCST90693340",
-      "GCST90693344",
-      "GCST90693346",
-      "GCST90693350",
-      "GCST90709777",
-      "GCST90709778"
+      "GCST006985",
+      "GCST007236",
+      "GCST007302",
+      "GCST007414",
+      "GCST009665",
+      "GCST010098",
+      "GCST010099",
+      "GCST010100",
+      "GCST010347",
+      "GCST010757",
+      "GCST010758",
+      "GCST010759",
+      "GCST010760",
+      "GCST010761",
+      "GCST010797",
+      "GCST011433",
+      "GCST012281",
+      "GCST90011804",
+      "GCST90013695",
+      "GCST90018579",
+      "GCST90018799",
+      "GCST90026461",
+      "GCST90026464",
+      "GCST90026467",
+      "GCST90027052",
+      "GCST90029042",
+      "GCST90029043",
+      "GCST90029044",
+      "GCST90029045",
+      "GCST90029046",
+      "GCST90029047",
+      "GCST90029048",
+      "GCST90029049",
+      "GCST90029050",
+      "GCST90029051",
+      "GCST90029052",
+      "GCST90029053",
+      "GCST90029054",
+      "GCST90029055",
+      "GCST90029056",
+      "GCST90029057",
+      "GCST90029058",
+      "GCST90029059",
+      "GCST90029060",
+      "GCST90029061",
+      "GCST90029062",
+      "GCST90029063",
+      "GCST90029064",
+      "GCST90029065",
+      "GCST90029066",
+      "GCST90041834",
+      "GCST90041886",
+      "GCST90043928",
+      "GCST90061436",
+      "GCST90090980",
+      "GCST90091211",
+      "GCST90102437",
+      "GCST90104709",
+      "GCST90104804",
+      "GCST90104805",
+      "GCST90129576",
+      "GCST90129577",
+      "GCST90134420",
+      "GCST90140997",
+      "GCST90141014",
+      "GCST90244101",
+      "GCST90255402",
+      "GCST90255473",
+      "GCST90267995",
+      "GCST90267996",
+      "GCST90267997",
+      "GCST90267998",
+      "GCST90297618",
+      "GCST90297671",
+      "GCST90297719",
+      "GCST90297765",
+      "GCST90308751",
+      "GCST90308763",
+      "GCST90308764",
+      "GCST90319499",
+      "GCST90321104",
+      "GCST90321105",
+      "GCST90321106",
+      "GCST90321107",
+      "GCST90321108",
+      "GCST90321109",
+      "GCST90321110",
+      "GCST90446421",
+      "GCST90446422",
+      "GCST90455651",
+      "GCST90475169",
+      "GCST90475586",
+      "GCST90476578",
+      "GCST90477199",
+      "GCST90479802",
+      "GCST90481147",
+      "GCST90481150",
+      "GCST90481245",
+      "GCST90481246",
+      "GCST90481499",
+      "GCST90551892",
+      "GCST90651041",
+      "GCST90651053",
+      "GCST90651054",
+      "GCST90651056",
+      "GCST90651068",
+      "GCST90651069"
     ],
     "gwas_total": 7,
     "hpo": [
@@ -3690,10 +3717,6 @@
         "name": "BRCA1-related cancer predisposition"
       },
       {
-        "id": "MONDO:0015278",
-        "name": "familial pancreatic carcinoma"
-      },
-      {
         "id": "MONDO:0021068",
         "name": "ovarian neoplasm"
       },
@@ -3716,6 +3739,10 @@
       {
         "id": "MONDO:0001056",
         "name": "gastric cancer"
+      },
+      {
+        "id": "MONDO:0015278",
+        "name": "familial pancreatic carcinoma"
       },
       {
         "id": "MONDO:0016691",
@@ -4591,12 +4618,9 @@
       "NM_007297",
       "NM_007298",
       "NM_007299",
-      "NM_007300",
-      "NM_009764",
-      "NM_012514",
-      "NM_118225"
+      "NM_007300"
     ],
-    "refseq_mrna_count": 371,
+    "refseq_mrna_count": 368,
     "section": "02_transcripts",
     "symbol": "BRCA1"
   },
@@ -6129,21 +6153,9 @@
       {
         "id": "NP_009231",
         "mane": false
-      },
-      {
-        "id": "NP_033894",
-        "mane": false
-      },
-      {
-        "id": "NP_036646",
-        "mane": false
-      },
-      {
-        "id": "NP_193839",
-        "mane": false
       }
     ],
-    "refseq_protein_count": 371,
+    "refseq_protein_count": 368,
     "reviewed_uniprot": [
       "P38398"
     ],
@@ -8672,6 +8684,7 @@
       }
     ],
     "uniprot_all": [
+      "P38398",
       "A0A0U1RRA9",
       "A0A2R8Y6Y9",
       "A0A2R8Y7V5",
@@ -8686,7 +8699,6 @@
       "E7EUM2",
       "E7EWN5",
       "E9PC22",
-      "P38398",
       "G1UI37",
       "H0Y850",
       "H0Y8B8",
@@ -8915,13 +8927,13 @@
     "alphamissense_total": 12463,
     "canonical_transcript": "ENST00000357654",
     "clinvar_breakdown": {
-      "Benign": 731,
-      "Likely benign": 2714,
-      "Likely pathogenic": 322,
-      "Pathogenic": 4004,
-      "Uncertain significance": 2417
+      "Benign": 729,
+      "Likely benign": 2706,
+      "Likely pathogenic": 326,
+      "Pathogenic": 3991,
+      "Uncertain significance": 2460
     },
-    "clinvar_total": 15445,
+    "clinvar_total": 15323,
     "dbsnp_sample": [
       {
         "change": "A>G",
@@ -16821,7 +16833,7 @@
         "score": "995"
       }
     ],
-    "string_count": 2050,
+    "string_count": 6100,
     "symbol": "BRCA1"
   },
   "9": {
@@ -17074,26 +17086,8 @@
     ],
     "is_transcription_factor": true,
     "jaspar_motifs": [],
-    "mirna_count": 121,
+    "mirna_count": 43,
     "mirna_regulators": [
-      {
-        "avg_score": "77.23",
-        "id": "HSA-MIR-3163",
-        "max_score": "100.00",
-        "target_count": "8605"
-      },
-      {
-        "avg_score": "74.40",
-        "id": "HSA-MIR-5692A",
-        "max_score": "100.00",
-        "target_count": "6850"
-      },
-      {
-        "avg_score": "68.53",
-        "id": "MMU-MIR-669N",
-        "max_score": "99.99",
-        "target_count": "1287"
-      },
       {
         "avg_score": "72.25",
         "id": "HSA-MIR-548P",
@@ -17125,88 +17119,10 @@
         "target_count": "2862"
       },
       {
-        "avg_score": "64.38",
-        "id": "HSA-MIR-4525",
-        "max_score": "99.94",
-        "target_count": "675"
-      },
-      {
-        "avg_score": "64.11",
-        "id": "HSA-MIR-5010-5P",
-        "max_score": "99.94",
-        "target_count": "705"
-      },
-      {
-        "avg_score": "69.23",
-        "id": "MMU-MIR-712-5P",
-        "max_score": "99.94",
-        "target_count": "1189"
-      },
-      {
-        "avg_score": "70.45",
-        "id": "MMU-MIR-21B",
-        "max_score": "99.92",
-        "target_count": "1512"
-      },
-      {
         "avg_score": "66.38",
         "id": "HSA-MIR-6499-3P",
         "max_score": "99.90",
         "target_count": "1212"
-      },
-      {
-        "avg_score": "68.28",
-        "id": "MMU-MIR-22-5P",
-        "max_score": "99.88",
-        "target_count": "843"
-      },
-      {
-        "avg_score": "70.16",
-        "id": "MMU-MIR-1B-5P",
-        "max_score": "99.88",
-        "target_count": "970"
-      },
-      {
-        "avg_score": "73.25",
-        "id": "MMU-MIR-29A-3P",
-        "max_score": "99.87",
-        "target_count": "1228"
-      },
-      {
-        "avg_score": "73.22",
-        "id": "MMU-MIR-29B-3P",
-        "max_score": "99.87",
-        "target_count": "1228"
-      },
-      {
-        "avg_score": "73.24",
-        "id": "MMU-MIR-29C-3P",
-        "max_score": "99.87",
-        "target_count": "1227"
-      },
-      {
-        "avg_score": "65.45",
-        "id": "HSA-MIR-221-5P",
-        "max_score": "99.86",
-        "target_count": "1052"
-      },
-      {
-        "avg_score": "65.21",
-        "id": "HSA-MIR-8073",
-        "max_score": "99.86",
-        "target_count": "1118"
-      },
-      {
-        "avg_score": "67.81",
-        "id": "HSA-MIR-4447",
-        "max_score": "99.85",
-        "target_count": "2900"
-      },
-      {
-        "avg_score": "69.95",
-        "id": "MMU-MIR-6516-5P",
-        "max_score": "99.84",
-        "target_count": "755"
       },
       {
         "avg_score": "70.60",
@@ -17227,34 +17143,130 @@
         "target_count": "3042"
       },
       {
-        "avg_score": "69.72",
-        "id": "MMU-MIR-382-3P",
-        "max_score": "99.76",
-        "target_count": "1083"
+        "avg_score": "70.56",
+        "id": "HSA-MIR-132-3P",
+        "max_score": "99.73",
+        "target_count": "1424"
       },
       {
-        "avg_score": "67.01",
-        "id": "HSA-MIR-92A-2-5P",
-        "max_score": "99.75",
-        "target_count": "2164"
+        "avg_score": "70.65",
+        "id": "HSA-MIR-212-3P",
+        "max_score": "99.73",
+        "target_count": "1424"
       },
       {
-        "avg_score": "70.48",
-        "id": "HSA-MIR-199A-3P",
-        "max_score": "99.75",
-        "target_count": "929"
+        "avg_score": "69.77",
+        "id": "HSA-MIR-1303",
+        "max_score": "99.65",
+        "target_count": "1662"
       },
       {
-        "avg_score": "70.48",
-        "id": "HSA-MIR-199B-3P",
-        "max_score": "99.75",
-        "target_count": "929"
+        "avg_score": "71.22",
+        "id": "HSA-MIR-2113",
+        "max_score": "99.58",
+        "target_count": "1521"
       },
       {
-        "avg_score": "70.46",
-        "id": "HSA-MIR-3129-5P",
-        "max_score": "99.75",
-        "target_count": "914"
+        "avg_score": "66.56",
+        "id": "HSA-MIR-4441",
+        "max_score": "99.49",
+        "target_count": "3216"
+      },
+      {
+        "avg_score": "68.49",
+        "id": "HSA-MIR-3915",
+        "max_score": "99.45",
+        "target_count": "1905"
+      },
+      {
+        "avg_score": "68.86",
+        "id": "HSA-MIR-6839-3P",
+        "max_score": "99.39",
+        "target_count": "1301"
+      },
+      {
+        "avg_score": "67.47",
+        "id": "HSA-MIR-4506",
+        "max_score": "99.34",
+        "target_count": "526"
+      },
+      {
+        "avg_score": "67.95",
+        "id": "HSA-MIR-7158-5P",
+        "max_score": "99.25",
+        "target_count": "796"
+      },
+      {
+        "avg_score": "68.88",
+        "id": "HSA-MIR-4291",
+        "max_score": "99.20",
+        "target_count": "2969"
+      },
+      {
+        "avg_score": "67.77",
+        "id": "HSA-MIR-6071",
+        "max_score": "99.16",
+        "target_count": "1780"
+      },
+      {
+        "avg_score": "65.73",
+        "id": "HSA-MIR-6749-3P",
+        "max_score": "99.00",
+        "target_count": "1443"
+      },
+      {
+        "avg_score": "68.42",
+        "id": "HSA-MIR-224-3P",
+        "max_score": "98.91",
+        "target_count": "1815"
+      },
+      {
+        "avg_score": "68.56",
+        "id": "HSA-MIR-522-3P",
+        "max_score": "98.91",
+        "target_count": "1817"
+      },
+      {
+        "avg_score": "66.65",
+        "id": "HSA-MIR-760",
+        "max_score": "98.81",
+        "target_count": "1392"
+      },
+      {
+        "avg_score": "66.22",
+        "id": "HSA-MIR-4656",
+        "max_score": "98.79",
+        "target_count": "1306"
+      },
+      {
+        "avg_score": "68.72",
+        "id": "HSA-MIR-629-5P",
+        "max_score": "98.78",
+        "target_count": "1032"
+      },
+      {
+        "avg_score": "69.82",
+        "id": "HSA-MIR-4742-3P",
+        "max_score": "98.73",
+        "target_count": "1803"
+      },
+      {
+        "avg_score": "69.64",
+        "id": "HSA-MIR-6868-3P",
+        "max_score": "98.63",
+        "target_count": "2259"
+      },
+      {
+        "avg_score": "66.21",
+        "id": "HSA-MIR-1246",
+        "max_score": "98.54",
+        "target_count": "959"
+      },
+      {
+        "avg_score": "70.19",
+        "id": "HSA-MIR-6516-5P",
+        "max_score": "98.42",
+        "target_count": "1551"
       }
     ],
     "section": "09_tf_regulation",
