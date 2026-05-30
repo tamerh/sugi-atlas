@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 61,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "workflows/gene/publish.py",
+  "task_id": "3:11:KRAS:publish",
+  "timestamp": "2026-05-30T12:26:32+02:00"
+}
