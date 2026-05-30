@@ -852,6 +852,14 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | [Lipopolysaccharides](http://ctdbase.org/detail.go?type=chem&acc=D008070) | affects^response to substance, increases^expression, affects^cotreatment | 1 |
 | [Nickel](http://ctdbase.org/detail.go?type=chem&acc=D009532) | increases^expression | 1 |
 
+**ChEMBL screening assays (1 unique, capped per target):** 1 binding
+
+Representative assays:
+
+| Assay ID | Type | Description |
+| --- | --- | --- |
+| [CHEMBL5652715](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL5652715/) | Binding | Binding affinity to human TTN incubated for 45 mins by Kinobead based pull down assay |
+
 **Clinical trials for the gene's associated diseases (203, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

@@ -93,6 +93,17 @@
     ],
     "chembl_activity_potent_count": 4,
     "chembl_activity_total": 4,
+    "chembl_assay_samples": [
+      {
+        "desc": "Binding affinity to human TTN incubated for 45 mins by Kinobead based pull down assay",
+        "id": "CHEMBL5652715",
+        "type": "Binding"
+      }
+    ],
+    "chembl_assay_total": 1,
+    "chembl_assay_type_counts": {
+      "Binding": 1
+    },
     "chembl_targets": [
       {
         "id": "CHEMBL6067440",
