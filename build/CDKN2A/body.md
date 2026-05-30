@@ -488,11 +488,11 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 
 **ChEMBL screening assays (2 unique, capped per target):** 2 binding
 
-Representative assays:
+Representative assays (with source publication via chembl_document):
 
-| Assay ID | Type | Description |
-| --- | --- | --- |
-| [CHEMBL4678413](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4678413/) | Binding | Inhibition of GFP-tagged p16INK4A (unknown orgin) expressed in human dermal fibroblast at 20 uM after 24 hrs by renilla/firefly dual-luciferase reporter assay relative to control |
+| Assay ID | Type | Description | Source paper |
+| --- | --- | --- | --- |
+| [CHEMBL4678413](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4678413/) | Binding | Inhibition of GFP-tagged p16INK4A (unknown orgin) expressed in human dermal fibroblast at 20 uM after 24 hrs by renilla/firefly dual-luciferase reporter assay relative to control | [Phenolic Constituents of the Roots of Rhamnoneuron balansae with Senolytic Activity.](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL4673337/) — *J Nat Prod* |
 
 **Cellosaurus cell lines (4,344):** 4,149 cancer cell line, 152 spontaneously immortalized cell line, 19 transformed cell line, 14 telomerase immortalized cell line, 9 finite cell line, 1 induced pluripotent stem cell
 

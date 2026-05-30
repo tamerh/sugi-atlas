@@ -149,6 +149,9 @@
     "chembl_assay_samples": [
       {
         "desc": "Inhibition of GFP-tagged p16INK4A (unknown orgin) expressed in human dermal fibroblast at 20 uM after 24 hrs by renilla/firefly dual-luciferase reporter assay relative to control",
+        "doc_id": "CHEMBL4673337",
+        "doc_journal": "J Nat Prod",
+        "doc_title": "Phenolic Constituents of the Roots of Rhamnoneuron balansae with Senolytic Activity.",
         "id": "CHEMBL4678413",
         "type": "Binding"
       }
