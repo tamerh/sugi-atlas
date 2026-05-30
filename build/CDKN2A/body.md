@@ -444,10 +444,10 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 
 **ChEMBL targets (1):** CHEMBL4680027 (SINGLE PROTEIN)
 
-**Molecules with ChEMBL bioactivity (phase ≥1): 0**, by development phase (incl. off-target/promiscuous compounds):
+**Molecules with ChEMBL bioactivity (phase ≥1): 0**, by development phase (incl. off-target/promiscuous compounds).
 
-| Molecule | Name | Phase |
-| --- | --- | --- |
+| Molecule | Name | Phase | Patents |
+| --- | --- | --- | --- |
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 
