@@ -651,6 +651,41 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | [53310143](https://pubchem.ncbi.nlm.nih.gov/compound/53310143) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 4.6000 | uM |
 | [53310423](https://pubchem.ncbi.nlm.nih.gov/compound/53310423) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 7.1000 | uM |
 
+**CTD chemical–gene interactions (human, 189 total), top 30 by PubMed support:**
+
+| Chemical | Actions (CV verbs) | PubMed papers |
+| --- | --- | --- |
+| [Estradiol](http://ctdbase.org/detail.go?type=chem&acc=D004958) | affects^reaction, affects^binding, increases^reaction, increases^phosphorylation, affects^localization, affects^cotreatment, decreases^expression, decreases^reaction, increases^expression, increases^activity | 15 |
+| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | increases^abundance, increases^expression, affects^reaction, affects^response to substance, affects^methylation, decreases^reaction, affects^binding, increases^reaction, decreases^expression | 11 |
+| [Tetrachlorodibenzodioxin](http://ctdbase.org/detail.go?type=chem&acc=D013749) | affects^expression, affects^reaction, affects^binding, increases^activity, increases^reaction, affects^cotreatment, decreases^expression, decreases^reaction, increases^expression, increases^methylation | 9 |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | affects^binding, increases^abundance, increases^response to substance, decreases^reaction, increases^expression, increases^reaction, decreases^expression, increases^methylation, affects^expression, affects^cotreatment | 8 |
+| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | increases^phosphorylation, increases^reaction, decreases^activity, increases^expression, decreases^reaction, increases^activity, increases^response to substance, decreases^response to substance | 8 |
+| [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | affects^reaction, increases^reaction, increases^expression, increases^activity, affects^response to substance, affects^cotreatment, increases^methylation, decreases^expression | 7 |
+| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | affects^cotreatment, increases^expression, affects^binding, decreases^reaction, affects^expression, affects^phosphorylation, affects^localization, increases^reaction, affects^reaction, decreases^expression, increases^methylation | 7 |
+| [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | affects^binding, decreases^reaction, increases^expression, decreases^expression | 6 |
+| [Fulvestrant](http://ctdbase.org/detail.go?type=chem&acc=D000077267) | decreases^reaction, increases^expression, decreases^expression, affects^cotreatment, increases^methylation | 4 |
+| [Cannabidiol](http://ctdbase.org/detail.go?type=chem&acc=D002185) | affects^cotreatment, increases^expression, decreases^expression | 4 |
+| [Fluorouracil](http://ctdbase.org/detail.go?type=chem&acc=D005472) | decreases^reaction, decreases^expression, increases^expression | 4 |
+| [lasiocarpine](http://ctdbase.org/detail.go?type=chem&acc=C005136) | decreases^expression, increases^metabolic processing, increases^expression | 3 |
+| [indole-3-carbinol](http://ctdbase.org/detail.go?type=chem&acc=C016517) | increases^expression, affects^binding, decreases^reaction, increases^activity, increases^reaction, affects^cotreatment | 3 |
+| [(+)-JQ1 compound](http://ctdbase.org/detail.go?type=chem&acc=C561695) | increases^response to substance, decreases^expression | 3 |
+| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | affects^methylation, increases^expression, affects^cotreatment, decreases^expression, increases^abundance | 3 |
+| [Cadmium](http://ctdbase.org/detail.go?type=chem&acc=D002104) | decreases^expression, decreases^phosphorylation | 3 |
+| [Etoposide](http://ctdbase.org/detail.go?type=chem&acc=D005047) | decreases^reaction, increases^expression, decreases^expression, affects^localization | 3 |
+| [Methotrexate](http://ctdbase.org/detail.go?type=chem&acc=D008727) | increases^reaction, increases^response to substance, affects^cotreatment, decreases^expression, increases^expression | 3 |
+| [Oxygen](http://ctdbase.org/detail.go?type=chem&acc=D010100) | decreases^expression | 3 |
+| [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | decreases^expression, increases^expression | 3 |
+| [Tamoxifen](http://ctdbase.org/detail.go?type=chem&acc=D013629) | affects^binding, increases^reaction, decreases^expression, increases^response to substance, affects^cotreatment, affects^activity, affects^reaction, decreases^reaction, increases^expression | 3 |
+| [Tretinoin](http://ctdbase.org/detail.go?type=chem&acc=D014212) | decreases^expression, increases^expression | 3 |
+| [Valproic Acid](http://ctdbase.org/detail.go?type=chem&acc=D014635) | decreases^expression, increases^methylation | 3 |
+| [7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide](http://ctdbase.org/detail.go?type=chem&acc=D015123) | affects^expression, decreases^expression, increases^reaction | 3 |
+| [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | decreases^expression, decreases^phosphorylation, increases^expression, increases^reaction | 3 |
+| [Genistein](http://ctdbase.org/detail.go?type=chem&acc=D019833) | decreases^reaction, increases^expression, affects^cotreatment | 3 |
+| [4-biphenylamine](http://ctdbase.org/detail.go?type=chem&acc=C006757) | decreases^expression, decreases^reaction | 2 |
+| [alpha-naphthoflavone](http://ctdbase.org/detail.go?type=chem&acc=C011512) | decreases^reaction, increases^expression, affects^binding, increases^activity | 2 |
+| [epigallocatechin gallate](http://ctdbase.org/detail.go?type=chem&acc=C045651) | increases^expression, affects^cotreatment, decreases^expression | 2 |
+| [NSC 674495](http://ctdbase.org/detail.go?type=chem&acc=C122062) | affects^binding, increases^expression, increases^reaction | 2 |
+
 **Clinical trials for the gene's associated diseases (190, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

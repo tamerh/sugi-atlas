@@ -429,6 +429,395 @@
         "type": "SINGLE PROTEIN"
       }
     ],
+    "ctd_interaction_total": 189,
+    "ctd_interactions": [
+      {
+        "actions": [
+          "affects^reaction",
+          "affects^binding",
+          "increases^reaction",
+          "increases^phosphorylation",
+          "affects^localization",
+          "affects^cotreatment",
+          "decreases^expression",
+          "decreases^reaction",
+          "increases^expression",
+          "increases^activity"
+        ],
+        "chemical": "Estradiol",
+        "chemical_id": "D004958",
+        "id": "D004958_672_9606",
+        "pmids": "15"
+      },
+      {
+        "actions": [
+          "increases^abundance",
+          "increases^expression",
+          "affects^reaction",
+          "affects^response to substance",
+          "affects^methylation",
+          "decreases^reaction",
+          "affects^binding",
+          "increases^reaction",
+          "decreases^expression"
+        ],
+        "chemical": "Benzo(a)pyrene",
+        "chemical_id": "D001564",
+        "id": "D001564_672_9606",
+        "pmids": "11"
+      },
+      {
+        "actions": [
+          "affects^expression",
+          "affects^reaction",
+          "affects^binding",
+          "increases^activity",
+          "increases^reaction",
+          "affects^cotreatment",
+          "decreases^expression",
+          "decreases^reaction",
+          "increases^expression",
+          "increases^methylation"
+        ],
+        "chemical": "Tetrachlorodibenzodioxin",
+        "chemical_id": "D013749",
+        "id": "D013749_672_9606",
+        "pmids": "9"
+      },
+      {
+        "actions": [
+          "affects^binding",
+          "increases^abundance",
+          "increases^response to substance",
+          "decreases^reaction",
+          "increases^expression",
+          "increases^reaction",
+          "decreases^expression",
+          "increases^methylation",
+          "affects^expression",
+          "affects^cotreatment"
+        ],
+        "chemical": "sodium arsenite",
+        "chemical_id": "C017947",
+        "id": "C017947_672_9606",
+        "pmids": "8"
+      },
+      {
+        "actions": [
+          "increases^phosphorylation",
+          "increases^reaction",
+          "decreases^activity",
+          "increases^expression",
+          "decreases^reaction",
+          "increases^activity",
+          "increases^response to substance",
+          "decreases^response to substance"
+        ],
+        "chemical": "Cisplatin",
+        "chemical_id": "D002945",
+        "id": "D002945_672_9606",
+        "pmids": "8"
+      },
+      {
+        "actions": [
+          "affects^reaction",
+          "increases^reaction",
+          "increases^expression",
+          "increases^activity",
+          "affects^response to substance",
+          "affects^cotreatment",
+          "increases^methylation",
+          "decreases^expression"
+        ],
+        "chemical": "bisphenol A",
+        "chemical_id": "C006780",
+        "id": "C006780_672_9606",
+        "pmids": "7"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "increases^expression",
+          "affects^binding",
+          "decreases^reaction",
+          "affects^expression",
+          "affects^phosphorylation",
+          "affects^localization",
+          "increases^reaction",
+          "affects^reaction",
+          "decreases^expression",
+          "increases^methylation"
+        ],
+        "chemical": "Resveratrol",
+        "chemical_id": "D000077185",
+        "id": "D000077185_672_9606",
+        "pmids": "7"
+      },
+      {
+        "actions": [
+          "affects^binding",
+          "decreases^reaction",
+          "increases^expression",
+          "decreases^expression"
+        ],
+        "chemical": "Doxorubicin",
+        "chemical_id": "D004317",
+        "id": "D004317_672_9606",
+        "pmids": "6"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "decreases^expression",
+          "affects^cotreatment",
+          "increases^methylation"
+        ],
+        "chemical": "Fulvestrant",
+        "chemical_id": "D000077267",
+        "id": "D000077267_672_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "increases^expression",
+          "decreases^expression"
+        ],
+        "chemical": "Cannabidiol",
+        "chemical_id": "D002185",
+        "id": "D002185_672_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Fluorouracil",
+        "chemical_id": "D005472",
+        "id": "D005472_672_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^metabolic processing",
+          "increases^expression"
+        ],
+        "chemical": "lasiocarpine",
+        "chemical_id": "C005136",
+        "id": "C005136_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "affects^binding",
+          "decreases^reaction",
+          "increases^activity",
+          "increases^reaction",
+          "affects^cotreatment"
+        ],
+        "chemical": "indole-3-carbinol",
+        "chemical_id": "C016517",
+        "id": "C016517_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "increases^response to substance",
+          "decreases^expression"
+        ],
+        "chemical": "(+)-JQ1 compound",
+        "chemical_id": "C561695",
+        "id": "C561695_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "affects^methylation",
+          "increases^expression",
+          "affects^cotreatment",
+          "decreases^expression",
+          "increases^abundance"
+        ],
+        "chemical": "Arsenic",
+        "chemical_id": "D001151",
+        "id": "D001151_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "decreases^phosphorylation"
+        ],
+        "chemical": "Cadmium",
+        "chemical_id": "D002104",
+        "id": "D002104_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "decreases^expression",
+          "affects^localization"
+        ],
+        "chemical": "Etoposide",
+        "chemical_id": "D005047",
+        "id": "D005047_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "increases^reaction",
+          "increases^response to substance",
+          "affects^cotreatment",
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Methotrexate",
+        "chemical_id": "D008727",
+        "id": "D008727_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "Oxygen",
+        "chemical_id": "D010100",
+        "id": "D010100_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Quercetin",
+        "chemical_id": "D011794",
+        "id": "D011794_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "affects^binding",
+          "increases^reaction",
+          "decreases^expression",
+          "increases^response to substance",
+          "affects^cotreatment",
+          "affects^activity",
+          "affects^reaction",
+          "decreases^reaction",
+          "increases^expression"
+        ],
+        "chemical": "Tamoxifen",
+        "chemical_id": "D013629",
+        "id": "D013629_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Tretinoin",
+        "chemical_id": "D014212",
+        "id": "D014212_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^methylation"
+        ],
+        "chemical": "Valproic Acid",
+        "chemical_id": "D014635",
+        "id": "D014635_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "affects^expression",
+          "decreases^expression",
+          "increases^reaction"
+        ],
+        "chemical": "7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide",
+        "chemical_id": "D015123",
+        "id": "D015123_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "decreases^phosphorylation",
+          "increases^expression",
+          "increases^reaction"
+        ],
+        "chemical": "Cadmium Chloride",
+        "chemical_id": "D019256",
+        "id": "D019256_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "affects^cotreatment"
+        ],
+        "chemical": "Genistein",
+        "chemical_id": "D019833",
+        "id": "D019833_672_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "decreases^reaction"
+        ],
+        "chemical": "4-biphenylamine",
+        "chemical_id": "C006757",
+        "id": "C006757_672_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "affects^binding",
+          "increases^activity"
+        ],
+        "chemical": "alpha-naphthoflavone",
+        "chemical_id": "C011512",
+        "id": "C011512_672_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "affects^cotreatment",
+          "decreases^expression"
+        ],
+        "chemical": "epigallocatechin gallate",
+        "chemical_id": "C045651",
+        "id": "C045651_672_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "affects^binding",
+          "increases^expression",
+          "increases^reaction"
+        ],
+        "chemical": "NSC 674495",
+        "chemical_id": "C122062",
+        "id": "C122062_672_9606",
+        "pmids": "2"
+      }
+    ],
     "disease_trial_count": 190,
     "disease_trials": [
       {
