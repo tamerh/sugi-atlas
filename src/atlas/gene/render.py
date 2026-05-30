@@ -270,6 +270,22 @@ def r_drugs(b):
                          ", ".join(r["actions"]),
                          r["pmids"]) for r in ctd]))
 
+    # ChEMBL screening-assay depth — how heavily this target has been
+    # profiled, and via what experimental style (Binding / Functional / ADMET
+    # / Toxicity). Aggregated across all ChEMBL targets for this protein.
+    cat = b.get("chembl_assay_total") or 0
+    if cat:
+        type_counts = b.get("chembl_assay_type_counts") or {}
+        breakdown = ", ".join(f"{n} {k.lower()}" for k, n in type_counts.items())
+        L.append(f"\n**ChEMBL screening assays ({cat} unique, capped per target):** "
+                 f"{breakdown}")
+        samples = b.get("chembl_assay_samples") or []
+        if samples:
+            L.append("\nRepresentative assays:\n")
+            L.append(table(["Assay ID", "Type", "Description"],
+                           [(f"[{s['id']}](https://www.ebi.ac.uk/chembl/assay_report_card/{s['id']}/)",
+                             s["type"], s["desc"]) for s in samples]))
+
     ct = b.get("disease_trials", [])
     L.append(f"\n**Clinical trials for the gene's associated diseases "
              f"({b.get('disease_trial_count', 0)}, via MONDO — disease-level, not drug-specific):**\n")

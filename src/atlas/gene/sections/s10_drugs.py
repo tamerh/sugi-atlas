@@ -1,5 +1,6 @@
 """§10 — drugs: ChEMBL targets + phased molecules, PharmGKB, BindingDB sample,
 clinical trials via the DISEASE route (gene → MONDO → trials)."""
+from collections import Counter
 from atlas.biobtree import map_all
 from atlas.gene.sections.base import Section
 
@@ -7,6 +8,7 @@ CHAINS = (
     ">>uniprot>>chembl_target",
     '>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=1]',
     ">>uniprot>>chembl_activity",
+    ">>uniprot>>chembl_target>>chembl_assay",
     ">>hgnc>>pharmgkb_gene",
     ">>uniprot>>bindingdb",
     ">>uniprot>>pubchem_activity",
@@ -14,10 +16,22 @@ CHAINS = (
     ">>hgnc>>gencc>>mondo>>clinical_trials",
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
 )
-DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity",
+DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
             "pharmgkb_gene", "bindingdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
+
+# ChEMBL assay type codes — single-letter classification we surface as a
+# breakdown ("how heavily this target is profiled, and by what experimental
+# style"). Source: ChEMBL data dictionary / BAO.
+_ASSAY_TYPE_NAMES = {
+    "B": "Binding",
+    "F": "Functional",
+    "A": "ADMET",
+    "P": "Physicochemical",
+    "T": "Toxicity",
+    "U": "Unclassified",
+}
 
 # Activity types we sort by potency (low value = potent). Other outcomes carry
 # qualifier flags rather than affinity values.
@@ -101,6 +115,43 @@ def collect(a):
     bundle["chembl_activity_total"] = len(ca)
     bundle["chembl_activity_potent_count"] = len(potent)
 
+    # ChEMBL assays — aggregated across all ChEMBL targets for this protein.
+    # Per-target chembl_assay is capped (≈100/target on heavily-screened
+    # targets), so totals are screening-floor signals; the type breakdown
+    # captures the experimental mix. Sample descriptions surface the biology
+    # behind the numbers (compound × target × mechanism).
+    seen_assays = {}
+    type_counts = Counter()
+    for t in targets:
+        for r in map_all(t["id"], ">>chembl_target>>chembl_assay", cap=100):
+            aid = r.get("id")
+            if not aid or aid in seen_assays:
+                continue
+            ty = (r.get("type") or "U").upper()
+            type_counts[ty] += 1
+            seen_assays[aid] = {"id": aid, "type": ty,
+                                "desc": (r.get("desc") or "").strip()}
+    bundle["chembl_assay_total"] = len(seen_assays)
+    bundle["chembl_assay_type_counts"] = {_ASSAY_TYPE_NAMES.get(k, k): v
+                                          for k, v in type_counts.most_common()}
+    # Three representative assays — prefer rows with descriptions, biased
+    # toward type variety so the sample illustrates the breadth.
+    samples = []
+    by_type = {}
+    for r in seen_assays.values():
+        if not r["desc"]:
+            continue
+        by_type.setdefault(r["type"], []).append(r)
+    for ty in type_counts:
+        if by_type.get(ty):
+            samples.append(by_type[ty][0])
+        if len(samples) >= 3:
+            break
+    bundle["chembl_assay_samples"] = [
+        {"id": s["id"], "type": _ASSAY_TYPE_NAMES.get(s["type"], s["type"]),
+         "desc": s["desc"][:240]} for s in samples
+    ]
+
     # CTD literature-mined chemical-gene interactions. Each row is a
     # PubMed-evidenced interaction with CV-coded action verbs (e.g.
     # 'increases^expression', 'decreases^activity'). Sort by pubmed_count
@@ -146,7 +197,9 @@ SECTION = Section(
                  "affinities, PubChem BioAssay actives (sorted by potency, with "
                  "clickable CID/AID), clinical trials via disease route"),
     needs=("hgnc_id", "canonical_uniprot"),
-    produces=("chembl_targets", "molecules", "chembl_activities", "pharmgkb",
+    produces=("chembl_targets", "molecules", "chembl_activities",
+              "chembl_assay_total", "chembl_assay_type_counts",
+              "chembl_assay_samples", "pharmgkb",
               "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",
               "disease_trials", "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
