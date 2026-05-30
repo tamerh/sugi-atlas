@@ -1,0 +1,51 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ARID1A",
+      "chain": ">hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ARID1A",
+      "chain": ">hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ARID1A",
+      "chain": ">hgnc>>clinvar>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ARID1A",
+      "chain": ">hgnc>>clinvar>>orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ARID1A",
+      "chain": ">hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ARID1A",
+      "chain": ">hgnc>>gwas"
+    }
+  }
+]

@@ -1,0 +1,36 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AKT1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:391",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000142208",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "207",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">>hgnc>>mim"
+    }
+  }
+]

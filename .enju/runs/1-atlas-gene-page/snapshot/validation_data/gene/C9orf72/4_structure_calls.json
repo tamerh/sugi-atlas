@@ -1,0 +1,29 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "C9orf72"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q96LT7",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q96LT7",
+      "chain": ">uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q96LT7",
+      "chain": ">uniprot>>alphafold"
+    }
+  }
+]

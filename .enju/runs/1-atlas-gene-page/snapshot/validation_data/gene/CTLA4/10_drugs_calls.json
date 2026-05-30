@@ -1,0 +1,181 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000163599",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P16410",
+      "chain": ">uniprot>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL2364164",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL2364164",
+      "dataset": "chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ipilimumab"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL1789844",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1789844",
+      "chain": ">chembl_molecule>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "tremelimumab"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "anti-CTLA4"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL2108658",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CTLA4",
+      "chain": ">hgnc>>gtopdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "2743",
+      "chain": ">gtopdb>>gtopdb_ligand"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA-4 inhibitor"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "1493",
+      "chain": ">entrez>>ctd_gene_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1789844",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL2108658",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "checkpoint inhibitor monoclonal antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "anti-PD-1 anti-CTLA-4"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PA27006",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "nivolumab pembrolizumab CTLA4"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "nivolumab"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA-4 monoclonal antibody approved"
+    }
+  }
+]

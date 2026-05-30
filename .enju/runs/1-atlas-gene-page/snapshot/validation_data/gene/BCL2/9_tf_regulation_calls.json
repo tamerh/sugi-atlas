@@ -1,0 +1,304 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:990",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "596",
+      "chain": "::entrez>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "AR:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CREB1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "BCL2",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2",
+      "dataset": "collectri",
+      "page": "0,0,-1,120"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2:",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "BCL2",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "NFKB:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MYC:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "NKX3-1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "GLI1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "EGR1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "BCL6:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ESR1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "E2F1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "TP53:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "AP1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HIF1A:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "GATA4:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CEBPB:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MYB:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": ":BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2",
+      "dataset": "collectri",
+      "page": "0,0,0,116"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CEBPA:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "JUN:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MITF:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "NOTCH1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "STAT3:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "NFKB1:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PPARG:BCL2",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "TFAP2A:BCL2",
+      "dataset": "collectri"
+    }
+  }
+]

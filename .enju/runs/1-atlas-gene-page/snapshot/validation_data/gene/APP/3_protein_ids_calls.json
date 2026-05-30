@@ -1,0 +1,148 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP amyloid beta precursor protein",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:620",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:620",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:620",
+      "chain": ">hgnc>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P05067",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">uniprot>>pfam"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">uniprot>>interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">uniprot>>smart"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">uniprot>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF00014",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF02177",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF03494",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF10515",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF12924",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF12925",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00006",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00131",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP amyloid beta",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "P05067",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">uniprot>>cathgene3d"
+    }
+  }
+]

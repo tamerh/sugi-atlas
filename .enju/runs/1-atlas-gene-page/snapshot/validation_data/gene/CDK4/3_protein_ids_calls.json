@@ -1,0 +1,120 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P11802",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">uniprot>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">uniprot>>interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">uniprot>>pfam"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">uniprot>>smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR000719",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR008271",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR011009",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR017441",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR050108",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF00069",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00220",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "F8VTV8",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "F8VWX7",
+      "dataset": "uniprot"
+    }
+  }
+]

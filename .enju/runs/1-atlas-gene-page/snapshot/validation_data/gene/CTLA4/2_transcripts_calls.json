@@ -1,0 +1,71 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000163599",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>ccds"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000295854",
+      "chain": ">transcript>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000696479",
+      "chain": ">transcript>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000648405",
+      "chain": ">transcript>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000696049",
+      "chain": ">transcript>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000427473,ENST00000487393,ENST00000650075",
+      "chain": ">transcript>>exon"
+    }
+  }
+]

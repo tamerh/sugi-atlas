@@ -1,0 +1,43 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000012048",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000012048",
+      "chain": ">>ensembl>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000012048",
+      "chain": ">>ensembl>>go"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>msigdb"
+    }
+  }
+]

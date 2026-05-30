@@ -1,0 +1,66 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRAF",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRAF",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000157764",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000157764",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000157764",
+      "chain": ">ensembl>>scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000157764",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000157764",
+      "chain": ">bgee>>bgee_evidence"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000157764",
+      "chain": ">bgee>>bgee_evidence",
+      "page": "-1[]ENSG00000157764,34,ENSG00000157764,46,0]["
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000157764",
+      "dataset": "scxa_expression"
+    }
+  }
+]

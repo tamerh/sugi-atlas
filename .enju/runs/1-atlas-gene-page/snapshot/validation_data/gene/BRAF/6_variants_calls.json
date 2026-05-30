@@ -1,0 +1,65 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRAF"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRAF",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1097",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000157764",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1097",
+      "chain": ">hgnc>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000157764",
+      "chain": ">ensembl>>spliceai"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000157764",
+      "chain": ">ensembl>>uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000157764",
+      "chain": ">ensembl>>uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1097",
+      "chain": ">hgnc>>clinvar",
+      "page": "-1[]HGNC:1097,10,HGNC:1097,33,1]"
+    }
+  }
+]

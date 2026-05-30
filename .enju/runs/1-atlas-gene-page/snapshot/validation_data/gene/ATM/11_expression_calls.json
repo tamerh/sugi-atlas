@@ -1,0 +1,85 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:795",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:795",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000149311",
+      "dataset": "scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>scxa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000149311",
+      "chain": ">ensembl>>go"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ATM expression tissue",
+      "dataset": "bgee"
+    }
+  }
+]

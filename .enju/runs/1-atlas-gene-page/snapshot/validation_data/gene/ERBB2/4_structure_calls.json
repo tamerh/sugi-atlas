@@ -1,0 +1,36 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ERBB2"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">>ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P04626",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">>uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">>uniprot>>alphafold"
+    }
+  }
+]

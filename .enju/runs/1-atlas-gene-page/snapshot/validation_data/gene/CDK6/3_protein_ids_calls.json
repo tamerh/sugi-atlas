@@ -1,0 +1,156 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK6",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1777",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1777",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q00534",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1777",
+      "chain": ">>hgnc>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q00534",
+      "chain": ">>uniprot>>interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q00534",
+      "chain": ">>uniprot>>pfam"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q00534",
+      "chain": ">>uniprot>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q00534",
+      "chain": ">>uniprot>>hpa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK6",
+      "dataset": "antibody"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF00069",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR000719",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR008271",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR011009",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR017441",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR028788",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR050108",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000105810",
+      "chain": ">>ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK6",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK6",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q00534",
+      "chain": ">>uniprot>>smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00220",
+      "dataset": "smart"
+    }
+  }
+]

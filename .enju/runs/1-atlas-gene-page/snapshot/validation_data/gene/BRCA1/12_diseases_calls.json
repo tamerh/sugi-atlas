@@ -1,0 +1,59 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">hgnc>>clinvar>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">hgnc>>clinvar>>orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">hgnc>>gwas"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">hgnc>>hpo",
+      "page": "-1[]HGNC:1100,10,HGNC:1100,72,2][\"antml:parameter>\n</invoke>"
+    }
+  }
+]

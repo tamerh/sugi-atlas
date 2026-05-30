@@ -1,0 +1,71 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000135446",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000135446",
+      "chain": ">>ensembl>>ccds"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CCDS8953",
+      "chain": ">>ccds>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CCDS8953",
+      "dataset": "ccds"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CCDS8953",
+      "chain": ">>ccds>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000257904",
+      "chain": ">>transcript>>exon"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENST00000257904",
+      "dataset": "transcript"
+    }
+  }
+]

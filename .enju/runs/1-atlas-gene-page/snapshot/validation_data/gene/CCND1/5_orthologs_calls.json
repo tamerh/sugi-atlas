@@ -1,0 +1,102 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Cyclin D yeast",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSMUSG00000070348",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSRNOG00000020918",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSDARG00000101637",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FBGN0010315",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000867",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000070348,ENSRNOG00000020918,ENSDARG00000101637,FBGN0010315,WBGENE00000867",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1 Saccharomyces cerevisiae"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CLN1 CLN2 CLN3 yeast"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "cyclin yeast Saccharomyces"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>ortholog>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Saccharomyces cerevisiae"
+    }
+  }
+]

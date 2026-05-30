@@ -1,0 +1,51 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">>hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">>hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">>hgnc>>clinvar>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">>hgnc>>clinvar>>orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">>hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">>hgnc>>gwas"
+    }
+  }
+]

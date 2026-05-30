@@ -1,0 +1,58 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">>ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">>ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">>ensembl>>ccds"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENST00000913508",
+      "dataset": "transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000913508",
+      "chain": ">>transcript>>exon"
+    }
+  }
+]

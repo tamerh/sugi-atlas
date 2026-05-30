@@ -1,0 +1,226 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:990",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P10415",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10415",
+      "chain": ">uniprot>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10415",
+      "chain": ">uniprot>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10415",
+      "chain": ">uniprot>>interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000171791",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10415",
+      "chain": ">uniprot>>pfam"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10415",
+      "chain": ">uniprot>>smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF00452",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF02180",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00265",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SM00337",
+      "dataset": "smart"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "A0A7I2V3S7",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "A0A7I2V4W1",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "A0A7I2V5Q7",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "A0A7I2V5Q9",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2",
+      "dataset": "antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": ">hgnc>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR002475",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR003093",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR004725",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR013278",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR020717",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR020726",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR020728",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR020731",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR026298",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR036834",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR046371",
+      "dataset": "interpro"
+    }
+  }
+]
