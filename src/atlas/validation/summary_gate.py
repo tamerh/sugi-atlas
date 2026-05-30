@@ -87,6 +87,38 @@ def judge_once(body, atoms, summary, key, model):
         except Exception:
             return None, dt, "parse-fail"
 
+def check_summary(body, summary, key=None):
+    """In-process API used by pipeline.py. Runs the configured judges (one or
+    two via OR_JUDGE / OR_JUDGE2), returns {verdict, both, single, raw}.
+
+    verdict:
+      clean       — both judges (or the only judge) returned []
+      flagged     — at least one high-confidence (both-vote) unsupported claim
+      single_vote — only single-vote claims, no high-confidence ones
+      error       — judge parse/API failure
+    """
+    if key is None:
+        key = B.api_key()
+    atoms = body_atoms(body)
+    judges = [JUDGE] + ([JUDGE2] if JUDGE2 and JUDGE2 != JUDGE else [])
+    flagsets, err_seen = [], None
+    for j in judges:
+        uns, dt, err = judge_once(body, atoms, summary, key, j)
+        if uns is None:
+            err_seen = err; break
+        flagsets.append({normalize(u): u for u in uns})
+    if err_seen:
+        return {"verdict": "error", "error": err_seen, "judges": judges}
+    if len(flagsets) == 1:
+        both, single = list(flagsets[0].values()), []
+    else:
+        ks = [set(fs.keys()) for fs in flagsets]
+        common = ks[0] & ks[1]
+        both = [flagsets[0][k] for k in common]
+        single = sorted({v for fs in flagsets for k, v in fs.items() if k not in common})
+    verdict = "flagged" if both else ("single_vote" if single else "clean")
+    return {"verdict": verdict, "both": both, "single": single, "judges": judges}
+
 def main():
     args = [a for a in sys.argv[1:] if a != "--dry"]
     dry = "--dry" in sys.argv
