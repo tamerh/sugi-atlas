@@ -67,6 +67,9 @@
   "10": {
     "bindingdb_sample": [],
     "bindingdb_sampled": 0,
+    "chembl_activities": [],
+    "chembl_activity_potent_count": 0,
+    "chembl_activity_total": 0,
     "chembl_targets": [
       {
         "id": "CHEMBL4680027",
