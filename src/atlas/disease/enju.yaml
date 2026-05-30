@@ -1,0 +1,112 @@
+# =============================================================================
+# Atlas disease page — per-disease 4-task DAG (mirrors gene/enju.yaml)
+# =============================================================================
+#
+# DAG per disease (workflow-level for_each, each iteration isolated):
+#
+#   collect_render ──┬── body_gate ─────────────────────┐
+#                    │                                   ├── publish
+#                    └── summary ──── (no summary_gate)──┘
+#
+# Disease iteration var is a `{name, slug}` record because:
+#   - `name` drives biobtree search to resolve to a Mondo id
+#   - `slug` is the stable URL/filename — caller pre-computes it so dist
+#     paths and snapshot keys don't drift if Mondo's canonical_name changes
+#
+# Run invocation:
+#
+#   enju go src/atlas/disease/enju.yaml \
+#       --base data \
+#       --run-branch "" \
+#       --publish none \
+#       --params '{"diseases":[
+#                    {"name":"age-related macular degeneration",
+#                     "slug":"age-related-macular-degeneration"}]}'
+
+name: "Atlas disease page"
+description: |
+  Per-disease Atlas page generation: deterministic collect + render across
+  §1-§14 (+ render-only §15/§16/§17 derived views), body_gate regression
+  check, LLM executive summary, publish to
+  /data/sugi-atlas-dist/atlas/disease/<slug>/.
+
+version: 1
+
+publish:
+  mode: none
+
+params:
+  - name: diseases
+    type: list<record>
+    required: true
+    key: slug
+    fields:
+      name: string
+      slug: string
+    description: "Diseases to analyse, [{name, slug}]; slug = URL/filename-safe key."
+
+  - name: dist_root
+    type: string
+    default: "/data/sugi-atlas-dist"
+    description: "Absolute path to the sugi-atlas-dist checkout (publish target)."
+
+  - name: summary_model
+    type: string
+    default: "qwen/qwen3-235b-a22b-2507|Together"
+    description: "OpenRouter model slug for the summary step."
+
+  - name: skip_summary
+    type: string
+    default: "false"
+    description: "Set 'true' to skip the LLM summary (deterministic-only fast path)."
+
+for_each:
+  disease: "{{diseases}}"
+
+defaults:
+  assign_to: tamerh
+
+tasks:
+  - id: collect_render
+    action: compute
+    script: src/atlas/disease/tasks/collect_render.py
+    writes:
+      - "build/{{disease.slug}}/bundle.json"
+      - "build/{{disease.slug}}/body.md"
+      - "build/{{disease.slug}}/anchors_meta.json"
+    prompt: "Collect §1-§14 deterministically and render body for {{disease.name}}"
+
+  - id: body_gate
+    action: compute
+    script: src/atlas/disease/tasks/body_gate.py
+    depends_on: [collect_render]
+    reads:
+      - "build/{{disease.slug}}/bundle.json"
+    writes:
+      - "build/{{disease.slug}}/body_gate.json"
+    prompt: "Body-gate regression check for {{disease.slug}}"
+
+  - id: summary
+    action: compute
+    script: src/atlas/disease/tasks/summary.py
+    depends_on: [collect_render]
+    reads:
+      - "build/{{disease.slug}}/body.md"
+      - "build/{{disease.slug}}/anchors_meta.json"
+    writes:
+      - "build/{{disease.slug}}/summary.md"
+    prompt: "Generate executive summary via OpenRouter for {{disease.name}}"
+
+  - id: publish
+    action: compute
+    script: src/atlas/disease/tasks/publish.py
+    depends_on: [body_gate, summary]
+    reads:
+      - "build/{{disease.slug}}/bundle.json"
+      - "build/{{disease.slug}}/body.md"
+      - "build/{{disease.slug}}/summary.md"
+      - "build/{{disease.slug}}/body_gate.json"
+      - "build/{{disease.slug}}/anchors_meta.json"
+    # publish.py writes the final page.md to $DIST_ROOT/atlas/disease/<slug>/
+    # (absolute path OUTSIDE the project tree, same pattern as gene).
+    prompt: "Assemble final page.md and write to dist for {{disease.slug}}"
