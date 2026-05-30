@@ -1,0 +1,27 @@
+{
+  "instance_key": "BRCA1",
+  "iteration": {
+    "symbol": "BRCA1"
+  },
+  "params": {
+    "dist_root": "/data/sugi-atlas-dist",
+    "skip_summary": "true",
+    "summary_model": "qwen/qwen3-235b-a22b-2507|Together",
+    "symbols": [
+      "TP53",
+      "BRCA1",
+      "CDKN2A",
+      "KRAS",
+      "TTN"
+    ]
+  },
+  "reads_artifacts": [
+    "build/BRCA1/bundle.json",
+    "build/BRCA1/body.md",
+    "build/BRCA1/summary.md",
+    "build/BRCA1/body_gate.json"
+  ],
+  "task_def_id": "publish",
+  "task_id": "3:22:BRCA1:publish",
+  "writes_artifacts": []
+}
