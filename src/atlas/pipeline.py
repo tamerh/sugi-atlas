@@ -37,19 +37,37 @@ def render_all(bundle):
 def _yaml_escape(s):
     return str(s).replace('"', '\\"')
 
-def assemble_page(symbol, summary_text, body_md, meta):
+def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
+    """Hugo-frontmatter + declarative lead + (optional) AI summary + body.
+
+    bundle: the full {section_id: bundle_dict} from collect_all. When passed,
+    the deterministic declarative lead sentence and Updated-date line are
+    prepended above the LLM summary. Required for the AI-friendly page shape;
+    legacy callers that don't pass it get the prior (no-lead) layout."""
     fm = ["---"]
     for k in ("title", "symbol", "entity_type", "generated_at", "atlas_version", "biobtree_version"):
         fm.append(f'{k}: "{_yaml_escape(meta[k])}"')
     fm.append("---")
     fm.append("")
     head = "\n".join(fm)
+
+    lead = ""
+    if bundle is not None:
+        from atlas.page.declarative import declarative_sentence
+        sentence = declarative_sentence(bundle)
+        # Pull the YYYY-MM-DD from the ISO `generated_at` for a human-visible
+        # freshness signal (HTTP Last-Modified is set by Hugo from this same field).
+        date = (meta.get("generated_at") or "")[:10]
+        updated = f"*Updated: {date}*" if date else ""
+        lead = sentence + "\n\n" + (updated + "\n\n" if updated else "")
+
     if summary_text:
         model = meta.get("summary_model", "Qwen3-235B")
         disclosure = (f"*Summary written by {model} from the deterministic data below. "
                       f"Facts in the tables that follow are the authoritative source.*")
-        return head + "## Summary\n\n" + disclosure + "\n\n" + summary_text.strip() + "\n\n" + body_md + "\n"
-    return head + body_md + "\n"
+        return (head + lead + "## Summary\n\n" + disclosure + "\n\n"
+                + summary_text.strip() + "\n\n" + body_md + "\n")
+    return head + lead + body_md + "\n"
 
 def run_summary(body_md, symbol, model):
     key = B.api_key()

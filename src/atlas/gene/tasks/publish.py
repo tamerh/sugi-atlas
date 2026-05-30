@@ -24,7 +24,7 @@ meta = {
     "atlas_version": V, "biobtree_version": biobtree_version(),
     "summary_model": display_model,
 }
-page = assemble_page(symbol, summary, body, meta)
+page = assemble_page(symbol, summary, body, meta, bundle=bundle)
 open(f"{out}/page.md", "w").write(page)
 for f in ("bundle.json", "body.md", "summary.md", "judge.json", "body_gate.json"):
     src = f"build/{symbol}/{f}"
