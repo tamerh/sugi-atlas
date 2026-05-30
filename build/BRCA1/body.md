@@ -692,12 +692,12 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 
 **ChEMBL screening assays (12 unique, capped per target):** 8 binding, 4 functional
 
-Representative assays:
+Representative assays (with source publication via chembl_document):
 
-| Assay ID | Type | Description |
-| --- | --- | --- |
-| [CHEMBL1613817](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1613817/) | Functional | PUBCHEM_BIOASSAY: qHTS Assay for Inhibitors of BRCT-Phosphoprotein Interaction (Green Fluorophore). (Class of assay: confirmatory) |
-| [CHEMBL1785941](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1785941/) | Binding | Inhibition of BRCA1 by fluorescence polarization assay |
+| Assay ID | Type | Description | Source paper |
+| --- | --- | --- | --- |
+| [CHEMBL1613817](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1613817/) | Functional | PUBCHEM_BIOASSAY: qHTS Assay for Inhibitors of BRCT-Phosphoprotein Interaction (Green Fluorophore). (Class of assay: confirmatory) | [PubChem BioAssay data set](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL1201862/) |
+| [CHEMBL1785941](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1785941/) | Binding | Inhibition of BRCA1 by fluorescence polarization assay | [Structure-activity relationship studies to probe the phosphoprotein binding site on the…](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL1781980/) — *J Med Chem* |
 
 **Cellosaurus cell lines (108):** 51 cancer cell line, 33 transformed cell line, 19 induced pluripotent stem cell, 2 embryonic stem cell, 1 spontaneously immortalized cell line, 1 finite cell line, 1 telomerase immortalized cell line
 

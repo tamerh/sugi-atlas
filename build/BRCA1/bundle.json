@@ -502,11 +502,17 @@
     "chembl_assay_samples": [
       {
         "desc": "PUBCHEM_BIOASSAY: qHTS Assay for Inhibitors of BRCT-Phosphoprotein Interaction (Green Fluorophore). (Class of assay: confirmatory)",
+        "doc_id": "CHEMBL1201862",
+        "doc_journal": null,
+        "doc_title": "PubChem BioAssay data set",
         "id": "CHEMBL1613817",
         "type": "Functional"
       },
       {
         "desc": "Inhibition of BRCA1 by fluorescence polarization assay",
+        "doc_id": "CHEMBL1781980",
+        "doc_journal": "J Med Chem",
+        "doc_title": "Structure-activity relationship studies to probe the phosphoprotein binding site on the carboxy terminal domains of the breast cancer susceptibility gene 1.",
         "id": "CHEMBL1785941",
         "type": "Binding"
       }
