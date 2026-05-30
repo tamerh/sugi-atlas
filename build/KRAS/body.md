@@ -853,11 +853,11 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | MVD | up-regulates quantity by stabilization | KRAS |  |
 | KRAS | up-regulates quantity by expression | NFE2L2 | transcriptional regulation |
 
-## Transcription factor regulatory data
+## Regulation
 
 **Is transcription factor: True**
 
-**Downstream targets: 1**
+**Downstream targets (CollecTRI): 1**
 
 | Target | Regulation |
 | --- | --- |
@@ -868,7 +868,42 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | Motif | Name | Family |
 | --- | --- | --- |
 
-**Upstream regulators (top):** AR, ATF3, CEBPB, CTNNBL1, DMTF1, DNMT3B, EGR1, ESR1, ESX1, ETV3, FEZF1, FOXC1, GATA6, HESX1, HMGA1, HMGA2, HNF4A, HOXA9, HOXD1, HSF1
+**Upstream regulators (CollecTRI, top):** AR, ATF3, CEBPB, CTNNBL1, DMTF1, DNMT3B, EGR1, ESR1, ESX1, ETV3, FEZF1, FOXC1, GATA6, HESX1, HMGA1, HMGA2, HNF4A, HOXA9, HOXD1, HSF1
+
+**miRNA regulators (miRDB): 327** targeting KRAS, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+
+| miRNA | Max score | Avg score | miRNA target_count |
+| --- | --- | --- | --- |
+| HSA-MIR-5692A | 100.00 | 74.40 | 6850 |
+| HSA-MIR-5692B | 100.00 | 71.32 | 2622 |
+| HSA-MIR-5692C | 100.00 | 71.32 | 2622 |
+| HSA-MIR-126-5P | 100.00 | 72.71 | 3180 |
+| HSA-MIR-513A-5P | 100.00 | 69.77 | 2465 |
+| HSA-LET-7A-3P | 100.00 | 74.03 | 3932 |
+| HSA-LET-7B-3P | 100.00 | 74.08 | 3913 |
+| HSA-LET-7F-1-3P | 100.00 | 74.02 | 3928 |
+| HSA-MIR-98-3P | 100.00 | 74.08 | 3907 |
+| HSA-MIR-4262 | 100.00 | 73.26 | 3931 |
+| HSA-MIR-30A-5P | 100.00 | 76.31 | 3233 |
+| HSA-MIR-30B-5P | 100.00 | 76.29 | 3248 |
+| HSA-MIR-30C-5P | 100.00 | 76.29 | 3248 |
+| HSA-MIR-30D-5P | 100.00 | 76.32 | 3233 |
+| HSA-MIR-30E-5P | 100.00 | 76.32 | 3242 |
+| HSA-MIR-3613-3P | 100.00 | 76.36 | 7965 |
+| HSA-MIR-4668-3P | 100.00 | 68.74 | 2635 |
+| HSA-MIR-340-5P | 100.00 | 72.50 | 4437 |
+| HSA-MIR-3163 | 100.00 | 77.23 | 8605 |
+| HSA-MIR-3924 | 100.00 | 72.09 | 2394 |
+| HSA-MIR-188-3P | 100.00 | 68.76 | 1240 |
+| HSA-MIR-190A-3P | 100.00 | 80.35 | 5520 |
+| HSA-MIR-548C-3P | 99.99 | 74.01 | 7587 |
+| HSA-MIR-4282 | 99.99 | 75.36 | 6408 |
+| HSA-MIR-513B-5P | 99.99 | 69.96 | 2150 |
+| HSA-MIR-181A-5P | 99.99 | 72.96 | 2995 |
+| HSA-MIR-181B-5P | 99.99 | 72.97 | 2996 |
+| HSA-MIR-181C-5P | 99.99 | 72.95 | 2996 |
+| HSA-MIR-181D-5P | 99.99 | 73.04 | 2997 |
+| HSA-MIR-3185 | 99.99 | 68.12 | 1959 |
 
 ## Drug & pharmacology data
 
