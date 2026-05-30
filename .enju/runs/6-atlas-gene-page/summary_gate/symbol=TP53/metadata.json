@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 38,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "workflows/gene/summary_gate.py",
+  "task_id": "3:6:TP53:summary_gate",
+  "timestamp": "2026-05-30T11:28:19+02:00"
+}
