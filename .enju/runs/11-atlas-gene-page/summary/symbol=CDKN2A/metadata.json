@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 4894,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "workflows/gene/summary.py",
+  "task_id": "3:11:CDKN2A:summary",
+  "timestamp": "2026-05-30T12:25:37+02:00"
+}
