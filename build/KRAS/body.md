@@ -1064,6 +1064,15 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | [BI-2852](http://ctdbase.org/detail.go?type=chem&acc=C000726313) | affects^binding, decreases^reaction | 1 |
 | [chymostatin](http://ctdbase.org/detail.go?type=chem&acc=C002101) | decreases^reaction, increases^expression | 1 |
 
+**ChEMBL screening assays (722 unique, capped per target):** 708 binding, 14 functional
+
+Representative assays:
+
+| Assay ID | Type | Description |
+| --- | --- | --- |
+| [CHEMBL2089529](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL2089529/) | Binding | Binding affinity to K-Ras G12D mutant-GDP complex |
+| [CHEMBL4612363](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4612363/) | Functional | In-vivo target engagement at KRAS G12C mutant in athymic nude-Foxn1nu mouse xenografted with human NCI-H358 cells assessed as KRAS G12C modification level in tumor lysate at 10 mg/kg, po dosed via gavage as single administration measured af |
+
 **Clinical trials for the gene's associated diseases (399, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

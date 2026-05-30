@@ -426,6 +426,23 @@
     ],
     "chembl_activity_potent_count": 4825,
     "chembl_activity_total": 5239,
+    "chembl_assay_samples": [
+      {
+        "desc": "Binding affinity to K-Ras G12D mutant-GDP complex",
+        "id": "CHEMBL2089529",
+        "type": "Binding"
+      },
+      {
+        "desc": "In-vivo target engagement at KRAS G12C mutant in athymic nude-Foxn1nu mouse xenografted with human NCI-H358 cells assessed as KRAS G12C modification level in tumor lysate at 10 mg/kg, po dosed via gavage as single administration measured af",
+        "id": "CHEMBL4612363",
+        "type": "Functional"
+      }
+    ],
+    "chembl_assay_total": 722,
+    "chembl_assay_type_counts": {
+      "Binding": 708,
+      "Functional": 14
+    },
     "chembl_targets": [
       {
         "id": "CHEMBL2189121",
