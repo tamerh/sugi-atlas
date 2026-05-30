@@ -122,6 +122,8 @@ tasks:
       - "build/{{symbol}}/summary.md"
       - "build/{{symbol}}/body_gate.json"
       - "build/{{symbol}}/judge.json"
-    writes:
-      - "{{dist_root}}/atlas/gene/{{symbol}}/page.md"
+    # publish.sh writes the final page.md to $DIST_ROOT/atlas/gene/$SYMBOL/
+    # (absolute path OUTSIDE the project tree). Enju's writes_artifacts only
+    # accepts project-relative paths so we don't declare it here — the side
+    # effect happens but isn't artifact-tracked. Flagged to enju dev.
     prompt: "Assemble final page.md (frontmatter + summary + body) and write to dist for {{symbol}}"
