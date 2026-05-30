@@ -1,19 +1,26 @@
 {
   "verdict": "drift",
-  "summary": "0 changed, 2 added, 0 removed",
+  "summary": "0 changed, 3 added, 0 removed",
   "diff": [
     {
-      "section": "9",
-      "key": "mirna_count",
+      "section": "10",
+      "key": "pubchem_bioassay",
+      "old": 0,
+      "new": 30,
+      "kind": "added"
+    },
+    {
+      "section": "10",
+      "key": "pubchem_bioassay_active_count",
       "old": 0,
       "new": 1,
       "kind": "added"
     },
     {
-      "section": "9",
-      "key": "mirna_regulators",
+      "section": "10",
+      "key": "pubchem_bioassay_total",
       "old": 0,
-      "new": 30,
+      "new": 1,
       "kind": "added"
     }
   ]
