@@ -1,7 +1,7 @@
 """§10 — drugs: ChEMBL targets + phased molecules, PharmGKB, BindingDB sample,
 clinical trials via the DISEASE route (gene → MONDO → trials)."""
 from collections import Counter
-from atlas.biobtree import map_all
+from atlas.biobtree import map_all, entry, xref_counts
 from atlas.gene.sections.base import Section
 
 CHAINS = (
@@ -9,6 +9,7 @@ CHAINS = (
     '>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=1]',
     ">>uniprot>>chembl_activity",
     ">>uniprot>>chembl_target>>chembl_assay",
+    ">>chembl_molecule>>patent_compound",
     ">>hgnc>>cellosaurus",
     ">>hgnc>>pharmgkb_gene",
     ">>uniprot>>bindingdb",
@@ -18,7 +19,7 @@ CHAINS = (
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
-            "cellosaurus",
+            "patent_compound", "cellosaurus",
             "pharmgkb_gene", "bindingdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
@@ -63,6 +64,25 @@ def collect(a):
                               "phase": m.get("highestDevelopmentPhase")}
     bundle["molecules"] = sorted(drugs.values(), key=lambda d: _phase(d["phase"]), reverse=True)
     bundle["molecule_count"] = len(drugs)
+
+    # Patent literature coverage per phased molecule — chemistry IP intensity.
+    # Each chembl_molecule maps to 0-N patent_compound records (PubChem CIDs);
+    # each carries an xref count of patents that mention the compound.
+    # Approved/late-phase drugs typically score in the thousands (Erlotinib
+    # ≈2358, Gefitinib ≈2154); early-phase have few or zero. Capped at top 20
+    # by phase to bound entry-fetch cost (~3 entries/molecule worst case).
+    for mol in bundle["molecules"][:20]:
+        pcids = [t.get("id") for t in map_all(mol["id"], ">>chembl_molecule>>patent_compound", cap=2)
+                 if t.get("id")]
+        total = 0
+        for pcid in pcids:
+            try:
+                total += xref_counts(entry(pcid, "patent_compound")).get("patent", 0)
+            except Exception:
+                pass
+        mol["patent_count"] = total
+        mol["patent_compound_ids"] = pcids
+    bundle["patent_total"] = sum(m.get("patent_count", 0) for m in bundle["molecules"][:20])
 
     bundle["pharmgkb"] = [{"id": t["id"], "vip": t.get("is_vip"),
                            "cpic_guideline": t.get("has_cpic_guideline")}
@@ -219,7 +239,7 @@ SECTION = Section(
     needs=("hgnc_id", "canonical_uniprot"),
     produces=("chembl_targets", "molecules", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
-              "chembl_assay_samples",
+              "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",
               "cellosaurus_samples", "pharmgkb",
               "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",

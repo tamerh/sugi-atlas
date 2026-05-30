@@ -218,10 +218,17 @@ def r_drugs(b):
          f"**Is drug target: {b.get('is_drug_target')}**\n"]
     L.append(f"**ChEMBL targets ({len(b.get('chembl_targets', []))}):** "
              + ", ".join(f"{t['id']} ({t.get('type')})" for t in b.get("chembl_targets", [])[:10]))
+    pt = b.get("patent_total", 0)
+    patent_note = (f" Patent mentions across the top 20 by phase: **{pt:,}** "
+                   f"(via chembl_molecule>>patent_compound — counts attach to the compound, "
+                   f"not the gene–compound relationship, so off-target/promiscuous "
+                   f"molecules can dominate). " if pt else "")
     L.append(f"\n**Molecules with ChEMBL bioactivity (phase ≥1): {b.get('molecule_count', 0)}**, "
-             f"by development phase (incl. off-target/promiscuous compounds):\n")
-    L.append(table(["Molecule", "Name", "Phase"],
-                   [(m["id"], m.get("name"), m.get("phase")) for m in b.get("molecules", [])[:30]]))
+             f"by development phase (incl. off-target/promiscuous compounds).{patent_note}\n")
+    L.append(table(["Molecule", "Name", "Phase", "Patents"],
+                   [(m["id"], m.get("name"), m.get("phase"),
+                     f"{m['patent_count']:,}" if m.get("patent_count") else "")
+                    for m in b.get("molecules", [])[:30]]))
     pg = b.get("pharmgkb", [])
     L.append(f"\n**PharmGKB:** {len(pg)} entr{'y' if len(pg)==1 else 'ies'}"
              + (f" (VIP={pg[0].get('vip')}, CPIC={pg[0].get('cpic_guideline')})" if pg else ""))
