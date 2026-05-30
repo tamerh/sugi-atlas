@@ -870,6 +870,41 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | US9296736, 12 |  | 40 nM |
 | US9296736, 13::US9593129, Example 13 |  | 110 nM |
 
+**ChEMBL bioactivities (6100 potent at pChembl≥5 of 6100 total), top 30 by pChembl (potency: 10 = 0.1 nM, 6 = 1 µM):**
+
+| pChembl | Type | Value | Unit | Activity ID |
+| --- | --- | --- | --- | --- |
+| 10.89 | IC50 | 0.013 | nM | CHEMBL_ACT_24994558 |
+| 10.72 | IC50 | 0.019 | nM | CHEMBL_ACT_24994559 |
+| 10.21 | IC50 | 0.061 | nM | CHEMBL_ACT_17776538 |
+| 10.19 | IC50 | 0.065 | nM | CHEMBL_ACT_17776471 |
+| 10.17 | IC50 | 0.068 | nM | CHEMBL_ACT_17776462 |
+| 10.16 | IC50 | 0.069 | nM | CHEMBL_ACT_17776678 |
+| 10.15 | IC50 | 0.071 | nM | CHEMBL_ACT_17776673 |
+| 10.12 | IC50 | 0.075 | nM | CHEMBL_ACT_17776468 |
+| 10.11 | IC50 | 0.078 | nM | CHEMBL_ACT_17776675 |
+| 10.10 | IC50 | 0.08 | nM | CHEMBL_ACT_17776536 |
+| 10.10 | IC50 | 0.079 | nM | CHEMBL_ACT_17776635 |
+| 10.06 | IC50 | 0.087 | nM | CHEMBL_ACT_17776568 |
+| 10.03 | IC50 | 0.094 | nM | CHEMBL_ACT_17776480 |
+| 10.02 | IC50 | 0.095 | nM | CHEMBL_ACT_17776466 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752296 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752297 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752299 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752332 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752335 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752338 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752346 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752358 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752366 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752370 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752373 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752374 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752375 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752377 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752378 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_17752382 |
+
 **PubChem BioAssay actives (169 Active w/ measured affinity, of 506 total PubChem activities), top 30 by potency:**
 
 | CID | AID | Type | Value | Unit |

@@ -206,6 +206,220 @@
       }
     ],
     "bindingdb_sampled": 300,
+    "chembl_activities": [
+      {
+        "id": "CHEMBL_ACT_24994558",
+        "pchembl": "10.89",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.013"
+      },
+      {
+        "id": "CHEMBL_ACT_24994559",
+        "pchembl": "10.72",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.019"
+      },
+      {
+        "id": "CHEMBL_ACT_17776538",
+        "pchembl": "10.21",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.061"
+      },
+      {
+        "id": "CHEMBL_ACT_17776471",
+        "pchembl": "10.19",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.065"
+      },
+      {
+        "id": "CHEMBL_ACT_17776462",
+        "pchembl": "10.17",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.068"
+      },
+      {
+        "id": "CHEMBL_ACT_17776678",
+        "pchembl": "10.16",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.069"
+      },
+      {
+        "id": "CHEMBL_ACT_17776673",
+        "pchembl": "10.15",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.071"
+      },
+      {
+        "id": "CHEMBL_ACT_17776468",
+        "pchembl": "10.12",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.075"
+      },
+      {
+        "id": "CHEMBL_ACT_17776675",
+        "pchembl": "10.11",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.078"
+      },
+      {
+        "id": "CHEMBL_ACT_17776536",
+        "pchembl": "10.10",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.08"
+      },
+      {
+        "id": "CHEMBL_ACT_17776635",
+        "pchembl": "10.10",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.079"
+      },
+      {
+        "id": "CHEMBL_ACT_17776568",
+        "pchembl": "10.06",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.087"
+      },
+      {
+        "id": "CHEMBL_ACT_17776480",
+        "pchembl": "10.03",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.094"
+      },
+      {
+        "id": "CHEMBL_ACT_17776466",
+        "pchembl": "10.02",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.095"
+      },
+      {
+        "id": "CHEMBL_ACT_17752296",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752297",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752299",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752332",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752335",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752338",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752346",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752358",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752366",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752370",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752373",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752374",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752375",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752377",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752378",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      },
+      {
+        "id": "CHEMBL_ACT_17752382",
+        "pchembl": "10.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "0.1"
+      }
+    ],
+    "chembl_activity_potent_count": 6100,
+    "chembl_activity_total": 6100,
     "chembl_targets": [
       {
         "id": "CHEMBL1907611",
