@@ -494,6 +494,23 @@ Representative assays:
 | --- | --- | --- |
 | [CHEMBL4678413](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4678413/) | Binding | Inhibition of GFP-tagged p16INK4A (unknown orgin) expressed in human dermal fibroblast at 20 uM after 24 hrs by renilla/firefly dual-luciferase reporter assay relative to control |
 
+**Cellosaurus cell lines (4,344):** 4,149 cancer cell line, 152 spontaneously immortalized cell line, 19 transformed cell line, 14 telomerase immortalized cell line, 9 finite cell line, 1 induced pluripotent stem cell
+
+First 10 cell lines (id-ordered, not curated):
+
+| Cellosaurus | Name | Category | Sex |
+| --- | --- | --- | --- |
+| [CVCL_0002](https://www.cellosaurus.org/CVCL_0002) | HL-60 | Cancer cell line | Female |
+| [CVCL_0020](https://www.cellosaurus.org/CVCL_0020) | U-138MG | Cancer cell line | Male |
+| [CVCL_0026](https://www.cellosaurus.org/CVCL_0026) | Capan-2 | Cancer cell line | Male |
+| [CVCL_0031](https://www.cellosaurus.org/CVCL_0031) | MCF-7 | Cancer cell line | Female |
+| [CVCL_0036](https://www.cellosaurus.org/CVCL_0036) | RT-4 | Cancer cell line | Male |
+| [CVCL_0039](https://www.cellosaurus.org/CVCL_0039) | SK-MEL-30 | Cancer cell line | Male |
+| [CVCL_0040](https://www.cellosaurus.org/CVCL_0040) | WM115 | Cancer cell line | Female |
+| [CVCL_0062](https://www.cellosaurus.org/CVCL_0062) | MDA-MB-231 | Cancer cell line | Female |
+| [CVCL_0078](https://www.cellosaurus.org/CVCL_0078) | SNU-5 | Cancer cell line | Female |
+| [CVCL_0080](https://www.cellosaurus.org/CVCL_0080) | A-673 | Cancer cell line | Female |
+
 **Clinical trials for the gene's associated diseases (224, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

@@ -72,6 +72,77 @@
   "10": {
     "bindingdb_sample": [],
     "bindingdb_sampled": 0,
+    "cellosaurus_category_counts": {
+      "Cancer cell line": 4149,
+      "Finite cell line": 9,
+      "Induced pluripotent stem cell": 1,
+      "Spontaneously immortalized cell line": 152,
+      "Telomerase immortalized cell line": 14,
+      "Transformed cell line": 19
+    },
+    "cellosaurus_samples": [
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0002",
+        "name": "HL-60",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0020",
+        "name": "U-138MG",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0026",
+        "name": "Capan-2",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0031",
+        "name": "MCF-7",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0036",
+        "name": "RT-4",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0039",
+        "name": "SK-MEL-30",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0040",
+        "name": "WM115",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0062",
+        "name": "MDA-MB-231",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0078",
+        "name": "SNU-5",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0080",
+        "name": "A-673",
+        "sex": "Female"
+      }
+    ],
+    "cellosaurus_total": 4344,
     "chembl_activities": [],
     "chembl_activity_potent_count": 0,
     "chembl_activity_total": 0,
