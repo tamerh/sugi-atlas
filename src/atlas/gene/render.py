@@ -290,6 +290,43 @@ def r_expression(b):
     return "\n".join(L)
 
 
+def r_cancer_overview(bundle):
+    """Cancer-significance block — emitted between the page lead and the
+    LLM exec summary IFF the gene has CIViC and/or intOGen data. Folds the
+    two most-grounded cancer signals into a single early narrative block,
+    which is what AI agents extract as the headline interpretation.
+
+    Returns "" for non-cancer genes so the block elides cleanly.
+    """
+    b12 = bundle.get("12") or {}
+    civic = b12.get("civic")
+    intogen = b12.get("intogen")
+    if not civic and not intogen:
+        return ""
+    L = ["## Cancer significance"]
+    if civic:
+        desc = (civic.get("description") or "").strip()
+        if desc:
+            L.append(f"*From [CIViC](https://civicdb.org/genes/{civic.get('id')}/summary) — curated cancer-variant interpretation:*")
+            L.append(desc)
+    if intogen:
+        role = intogen.get("role") or ""
+        role_human = {
+            "Act": "**activating** (oncogene-like)",
+            "LoF": "**loss-of-function** (tumor-suppressor-like)",
+            "ambiguous": "**ambiguous** (mixed evidence)",
+        }.get(role, f"**{role}**")
+        cancers = [c for c in (intogen.get("cancer_types") or "").split(",") if c]
+        head = (f"*From [intOGen](https://www.intogen.org/search?gene={intogen.get('symbol')}) "
+                f"— cancer-driver classification:* {role_human} "
+                f"across **{len(cancers)} cancer types**")
+        if cancers:
+            shown = ", ".join(cancers[:12]) + (f"…(+{len(cancers)-12} more)" if len(cancers) > 12 else "")
+            head += f" — {shown}"
+        L.append(head + ".")
+    return "\n\n".join(L)
+
+
 def r_diseases(b):
     L = ["## Disease associations", ""]
     L.append(f"**OMIM:** gene `{', '.join(b.get('gene_omim', []))}` | "

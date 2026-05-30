@@ -52,9 +52,11 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     head = "\n".join(fm)
 
     lead = ""
+    cancer_overview = ""
     if bundle is not None:
         from atlas.page.declarative import declarative_sentence
         from atlas.page.jsonld import build_jsonld, as_script_tag
+        from atlas.gene.render import r_cancer_overview
         sentence = declarative_sentence(bundle)
         # Pull the YYYY-MM-DD from the ISO `generated_at` for a human-visible
         # freshness signal (HTTP Last-Modified is set by Hugo from this same field).
@@ -66,14 +68,21 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         # sidecar by the publish step for direct machine fetch.
         jsonld_tag = as_script_tag(build_jsonld(bundle))
         lead = jsonld_tag + "\n\n" + sentence + "\n\n" + (updated + "\n\n" if updated else "")
+        # Cancer-significance overview block (CIViC paragraph + intOGen
+        # driver flag) — placed between the page lead and the LLM Summary
+        # so AI agents extract the curated narrative first. Elides for
+        # non-cancer genes.
+        co = r_cancer_overview(bundle)
+        if co:
+            cancer_overview = co + "\n\n"
 
     if summary_text:
         model = meta.get("summary_model", "Qwen3-235B")
         disclosure = (f"*Summary written by {model} from the deterministic data below. "
                       f"Facts in the tables that follow are the authoritative source.*")
-        return (head + lead + "## Summary\n\n" + disclosure + "\n\n"
+        return (head + lead + cancer_overview + "## Summary\n\n" + disclosure + "\n\n"
                 + summary_text.strip() + "\n\n" + body_md + "\n")
-    return head + lead + body_md + "\n"
+    return head + lead + cancer_overview + body_md + "\n"
 
 def run_summary(body_md, symbol, model):
     key = B.api_key()

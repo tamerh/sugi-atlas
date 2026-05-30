@@ -13,13 +13,39 @@ CHAINS = (
     ">>hgnc>>gwas",
     ">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar>>mondo>>gwas_study",
     ">>hgnc>>clinvar>>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh",   # MeSH disease categories
+    ">>hgnc>>intogen",                            # cancer-driver classification (LoF/Act)
+    ">>hgnc>>civic",                              # CIViC gene-level curated narrative
 )
 DATASETS = ("mim", "gencc", "mondo", "orphanet", "hpo", "gwas", "gwas_study",
-            "mesh", "clinvar", "hgnc")
+            "mesh", "intogen", "civic", "clinvar", "hgnc")
 
 def collect(a):
     bundle = {"section": "12_diseases", "symbol": a.symbol}
     xc = xref_counts(a.hgnc_entry)
+
+    # Cancer-significance signals — one row per gene at most. Genes outside
+    # CIViC / intOGen coverage (e.g. structural proteins like TTN) return
+    # nothing; the renderer suppresses the block in that case.
+    intogen_rows = map_all(a.hgnc_id, ">>hgnc>>intogen")
+    if intogen_rows:
+        r = intogen_rows[0]
+        bundle["intogen"] = {
+            "symbol": r.get("symbol"),
+            "role": r.get("role"),   # 'Act' = oncogene-like, 'LoF' = tumor-suppressor-like
+            "cancer_types": r.get("cancer_types"),   # comma-separated abbreviations
+        }
+    else:
+        bundle["intogen"] = None
+    civic_rows = map_all(a.hgnc_id, ">>hgnc>>civic")
+    if civic_rows:
+        r = civic_rows[0]
+        bundle["civic"] = {
+            "id": r.get("id"),
+            "name": r.get("name"),
+            "description": r.get("description"),   # curated paragraph
+        }
+    else:
+        bundle["civic"] = None
 
     bundle["gene_omim"] = [f"MIM:{t['id']}" for t in map_all(a.hgnc_id, ">>hgnc>>mim")]
     # Disease-phenotype OMIM IDs come through MONDO (gene>>mim is only the gene).
@@ -95,6 +121,6 @@ SECTION = Section(
                  "MeSH descriptors (NLM disease vocabulary with tree-number category paths)"),
     needs=("hgnc_id", "hgnc_entry"),
     produces=("gene_omim", "disease_omim", "gencc", "mondo", "orphanet", "hpo",
-              "gwas", "gwas_studies", "mesh_descriptors"),
+              "gwas", "gwas_studies", "mesh_descriptors", "intogen", "civic"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

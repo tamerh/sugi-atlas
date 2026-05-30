@@ -82,6 +82,8 @@ UPSTREAM = {
     "gwas":              ("GWAS Catalog",                          "https://www.ebi.ac.uk/gwas/"),
     "gwas_study":        ("GWAS Catalog",                          "https://www.ebi.ac.uk/gwas/"),
     "mesh":              ("MeSH (NLM Medical Subject Headings)",   "https://www.ncbi.nlm.nih.gov/mesh/"),
+    "intogen":           ("intOGen (cancer driver catalog)",       "https://www.intogen.org/"),
+    "civic":             ("CIViC (Clinical Interpretation of Variants in Cancer)", "https://civicdb.org/"),
     # expression
     "bgee":              ("Bgee",                                  "https://www.bgee.org/"),
     "bgee_evidence":     ("Bgee",                                  "https://www.bgee.org/"),
