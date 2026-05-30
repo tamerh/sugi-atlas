@@ -1,0 +1,62 @@
+"""§6 — variants: ClinVar (per-class breakdown + top pathogenic), SpliceAI, AlphaMissense, dbSNP sample."""
+from atlas.biobtree import entry, map_all, xref_counts
+from atlas.gene.sections.base import Section
+
+CHAINS = (
+    '>>hgnc>>clinvar[germline_classification=="<class>"]',  # 5 classes
+    ">>hgnc>>spliceai",
+    '>>transcript>>alphamissense[am_class=="likely_pathogenic"]',
+    ">>hgnc>>entrez>>dbsnp",  # via entrez (hgnc>>dbsnp empty — BIOBTREE_ISSUES.md)
+)
+DATASETS = ("clinvar", "spliceai", "alphamissense", "dbsnp", "entrez", "transcript", "hgnc")
+
+def collect(a):
+    bundle = {"section": "06_variants", "symbol": a.symbol, "hgnc_id": a.hgnc_id}
+    xc = xref_counts(a.hgnc_entry)
+    bundle["clinvar_total"] = xc.get("clinvar", 0)
+    bundle["spliceai_total"] = xc.get("spliceai", 0)
+
+    classes = ["Pathogenic", "Likely pathogenic", "Uncertain significance",
+               "Likely benign", "Benign"]
+    breakdown, top_path = {}, []
+    for cls in classes:
+        rs = map_all(a.hgnc_id, f'>>hgnc>>clinvar[germline_classification=="{cls}"]')
+        breakdown[cls] = len(rs)
+        if cls in ("Pathogenic", "Likely pathogenic"):
+            for t in rs:
+                if len(top_path) >= 30:
+                    break
+                top_path.append({"id": t["id"], "hgvs": t.get("name"),
+                                 "classification": t.get("germline_classification")})
+    bundle["clinvar_breakdown"] = breakdown
+    bundle["top_pathogenic"] = top_path
+
+    sp = sorted(map_all(a.hgnc_id, ">>hgnc>>spliceai"),
+                key=lambda t: float(t.get("score") or 0), reverse=True)
+    bundle["top_spliceai"] = [{"id": t["id"], "effect": t.get("effect"),
+                               "score": t.get("score")} for t in sp[:30]]
+
+    ct = a.canonical_transcript
+    bundle["canonical_transcript"] = ct
+    if ct:
+        bundle["alphamissense_total"] = xref_counts(entry(ct, "transcript")).get("alphamissense", 0)
+        am = sorted(map_all(ct, '>>transcript>>alphamissense[am_class=="likely_pathogenic"]'),
+                    key=lambda t: float(t.get("am_pathogenicity") or 0), reverse=True)
+        bundle["top_alphamissense"] = [{"id": t["id"], "variant": t.get("protein_variant"),
+                                        "am_pathogenicity": t.get("am_pathogenicity")} for t in am[:30]]
+
+    # dbSNP rsIDs via ENTREZ (direct hgnc>>dbsnp unbacked; see BIOBTREE_ISSUES.md).
+    dbs = map_all(a.hgnc_id, ">>hgnc>>entrez>>dbsnp", cap=2)
+    bundle["dbsnp_sample"] = [{"id": t["id"], "pos": f"{t.get('chromosome')}:{t.get('position')}",
+                               "change": f"{t.get('ref_allele')}>{t.get('alt_allele')}"} for t in dbs[:30]]
+    bundle["dbsnp_sampled"] = len(dbs)
+    return bundle
+
+SECTION = Section(
+    id="6", name="variants",
+    description="ClinVar variants (per-class breakdown), SpliceAI splice impact, AlphaMissense pathogenicity, dbSNP sample",
+    needs=("hgnc_id", "hgnc_entry", "canonical_transcript"),
+    produces=("clinvar_total", "clinvar_breakdown", "top_pathogenic", "top_spliceai",
+              "alphamissense_total", "top_alphamissense", "dbsnp_sample"),
+    datasets=DATASETS, chains=CHAINS, collect_fn=collect,
+)
