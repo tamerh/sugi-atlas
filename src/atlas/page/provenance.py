@@ -81,6 +81,8 @@ UPSTREAM = {
     "ctd_gene_interaction":("Comparative Toxicogenomics Database (CTD)", "http://ctdbase.org/"),
     "clinical_trials":   ("ClinicalTrials.gov",                    "https://clinicaltrials.gov/"),
     # diseases / phenotypes
+    "efo":               ("EFO (Experimental Factor Ontology)",    "https://www.ebi.ac.uk/efo/"),
+    "civic_evidence":    ("CIViC (clinical evidence)",             "https://civicdb.org/"),
     "mondo":             ("Mondo Disease Ontology",                "https://mondo.monarchinitiative.org/"),
     "gencc":             ("GenCC",                                 "https://thegencc.org/"),
     "orphanet":          ("Orphanet",                              "https://www.orpha.net/"),

@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """Assemble Hugo-frontmatter page.md and write to $dist_root/atlas/disease/<slug>/.
 
-No JSON-LD or provenance sidecar yet — those are gene-specific (build_jsonld
-expects HGNC anchors). Disease equivalents are a follow-up polish item."""
+Sidecars (parity with gene-side publish):
+  entity.jsonld    — schema.org MedicalCondition (sameAs to Mondo/EFO/MeSH/
+                     OMIM/Orphanet + associatedGene cohort)
+  provenance.json  — schema.org Dataset (per-section datasets + chains +
+                     upstream-source URLs)
+"""
 import json, os, shutil
 from datetime import datetime, timezone
 from atlas import __version__ as V
 from atlas.pipeline import assemble_page, biobtree_version
 from atlas.disease.slug import slugify
+from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
+from atlas.page.disease_provenance import build_provenance, as_provenance_string
 
 ctx = json.load(open(os.path.join(os.environ["ENJU_RUN_DIR"], "context.json")))
 disease = ctx["iteration"]["disease"]
@@ -40,6 +46,12 @@ meta = {
 # sentence). Disease-equivalent lead is a follow-up.
 page = assemble_page(slug, summary, body, meta, bundle=None)
 open(f"{out}/page.md", "w").write(page)
+
+# Sidecars
+bundle = json.load(open(f"build/{slug}/bundle.json"))
+open(f"{out}/entity.jsonld", "w").write(as_jsonld_string(build_jsonld(bundle, slug)))
+open(f"{out}/provenance.json", "w").write(
+    as_provenance_string(build_provenance(bundle, slug, meta=meta)))
 
 for f in ("bundle.json", "body.md", "summary.md", "body_gate.json",
           "anchors_meta.json"):

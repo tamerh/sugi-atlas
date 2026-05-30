@@ -241,6 +241,14 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
         with open(os.path.join(out_dir, "judge.json"), "w") as f:
             json.dump(judge_result, f, indent=2)
 
+    # Sidecars — schema.org MedicalCondition + provenance Dataset.
+    from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
+    from atlas.page.disease_provenance import build_provenance, as_provenance_string
+    with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
+        f.write(as_jsonld_string(build_jsonld(bundle, slug)))
+    with open(os.path.join(out_dir, "provenance.json"), "w") as f:
+        f.write(as_provenance_string(build_provenance(bundle, slug, meta=meta)))
+
     print(f"\n✓ {slug} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"
           + (f"  summary_gate={judge_result['verdict']}" if judge_result else ""))

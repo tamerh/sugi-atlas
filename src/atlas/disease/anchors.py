@@ -94,7 +94,7 @@ def resolve_mondo(name_or_id: str) -> Tuple[str, dict, Optional[str]]:
         cand = [r for r in rows(search(name_or_id))
                 if r.get("id", "").startswith("MONDO:")]
     if not cand:
-        sys.exit(f"no MONDO row for {name_or_id!r}")
+        raise LookupError(f"no MONDO row for {name_or_id!r}")
     # Prefer non-obsolete (the canonical row has the highest xref_count by far,
     # the search results already rank by relevance + xref_count).
     cand.sort(key=lambda r: int(r.get("xref_count") or 0), reverse=True)
