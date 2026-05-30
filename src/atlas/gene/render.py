@@ -271,9 +271,17 @@ def r_expression(b):
         L.append(f"\n**FANTOM5 promoters ({len(fp)} alternative TSS):**\n")
         L.append(table(["Promoter ID", "TPM avg", "Samples expressed"],
                        [(p["id"], p.get("tpm_average"), p.get("samples_expressed")) for p in fp[:10]]))
+    # Tissue/cell name -> federated link via bioregistry (resolves UBERON or
+    # CL ids to their authority page). Bare names without an anatomy_id
+    # (rare) render unwrapped.
+    def _t_link(t):
+        name = t.get("tissue") or ""
+        aid = t.get("anatomy_id")
+        return f"[{name}](https://bioregistry.io/{aid})" if aid and name else name
     L.append(f"\n**Top tissues by expression ({b.get('tissue_count', 0)} total):**\n")
-    L.append(table(["Tissue", "Score", "Rank", "Quality"],
-                   [(t.get("tissue"), t.get("score"), t.get("rank"), t.get("quality"))
+    L.append(table(["Tissue", "Anatomy ID", "Score", "Rank", "Quality"],
+                   [(_t_link(t), t.get("anatomy_id") or "",
+                     t.get("score"), t.get("rank"), t.get("quality"))
                     for t in b.get("top_tissues", [])[:30]]))
     sc = b.get("single_cell_datasets", [])
     L.append(f"\n**Single-cell datasets ({len(sc)}):**\n")

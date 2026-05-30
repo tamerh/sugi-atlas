@@ -26,9 +26,15 @@ def collect(a):
                           "max_expression_score": b.get("max_expression_score")}
 
     # Per-tissue expression (Bgee evidence) — top by expression score.
+    # bgee_evidence id is "<ensembl_id>|<UBERON:N or CL:N>"; the tail is the
+    # canonical anatomy/cell-type identifier we expose for federated lookup.
+    def _anatomy_id(rid):
+        last = (rid or "").rsplit("|", 1)[-1]
+        return last if last.startswith(("UBERON:", "CL:")) else None
     tissues = map_all(ens, ">>ensembl>>bgee>>bgee_evidence") if ens else []
     tissues.sort(key=lambda t: _num(t.get("expression_score")), reverse=True)
     bundle["top_tissues"] = [{"tissue": t.get("anatomical_entity_name"),
+                              "anatomy_id": _anatomy_id(t.get("id")),
                               "score": t.get("expression_score"),
                               "rank": t.get("expression_rank"),
                               "quality": t.get("call_quality")} for t in tissues[:30]]
