@@ -870,6 +870,41 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | US9296736, 12 |  | 40 nM |
 | US9296736, 13::US9593129, Example 13 |  | 110 nM |
 
+**PubChem BioAssay actives (169 Active w/ measured affinity, of 506 total PubChem activities), top 30 by potency:**
+
+| CID | AID | Type | Value | Unit |
+| --- | --- | --- | --- | --- |
+| [11250180](https://pubchem.ncbi.nlm.nih.gov/compound/11250180) | [238133](https://pubchem.ncbi.nlm.nih.gov/bioassay/238133) | kd | 0.0048 | uM |
+| [57400462](https://pubchem.ncbi.nlm.nih.gov/compound/57400462) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.0050 | uM |
+| [57391811](https://pubchem.ncbi.nlm.nih.gov/compound/57391811) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.0130 | uM |
+| [57402267](https://pubchem.ncbi.nlm.nih.gov/compound/57402267) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.0180 | uM |
+| [57398790](https://pubchem.ncbi.nlm.nih.gov/compound/57398790) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.0350 | uM |
+| [44595746](https://pubchem.ncbi.nlm.nih.gov/compound/44595746) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.0440 | uM |
+| [57395251](https://pubchem.ncbi.nlm.nih.gov/compound/57395251) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.0460 | uM |
+| [57391810](https://pubchem.ncbi.nlm.nih.gov/compound/57391810) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.0570 | uM |
+| [656933](https://pubchem.ncbi.nlm.nih.gov/compound/656933) | [238133](https://pubchem.ncbi.nlm.nih.gov/bioassay/238133) | kd | 0.0800 | uM |
+| [656933](https://pubchem.ncbi.nlm.nih.gov/compound/656933) | [626520](https://pubchem.ncbi.nlm.nih.gov/bioassay/626520) | ki | 0.0800 | uM |
+| [44390666](https://pubchem.ncbi.nlm.nih.gov/compound/44390666) | [241830](https://pubchem.ncbi.nlm.nih.gov/bioassay/241830) | ic50 | 0.0830 | uM |
+| [44595746](https://pubchem.ncbi.nlm.nih.gov/compound/44595746) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.0940 | uM |
+| [57397024](https://pubchem.ncbi.nlm.nih.gov/compound/57397024) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.1020 | uM |
+| [56661671](https://pubchem.ncbi.nlm.nih.gov/compound/56661671) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.1360 | uM |
+| [56672033](https://pubchem.ncbi.nlm.nih.gov/compound/56672033) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.1370 | uM |
+| [56658038](https://pubchem.ncbi.nlm.nih.gov/compound/56658038) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.1520 | uM |
+| [56672033](https://pubchem.ncbi.nlm.nih.gov/compound/56672033) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.1690 | uM |
+| [56661671](https://pubchem.ncbi.nlm.nih.gov/compound/56661671) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.1850 | uM |
+| [53318520](https://pubchem.ncbi.nlm.nih.gov/compound/53318520) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.2250 | uM |
+| [11433190](https://pubchem.ncbi.nlm.nih.gov/compound/11433190) | [626520](https://pubchem.ncbi.nlm.nih.gov/bioassay/626520) | ki | 0.2300 | uM |
+| [57398791](https://pubchem.ncbi.nlm.nih.gov/compound/57398791) | [638258](https://pubchem.ncbi.nlm.nih.gov/bioassay/638258) | ic50 | 0.2370 | uM |
+| [44595745](https://pubchem.ncbi.nlm.nih.gov/compound/44595745) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.2740 | uM |
+| [56678626](https://pubchem.ncbi.nlm.nih.gov/compound/56678626) | [621843](https://pubchem.ncbi.nlm.nih.gov/bioassay/621843) | ic50 | 0.2950 | uM |
+| [45483710](https://pubchem.ncbi.nlm.nih.gov/compound/45483710) | [438428](https://pubchem.ncbi.nlm.nih.gov/bioassay/438428) | ic50 | 0.3000 | uM |
+| [56931718](https://pubchem.ncbi.nlm.nih.gov/compound/56931718) | [626520](https://pubchem.ncbi.nlm.nih.gov/bioassay/626520) | ki | 0.3200 | uM |
+| [53239238](https://pubchem.ncbi.nlm.nih.gov/compound/53239238) | [594312](https://pubchem.ncbi.nlm.nih.gov/bioassay/594312) | ic50 | 0.3500 | uM |
+| [54582646](https://pubchem.ncbi.nlm.nih.gov/compound/54582646) | [594312](https://pubchem.ncbi.nlm.nih.gov/bioassay/594312) | ic50 | 0.3700 | uM |
+| [656933](https://pubchem.ncbi.nlm.nih.gov/compound/656933) | [241830](https://pubchem.ncbi.nlm.nih.gov/bioassay/241830) | ic50 | 0.4200 | uM |
+| [54581619](https://pubchem.ncbi.nlm.nih.gov/compound/54581619) | [594312](https://pubchem.ncbi.nlm.nih.gov/bioassay/594312) | ic50 | 0.4300 | uM |
+| [45483723](https://pubchem.ncbi.nlm.nih.gov/compound/45483723) | [438428](https://pubchem.ncbi.nlm.nih.gov/bioassay/438428) | ic50 | 0.4400 | uM |
+
 **Clinical trials for the gene's associated diseases (419, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
