@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 4672,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "workflows/gene/summary.py",
+  "task_id": "3:11:TTN:summary",
+  "timestamp": "2026-05-30T12:26:04+02:00"
+}
