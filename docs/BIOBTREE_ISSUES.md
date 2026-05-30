@@ -9,7 +9,7 @@ biobtree has all the needed data — every TP53 field (incl. GRCh38 coordinates)
 
 ---
 
-## Issue #1 — `not_found` is overloaded (highest impact)
+## Issue #1 — ~~`not_found` is overloaded~~  RESOLVED 2026-05-30
 
 A query that is **malformed / resolves to an empty path** returns the **same** `not_found` as a genuinely **nonexistent entity**.
 
@@ -31,7 +31,7 @@ map("TP53", ">>hgnc>>ensembl") → 1 mapping
 
 ---
 
-## Issue #2 — Unknown dataset name returns a bare `API error 400` (caused a real failure)
+## Issue #2 — ~~Unknown dataset returns bare 400~~  RESOLVED 2026-05-30
 
 Using a wrong/aliased dataset name returns an opaque error with no hint.
 
@@ -52,7 +52,7 @@ map(terms="HGNC:11998", chain=">>hgnc>>mim")
 
 ---
 
-## Issue #3 — Some bad chains return an empty-but-statless blob (no error, no `not_found`)
+## Issue #3 — ~~Statless empty blobs on bad chains~~  RESOLVED 2026-05-30
 
 A third distinct empty-response shape — neither an error nor a `not_found`, and missing the usual `stats`.
 
@@ -77,7 +77,7 @@ Every individual hop can succeed while the combined chain returns empty (see Iss
 
 ---
 
-## Issue #5 — `map` source semantics are non-obvious (doc clarity)
+## Issue #5 — ~~`map` source semantics non-obvious~~  RESOLVED 2026-05-30 (clarified via the same signaling work as #1/#3)
 
 `map` looks the input up in the **first** dataset of the chain. Mapping *from a resolved ID* only works if the chain starts at that ID's own dataset:
 ```
@@ -108,7 +108,7 @@ So you know an OMIM/Ensembl/Entrez link exists, but must issue a separate `map` 
 
 ---
 
-## Issue #7 — `map` mixes species with no human filter
+## Issue #7 — ~~`map` mixes species, no human filter~~  RESOLVED 2026-05-30 (now supports `[genome=="homo_sapiens"]` filter)
 
 For a gene symbol, `map` returns orthologs across species with no way to restrict to the query organism.
 
@@ -185,6 +185,24 @@ xrefs only curated Swiss-Prot product(s); >1 for dual-product genes like CDKN2A
 
 ## Issue #10 — `>>uniprot>>alphafold` is empty for very large proteins
 
+> **FIXED in code (2026-05-30) — ships in prod next release (~2026-05-31).** Commit `fb3f917`.
+>
+> *Correction to the report's premise:* the current AlphaFold DB (v6) does **not**
+> ship fragmented models for the headline examples. ATM (Q13315), BRCA2 (P51587) and
+> the DMD canonical sequence return **0 models** from the AlphaFold prediction API —
+> AlphaFold dropped large-protein fragments from the SwissProt tar, and most are
+> absent entirely now. Of the ~1,243 reviewed proteins >2700 aa, only ~1/3 have any
+> model at all (DMD, for instance, only has models for its shorter isoforms).
+>
+> **Fix:** an opt-in backfill (`largeProteinBackfill=yes` on the alphafold dataset)
+> enumerates reviewed proteins >2700 aa via UniProt REST, queries the AlphaFold
+> prediction API per accession, and ingests whatever models actually exist (canonical
+> fragments and/or isoform models) as one aggregate `AlphaFoldAttr` per protein
+> (length-weighted mean pLDDT, pooled confidence fractions, total residues, fragment
+> count). Proteins AlphaFold genuinely no longer models stay empty — no dead links.
+> Off by default (it makes ~1,243 live API calls); enable the flag and re-run the
+> alphafold update to populate.
+
 For proteins >~2700 aa (ATM Q13315, BRCA2 P51587, DMD P11532) the alphafold map
 returns 0 rows, although AlphaFold DB has fragmented models (AF-<acc>-F1..Fn) —
 i.e. no pLDDT/id for exactly the proteins AF had to fragment.
@@ -194,7 +212,7 @@ only when the map provides it (F2..Fn not enumerated).
 
 **Suggested fix:** index fragmented AlphaFold models with per-fragment metrics.
 
-## Issue #11 — `>>uniprot>>ufeature` leaks ortholog features (distinct from #7)
+## Issue #11 — ~~`>>uniprot>>ufeature` leaks ortholog features~~  RESOLVED 2026-05-30
 
 Querying `ufeature` from a **unique, unambiguous UniProt accession** returns
 features keyed by *other* accessions (cross-species orthologs), not just the
@@ -243,6 +261,25 @@ explicit `?species=` / `?accession=<exact>` filter to scope the result, and
 document the behavior.
 
 ## Issue #12 — `pubchem_activity` index has coverage gaps for high-profile targets (e.g. KRAS)
+
+> **FIXED in code (2026-05-30) — ships in prod next release (~2026-05-31).** Commit `fb3f917`.
+>
+> *Actual root cause (differs from the snapshot/subset hypothesis):* the ingested
+> `bioactivities.tsv.gz` leaves its **Protein Accession and Gene ID columns empty**
+> for the vast majority of rows (verified: all of the first 200k rows), so the
+> activity→protein edge was never built. The authoritative per-assay target mapping
+> lives in a **separate file biobtree did not join** — `Aid2GeneidAccessionUniProt.gz`.
+> KRAS proves it: gene 3845 has 256 assays, 216 mapped to P01116 there, but none in
+> the activity rows themselves. (So it was not a stale-snapshot problem — the records
+> are present, just unlinkable from the activity file alone.)
+>
+> **Fix:** join `Aid2GeneidAccessionUniProt.gz` keyed by AID (panel-limit 25 to drop
+> a handful of unresolvable mega-panels) to emit activity→uniprot; plus derive uniprot
+> from the curated Entrez entry for rows that do carry a gene_id. Restores
+> `>>uniprot>>pubchem_activity` for KRAS (P01116) and ~369k assays overall.
+> *Note:* the data lands once the pubchem_activity re-update → regenerate → reindex
+> completes; until that new db version is activated the prod index still shows the old
+> (empty-for-KRAS) state.
 
 `>>uniprot>>pubchem_activity` is empty (n=0) for several targets where the
 corresponding **PubChem BioAssay corpus does carry binding data** — most

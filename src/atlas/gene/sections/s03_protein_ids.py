@@ -34,8 +34,9 @@ def collect(a):
         bundle["refseq_protein_count"] = len(nps)
 
     # domains/families + antibody + UniProt sequence features, unioned across
-    # all reviewed products. ufeature is keyed by source accession and biobtree
-    # returns ortholog features too — filter id startswith "{u}_" per species.
+    # all reviewed products. (ufeature was previously leaking ortholog features
+    # — fixed upstream, BIOBTREE_ISSUES.md #11 RESOLVED — so no post-filter
+    # needed anymore.)
     interpro, pfam, antibody = {}, set(), 0
     ufeatures = []
     for u in a.reviewed_uniprots:
@@ -45,8 +46,6 @@ def collect(a):
         pfam.update(t["id"] for t in map_all(u, ">>uniprot>>pfam"))
         antibody += len(map_all(u, ">>uniprot>>antibody"))
         for t in map_all(u, ">>uniprot>>ufeature", cap=100):
-            if not t["id"].startswith(u + "_"):
-                continue  # ortholog feature — see BIOBTREE_ISSUES.md #11
             ufeatures.append({"uniprot": u, "id": t["id"], "type": t.get("type"),
                               "description": t.get("description"),
                               "begin": t.get("location_begin"),
