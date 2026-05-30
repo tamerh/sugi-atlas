@@ -1,5 +1,27 @@
 {
-  "verdict": "clean",
-  "summary": "byte-identical to snapshot",
-  "diff": []
+  "verdict": "drift",
+  "summary": "0 changed, 3 added, 0 removed",
+  "diff": [
+    {
+      "section": "10",
+      "key": "chembl_assay_samples",
+      "old": 0,
+      "new": 3,
+      "kind": "added"
+    },
+    {
+      "section": "10",
+      "key": "chembl_assay_total",
+      "old": 0,
+      "new": 1,
+      "kind": "added"
+    },
+    {
+      "section": "10",
+      "key": "chembl_assay_type_counts",
+      "old": 0,
+      "new": 4,
+      "kind": "added"
+    }
+  ]
 }
