@@ -24,6 +24,7 @@
       "190070"
     ],
     "name": "KRAS proto-oncogene, GTPase",
+    "rnacentral": null,
     "section": "01_gene_ids",
     "symbol": "KRAS",
     "xref_counts": {
@@ -6129,6 +6130,18 @@
   },
   "3": {
     "antibody_count": 0,
+    "brenda_ec": [
+      {
+        "ec": "3.6.5.2",
+        "inhibitor_count": "55",
+        "kcat_count": "1",
+        "km_count": "5",
+        "name": "small monomeric GTPase",
+        "organism_count": "46",
+        "substrate_count": "138",
+        "uniprot": "P01116"
+      }
+    ],
     "canonical_uniprot": "P01116",
     "ensembl_id": "ENSG00000133703",
     "hgnc_id": "HGNC:6407",

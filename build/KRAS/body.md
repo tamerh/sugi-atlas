@@ -73,6 +73,10 @@
 
 **Antibody resources:** 0
 
+**Enzyme classification (BRENDA):**
+
+- [EC 3.6.5.2](https://www.brenda-enzymes.org/enzyme.php?ecno=3.6.5.2) — small monomeric GTPase *(BRENDA: 46 organisms, 138 substrates, 55 inhibitors, 5 Km, 1 kcat entries)*
+
 **UniProt features (85 total):** sequence variant 34, strand 12, helix 8, mutagenesis site 6, lipid moiety-binding region 5, modified residue 4, binding site 4, chain 2, splice variant 2, turn 2, initiator methionine 1, glycosylation site 1, cross-link 1, propeptide 1, region of interest 1, short sequence motif 1
 
 **Annotated functional features (top 25):**
