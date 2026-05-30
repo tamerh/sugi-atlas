@@ -9,6 +9,7 @@ CHAINS = (
     '>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=1]',
     ">>uniprot>>chembl_activity",
     ">>uniprot>>chembl_target>>chembl_assay",
+    ">>chembl_assay>>chembl_document",
     ">>chembl_molecule>>patent_compound",
     ">>hgnc>>cellosaurus",
     ">>hgnc>>pharmgkb_gene",
@@ -19,7 +20,7 @@ CHAINS = (
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
-            "patent_compound", "cellosaurus",
+            "chembl_document", "patent_compound", "cellosaurus",
             "pharmgkb_gene", "bindingdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
@@ -169,10 +170,28 @@ def collect(a):
             samples.append(by_type[ty][0])
         if len(samples) >= 3:
             break
-    bundle["chembl_assay_samples"] = [
-        {"id": s["id"], "type": _ASSAY_TYPE_NAMES.get(s["type"], s["type"]),
-         "desc": s["desc"][:240]} for s in samples
-    ]
+    # Source publication for each sample assay — one chembl_document per
+    # assay edge. Adds title + journal context to the assay sample table so
+    # readers can trace the screen to its paper. Tiny cost: 3 entry calls.
+    enriched_samples = []
+    for s in samples:
+        rec = {"id": s["id"], "type": _ASSAY_TYPE_NAMES.get(s["type"], s["type"]),
+               "desc": s["desc"][:240]}
+        try:
+            for d in map_all(s["id"], ">>chembl_assay>>chembl_document", cap=1):
+                doc_id = d.get("id")
+                if doc_id:
+                    de = entry(doc_id, "chembl_document")
+                    doc = (((de.get("Attributes") or {}).get("Chembl") or {})
+                           .get("doc") or {})
+                    rec["doc_id"] = doc_id
+                    rec["doc_title"] = (doc.get("title") or "").strip()
+                    rec["doc_journal"] = doc.get("journal")
+                    break
+        except Exception:
+            pass
+        enriched_samples.append(rec)
+    bundle["chembl_assay_samples"] = enriched_samples
 
     # Cellosaurus — cell lines associated with this gene (mutated, deficient,
     # expressed-in, model-of, etc.). Totals run into the thousands for

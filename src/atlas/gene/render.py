@@ -288,10 +288,20 @@ def r_drugs(b):
                  f"{breakdown}")
         samples = b.get("chembl_assay_samples") or []
         if samples:
-            L.append("\nRepresentative assays:\n")
-            L.append(table(["Assay ID", "Type", "Description"],
-                           [(f"[{s['id']}](https://www.ebi.ac.uk/chembl/assay_report_card/{s['id']}/)",
-                             s["type"], s["desc"]) for s in samples]))
+            L.append("\nRepresentative assays (with source publication via chembl_document):\n")
+            rows = []
+            for s in samples:
+                doc = ""
+                if s.get("doc_id"):
+                    title = (s.get("doc_title") or s["doc_id"]).strip()
+                    if len(title) > 90:
+                        title = title[:87] + "…"
+                    doc = (f"[{title}](https://www.ebi.ac.uk/chembl/document_report_card/{s['doc_id']}/)"
+                           + (f" — *{s['doc_journal']}*" if s.get("doc_journal") else ""))
+                rows.append((
+                    f"[{s['id']}](https://www.ebi.ac.uk/chembl/assay_report_card/{s['id']}/)",
+                    s["type"], s["desc"], doc))
+            L.append(table(["Assay ID", "Type", "Description", "Source paper"], rows))
 
     # Cellosaurus — cell lines associated with this gene (mutated, deficient,
     # expressed-in, model-of). Counts can run into thousands for heavily-

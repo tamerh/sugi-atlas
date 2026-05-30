@@ -72,6 +72,7 @@ UPSTREAM = {
     "chembl_molecule":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "chembl_activity":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "chembl_assay":      ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
+    "chembl_document":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "cellosaurus":       ("Cellosaurus (SIB cell-line index)",     "https://www.cellosaurus.org/"),
     "patent_compound":   ("PubChem patent-compound index",         "https://pubchem.ncbi.nlm.nih.gov/"),
     "pharmgkb_gene":     ("PharmGKB",                              "https://www.pharmgkb.org/"),
