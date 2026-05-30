@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 1091,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "src/atlas/gene/tasks/collect_render.py",
+  "task_id": "3:17:TP53:collect_render",
+  "timestamp": "2026-05-30T13:57:32+02:00"
+}
