@@ -3088,120 +3088,223 @@
       {
         "id": "CHEMBL1009",
         "name": "LEVODOPA",
+        "patent_compound_ids": [
+          "22655",
+          "29373537"
+        ],
+        "patent_count": 102409,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL104",
         "name": "CLOTRIMAZOLE",
+        "patent_compound_ids": [
+          "29358270",
+          "3850"
+        ],
+        "patent_count": 55643,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1079742",
         "name": "ERLOTINIB HYDROCHLORIDE",
+        "patent_compound_ids": [
+          "18562",
+          "18563",
+          "29460839"
+        ],
+        "patent_count": 13503,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL11359",
         "name": "CISPLATIN",
+        "patent_compound_ids": [],
+        "patent_count": 0,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1171837",
         "name": "PONATINIB",
+        "patent_compound_ids": [
+          "29353054",
+          "29373892",
+          "29889039",
+          "589260"
+        ],
+        "patent_count": 8354,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1173655",
         "name": "AFATINIB",
+        "patent_compound_ids": [
+          "232772",
+          "29388685",
+          "29395096"
+        ],
+        "patent_count": 14181,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200528",
         "name": "CHROMIC CHLORIDE",
+        "patent_compound_ids": [],
+        "patent_count": 0,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200558",
         "name": "BACITRACIN",
+        "patent_compound_ids": [
+          "20385900"
+        ],
+        "patent_count": 143,
         "phase": "4",
         "type": "Protein"
       },
       {
         "id": "CHEMBL1200679",
         "name": "ZINC CHLORIDE",
+        "patent_compound_ids": [
+          "704",
+          "705"
+        ],
+        "patent_count": 406450,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1201179",
         "name": "LAPATINIB DITOSYLATE",
+        "patent_compound_ids": [
+          "29356338",
+          "30680457",
+          "4926017"
+        ],
+        "patent_count": 2825,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1229517",
         "name": "VEMURAFENIB",
+        "patent_compound_ids": [
+          "29355460",
+          "29356185",
+          "298931"
+        ],
+        "patent_count": 14651,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1287853",
         "name": "FEDRATINIB",
+        "patent_compound_ids": [
+          "263741",
+          "29351417"
+        ],
+        "patent_count": 3287,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1289926",
         "name": "AXITINIB",
+        "patent_compound_ids": [
+          "172918",
+          "22930506",
+          "29349703",
+          "29384419"
+        ],
+        "patent_count": 14658,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1336",
         "name": "SORAFENIB",
+        "patent_compound_ids": [
+          "29349634",
+          "8218"
+        ],
+        "patent_count": 84087,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1421",
         "name": "DASATINIB ANHYDROUS",
+        "patent_compound_ids": [
+          "29381185",
+          "8226"
+        ],
+        "patent_count": 53676,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1448",
         "name": "NICLOSAMIDE",
+        "patent_compound_ids": [
+          "27365268",
+          "29363878",
+          "67182"
+        ],
+        "patent_count": 14065,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1614701",
         "name": "SELUMETINIB",
+        "patent_compound_ids": [
+          "155456",
+          "29353582",
+          "29555068"
+        ],
+        "patent_count": 9581,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL17157",
         "name": "TERFENADINE",
+        "patent_compound_ids": [
+          "5152"
+        ],
+        "patent_count": 25194,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1738797",
         "name": "ALECTINIB",
+        "patent_compound_ids": [
+          "29352499",
+          "896753"
+        ],
+        "patent_count": 6224,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL180022",
         "name": "NERATINIB",
+        "patent_compound_ids": [
+          "29376313",
+          "29394766",
+          "571762"
+        ],
+        "patent_count": 8756,
         "phase": "4",
         "type": "Small molecule"
       },
@@ -4118,6 +4221,7 @@
         "type": "Small molecule"
       }
     ],
+    "patent_total": 837687,
     "pharmgkb": [
       {
         "cpic_guideline": "false",
