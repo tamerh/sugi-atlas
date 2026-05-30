@@ -3618,6 +3618,320 @@
       }
     ],
     "hpo_total": 147,
+    "mesh_descriptors": [
+      {
+        "id": "D019571",
+        "is_supplementary": false,
+        "name": "Arrhythmogenic Right Ventricular Dysplasia",
+        "tree_numbers": [
+          "C14.240.400.145",
+          "C14.280.238.028",
+          "C14.280.400.145",
+          "C16.131.240.400.145"
+        ]
+      },
+      {
+        "id": "D001176",
+        "is_supplementary": false,
+        "name": "Arthrogryposis",
+        "tree_numbers": [
+          "C05.550.150",
+          "C05.651.102",
+          "C05.660.077",
+          "C16.131.621.077"
+        ]
+      },
+      {
+        "id": "D001281",
+        "is_supplementary": false,
+        "name": "Atrial Fibrillation",
+        "tree_numbers": [
+          "C14.280.067.198",
+          "C23.550.073.198"
+        ]
+      },
+      {
+        "id": "D053840",
+        "is_supplementary": false,
+        "name": "Brugada Syndrome",
+        "tree_numbers": [
+          "C14.280.067.322",
+          "C14.280.123.250",
+          "C16.320.100"
+        ]
+      },
+      {
+        "id": "D009202",
+        "is_supplementary": false,
+        "name": "Cardiomyopathies",
+        "tree_numbers": [
+          "C14.280.238"
+        ]
+      },
+      {
+        "id": "D002311",
+        "is_supplementary": false,
+        "name": "Cardiomyopathy, Dilated",
+        "tree_numbers": [
+          "C14.280.195.160",
+          "C14.280.238.070",
+          "C16.320.488.750"
+        ]
+      },
+      {
+        "id": "D002312",
+        "is_supplementary": false,
+        "name": "Cardiomyopathy, Hypertrophic",
+        "tree_numbers": [
+          "C14.280.238.100",
+          "C14.280.484.048.750.070.160"
+        ]
+      },
+      {
+        "id": "D024741",
+        "is_supplementary": false,
+        "name": "Cardiomyopathy, Hypertrophic, Familial",
+        "tree_numbers": [
+          "C14.280.238.100.500",
+          "C14.280.484.048.750.070.160.500",
+          "C16.320.160"
+        ]
+      },
+      {
+        "id": "D002313",
+        "is_supplementary": false,
+        "name": "Cardiomyopathy, Restrictive",
+        "tree_numbers": [
+          "C14.280.238.160"
+        ]
+      },
+      {
+        "id": "D002547",
+        "is_supplementary": false,
+        "name": "Cerebral Palsy",
+        "tree_numbers": [
+          "C10.228.140.140.254"
+        ]
+      },
+      {
+        "id": "D006323",
+        "is_supplementary": false,
+        "name": "Heart Arrest",
+        "tree_numbers": [
+          "C14.280.383"
+        ]
+      },
+      {
+        "id": "D006333",
+        "is_supplementary": false,
+        "name": "Heart Failure",
+        "tree_numbers": [
+          "C14.280.434"
+        ]
+      },
+      {
+        "id": "D054143",
+        "is_supplementary": false,
+        "name": "Heart Failure, Systolic",
+        "tree_numbers": [
+          "C14.280.434.676"
+        ]
+      },
+      {
+        "id": "D008607",
+        "is_supplementary": false,
+        "name": "Intellectual Disability",
+        "tree_numbers": [
+          "C10.597.606.360",
+          "C23.888.592.604.646",
+          "F01.700.687",
+          "F03.625.539"
+        ]
+      },
+      {
+        "id": "D008133",
+        "is_supplementary": false,
+        "name": "Long QT Syndrome",
+        "tree_numbers": [
+          "C14.280.067.565",
+          "C14.280.123.625",
+          "C16.131.240.400.715",
+          "C23.550.073.547"
+        ]
+      },
+      {
+        "id": "D008945",
+        "is_supplementary": false,
+        "name": "Mitral Valve Prolapse",
+        "tree_numbers": [
+          "C14.280.484.400.500"
+        ]
+      },
+      {
+        "id": "D009136",
+        "is_supplementary": false,
+        "name": "Muscular Dystrophies",
+        "tree_numbers": [
+          "C05.651.534.500",
+          "C10.668.491.175.500",
+          "C16.320.577"
+        ]
+      },
+      {
+        "id": "D049288",
+        "is_supplementary": false,
+        "name": "Muscular Dystrophies, Limb-Girdle",
+        "tree_numbers": [
+          "C05.651.534.500.280",
+          "C10.668.491.175.500.149",
+          "C16.320.577.280"
+        ]
+      },
+      {
+        "id": "D009205",
+        "is_supplementary": false,
+        "name": "Myocarditis",
+        "tree_numbers": [
+          "C14.280.238.625"
+        ]
+      },
+      {
+        "id": "D020914",
+        "is_supplementary": false,
+        "name": "Myopathies, Structural, Congenital",
+        "tree_numbers": [
+          "C05.651.575",
+          "C10.668.491.550"
+        ]
+      },
+      {
+        "id": "D009468",
+        "is_supplementary": false,
+        "name": "Neuromuscular Diseases",
+        "tree_numbers": [
+          "C10.668"
+        ]
+      },
+      {
+        "id": "D017180",
+        "is_supplementary": false,
+        "name": "Tachycardia, Ventricular",
+        "tree_numbers": [
+          "C14.280.067.845.940",
+          "C14.280.123.875.940",
+          "C23.550.073.845.940"
+        ]
+      },
+      {
+        "id": "D014693",
+        "is_supplementary": false,
+        "name": "Ventricular Fibrillation",
+        "tree_numbers": [
+          "C14.280.067.922",
+          "C23.550.073.922"
+        ]
+      },
+      {
+        "id": "D014927",
+        "is_supplementary": false,
+        "name": "Wolff-Parkinson-White Syndrome",
+        "tree_numbers": [
+          "C14.280.067.780.977",
+          "C14.280.123.750.977",
+          "C16.131.240.400.980"
+        ]
+      },
+      {
+        "id": "C564377",
+        "is_supplementary": false,
+        "name": "",
+        "tree_numbers": []
+      },
+      {
+        "id": "C1720824",
+        "is_supplementary": false,
+        "name": "",
+        "tree_numbers": []
+      },
+      {
+        "id": "C563808",
+        "is_supplementary": true,
+        "name": "Arrhythmogenic Right Ventricular Dysplasia, Familial, 9",
+        "tree_numbers": []
+      },
+      {
+        "id": "C565824",
+        "is_supplementary": true,
+        "name": "Cardiomyopathy, Dilated, 1g",
+        "tree_numbers": []
+      },
+      {
+        "id": "C563538",
+        "is_supplementary": true,
+        "name": "Cardiomyopathy, Dilated, 1s",
+        "tree_numbers": []
+      },
+      {
+        "id": "C566171",
+        "is_supplementary": true,
+        "name": "Cardiomyopathy, Familial Hypertrophic, 2",
+        "tree_numbers": []
+      },
+      {
+        "id": "C566044",
+        "is_supplementary": true,
+        "name": "Cardiomyopathy, Familial Hypertrophic, 9",
+        "tree_numbers": []
+      },
+      {
+        "id": "C566343",
+        "is_supplementary": true,
+        "name": "Hereditary Myopathy with Early Respiratory Failure",
+        "tree_numbers": []
+      },
+      {
+        "id": "C563854",
+        "is_supplementary": true,
+        "name": "Muscular Dystrophy, Limb-Girdle, Type 2J",
+        "tree_numbers": []
+      },
+      {
+        "id": "C562934",
+        "is_supplementary": true,
+        "name": "Myopathy, Centronuclear, Autosomal Recessive",
+        "tree_numbers": []
+      },
+      {
+        "id": "C567129",
+        "is_supplementary": true,
+        "name": "Myopathy, Early-Onset, with Fatal Cardiomyopathy",
+        "tree_numbers": []
+      },
+      {
+        "id": "C566121",
+        "is_supplementary": true,
+        "name": "Orofacial Cleft 1",
+        "tree_numbers": []
+      },
+      {
+        "id": "C566021",
+        "is_supplementary": true,
+        "name": "Tuberous Sclerosis 2",
+        "tree_numbers": []
+      },
+      {
+        "id": "C567851",
+        "is_supplementary": true,
+        "name": "Ventricular Fibrillation, Paroxysmal Familial, 1",
+        "tree_numbers": []
+      },
+      {
+        "id": "C536231",
+        "is_supplementary": true,
+        "name": "familial dilated cardiomyopathy",
+        "tree_numbers": []
+      }
+    ],
     "mondo": [
       {
         "id": "MONDO:0011400",

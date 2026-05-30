@@ -1041,3 +1041,38 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | GCST011198_1 | Left ventricular end-systolic volume | 2.000000e-17 |
 | GCST011202_4 | Dilated cardiomyopathy (MTAG) | 1.000000e-13 |
 | GCST011206_2 | Left ventricular end-diastolic volume | 1.000000e-11 |
+
+**MeSH disease descriptors (39):**
+
+| Descriptor | Name | Tree numbers |
+| --- | --- | --- |
+| [D019571](https://www.ncbi.nlm.nih.gov/mesh/?term=D019571) | Arrhythmogenic Right Ventricular Dysplasia | C14.240.400.145; C14.280.238.028; C14.280.400.145; C16.131.240.400.145 |
+| [D001176](https://www.ncbi.nlm.nih.gov/mesh/?term=D001176) | Arthrogryposis | C05.550.150; C05.651.102; C05.660.077; C16.131.621.077 |
+| [D001281](https://www.ncbi.nlm.nih.gov/mesh/?term=D001281) | Atrial Fibrillation | C14.280.067.198; C23.550.073.198 |
+| [D053840](https://www.ncbi.nlm.nih.gov/mesh/?term=D053840) | Brugada Syndrome | C14.280.067.322; C14.280.123.250; C16.320.100 |
+| [D009202](https://www.ncbi.nlm.nih.gov/mesh/?term=D009202) | Cardiomyopathies | C14.280.238 |
+| [D002311](https://www.ncbi.nlm.nih.gov/mesh/?term=D002311) | Cardiomyopathy, Dilated | C14.280.195.160; C14.280.238.070; C16.320.488.750 |
+| [D002312](https://www.ncbi.nlm.nih.gov/mesh/?term=D002312) | Cardiomyopathy, Hypertrophic | C14.280.238.100; C14.280.484.048.750.070.160 |
+| [D024741](https://www.ncbi.nlm.nih.gov/mesh/?term=D024741) | Cardiomyopathy, Hypertrophic, Familial | C14.280.238.100.500; C14.280.484.048.750.070.160.500; C16.320.160 |
+| [D002313](https://www.ncbi.nlm.nih.gov/mesh/?term=D002313) | Cardiomyopathy, Restrictive | C14.280.238.160 |
+| [D002547](https://www.ncbi.nlm.nih.gov/mesh/?term=D002547) | Cerebral Palsy | C10.228.140.140.254 |
+| [D006323](https://www.ncbi.nlm.nih.gov/mesh/?term=D006323) | Heart Arrest | C14.280.383 |
+| [D006333](https://www.ncbi.nlm.nih.gov/mesh/?term=D006333) | Heart Failure | C14.280.434 |
+| [D054143](https://www.ncbi.nlm.nih.gov/mesh/?term=D054143) | Heart Failure, Systolic | C14.280.434.676 |
+| [D008607](https://www.ncbi.nlm.nih.gov/mesh/?term=D008607) | Intellectual Disability | C10.597.606.360; C23.888.592.604.646; F01.700.687; F03.625.539 |
+| [D008133](https://www.ncbi.nlm.nih.gov/mesh/?term=D008133) | Long QT Syndrome | C14.280.067.565; C14.280.123.625; C16.131.240.400.715; C23.550.073.547 |
+| [D008945](https://www.ncbi.nlm.nih.gov/mesh/?term=D008945) | Mitral Valve Prolapse | C14.280.484.400.500 |
+| [D009136](https://www.ncbi.nlm.nih.gov/mesh/?term=D009136) | Muscular Dystrophies | C05.651.534.500; C10.668.491.175.500; C16.320.577 |
+| [D049288](https://www.ncbi.nlm.nih.gov/mesh/?term=D049288) | Muscular Dystrophies, Limb-Girdle | C05.651.534.500.280; C10.668.491.175.500.149; C16.320.577.280 |
+| [D009205](https://www.ncbi.nlm.nih.gov/mesh/?term=D009205) | Myocarditis | C14.280.238.625 |
+| [D020914](https://www.ncbi.nlm.nih.gov/mesh/?term=D020914) | Myopathies, Structural, Congenital | C05.651.575; C10.668.491.550 |
+| [D009468](https://www.ncbi.nlm.nih.gov/mesh/?term=D009468) | Neuromuscular Diseases | C10.668 |
+| [D017180](https://www.ncbi.nlm.nih.gov/mesh/?term=D017180) | Tachycardia, Ventricular | C14.280.067.845.940; C14.280.123.875.940; C23.550.073.845.940 |
+| [D014693](https://www.ncbi.nlm.nih.gov/mesh/?term=D014693) | Ventricular Fibrillation | C14.280.067.922; C23.550.073.922 |
+| [D014927](https://www.ncbi.nlm.nih.gov/mesh/?term=D014927) | Wolff-Parkinson-White Syndrome | C14.280.067.780.977; C14.280.123.750.977; C16.131.240.400.980 |
+| [C564377](https://www.ncbi.nlm.nih.gov/mesh/?term=C564377) |  |  |
+| [C1720824](https://www.ncbi.nlm.nih.gov/mesh/?term=C1720824) |  |  |
+| [C563808](https://www.ncbi.nlm.nih.gov/mesh/?term=C563808) | Arrhythmogenic Right Ventricular Dysplasia, Familial, 9 *(supp.)* |  |
+| [C565824](https://www.ncbi.nlm.nih.gov/mesh/?term=C565824) | Cardiomyopathy, Dilated, 1g *(supp.)* |  |
+| [C563538](https://www.ncbi.nlm.nih.gov/mesh/?term=C563538) | Cardiomyopathy, Dilated, 1s *(supp.)* |  |
+| [C566171](https://www.ncbi.nlm.nih.gov/mesh/?term=C566171) | Cardiomyopathy, Familial Hypertrophic, 2 *(supp.)* |  |
