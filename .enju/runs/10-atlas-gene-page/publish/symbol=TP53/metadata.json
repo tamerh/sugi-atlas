@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 72,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "workflows/gene/publish.py",
+  "task_id": "3:10:TP53:publish",
+  "timestamp": "2026-05-30T12:20:50+02:00"
+}
