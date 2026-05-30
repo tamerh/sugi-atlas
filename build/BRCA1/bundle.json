@@ -1441,6 +1441,74 @@
         "vip": "true"
       }
     ],
+    "pubchem_bioassay": [
+      {
+        "activity_type": "kd",
+        "aid": "602102",
+        "cid": "53310710",
+        "id": "53310710_602102_1",
+        "unit": "uM",
+        "value": "0.1900"
+      },
+      {
+        "activity_type": "kd",
+        "aid": "602102",
+        "cid": "54581408",
+        "id": "54581408_602102_1",
+        "unit": "uM",
+        "value": "0.4100"
+      },
+      {
+        "activity_type": "kd",
+        "aid": "602102",
+        "cid": "54583400",
+        "id": "54583400_602102_1",
+        "unit": "uM",
+        "value": "0.4400"
+      },
+      {
+        "activity_type": "ic50",
+        "aid": "602101",
+        "cid": "53310710",
+        "id": "53310710_602101_1",
+        "unit": "uM",
+        "value": "1.0000"
+      },
+      {
+        "activity_type": "ic50",
+        "aid": "602101",
+        "cid": "53310711",
+        "id": "53310711_602101_1",
+        "unit": "uM",
+        "value": "1.6000"
+      },
+      {
+        "activity_type": "ic50",
+        "aid": "602101",
+        "cid": "53310285",
+        "id": "53310285_602101_1",
+        "unit": "uM",
+        "value": "3.2000"
+      },
+      {
+        "activity_type": "ic50",
+        "aid": "602101",
+        "cid": "53310143",
+        "id": "53310143_602101_1",
+        "unit": "uM",
+        "value": "4.6000"
+      },
+      {
+        "activity_type": "ic50",
+        "aid": "602101",
+        "cid": "53310423",
+        "id": "53310423_602101_1",
+        "unit": "uM",
+        "value": "7.1000"
+      }
+    ],
+    "pubchem_bioassay_active_count": 8,
+    "pubchem_bioassay_total": 28,
     "section": "10_drugs",
     "symbol": "BRCA1"
   },

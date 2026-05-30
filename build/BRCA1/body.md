@@ -603,6 +603,19 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | (2S)-2-acetamido-3-((2S)-2-((2S,3R)-1-(1-amino-3-(naphthalen-2-yl)-1-oxopropan-2-ylamino)-3-hydroxy-1-oxobutan-2-ylcarbamoyl)pyrrolidin-1-yl)-3-oxopropyl dihydrogen phosphate::CHEMBL1784769 |  | 17700 nM |
 | (2S)-2-acetamido-3-((2S)-2-((2S,3R)-1-(1-amino-3-(naphthalen-1-yl)-1-oxopropan-2-ylamino)-3-hydroxy-1-oxobutan-2-ylcarbamoyl)pyrrolidin-1-yl)-3-oxopropyl dihydrogen phosphate::CHEMBL1784778 |  | 171700 nM |
 
+**PubChem BioAssay actives (8 Active w/ measured affinity, of 28 total PubChem activities), top 30 by potency:**
+
+| CID | AID | Type | Value | Unit |
+| --- | --- | --- | --- | --- |
+| [53310710](https://pubchem.ncbi.nlm.nih.gov/compound/53310710) | [602102](https://pubchem.ncbi.nlm.nih.gov/bioassay/602102) | kd | 0.1900 | uM |
+| [54581408](https://pubchem.ncbi.nlm.nih.gov/compound/54581408) | [602102](https://pubchem.ncbi.nlm.nih.gov/bioassay/602102) | kd | 0.4100 | uM |
+| [54583400](https://pubchem.ncbi.nlm.nih.gov/compound/54583400) | [602102](https://pubchem.ncbi.nlm.nih.gov/bioassay/602102) | kd | 0.4400 | uM |
+| [53310710](https://pubchem.ncbi.nlm.nih.gov/compound/53310710) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 1.0000 | uM |
+| [53310711](https://pubchem.ncbi.nlm.nih.gov/compound/53310711) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 1.6000 | uM |
+| [53310285](https://pubchem.ncbi.nlm.nih.gov/compound/53310285) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 3.2000 | uM |
+| [53310143](https://pubchem.ncbi.nlm.nih.gov/compound/53310143) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 4.6000 | uM |
+| [53310423](https://pubchem.ncbi.nlm.nih.gov/compound/53310423) | [602101](https://pubchem.ncbi.nlm.nih.gov/bioassay/602101) | ic50 | 7.1000 | uM |
+
 **Clinical trials for the gene's associated diseases (190, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
