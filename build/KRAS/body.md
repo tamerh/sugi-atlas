@@ -1073,6 +1073,23 @@ Representative assays:
 | [CHEMBL2089529](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL2089529/) | Binding | Binding affinity to K-Ras G12D mutant-GDP complex |
 | [CHEMBL4612363](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL4612363/) | Functional | In-vivo target engagement at KRAS G12C mutant in athymic nude-Foxn1nu mouse xenografted with human NCI-H358 cells assessed as KRAS G12C modification level in tumor lysate at 10 mg/kg, po dosed via gavage as single administration measured af |
 
+**Cellosaurus cell lines (5,318):** 5,268 cancer cell line, 22 spontaneously immortalized cell line, 12 induced pluripotent stem cell, 7 transformed cell line, 4 telomerase immortalized cell line, 2 hybrid cell line, 2 factor-dependent cell line, 1 finite cell line
+
+First 10 cell lines (id-ordered, not curated):
+
+| Cellosaurus | Name | Category | Sex |
+| --- | --- | --- | --- |
+| [CVCL_0005](https://www.cellosaurus.org/CVCL_0005) | NB4 | Cancer cell line | Female |
+| [CVCL_0014](https://www.cellosaurus.org/CVCL_0014) | RPMI-8226 | Cancer cell line | Male |
+| [CVCL_0023](https://www.cellosaurus.org/CVCL_0023) | A-549 | Cancer cell line | Male |
+| [CVCL_0026](https://www.cellosaurus.org/CVCL_0026) | Capan-2 | Cancer cell line | Male |
+| [CVCL_0062](https://www.cellosaurus.org/CVCL_0062) | MDA-MB-231 | Cancer cell line | Female |
+| [CVCL_0098](https://www.cellosaurus.org/CVCL_0098) | SKM-1 | Cancer cell line | Male |
+| [CVCL_0099](https://www.cellosaurus.org/CVCL_0099) | SNU-1 | Cancer cell line | Male |
+| [CVCL_0101](https://www.cellosaurus.org/CVCL_0101) | SNU-601 | Cancer cell line | Male |
+| [CVCL_0138](https://www.cellosaurus.org/CVCL_0138) | ACH-2 | Cancer cell line | Female |
+| [CVCL_0139](https://www.cellosaurus.org/CVCL_0139) | AGS | Cancer cell line | Female |
+
 **Clinical trials for the gene's associated diseases (399, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

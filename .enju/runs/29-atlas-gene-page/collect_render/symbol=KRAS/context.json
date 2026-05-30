@@ -1,0 +1,32 @@
+{
+  "instance_key": "KRAS",
+  "iteration": {
+    "symbol": "KRAS"
+  },
+  "params": {
+    "dist_root": "/data/sugi-atlas-dist",
+    "skip_summary": "true",
+    "summary_model": "qwen/qwen3-235b-a22b-2507|Together",
+    "symbols": [
+      "TP53",
+      "BRCA1",
+      "CDKN2A",
+      "KRAS",
+      "TTN",
+      "EGFR"
+    ]
+  },
+  "reads_artifacts": [],
+  "task_def_id": "collect_render",
+  "task_id": "3:29:KRAS:collect_render",
+  "writes_artifacts": [
+    {
+      "path": "build/KRAS/bundle.json",
+      "track": true
+    },
+    {
+      "path": "build/KRAS/body.md",
+      "track": true
+    }
+  ]
+}

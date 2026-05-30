@@ -212,6 +212,79 @@
       }
     ],
     "bindingdb_sampled": 224,
+    "cellosaurus_category_counts": {
+      "Cancer cell line": 5268,
+      "Factor-dependent cell line": 2,
+      "Finite cell line": 1,
+      "Hybrid cell line": 2,
+      "Induced pluripotent stem cell": 12,
+      "Spontaneously immortalized cell line": 22,
+      "Telomerase immortalized cell line": 4,
+      "Transformed cell line": 7
+    },
+    "cellosaurus_samples": [
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0005",
+        "name": "NB4",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0014",
+        "name": "RPMI-8226",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0023",
+        "name": "A-549",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0026",
+        "name": "Capan-2",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0062",
+        "name": "MDA-MB-231",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0098",
+        "name": "SKM-1",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0099",
+        "name": "SNU-1",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0101",
+        "name": "SNU-601",
+        "sex": "Male"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0138",
+        "name": "ACH-2",
+        "sex": "Female"
+      },
+      {
+        "category": "Cancer cell line",
+        "id": "CVCL_0139",
+        "name": "AGS",
+        "sex": "Female"
+      }
+    ],
+    "cellosaurus_total": 5318,
     "chembl_activities": [
       {
         "id": "CHEMBL_ACT_23316920",
