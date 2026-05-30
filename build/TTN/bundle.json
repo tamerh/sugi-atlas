@@ -2203,180 +2203,210 @@
     "tissue_count": 279,
     "top_tissues": [
       {
+        "anatomy_id": "UBERON:0001507",
         "quality": "gold quality",
         "rank": "12",
         "score": "99.98",
         "tissue": "biceps brachii"
       },
       {
+        "anatomy_id": "UBERON:0002000",
         "quality": "gold quality",
         "rank": "10",
         "score": "99.98",
         "tissue": "gluteal muscle"
       },
       {
+        "anatomy_id": "UBERON:0004502",
         "quality": "gold quality",
         "rank": "11",
         "score": "99.98",
         "tissue": "skeletal muscle tissue of biceps brachii"
       },
       {
+        "anatomy_id": "UBERON:0001509",
         "quality": "gold quality",
         "rank": "16",
         "score": "99.97",
         "tissue": "triceps brachii"
       },
       {
+        "anatomy_id": "UBERON:0004511",
         "quality": "gold quality",
         "rank": "16",
         "score": "99.97",
         "tissue": "skeletal muscle tissue of rectus abdominis"
       },
       {
+        "anatomy_id": "UBERON:0002080",
         "quality": "gold quality",
         "rank": "21",
         "score": "99.96",
         "tissue": "heart right ventricle"
       },
       {
+        "anatomy_id": "UBERON:0001103",
         "quality": "gold quality",
         "rank": "34",
         "score": "99.93",
         "tissue": "diaphragm"
       },
       {
+        "anatomy_id": "UBERON:0001379",
         "quality": "gold quality",
         "rank": "40",
         "score": "99.92",
         "tissue": "vastus lateralis"
       },
       {
+        "anatomy_id": "UBERON:0011876",
         "quality": "gold quality",
         "rank": "38",
         "score": "99.92",
         "tissue": "body of tongue"
       },
       {
+        "anatomy_id": "UBERON:0001377",
         "quality": "gold quality",
         "rank": "64",
         "score": "99.87",
         "tissue": "quadriceps femoris"
       },
       {
+        "anatomy_id": "UBERON:0001476",
         "quality": "gold quality",
         "rank": "90",
         "score": "99.81",
         "tissue": "deltoid"
       },
       {
+        "anatomy_id": "UBERON:0006566",
         "quality": "gold quality",
         "rank": "113",
         "score": "99.76",
         "tissue": "left ventricle myocardium"
       },
       {
+        "anatomy_id": "UBERON:0001134",
         "quality": "gold quality",
         "rank": "119",
         "score": "99.75",
         "tissue": "skeletal muscle tissue"
       },
       {
+        "anatomy_id": "UBERON:0001385",
         "quality": "gold quality",
         "rank": "119",
         "score": "99.75",
         "tissue": "tibialis anterior"
       },
       {
+        "anatomy_id": "UBERON:0002349",
         "quality": "gold quality",
         "rank": "217",
         "score": "99.54",
         "tissue": "myocardium"
       },
       {
+        "anatomy_id": "UBERON:0004252",
         "quality": "gold quality",
         "rank": "227",
         "score": "99.51",
         "tissue": "hindlimb stylopod muscle"
       },
       {
+        "anatomy_id": "UBERON:0004087",
         "quality": "gold quality",
         "rank": "240",
         "score": "99.49",
         "tissue": "vena cava"
       },
       {
+        "anatomy_id": "UBERON:0001388",
         "quality": "gold quality",
         "rank": "287",
         "score": "99.39",
         "tissue": "gastrocnemius"
       },
       {
+        "anatomy_id": "UBERON:0003379",
         "quality": "gold quality",
         "rank": "347",
         "score": "99.26",
         "tissue": "cardiac muscle of right atrium"
       },
       {
+        "anatomy_id": "UBERON:0001630",
         "quality": "gold quality",
         "rank": "397",
         "score": "99.15",
         "tissue": "muscle organ"
       },
       {
+        "anatomy_id": "UBERON:0001383",
         "quality": "gold quality",
         "rank": "538",
         "score": "98.85",
         "tissue": "muscle of leg"
       },
       {
+        "anatomy_id": "UBERON:0002082",
         "quality": "gold quality",
         "rank": "925",
         "score": "98.02",
         "tissue": "cardiac ventricle"
       },
       {
+        "anatomy_id": "UBERON:0002084",
         "quality": "gold quality",
         "rank": "955",
         "score": "97.95",
         "tissue": "heart left ventricle"
       },
       {
+        "anatomy_id": "UBERON:0002098",
         "quality": "gold quality",
         "rank": "971",
         "score": "97.92",
         "tissue": "apex of heart"
       },
       {
+        "anatomy_id": "UBERON:0002081",
         "quality": "gold quality",
         "rank": "1040",
         "score": "97.77",
         "tissue": "cardiac atrium"
       },
       {
+        "anatomy_id": "UBERON:0006631",
         "quality": "gold quality",
         "rank": "1150",
         "score": "97.53",
         "tissue": "right atrium auricular region"
       },
       {
+        "anatomy_id": "UBERON:0002385",
         "quality": "gold quality",
         "rank": "1550",
         "score": "96.68",
         "tissue": "muscle tissue"
       },
       {
+        "anatomy_id": "UBERON:0008188",
         "quality": "gold quality",
         "rank": "2000",
         "score": "95.71",
         "tissue": "tendon of biceps brachii"
       },
       {
+        "anatomy_id": "UBERON:0000948",
         "quality": "gold quality",
         "rank": "2450",
         "score": "94.76",
         "tissue": "heart"
       },
       {
+        "anatomy_id": "UBERON:0000355",
         "quality": "gold quality",
         "rank": "2610",
         "score": "94.40",

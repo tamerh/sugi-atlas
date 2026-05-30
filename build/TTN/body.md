@@ -896,38 +896,38 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 
 **Top tissues by expression (279 total):**
 
-| Tissue | Score | Rank | Quality |
-| --- | --- | --- | --- |
-| biceps brachii | 99.98 | 12 | gold quality |
-| gluteal muscle | 99.98 | 10 | gold quality |
-| skeletal muscle tissue of biceps brachii | 99.98 | 11 | gold quality |
-| triceps brachii | 99.97 | 16 | gold quality |
-| skeletal muscle tissue of rectus abdominis | 99.97 | 16 | gold quality |
-| heart right ventricle | 99.96 | 21 | gold quality |
-| diaphragm | 99.93 | 34 | gold quality |
-| vastus lateralis | 99.92 | 40 | gold quality |
-| body of tongue | 99.92 | 38 | gold quality |
-| quadriceps femoris | 99.87 | 64 | gold quality |
-| deltoid | 99.81 | 90 | gold quality |
-| left ventricle myocardium | 99.76 | 113 | gold quality |
-| skeletal muscle tissue | 99.75 | 119 | gold quality |
-| tibialis anterior | 99.75 | 119 | gold quality |
-| myocardium | 99.54 | 217 | gold quality |
-| hindlimb stylopod muscle | 99.51 | 227 | gold quality |
-| vena cava | 99.49 | 240 | gold quality |
-| gastrocnemius | 99.39 | 287 | gold quality |
-| cardiac muscle of right atrium | 99.26 | 347 | gold quality |
-| muscle organ | 99.15 | 397 | gold quality |
-| muscle of leg | 98.85 | 538 | gold quality |
-| cardiac ventricle | 98.02 | 925 | gold quality |
-| heart left ventricle | 97.95 | 955 | gold quality |
-| apex of heart | 97.92 | 971 | gold quality |
-| cardiac atrium | 97.77 | 1040 | gold quality |
-| right atrium auricular region | 97.53 | 1150 | gold quality |
-| muscle tissue | 96.68 | 1550 | gold quality |
-| tendon of biceps brachii | 95.71 | 2000 | gold quality |
-| heart | 94.76 | 2450 | gold quality |
-| pharyngeal mucosa | 94.40 | 2610 | gold quality |
+| Tissue | Anatomy ID | Score | Rank | Quality |
+| --- | --- | --- | --- | --- |
+| [biceps brachii](https://bioregistry.io/UBERON:0001507) | UBERON:0001507 | 99.98 | 12 | gold quality |
+| [gluteal muscle](https://bioregistry.io/UBERON:0002000) | UBERON:0002000 | 99.98 | 10 | gold quality |
+| [skeletal muscle tissue of biceps brachii](https://bioregistry.io/UBERON:0004502) | UBERON:0004502 | 99.98 | 11 | gold quality |
+| [triceps brachii](https://bioregistry.io/UBERON:0001509) | UBERON:0001509 | 99.97 | 16 | gold quality |
+| [skeletal muscle tissue of rectus abdominis](https://bioregistry.io/UBERON:0004511) | UBERON:0004511 | 99.97 | 16 | gold quality |
+| [heart right ventricle](https://bioregistry.io/UBERON:0002080) | UBERON:0002080 | 99.96 | 21 | gold quality |
+| [diaphragm](https://bioregistry.io/UBERON:0001103) | UBERON:0001103 | 99.93 | 34 | gold quality |
+| [vastus lateralis](https://bioregistry.io/UBERON:0001379) | UBERON:0001379 | 99.92 | 40 | gold quality |
+| [body of tongue](https://bioregistry.io/UBERON:0011876) | UBERON:0011876 | 99.92 | 38 | gold quality |
+| [quadriceps femoris](https://bioregistry.io/UBERON:0001377) | UBERON:0001377 | 99.87 | 64 | gold quality |
+| [deltoid](https://bioregistry.io/UBERON:0001476) | UBERON:0001476 | 99.81 | 90 | gold quality |
+| [left ventricle myocardium](https://bioregistry.io/UBERON:0006566) | UBERON:0006566 | 99.76 | 113 | gold quality |
+| [skeletal muscle tissue](https://bioregistry.io/UBERON:0001134) | UBERON:0001134 | 99.75 | 119 | gold quality |
+| [tibialis anterior](https://bioregistry.io/UBERON:0001385) | UBERON:0001385 | 99.75 | 119 | gold quality |
+| [myocardium](https://bioregistry.io/UBERON:0002349) | UBERON:0002349 | 99.54 | 217 | gold quality |
+| [hindlimb stylopod muscle](https://bioregistry.io/UBERON:0004252) | UBERON:0004252 | 99.51 | 227 | gold quality |
+| [vena cava](https://bioregistry.io/UBERON:0004087) | UBERON:0004087 | 99.49 | 240 | gold quality |
+| [gastrocnemius](https://bioregistry.io/UBERON:0001388) | UBERON:0001388 | 99.39 | 287 | gold quality |
+| [cardiac muscle of right atrium](https://bioregistry.io/UBERON:0003379) | UBERON:0003379 | 99.26 | 347 | gold quality |
+| [muscle organ](https://bioregistry.io/UBERON:0001630) | UBERON:0001630 | 99.15 | 397 | gold quality |
+| [muscle of leg](https://bioregistry.io/UBERON:0001383) | UBERON:0001383 | 98.85 | 538 | gold quality |
+| [cardiac ventricle](https://bioregistry.io/UBERON:0002082) | UBERON:0002082 | 98.02 | 925 | gold quality |
+| [heart left ventricle](https://bioregistry.io/UBERON:0002084) | UBERON:0002084 | 97.95 | 955 | gold quality |
+| [apex of heart](https://bioregistry.io/UBERON:0002098) | UBERON:0002098 | 97.92 | 971 | gold quality |
+| [cardiac atrium](https://bioregistry.io/UBERON:0002081) | UBERON:0002081 | 97.77 | 1040 | gold quality |
+| [right atrium auricular region](https://bioregistry.io/UBERON:0006631) | UBERON:0006631 | 97.53 | 1150 | gold quality |
+| [muscle tissue](https://bioregistry.io/UBERON:0002385) | UBERON:0002385 | 96.68 | 1550 | gold quality |
+| [tendon of biceps brachii](https://bioregistry.io/UBERON:0008188) | UBERON:0008188 | 95.71 | 2000 | gold quality |
+| [heart](https://bioregistry.io/UBERON:0000948) | UBERON:0000948 | 94.76 | 2450 | gold quality |
+| [pharyngeal mucosa](https://bioregistry.io/UBERON:0000355) | UBERON:0000355 | 94.40 | 2610 | gold quality |
 
 **Single-cell datasets (5):**
 
