@@ -61,6 +61,74 @@
   "10": {
     "bindingdb_sample": [],
     "bindingdb_sampled": 0,
+    "cellosaurus_category_counts": {
+      "Finite cell line": 1,
+      "Induced pluripotent stem cell": 17,
+      "Transformed cell line": 7
+    },
+    "cellosaurus_samples": [
+      {
+        "category": "Induced pluripotent stem cell",
+        "id": "CVCL_A0JS",
+        "name": "YCMi004-A",
+        "sex": "Male"
+      },
+      {
+        "category": "Transformed cell line",
+        "id": "CVCL_A2PY",
+        "name": "GM27125",
+        "sex": "Female"
+      },
+      {
+        "category": "Transformed cell line",
+        "id": "CVCL_A2VF",
+        "name": "GM26114",
+        "sex": "Male"
+      },
+      {
+        "category": "Transformed cell line",
+        "id": "CVCL_A2VL",
+        "name": "GM26130",
+        "sex": "Male"
+      },
+      {
+        "category": "Induced pluripotent stem cell",
+        "id": "CVCL_A4ZS",
+        "name": "ZZUNEUi017-A",
+        "sex": "Male"
+      },
+      {
+        "category": "Induced pluripotent stem cell",
+        "id": "CVCL_B5ES",
+        "name": "ZZUNEUi023-A",
+        "sex": "Male"
+      },
+      {
+        "category": "Transformed cell line",
+        "id": "CVCL_BV66",
+        "name": "GM23417",
+        "sex": "Male"
+      },
+      {
+        "category": "Induced pluripotent stem cell",
+        "id": "CVCL_C1TY",
+        "name": "KSCBi018-A-3",
+        "sex": "Male"
+      },
+      {
+        "category": "Induced pluripotent stem cell",
+        "id": "CVCL_C1TZ",
+        "name": "KSCBi018-A-4",
+        "sex": "Male"
+      },
+      {
+        "category": "Induced pluripotent stem cell",
+        "id": "CVCL_C1U0",
+        "name": "KSCBi018-A-5",
+        "sex": "Male"
+      }
+    ],
+    "cellosaurus_total": 25,
     "chembl_activities": [
       {
         "id": "CHEMBL_ACT_26223026",

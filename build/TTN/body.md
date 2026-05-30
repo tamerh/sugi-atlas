@@ -860,6 +860,23 @@ Representative assays:
 | --- | --- | --- |
 | [CHEMBL5652715](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL5652715/) | Binding | Binding affinity to human TTN incubated for 45 mins by Kinobead based pull down assay |
 
+**Cellosaurus cell lines (25):** 17 induced pluripotent stem cell, 7 transformed cell line, 1 finite cell line
+
+First 10 cell lines (id-ordered, not curated):
+
+| Cellosaurus | Name | Category | Sex |
+| --- | --- | --- | --- |
+| [CVCL_A0JS](https://www.cellosaurus.org/CVCL_A0JS) | YCMi004-A | Induced pluripotent stem cell | Male |
+| [CVCL_A2PY](https://www.cellosaurus.org/CVCL_A2PY) | GM27125 | Transformed cell line | Female |
+| [CVCL_A2VF](https://www.cellosaurus.org/CVCL_A2VF) | GM26114 | Transformed cell line | Male |
+| [CVCL_A2VL](https://www.cellosaurus.org/CVCL_A2VL) | GM26130 | Transformed cell line | Male |
+| [CVCL_A4ZS](https://www.cellosaurus.org/CVCL_A4ZS) | ZZUNEUi017-A | Induced pluripotent stem cell | Male |
+| [CVCL_B5ES](https://www.cellosaurus.org/CVCL_B5ES) | ZZUNEUi023-A | Induced pluripotent stem cell | Male |
+| [CVCL_BV66](https://www.cellosaurus.org/CVCL_BV66) | GM23417 | Transformed cell line | Male |
+| [CVCL_C1TY](https://www.cellosaurus.org/CVCL_C1TY) | KSCBi018-A-3 | Induced pluripotent stem cell | Male |
+| [CVCL_C1TZ](https://www.cellosaurus.org/CVCL_C1TZ) | KSCBi018-A-4 | Induced pluripotent stem cell | Male |
+| [CVCL_C1U0](https://www.cellosaurus.org/CVCL_C1U0) | KSCBi018-A-5 | Induced pluripotent stem cell | Male |
+
 **Clinical trials for the gene's associated diseases (203, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
