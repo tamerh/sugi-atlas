@@ -36,6 +36,7 @@
       "600160"
     ],
     "name": "cyclin dependent kinase inhibitor 2A",
+    "rnacentral": null,
     "section": "01_gene_ids",
     "symbol": "CDKN2A",
     "xref_counts": {
@@ -4015,6 +4016,7 @@
   },
   "3": {
     "antibody_count": 0,
+    "brenda_ec": [],
     "canonical_uniprot": "P42771",
     "ensembl_id": "ENSG00000147889",
     "hgnc_id": "HGNC:1787",
