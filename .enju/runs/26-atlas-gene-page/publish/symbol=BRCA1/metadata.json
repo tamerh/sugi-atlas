@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 77,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "src/atlas/gene/tasks/publish.py",
+  "task_id": "3:26:BRCA1:publish",
+  "timestamp": "2026-05-30T18:13:49+02:00"
+}
