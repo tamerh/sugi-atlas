@@ -4,14 +4,14 @@
   "diff": [
     {
       "section": "10",
-      "key": "pubchem_bioassay_active_count",
+      "key": "chembl_activity_potent_count",
       "old": 0,
       "new": 1,
       "kind": "added"
     },
     {
       "section": "10",
-      "key": "pubchem_bioassay_total",
+      "key": "chembl_activity_total",
       "old": 0,
       "new": 1,
       "kind": "added"
