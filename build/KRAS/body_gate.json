@@ -1,0 +1,9 @@
+{
+  "verdict": "first_run",
+  "summary": "no snapshot yet \u2014 run --update to create baseline",
+  "diff": [
+    {
+      "kind": "first_run"
+    }
+  ]
+}
