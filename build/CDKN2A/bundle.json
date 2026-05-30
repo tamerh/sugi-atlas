@@ -77,6 +77,371 @@
         "type": "SINGLE PROTEIN"
       }
     ],
+    "ctd_interaction_total": 193,
+    "ctd_interactions": [
+      {
+        "actions": [
+          "affects^cotreatment",
+          "increases^expression",
+          "increases^reaction",
+          "affects^expression",
+          "decreases^expression",
+          "increases^methylation",
+          "decreases^methylation",
+          "affects^methylation",
+          "decreases^reaction",
+          "increases^phosphorylation"
+        ],
+        "chemical": "Decitabine",
+        "chemical_id": "D000077209",
+        "id": "D000077209_1029_9606",
+        "pmids": "25"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "affects^cotreatment",
+          "decreases^expression",
+          "increases^expression",
+          "increases^reaction",
+          "decreases^methylation",
+          "affects^localization"
+        ],
+        "chemical": "Arsenic Trioxide",
+        "chemical_id": "D000077237",
+        "id": "D000077237_1029_9606",
+        "pmids": "11"
+      },
+      {
+        "actions": [
+          "affects^expression",
+          "decreases^expression",
+          "increases^expression",
+          "increases^methylation"
+        ],
+        "chemical": "Arsenic",
+        "chemical_id": "D001151",
+        "id": "D001151_1029_9606",
+        "pmids": "8"
+      },
+      {
+        "actions": [
+          "affects^expression",
+          "increases^expression",
+          "increases^methylation"
+        ],
+        "chemical": "Valproic Acid",
+        "chemical_id": "D014635",
+        "id": "D014635_1029_9606",
+        "pmids": "7"
+      },
+      {
+        "actions": [
+          "increases^abundance",
+          "affects^reaction",
+          "increases^expression",
+          "increases^reaction",
+          "affects^cotreatment",
+          "decreases^methylation",
+          "decreases^reaction",
+          "affects^binding"
+        ],
+        "chemical": "Particulate Matter",
+        "chemical_id": "D052638",
+        "id": "D052638_1029_9606",
+        "pmids": "7"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^methylation",
+          "affects^cotreatment",
+          "increases^expression"
+        ],
+        "chemical": "sodium arsenite",
+        "chemical_id": "C017947",
+        "id": "C017947_1029_9606",
+        "pmids": "6"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "affects^expression",
+          "increases^reaction"
+        ],
+        "chemical": "Hydrogen Peroxide",
+        "chemical_id": "D006861",
+        "id": "D006861_1029_9606",
+        "pmids": "6"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "decreases^methylation",
+          "affects^cotreatment",
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Quercetin",
+        "chemical_id": "D011794",
+        "id": "D011794_1029_9606",
+        "pmids": "6"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression",
+          "increases^methylation"
+        ],
+        "chemical": "Tobacco Smoke Pollution",
+        "chemical_id": "D014028",
+        "id": "D014028_1029_9606",
+        "pmids": "6"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "affects^expression",
+          "affects^methylation",
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "trichostatin A",
+        "chemical_id": "C012589",
+        "id": "C012589_1029_9606",
+        "pmids": "5"
+      },
+      {
+        "actions": [
+          "affects^expression",
+          "affects^response to substance",
+          "affects^cotreatment",
+          "increases^expression",
+          "decreases^expression",
+          "decreases^response to substance"
+        ],
+        "chemical": "Cisplatin",
+        "chemical_id": "D002945",
+        "id": "D002945_1029_9606",
+        "pmids": "5"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "decreases^expression",
+          "increases^expression",
+          "increases^methylation"
+        ],
+        "chemical": "bisphenol A",
+        "chemical_id": "C006780",
+        "id": "C006780_1029_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "decreases^response to substance",
+          "affects^response to substance",
+          "increases^response to substance"
+        ],
+        "chemical": "palbociclib",
+        "chemical_id": "C500026",
+        "id": "C500026_1029_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^methylation",
+          "decreases^response to substance",
+          "decreases^reaction",
+          "affects^cotreatment",
+          "increases^expression"
+        ],
+        "chemical": "Cadmium Chloride",
+        "chemical_id": "D019256",
+        "id": "D019256_1029_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "increases^reaction",
+          "decreases^expression",
+          "decreases^methylation",
+          "increases^methylation",
+          "decreases^reaction",
+          "affects^binding"
+        ],
+        "chemical": "arsenite",
+        "chemical_id": "C015001",
+        "id": "C015001_1029_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^methylation",
+          "increases^expression",
+          "decreases^metabolic processing"
+        ],
+        "chemical": "epigallocatechin gallate",
+        "chemical_id": "C045651",
+        "id": "C045651_1029_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "affects^reaction",
+          "decreases^expression"
+        ],
+        "chemical": "Resveratrol",
+        "chemical_id": "D000077185",
+        "id": "D000077185_1029_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^methylation",
+          "increases^mutagenesis"
+        ],
+        "chemical": "Asbestos",
+        "chemical_id": "D001194",
+        "id": "D001194_1029_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "increases^expression",
+          "increases^reaction"
+        ],
+        "chemical": "Cannabidiol",
+        "chemical_id": "D002185",
+        "id": "D002185_1029_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^activity",
+          "increases^expression",
+          "affects^binding"
+        ],
+        "chemical": "Copper",
+        "chemical_id": "D003300",
+        "id": "D003300_1029_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "decreases^expression"
+        ],
+        "chemical": "Nanotubes, Carbon",
+        "chemical_id": "D037742",
+        "id": "D037742_1029_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "increases^expression"
+        ],
+        "chemical": "perfluorooctanoic acid",
+        "chemical_id": "C023036",
+        "id": "C023036_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^expression"
+        ],
+        "chemical": "butylidenephthalide",
+        "chemical_id": "C026105",
+        "id": "C026105_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^methylation",
+          "affects^cotreatment"
+        ],
+        "chemical": "monobutyl phthalate",
+        "chemical_id": "C028577",
+        "id": "C028577_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "decreases^reaction",
+          "affects^reaction",
+          "decreases^expression"
+        ],
+        "chemical": "hydroquinone",
+        "chemical_id": "C031927",
+        "id": "C031927_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "affects^cotreatment"
+        ],
+        "chemical": "mercuric bromide",
+        "chemical_id": "C042720",
+        "id": "C042720_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^methylation",
+          "affects^cotreatment"
+        ],
+        "chemical": "mono-benzyl phthalate",
+        "chemical_id": "C103325",
+        "id": "C103325_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "decreases^expression"
+        ],
+        "chemical": "(+)-JQ1 compound",
+        "chemical_id": "C561695",
+        "id": "C561695_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^response to substance",
+          "affects^expression"
+        ],
+        "chemical": "Irinotecan",
+        "chemical_id": "D000077146",
+        "id": "D000077146_1029_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "affects^binding",
+          "increases^abundance",
+          "increases^reaction",
+          "decreases^reaction"
+        ],
+        "chemical": "Acetylcysteine",
+        "chemical_id": "D000111",
+        "id": "D000111_1029_9606",
+        "pmids": "2"
+      }
+    ],
     "disease_trial_count": 224,
     "disease_trials": [
       {

@@ -452,6 +452,41 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 
+**CTD chemical–gene interactions (human, 193 total), top 30 by PubMed support:**
+
+| Chemical | Actions (CV verbs) | PubMed papers |
+| --- | --- | --- |
+| [Decitabine](http://ctdbase.org/detail.go?type=chem&acc=D000077209) | affects^cotreatment, increases^expression, increases^reaction, affects^expression, decreases^expression, increases^methylation, decreases^methylation, affects^methylation, decreases^reaction, increases^phosphorylation | 25 |
+| [Arsenic Trioxide](http://ctdbase.org/detail.go?type=chem&acc=D000077237) | decreases^reaction, affects^cotreatment, decreases^expression, increases^expression, increases^reaction, decreases^methylation, affects^localization | 11 |
+| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | affects^expression, decreases^expression, increases^expression, increases^methylation | 8 |
+| [Valproic Acid](http://ctdbase.org/detail.go?type=chem&acc=D014635) | affects^expression, increases^expression, increases^methylation | 7 |
+| [Particulate Matter](http://ctdbase.org/detail.go?type=chem&acc=D052638) | increases^abundance, affects^reaction, increases^expression, increases^reaction, affects^cotreatment, decreases^methylation, decreases^reaction, affects^binding | 7 |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | decreases^expression, increases^methylation, affects^cotreatment, increases^expression | 6 |
+| [Hydrogen Peroxide](http://ctdbase.org/detail.go?type=chem&acc=D006861) | decreases^reaction, increases^expression, affects^expression, increases^reaction | 6 |
+| [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | decreases^reaction, decreases^methylation, affects^cotreatment, decreases^expression, increases^expression | 6 |
+| [Tobacco Smoke Pollution](http://ctdbase.org/detail.go?type=chem&acc=D014028) | decreases^expression, increases^expression, increases^methylation | 6 |
+| [trichostatin A](http://ctdbase.org/detail.go?type=chem&acc=C012589) | affects^cotreatment, affects^expression, affects^methylation, decreases^expression, increases^expression | 5 |
+| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | affects^expression, affects^response to substance, affects^cotreatment, increases^expression, decreases^expression, decreases^response to substance | 5 |
+| [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | affects^cotreatment, decreases^expression, increases^expression, increases^methylation | 4 |
+| [palbociclib](http://ctdbase.org/detail.go?type=chem&acc=C500026) | affects^cotreatment, decreases^response to substance, affects^response to substance, increases^response to substance | 4 |
+| [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | decreases^expression, increases^methylation, decreases^response to substance, decreases^reaction, affects^cotreatment, increases^expression | 4 |
+| [arsenite](http://ctdbase.org/detail.go?type=chem&acc=C015001) | increases^reaction, decreases^expression, decreases^methylation, increases^methylation, decreases^reaction, affects^binding | 3 |
+| [epigallocatechin gallate](http://ctdbase.org/detail.go?type=chem&acc=C045651) | decreases^methylation, increases^expression, decreases^metabolic processing | 3 |
+| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | decreases^reaction, increases^expression, affects^reaction, decreases^expression | 3 |
+| [Asbestos](http://ctdbase.org/detail.go?type=chem&acc=D001194) | decreases^expression, increases^methylation, increases^mutagenesis | 3 |
+| [Cannabidiol](http://ctdbase.org/detail.go?type=chem&acc=D002185) | affects^cotreatment, increases^expression, increases^reaction | 3 |
+| [Copper](http://ctdbase.org/detail.go?type=chem&acc=D003300) | decreases^expression, increases^activity, increases^expression, affects^binding | 3 |
+| [Nanotubes, Carbon](http://ctdbase.org/detail.go?type=chem&acc=D037742) | increases^expression, decreases^expression | 3 |
+| [perfluorooctanoic acid](http://ctdbase.org/detail.go?type=chem&acc=C023036) | increases^expression | 2 |
+| [butylidenephthalide](http://ctdbase.org/detail.go?type=chem&acc=C026105) | increases^expression | 2 |
+| [monobutyl phthalate](http://ctdbase.org/detail.go?type=chem&acc=C028577) | decreases^expression, increases^methylation, affects^cotreatment | 2 |
+| [hydroquinone](http://ctdbase.org/detail.go?type=chem&acc=C031927) | increases^expression, decreases^reaction, affects^reaction, decreases^expression | 2 |
+| [mercuric bromide](http://ctdbase.org/detail.go?type=chem&acc=C042720) | increases^expression, affects^cotreatment | 2 |
+| [mono-benzyl phthalate](http://ctdbase.org/detail.go?type=chem&acc=C103325) | decreases^expression, increases^methylation, affects^cotreatment | 2 |
+| [(+)-JQ1 compound](http://ctdbase.org/detail.go?type=chem&acc=C561695) | increases^expression, decreases^expression | 2 |
+| [Irinotecan](http://ctdbase.org/detail.go?type=chem&acc=D000077146) | decreases^expression, increases^response to substance, affects^expression | 2 |
+| [Acetylcysteine](http://ctdbase.org/detail.go?type=chem&acc=D000111) | increases^expression, affects^binding, increases^abundance, increases^reaction, decreases^reaction | 2 |
+
 **Clinical trials for the gene's associated diseases (224, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
