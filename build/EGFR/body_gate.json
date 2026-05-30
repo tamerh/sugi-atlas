@@ -1,24 +1,10 @@
 {
   "verdict": "drift",
-  "summary": "0 changed, 3 added, 0 removed",
+  "summary": "0 changed, 1 added, 0 removed",
   "diff": [
     {
       "section": "10",
-      "key": "cellosaurus_category_counts",
-      "old": 0,
-      "new": 6,
-      "kind": "added"
-    },
-    {
-      "section": "10",
-      "key": "cellosaurus_samples",
-      "old": 0,
-      "new": 10,
-      "kind": "added"
-    },
-    {
-      "section": "10",
-      "key": "cellosaurus_total",
+      "key": "patent_total",
       "old": 0,
       "new": 1,
       "kind": "added"
