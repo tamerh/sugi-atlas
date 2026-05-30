@@ -37,8 +37,8 @@
 | ENST00000894155 | protein_coding |
 | ENST00000940422 | protein_coding |
 
-**RefSeq mRNA: 22** — MANE Select: `NM_004985`
-`NM_001003744`, `NM_001362494`, `NM_001369786`, `NM_001369787`, `NM_001403240`, `NM_001403241`, `NM_001403242`, `NM_001403243`, `NM_001403244`, `NM_001403245`, `NM_001403246`, `NM_004985`, `NM_021284`, `NM_031515`, `NM_033360`, `XM_006506919`, `XM_017592443`, `XM_039107022`, `XM_039107023`, `XM_047428826`, `XM_054372015`, `XM_063285523`
+**RefSeq mRNA: 4** — MANE Select: `NM_004985`
+`NM_001369786`, `NM_001369787`, `NM_004985`, `NM_033360`
 
 **CCDS:** `CCDS8702`, `CCDS8703`
 
@@ -56,9 +56,9 @@
 
 **Canonical reviewed UniProt:** `P01116` (reviewed: P01116)
 
-**All UniProt accessions (10):** `A0A8I5KQ21`, `A0A8I5KQU3`, `A0A8I5KR86`, `A0A8I5KUB5`, `A0A8I5KXN3`, `A0A8I5KYH6`, `P01116`, `G3V4K2`, `G3V5T7`, `L7RSL8`
+**All UniProt accessions (10):** `P01116`, `A0A8I5KQ21`, `A0A8I5KQU3`, `A0A8I5KR86`, `A0A8I5KUB5`, `A0A8I5KXN3`, `A0A8I5KYH6`, `G3V4K2`, `G3V5T7`, `L7RSL8`
 
-**RefSeq proteins (15):** `NP_001003744`, `NP_001349423`, `NP_001356715`, `NP_001356716`, `NP_001390169`, `NP_001390170`, `NP_001390171`, `NP_001390172`, `NP_001390173`, `NP_001390174`, `NP_001390175`, `NP_004976`*, `NP_067259`, `NP_113703`, `NP_203524`  (*=MANE)
+**RefSeq proteins (4):** `NP_001356715`, `NP_001356716`, `NP_004976`*, `NP_203524`  (*=MANE)
 
 **Domains & families (InterPro):**
 
@@ -107,7 +107,7 @@
 
 ## Structure
 
-**Experimental structures (PDB): 462**
+**Experimental structures (PDB): 504**
 
 | PDB | Method | Resolution (Å) |
 | --- | --- | --- |
@@ -115,14 +115,20 @@
 | 1D8E | X-RAY DIFFRACTION | 3 |
 | 1KZO | X-RAY DIFFRACTION | 2.2 |
 | 1KZP | X-RAY DIFFRACTION | 2.1 |
+| 1N4P | X-RAY DIFFRACTION | 2.65 |
+| 1N4Q | X-RAY DIFFRACTION | 2.4 |
+| 1N4R | X-RAY DIFFRACTION | 2.8 |
+| 1N4S | X-RAY DIFFRACTION | 2.6 |
 | 2MSC | SOLUTION NMR |  |
 | 2MSD | SOLUTION NMR |  |
 | 2MSE | SOLUTION NMR |  |
 | 3GFT | X-RAY DIFFRACTION | 2.27 |
+| 10JT | X-RAY DIFFRACTION | 1.489 |
+| 10NU | X-RAY DIFFRACTION | 1.5 |
+| 10NV | X-RAY DIFFRACTION | 1.52 |
+| 11QE | X-RAY DIFFRACTION | 1.23 |
 | 4DSN | X-RAY DIFFRACTION | 2.03 |
 | 4DSO | X-RAY DIFFRACTION | 1.85 |
-| 4DST | X-RAY DIFFRACTION | 2.3 |
-| 4DSU | X-RAY DIFFRACTION | 1.7 |
 | 4EPR | X-RAY DIFFRACTION | 2 |
 | 4EPT | X-RAY DIFFRACTION | 2 |
 | 4EPV | X-RAY DIFFRACTION | 1.35 |
@@ -135,6 +141,11 @@
 | 4LRW | X-RAY DIFFRACTION | 2.151 |
 | 4LUC | X-RAY DIFFRACTION | 1.29 |
 | 4LV6 | X-RAY DIFFRACTION | 1.5 |
+| 24HR | X-RAY DIFFRACTION | 2.07 |
+| 24HS | X-RAY DIFFRACTION | 2.53 |
+| 24HT | X-RAY DIFFRACTION | 1.7 |
+| 4DST | X-RAY DIFFRACTION | 2.3 |
+| 4DSU | X-RAY DIFFRACTION | 1.7 |
 | 4LYF | X-RAY DIFFRACTION | 1.568 |
 | 4LYH | X-RAY DIFFRACTION | 1.371 |
 | 4LYJ | X-RAY DIFFRACTION | 1.927 |
@@ -264,11 +275,7 @@
 | 6P8W | X-RAY DIFFRACTION | 2.1 |
 | 6P8X | X-RAY DIFFRACTION | 2.11 |
 | 6P8Y | X-RAY DIFFRACTION | 2.31 |
-| 1N4P | X-RAY DIFFRACTION | 2.65 |
-| 1N4Q | X-RAY DIFFRACTION | 2.4 |
 | 6P8Z | X-RAY DIFFRACTION | 1.65 |
-| 1N4R | X-RAY DIFFRACTION | 2.8 |
-| 1N4S | X-RAY DIFFRACTION | 2.6 |
 | 6PGO | X-RAY DIFFRACTION | 1.6 |
 | 6PGP | X-RAY DIFFRACTION | 1.5 |
 | 6PQ3 | X-RAY DIFFRACTION | 1.75 |
@@ -497,7 +504,6 @@
 | 9BL0 | X-RAY DIFFRACTION | 1.66 |
 | 9C15 | X-RAY DIFFRACTION | 2.81 |
 | 9C3K | X-RAY DIFFRACTION | 1.7 |
-| 9C3L | X-RAY DIFFRACTION | 1.42 |
 | 9C3M | X-RAY DIFFRACTION | 1.74 |
 | 9C3N | X-RAY DIFFRACTION | 1.5 |
 | 9C3Q | X-RAY DIFFRACTION | 1.22 |
@@ -549,8 +555,18 @@
 | 9L6F | X-RAY DIFFRACTION | 3.18 |
 | 9MF0 | X-RAY DIFFRACTION | 3.3 |
 | 9N44 | X-RAY DIFFRACTION | 1.11 |
+| 9N9N | X-RAY DIFFRACTION | 1.24 |
+| 9NF2 | X-RAY DIFFRACTION | 1.7 |
 | 9NFB | ELECTRON MICROSCOPY | 3.23 |
 | 9NFC | ELECTRON MICROSCOPY | 2.58 |
+| 9NI3 | ELECTRON MICROSCOPY | 2.82 |
+| 9NI4 | ELECTRON MICROSCOPY | 2.61 |
+| 9NI5 | ELECTRON MICROSCOPY | 2.89 |
+| 9NI6 | ELECTRON MICROSCOPY | 3.01 |
+| 9NI8 | ELECTRON MICROSCOPY | 3.23 |
+| 9NID | ELECTRON MICROSCOPY | 5.0 |
+| 9NIE | ELECTRON MICROSCOPY | 5.0 |
+| 9NLC | ELECTRON MICROSCOPY | 10.0 |
 | 9NZM | X-RAY DIFFRACTION | 1.586 |
 | 9NZN | X-RAY DIFFRACTION | 1.504 |
 | 9O0N | X-RAY DIFFRACTION | 1.4 |
@@ -559,8 +575,14 @@
 | 9O0S | X-RAY DIFFRACTION | 1.89 |
 | 9O55 | ELECTRON MICROSCOPY | 2.88 |
 | 9O65 | ELECTRON MICROSCOPY | 3.0 |
+| 9OEL | X-RAY DIFFRACTION | 1.5 |
+| 9OEX | X-RAY DIFFRACTION | 1.5 |
 | 9P44 | X-RAY DIFFRACTION | 1.7 |
 | 9P45 | X-RAY DIFFRACTION | 1.35 |
+| 9PIZ | X-RAY DIFFRACTION | 1.94 |
+| 9PVF | X-RAY DIFFRACTION | 2 |
+| 9PZF | X-RAY DIFFRACTION | 1.84 |
+| 9PZY | X-RAY DIFFRACTION | 2.17 |
 | 9QPZ | X-RAY DIFFRACTION | 1.312 |
 | 9QQ0 | X-RAY DIFFRACTION | 1.546 |
 | 9QQ1 | X-RAY DIFFRACTION | 1.3 |
@@ -569,8 +591,28 @@
 | 9RKE | X-RAY DIFFRACTION | 2.83 |
 | 9RKJ | X-RAY DIFFRACTION | 2.89 |
 | 9RKN | X-RAY DIFFRACTION | 2.85 |
+| 9TBM | X-RAY DIFFRACTION | 1.6 |
+| 9TBR | X-RAY DIFFRACTION | 1.65 |
+| 9TBW | X-RAY DIFFRACTION | 1.54 |
+| 9TC0 | X-RAY DIFFRACTION | 1.6 |
+| 9TC2 | X-RAY DIFFRACTION | 1.3 |
+| 9TC5 | X-RAY DIFFRACTION | 1.35 |
+| 9TC6 | X-RAY DIFFRACTION | 1.63 |
 | 9U50 | X-RAY DIFFRACTION | 1.87 |
 | 9U5T | X-RAY DIFFRACTION | 1.8 |
+| 9U8L | X-RAY DIFFRACTION | 1.23 |
+| 9U8T | X-RAY DIFFRACTION | 1.4 |
+| 9U8U | X-RAY DIFFRACTION | 1.32 |
+| 9U8V | X-RAY DIFFRACTION | 1.57 |
+| 9U8W | X-RAY DIFFRACTION | 1.5 |
+| 9U8X | X-RAY DIFFRACTION | 1.65 |
+| 9U8Y | X-RAY DIFFRACTION | 1.73 |
+| 9U8Z | X-RAY DIFFRACTION | 1.2 |
+| 9U90 | X-RAY DIFFRACTION | 1.2 |
+| 9U95 | X-RAY DIFFRACTION | 1.75 |
+| 9U97 | X-RAY DIFFRACTION | 1.79 |
+| 9U99 | X-RAY DIFFRACTION | 2.5 |
+| 9UOH | X-RAY DIFFRACTION | 1.75 |
 | 9USB | X-RAY DIFFRACTION | 2.35 |
 | 9XZ1 | X-RAY DIFFRACTION | 1.96 |
 
@@ -594,20 +636,21 @@
 
 ## Clinical variants & AI predictions
 
-**ClinVar: 565 variants total.** Per-class counts are floors (≥ shown; pagination cap):
+**ClinVar: 549 variants total.** Per-class counts are floors (≥ shown; pagination cap):
 
 | Classification | Count (floor) |
 | --- | --- |
-| Pathogenic | 37 |
-| Likely pathogenic | 37 |
-| Uncertain significance | 218 |
-| Likely benign | 159 |
-| Benign | 30 |
+| Pathogenic | 39 |
+| Likely pathogenic | 39 |
+| Uncertain significance | 200 |
+| Likely benign | 162 |
+| Benign | 35 |
 
 **Top pathogenic / likely-pathogenic (30):**
 
 | Variant ID | HGVS | Classification |
 | --- | --- | --- |
+| 1016209 | NM_004985.5(KRAS):c.214A>C (p.Met72Leu) | Pathogenic |
 | 1172833 | NM_004985.5(KRAS):c.197_198insTGACCTGCT (p.Ala66_Met67insAspLeuLeu) | Pathogenic |
 | 1219824 | NM_004985.5(KRAS):c.346A>C (p.Asn116His) | Pathogenic |
 | 12580 | NM_004985.5(KRAS):c.38G>A (p.Gly13Asp) | Pathogenic |
@@ -637,7 +680,6 @@
 | 375965 | NM_033360.4(KRAS):c.351A>C (p.Lys117Asn) | Pathogenic |
 | 40451 | NM_033360.4(KRAS):c.64C>G (p.Gln22Glu) | Pathogenic |
 | 40452 | NM_004985.5(KRAS):c.65A>G (p.Gln22Arg) | Pathogenic |
-| 40454 | NM_004985.5(KRAS):c.101C>T (p.Pro34Leu) | Pathogenic |
 
 **SpliceAI: 1269 predictions.** Top by Δscore:
 
@@ -762,7 +804,7 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 
 ## Protein interactions & networks
 
-**STRING (3380), top by confidence (×1000):**
+**STRING (6100), top by confidence (×1000):**
 
 | Partner | Score |
 | --- | --- |
@@ -928,7 +970,7 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 
-**Binding affinities (BindingDB, sampled 254):**
+**Binding affinities (BindingDB, sampled 224):**
 
 | Ligand | Ki | IC50 |
 | --- | --- | --- |
@@ -988,21 +1030,21 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | Chemical | Actions (CV verbs) | PubMed papers |
 | --- | --- | --- |
 | [Vinyl Chloride](http://ctdbase.org/detail.go?type=chem&acc=D014752) | affects^mutagenesis, increases^reaction, increases^mutagenesis | 7 |
-| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | decreases^expression, affects^cotreatment, increases^expression | 5 |
-| [Tobacco Smoke Pollution](http://ctdbase.org/detail.go?type=chem&acc=D014028) | increases^mutagenesis, affects^expression, increases^expression | 5 |
+| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | increases^expression, decreases^expression, affects^cotreatment | 5 |
+| [Tobacco Smoke Pollution](http://ctdbase.org/detail.go?type=chem&acc=D014028) | affects^expression, increases^expression, increases^mutagenesis | 5 |
 | [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | increases^mutagenesis, affects^cotreatment, increases^expression, decreases^expression | 4 |
 | [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | affects^cotreatment, increases^expression, affects^activity, decreases^reaction, decreases^expression | 4 |
 | [Tetrachlorodibenzodioxin](http://ctdbase.org/detail.go?type=chem&acc=D013749) | decreases^reaction, increases^expression, affects^expression | 4 |
-| [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | increases^expression, decreases^expression, decreases^reaction, increases^reaction, increases^secretion | 4 |
+| [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | decreases^expression, decreases^reaction, increases^reaction, increases^secretion, increases^expression | 4 |
 | [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | affects^expression, increases^expression | 3 |
 | [Fluorouracil](http://ctdbase.org/detail.go?type=chem&acc=D005472) | decreases^expression, increases^expression | 3 |
 | [7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide](http://ctdbase.org/detail.go?type=chem&acc=D015123) | decreases^expression, increases^expression | 3 |
-| [arsenite](http://ctdbase.org/detail.go?type=chem&acc=C015001) | decreases^reaction, increases^expression, increases^mutagenesis | 2 |
-| [hydroquinone](http://ctdbase.org/detail.go?type=chem&acc=C031927) | increases^expression, affects^response to substance, affects^expression | 2 |
+| [arsenite](http://ctdbase.org/detail.go?type=chem&acc=C015001) | increases^expression, increases^mutagenesis, decreases^reaction | 2 |
+| [hydroquinone](http://ctdbase.org/detail.go?type=chem&acc=C031927) | affects^expression, increases^expression, affects^response to substance | 2 |
 | [mercuric bromide](http://ctdbase.org/detail.go?type=chem&acc=C042720) | decreases^expression, affects^cotreatment | 2 |
 | [2-(1H-indazol-4-yl)-6-(4-methanesulfonylpiperazin-1-ylmethyl)-4-morpholin-4-ylthieno(3,2-d)pyrimidine](http://ctdbase.org/detail.go?type=chem&acc=C532162) | increases^reaction, increases^response to substance | 2 |
-| [Gefitinib](http://ctdbase.org/detail.go?type=chem&acc=D000077156) | decreases^response to substance, affects^reaction, affects^response to substance | 2 |
-| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | increases^secretion, affects^response to substance, increases^mutagenesis, affects^reaction, increases^phosphorylation | 2 |
+| [Gefitinib](http://ctdbase.org/detail.go?type=chem&acc=D000077156) | affects^reaction, affects^response to substance, decreases^response to substance | 2 |
+| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | increases^mutagenesis, affects^reaction, increases^phosphorylation, increases^secretion, affects^response to substance | 2 |
 | [Cadmium](http://ctdbase.org/detail.go?type=chem&acc=D002104) | decreases^expression, increases^expression | 2 |
 | [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | decreases^expression, increases^expression | 2 |
 | [Estradiol](http://ctdbase.org/detail.go?type=chem&acc=D004958) | decreases^expression, increases^expression | 2 |
@@ -1010,15 +1052,15 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | [Genistein](http://ctdbase.org/detail.go?type=chem&acc=D019833) | decreases^expression | 2 |
 | [p-Chloromercuribenzoic Acid](http://ctdbase.org/detail.go?type=chem&acc=D020245) | affects^cotreatment, decreases^expression | 2 |
 | [aristolochic acid I](http://ctdbase.org/detail.go?type=chem&acc=C000228) | decreases^expression | 1 |
-| [AZ-628](http://ctdbase.org/detail.go?type=chem&acc=C000592454) | affects^cotreatment, affects^response to substance, increases^response to substance | 1 |
+| [AZ-628](http://ctdbase.org/detail.go?type=chem&acc=C000592454) | increases^response to substance, affects^cotreatment, affects^response to substance | 1 |
 | [2-methoxy-6-undecyl-1,4-benzoquinone](http://ctdbase.org/detail.go?type=chem&acc=C000594525) | decreases^expression | 1 |
 | [ammonium 2,3,3,3-tetrafluoro-2-(heptafluoropropoxy)-propanoate](http://ctdbase.org/detail.go?type=chem&acc=C000611729) | affects^cotreatment, affects^expression | 1 |
 | [ARS-1620](http://ctdbase.org/detail.go?type=chem&acc=C000629713) | affects^binding | 1 |
-| [sotorasib](http://ctdbase.org/detail.go?type=chem&acc=C000706028) | increases^response to substance, affects^binding, affects^reaction, decreases^phosphorylation | 1 |
+| [sotorasib](http://ctdbase.org/detail.go?type=chem&acc=C000706028) | affects^binding, affects^reaction, decreases^phosphorylation, increases^response to substance | 1 |
 | [BI-2852](http://ctdbase.org/detail.go?type=chem&acc=C000726313) | affects^binding, decreases^reaction | 1 |
 | [chymostatin](http://ctdbase.org/detail.go?type=chem&acc=C002101) | decreases^reaction, increases^expression | 1 |
 
-**Clinical trials for the gene's associated diseases (398, via MONDO — disease-level, not drug-specific):**
+**Clinical trials for the gene's associated diseases (399, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
 | --- | --- | --- | --- |
@@ -1107,6 +1149,9 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | --- | --- | --- |
 | Noonan syndrome 3 | Definitive | Autosomal dominant |
 | cardiofaciocutaneous syndrome 2 | Moderate | Autosomal dominant |
+| Costello syndrome | Disputed Evidence | Autosomal dominant |
+| cardiofaciocutaneous syndrome | Strong | Autosomal dominant |
+| Noonan syndrome | Definitive | Autosomal dominant |
 | Noonan syndrome 3 | Strong | Autosomal dominant |
 | cardiofaciocutaneous syndrome 2 | Strong | Autosomal dominant |
 | linear nevus sebaceous syndrome | Strong | Autosomal dominant |
@@ -1114,12 +1159,15 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | cardiofaciocutaneous syndrome 2 | Strong | Autosomal dominant |
 | cardiofaciocutaneous syndrome | Supportive | Autosomal dominant |
 | Noonan syndrome | Supportive | Autosomal dominant |
+| Noonan syndrome 3 | Strong | Autosomal dominant |
+| autoimmune lymphoproliferative syndrome type 4 | Strong | Autosomal dominant |
+| cardiofaciocutaneous syndrome 2 | Strong | Autosomal dominant |
 | Noonan syndrome 3 | Definitive | Autosomal dominant |
 | cardiofaciocutaneous syndrome 2 | Definitive | Autosomal dominant |
 
-**Mondo (48):** RASopathy (MONDO:0021060), autoimmune lymphoproliferative syndrome type 4 (MONDO:0013767), gastric cancer (MONDO:0001056), urinary bladder cancer (MONDO:0001187), arteriovenous malformations of the brain (MONDO:0007154), linear nevus sebaceous syndrome (MONDO:0008097), lung cancer (MONDO:0008903), Toriello-Lacassie-Droste syndrome (MONDO:0010854), Noonan syndrome 3 (MONDO:0012371), cardiofaciocutaneous syndrome 2 (MONDO:0014112), familial pancreatic carcinoma (MONDO:0015278), hereditary breast carcinoma (MONDO:0016419), acute myeloid leukemia (MONDO:0018874), prostate cancer, hereditary, 1 (MONDO:0011098), endometrial carcinoma (MONDO:0002447)
+**Mondo (49):** RASopathy (MONDO:0021060), autoimmune lymphoproliferative syndrome type 4 (MONDO:0013767), gastric cancer (MONDO:0001056), urinary bladder cancer (MONDO:0001187), arteriovenous malformations of the brain (MONDO:0007154), linear nevus sebaceous syndrome (MONDO:0008097), lung cancer (MONDO:0008903), Toriello-Lacassie-Droste syndrome (MONDO:0010854), Noonan syndrome 3 (MONDO:0012371), cardiofaciocutaneous syndrome 2 (MONDO:0014112), familial pancreatic carcinoma (MONDO:0015278), hereditary breast carcinoma (MONDO:0016419), acute myeloid leukemia (MONDO:0018874), prostate cancer, hereditary, 1 (MONDO:0011098), endometrial carcinoma (MONDO:0002447)
 
-**Orphanet (32):** RASopathy (Orphanet:536391), RAS-associated autoimmune leukoproliferative disease (Orphanet:268114), Familial pancreatic carcinoma (Orphanet:1333), Cardiofaciocutaneous syndrome (Orphanet:1340), Hereditary breast cancer (Orphanet:227535), Linear nevus sebaceus syndrome (Orphanet:2612), Oculoectodermal syndrome (Orphanet:3339), Brain arteriovenous malformation (Orphanet:46724), Acute myeloid leukemia (Orphanet:519), Noonan syndrome (Orphanet:648), Familial prostate cancer (Orphanet:1331), Encephalocraniocutaneous lipomatosis (Orphanet:2396), Juvenile myelomonocytic leukemia (Orphanet:86834), Noonan syndrome and Noonan-related syndrome (Orphanet:98733), Capillary malformation-arteriovenous malformation (Orphanet:137667)
+**Orphanet (33):** RASopathy (Orphanet:536391), RAS-associated autoimmune leukoproliferative disease (Orphanet:268114), Familial pancreatic carcinoma (Orphanet:1333), Cardiofaciocutaneous syndrome (Orphanet:1340), Hereditary breast cancer (Orphanet:227535), Linear nevus sebaceus syndrome (Orphanet:2612), Oculoectodermal syndrome (Orphanet:3339), Brain arteriovenous malformation (Orphanet:46724), Acute myeloid leukemia (Orphanet:519), Noonan syndrome (Orphanet:648), Familial prostate cancer (Orphanet:1331), Encephalocraniocutaneous lipomatosis (Orphanet:2396), Juvenile myelomonocytic leukemia (Orphanet:86834), Noonan syndrome and Noonan-related syndrome (Orphanet:98733), Capillary malformation-arteriovenous malformation (Orphanet:137667)
 
 **HPO phenotypes: 372** (top):
 
@@ -1162,15 +1210,16 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | --- | --- | --- |
 | GCST003927_3 | Dysmenorrheic pain | 6.000000e-07 |
 | GCST009144_31 | Disease progression in age-related macular degeneration (adjusted for baseline) | 3.000000e-06 |
-| GCST90011898_15 | Alanine aminotransferase levels | 3.000000e-08 |
-| GCST90013407_55 | Liver enzyme levels (gamma-glutamyl transferase) | 4.000000e-20 |
+| GCST90011898_136 | Alanine aminotransferase levels | 3.000000e-08 |
+| GCST90013407_15 | Liver enzyme levels (gamma-glutamyl transferase) | 4.000000e-20 |
 
-**MeSH disease descriptors (20):**
+**MeSH disease descriptors (21):**
 
 | Descriptor | Name | Tree numbers |
 | --- | --- | --- |
 | [D002289](https://www.ncbi.nlm.nih.gov/mesh/?term=D002289) | Carcinoma, Non-Small-Cell Lung | C04.588.894.797.520.109.220.249; C08.381.540.140.500; C08.785.520.100.220.500 |
 | [D024741](https://www.ncbi.nlm.nih.gov/mesh/?term=D024741) | Cardiomyopathy, Hypertrophic, Familial | C14.280.238.100.500; C14.280.484.048.750.070.160.500; C16.320.160 |
+| [D056685](https://www.ncbi.nlm.nih.gov/mesh/?term=D056685) | Costello Syndrome | C05.660.207.219; C16.131.077.256; C16.320.188 |
 | [D061325](https://www.ncbi.nlm.nih.gov/mesh/?term=D061325) | Hereditary Breast and Ovarian Cancer Syndrome | C04.588.180.483; C04.588.322.455.431; C04.700.517; C12.050.351.500.056.630.705.431; C12.050.351.937.418.685.431; C12.100.250.056.630.705.431; C12.900.418.685.431; C16.320.700.517; C17.800.090.500.483; C19.344.410.431; C19.391.630.705.431 |
 | [D002538](https://www.ncbi.nlm.nih.gov/mesh/?term=D002538) | Intracranial Arteriovenous Malformations | C10.228.140.300.520; C10.500.190.500; C14.240.850.750.295; C14.240.850.875.500; C14.907.150.295; C14.907.253.560.400; C16.131.240.850.750.295; C16.131.240.850.875.500; C16.131.666.190.500 |
 | [D015470](https://www.ncbi.nlm.nih.gov/mesh/?term=D015470) | Leukemia, Myeloid, Acute | C04.557.337.539.275; C15.378.508.539.275 |

@@ -29,7 +29,11 @@
     "xref_counts": {
       "alphafold": 1,
       "ccds": 2,
-      "clinvar": 565,
+      "cellosaurus": 5318,
+      "civic": 1,
+      "civic_assertion": 1,
+      "civic_evidence": 418,
+      "clinvar": 549,
       "collectri": 60,
       "cosmic": 1,
       "ena": 1,
@@ -38,15 +42,16 @@
       "fantom5_enhancer": 46,
       "fantom5_gene": 1,
       "fantom5_promoter": 1,
-      "gencc": 11,
+      "gencc": 17,
       "gtopdb": 1,
       "gwas": 4,
       "hpo": 372,
+      "intogen": 1,
       "mim": 1,
       "msigdb": 1407,
       "orphanet": 11,
       "pharmgkb_gene": 1,
-      "refseq": 63,
+      "refseq": 1,
       "spliceai": 1269,
       "uniprot": 1,
       "vega": 1
@@ -205,7 +210,7 @@
         "ligand": "US10829487, Example I-28"
       }
     ],
-    "bindingdb_sampled": 254,
+    "bindingdb_sampled": 224,
     "chembl_activities": [
       {
         "id": "CHEMBL_ACT_23316920",
@@ -472,9 +477,9 @@
       },
       {
         "actions": [
+          "increases^expression",
           "decreases^expression",
-          "affects^cotreatment",
-          "increases^expression"
+          "affects^cotreatment"
         ],
         "chemical": "Resveratrol",
         "chemical_id": "D000077185",
@@ -483,9 +488,9 @@
       },
       {
         "actions": [
-          "increases^mutagenesis",
           "affects^expression",
-          "increases^expression"
+          "increases^expression",
+          "increases^mutagenesis"
         ],
         "chemical": "Tobacco Smoke Pollution",
         "chemical_id": "D014028",
@@ -530,11 +535,11 @@
       },
       {
         "actions": [
-          "increases^expression",
           "decreases^expression",
           "decreases^reaction",
           "increases^reaction",
-          "increases^secretion"
+          "increases^secretion",
+          "increases^expression"
         ],
         "chemical": "Cadmium Chloride",
         "chemical_id": "D019256",
@@ -573,9 +578,9 @@
       },
       {
         "actions": [
-          "decreases^reaction",
           "increases^expression",
-          "increases^mutagenesis"
+          "increases^mutagenesis",
+          "decreases^reaction"
         ],
         "chemical": "arsenite",
         "chemical_id": "C015001",
@@ -584,9 +589,9 @@
       },
       {
         "actions": [
+          "affects^expression",
           "increases^expression",
-          "affects^response to substance",
-          "affects^expression"
+          "affects^response to substance"
         ],
         "chemical": "hydroquinone",
         "chemical_id": "C031927",
@@ -615,9 +620,9 @@
       },
       {
         "actions": [
-          "decreases^response to substance",
           "affects^reaction",
-          "affects^response to substance"
+          "affects^response to substance",
+          "decreases^response to substance"
         ],
         "chemical": "Gefitinib",
         "chemical_id": "D000077156",
@@ -626,11 +631,11 @@
       },
       {
         "actions": [
-          "increases^secretion",
-          "affects^response to substance",
           "increases^mutagenesis",
           "affects^reaction",
-          "increases^phosphorylation"
+          "increases^phosphorylation",
+          "increases^secretion",
+          "affects^response to substance"
         ],
         "chemical": "Arsenic",
         "chemical_id": "D001151",
@@ -707,9 +712,9 @@
       },
       {
         "actions": [
+          "increases^response to substance",
           "affects^cotreatment",
-          "affects^response to substance",
-          "increases^response to substance"
+          "affects^response to substance"
         ],
         "chemical": "AZ-628",
         "chemical_id": "C000592454",
@@ -746,10 +751,10 @@
       },
       {
         "actions": [
-          "increases^response to substance",
           "affects^binding",
           "affects^reaction",
-          "decreases^phosphorylation"
+          "decreases^phosphorylation",
+          "increases^response to substance"
         ],
         "chemical": "sotorasib",
         "chemical_id": "C000706028",
@@ -777,7 +782,7 @@
         "pmids": "1"
       }
     ],
-    "disease_trial_count": 398,
+    "disease_trial_count": 399,
     "disease_trials": [
       {
         "id": "NCT01380665",
@@ -2208,6 +2213,30 @@
         "title": "Study of Onvansertib in Combination With FOLFIRI and Bevacizumab or FOLFOX and Bevacizumab Versus FOLFIRI and Bevacizumab or FOLFOX and Bevacizumab for First-Line Treatment of Metastatic Colorectal Cancer in Adult Participants With a KRAS or NRAS Mutation"
       },
       {
+        "id": "NCT00351221",
+        "phase": "PHASE2",
+        "status": "TERMINATED",
+        "title": "Research Study Using Recombinant Human Insulin-Like Growth Factor-1/Recombinant Human Insulin-Like Growth Factor Binding Protein-3 for Children With Noonan Syndrome"
+      },
+      {
+        "id": "NCT00782795",
+        "phase": "PHASE2",
+        "status": "COMPLETED",
+        "title": "Chronic Pancreatitis. Effect of Pioglitazone on Endocrine Function, Exocrine Function & Structure, Pain & Life Quality"
+      },
+      {
+        "id": "NCT06555237",
+        "phase": "PHASE2",
+        "status": "RECRUITING",
+        "title": "MEK Inhibitors for the Treatment of Hypertrophic Cardiomyopathy in Patients With RASopathies"
+      },
+      {
+        "id": "NCT06668805",
+        "phase": "PHASE2",
+        "status": "RECRUITING",
+        "title": "A Basket Study of Vosoritide in Children With Turner Syndrome, Short Stature Homeobox-Containing Gene Deficiency, and Noonan Syndrome With Inadequate Growth During or After Human Growth Hormone Treatment"
+      },
+      {
         "id": "NCT00656227",
         "phase": "PHASE2",
         "status": "UNKNOWN",
@@ -2238,40 +2267,10 @@
         "title": "Testing a Functional Precision Medicine Approach to Select Chemotherapy for Metastatic Colorectal Cancer (COSENSE-1)"
       },
       {
-        "id": "NCT00351221",
-        "phase": "PHASE2",
-        "status": "TERMINATED",
-        "title": "Research Study Using Recombinant Human Insulin-Like Growth Factor-1/Recombinant Human Insulin-Like Growth Factor Binding Protein-3 for Children With Noonan Syndrome"
-      },
-      {
-        "id": "NCT00782795",
-        "phase": "PHASE2",
-        "status": "COMPLETED",
-        "title": "Chronic Pancreatitis. Effect of Pioglitazone on Endocrine Function, Exocrine Function & Structure, Pain & Life Quality"
-      },
-      {
-        "id": "NCT06555237",
-        "phase": "PHASE2",
-        "status": "RECRUITING",
-        "title": "MEK Inhibitors for the Treatment of Hypertrophic Cardiomyopathy in Patients With RASopathies"
-      },
-      {
-        "id": "NCT06668805",
-        "phase": "PHASE2",
-        "status": "RECRUITING",
-        "title": "A Basket Study of Vosoritide in Children With Turner Syndrome, Short Stature Homeobox-Containing Gene Deficiency, and Noonan Syndrome With Inadequate Growth During or After Human Growth Hormone Treatment"
-      },
-      {
         "id": "NCT02875691",
         "phase": "PHASE2",
         "status": "COMPLETED",
         "title": "Effect of Green Tea on Treatment of Lupus"
-      },
-      {
-        "id": "NCT05418959",
-        "phase": "PHASE1",
-        "status": "UNKNOWN",
-        "title": "Genetic Risk Stratification of Pediatric Skin Lesions"
       },
       {
         "id": "NCT00594217",
@@ -2284,6 +2283,12 @@
         "phase": "PHASE1",
         "status": "COMPLETED",
         "title": "Atopy Patch Test in Normal Population : Pilot Study"
+      },
+      {
+        "id": "NCT05418959",
+        "phase": "PHASE1",
+        "status": "UNKNOWN",
+        "title": "Genetic Risk Stratification of Pediatric Skin Lesions"
       },
       {
         "id": "NCT02939859",
@@ -2332,6 +2337,228 @@
         "phase": "nan",
         "status": "UNKNOWN",
         "title": "Early Diagnosis of SCD Based on Radiogenomics"
+      },
+      {
+        "id": "NCT02812511",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Pathophysiology Analysis of Costello Syndrome on Cellular Models"
+      },
+      {
+        "id": "NCT04395495",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "RASopathy Biorepository"
+      },
+      {
+        "id": "NCT04888936",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Clinical, Genetic, and Epidemiologic Study of Children and Adults With RASopathies"
+      },
+      {
+        "id": "NCT05361811",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Acceptance and Commitment Therapy for Caregivers of Children With a RASopathy: An Internal Pilot Feasibility Study and Follow-up Randomized Controlled Trial"
+      },
+      {
+        "id": "NCT05761314",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Solid Tumors in RASopathies"
+      },
+      {
+        "id": "NCT06331117",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Effect of RAS/MAPK Pathway Hyperactivation on Growth' and Bone' Profile of the RASopathies"
+      },
+      {
+        "id": "NCT06355622",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Prevalence and Characterization of Pain in RASopathies"
+      },
+      {
+        "id": "NCT07005297",
+        "phase": "nan",
+        "status": "NOT_YET_RECRUITING",
+        "title": "Clinical Genetics Branch Eligibility Screening Survey"
+      },
+      {
+        "id": "NCT00806364",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Normal Blood, Bone Marrow and Buccal Mucosa Protocol"
+      },
+      {
+        "id": "NCT00960128",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Observational Prospective Study on Patients Treated With Norditropin\u00ae"
+      },
+      {
+        "id": "NCT01229488",
+        "phase": "nan",
+        "status": "WITHDRAWN",
+        "title": "System for Ocular Oxygen Measurement"
+      },
+      {
+        "id": "NCT02486731",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Hormonal Sensitivity in Patients With Noonan and LEOPARD Syndromes"
+      },
+      {
+        "id": "NCT03349112",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Study: Manometry With & Without Lidocaine"
+      },
+      {
+        "id": "NCT03435627",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Post Marketing Surveillance on Long-term Use With Norditropin\u00ae (Short Stature Due to Noonan Syndrome)"
+      },
+      {
+        "id": "NCT03650023",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "A Crossover Trial of Chitosan Oligosaccharide on Post Prandial Glucose Control in Subjects With Normal, IFG and IGT"
+      },
+      {
+        "id": "NCT04463316",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "GROWing Up With Rare GENEtic Syndromes"
+      },
+      {
+        "id": "NCT05202210",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Constitution of a Biological Collection to Study the Pathophysiology in Noonan Syndrome"
+      },
+      {
+        "id": "NCT05308927",
+        "phase": "nan",
+        "status": "ENROLLING_BY_INVITATION",
+        "title": "French Registry of Children Treated With Norditropin\u00ae for Short Stature Associated With Noonan Syndrome"
+      },
+      {
+        "id": "NCT05532410",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Optic Disc Photograph Collection Study"
+      },
+      {
+        "id": "NCT05536401",
+        "phase": "nan",
+        "status": "TERMINATED",
+        "title": "P200TE Agreement and Precision Study"
+      },
+      {
+        "id": "NCT05624593",
+        "phase": "nan",
+        "status": "UNKNOWN",
+        "title": "P200TE and Predicate Agreement and Precision Study"
+      },
+      {
+        "id": "NCT06250868",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "TRK-3 Performance of Pachymetry"
+      },
+      {
+        "id": "NCT06267807",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Lymphatic Phenotype in Noonan Syndrome Spectrum Disorders"
+      },
+      {
+        "id": "NCT06550635",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Joint and Hematologic Disorders of Noonan Syndrome: French Descriptive Cross-sectional Study"
+      },
+      {
+        "id": "NCT06701708",
+        "phase": "nan",
+        "status": "NOT_YET_RECRUITING",
+        "title": "Exploratory Study on Artifact Denoising of Cerebral Blood Flow and EEG Data in Ambulance Settings"
+      },
+      {
+        "id": "NCT06704789",
+        "phase": "nan",
+        "status": "NOT_YET_RECRUITING",
+        "title": "Investigation of the Possibility of Determining Cerebrovascular Disease Based on Hemodynamic Information of Localized Brain Regions"
+      },
+      {
+        "id": "NCT06892171",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "The Study of the Phenotype of Hereditary Xerocytosis"
+      },
+      {
+        "id": "NCT06938542",
+        "phase": "nan",
+        "status": "ENROLLING_BY_INVITATION",
+        "title": "Palliative Care Needs of Children With Rare Diseases and Their Families"
+      },
+      {
+        "id": "NCT06981871",
+        "phase": "nan",
+        "status": "NOT_YET_RECRUITING",
+        "title": "Prevalence of Lower and Upper Incisor Periodontal Phenotypes and Risk Indicators."
+      },
+      {
+        "id": "NCT06992323",
+        "phase": "nan",
+        "status": "ACTIVE_NOT_RECRUITING",
+        "title": "Cardiometabolic Properties of Omega-3 Functionalized With Hydroxytyrosol"
+      },
+      {
+        "id": "NCT07055152",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Retinal OCTA for Microvascular Dysfunction Evaluation and Outcome Prediction in MINOCA Patients"
+      },
+      {
+        "id": "NCT07085533",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Natural History Study of Inherited Retinal Diseases"
+      },
+      {
+        "id": "NCT07109453",
+        "phase": "nan",
+        "status": "NOT_YET_RECRUITING",
+        "title": "To Assess Skin Safety of Test Product(s) by Patch Test on Adult Healthy Human Subjects"
+      },
+      {
+        "id": "NCT07138963",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Phenotype - Genotype Correlation in a Sample of Egyptian Patients With Congenital Myopathies and Congenital Muscular Dystrophies"
+      },
+      {
+        "id": "NCT07259135",
+        "phase": "nan",
+        "status": "NOT_YET_RECRUITING",
+        "title": "Link Between Abnormal Bleeding and Coagulation Disorders in Noonan Syndromes"
+      },
+      {
+        "id": "NCT07308028",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Postural and Shoulder Function Norms"
+      },
+      {
+        "id": "NCT07336394",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Precision Diagnosis and Risk Stratification of Rare Cardiomyopathies Based on Novel Cardiac Magnetic Resonance Techniques"
       },
       {
         "id": "NCT02809001",
@@ -2580,220 +2807,88 @@
         "title": "Using Artificial Intelligence to Help Doctors Identify Different Skin Conditions and Improve Patient Care"
       },
       {
-        "id": "NCT04395495",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "RASopathy Biorepository"
+        "id": "NCT00605657",
+        "phase": "PHASE1/PHASE2",
+        "status": "COMPLETED",
+        "title": "Valproic Acid (Depakote[Registered Trademark]) to Treat Autoimmune Lymphoproliferative Syndrome (ALPS)"
       },
       {
-        "id": "NCT04888936",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Clinical, Genetic, and Epidemiologic Study of Children and Adults With RASopathies"
-      },
-      {
-        "id": "NCT05361811",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Acceptance and Commitment Therapy for Caregivers of Children With a RASopathy: An Internal Pilot Feasibility Study and Follow-up Randomized Controlled Trial"
-      },
-      {
-        "id": "NCT05761314",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Solid Tumors in RASopathies"
-      },
-      {
-        "id": "NCT06331117",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Effect of RAS/MAPK Pathway Hyperactivation on Growth' and Bone' Profile of the RASopathies"
-      },
-      {
-        "id": "NCT06355622",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Prevalence and Characterization of Pain in RASopathies"
-      },
-      {
-        "id": "NCT07005297",
-        "phase": "nan",
+        "id": "NCT06546436",
+        "phase": "EARLY_PHASE1",
         "status": "NOT_YET_RECRUITING",
-        "title": "Clinical Genetics Branch Eligibility Screening Survey"
+        "title": "The Safety and Efficiency of a Single Dose of CARC-101C in Patients With Autoimmune Type 1 Diabetes Mellitus"
       },
       {
-        "id": "NCT00806364",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Normal Blood, Bone Marrow and Buccal Mucosa Protocol"
-      },
-      {
-        "id": "NCT00960128",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Observational Prospective Study on Patients Treated With Norditropin\u00ae"
-      },
-      {
-        "id": "NCT01229488",
-        "phase": "nan",
-        "status": "WITHDRAWN",
-        "title": "System for Ocular Oxygen Measurement"
-      },
-      {
-        "id": "NCT02486731",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Hormonal Sensitivity in Patients With Noonan and LEOPARD Syndromes"
-      },
-      {
-        "id": "NCT03349112",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Study: Manometry With & Without Lidocaine"
-      },
-      {
-        "id": "NCT03435627",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Post Marketing Surveillance on Long-term Use With Norditropin\u00ae (Short Stature Due to Noonan Syndrome)"
-      },
-      {
-        "id": "NCT03650023",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "A Crossover Trial of Chitosan Oligosaccharide on Post Prandial Glucose Control in Subjects With Normal, IFG and IGT"
-      },
-      {
-        "id": "NCT04463316",
-        "phase": "nan",
+        "id": "NCT07144462",
+        "phase": "EARLY_PHASE1",
         "status": "RECRUITING",
-        "title": "GROWing Up With Rare GENEtic Syndromes"
+        "title": "A Study to Evaluate the Safety, Tolerability, and Preliminary Efficacy of NEUK203-215 Injection in Adult Chinese Patients With Relapsed/Refractory Autoimmune Diseases"
       },
       {
-        "id": "NCT05202210",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Constitution of a Biological Collection to Study the Pathophysiology in Noonan Syndrome"
+        "id": "NCT07291323",
+        "phase": "EARLY_PHASE1",
+        "status": "NOT_YET_RECRUITING",
+        "title": "Study of JANX011 in Healthy Adult Volunteers to Assess Safety and Tolerability."
       },
       {
-        "id": "NCT05308927",
-        "phase": "nan",
-        "status": "ENROLLING_BY_INVITATION",
-        "title": "French Registry of Children Treated With Norditropin\u00ae for Short Stature Associated With Noonan Syndrome"
-      },
-      {
-        "id": "NCT05532410",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Optic Disc Photograph Collection Study"
-      },
-      {
-        "id": "NCT05536401",
+        "id": "NCT00001978",
         "phase": "nan",
         "status": "TERMINATED",
-        "title": "P200TE Agreement and Precision Study"
+        "title": "Determination of Kidney Function"
       },
       {
-        "id": "NCT05624593",
+        "id": "NCT00341679",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "Studies of the Natural History and Pathogenesis of Autoimmune/Connective Tissue Diseases"
+      },
+      {
+        "id": "NCT01793168",
+        "phase": "nan",
+        "status": "RECRUITING",
+        "title": "Rare Disease Patient Registry & Natural History Study - Coordination of Rare Diseases at Sanford"
+      },
+      {
+        "id": "NCT02394964",
+        "phase": "nan",
+        "status": "COMPLETED",
+        "title": "The Human Microbiome in Immune-Mediated Diseases"
+      },
+      {
+        "id": "NCT03461419",
+        "phase": "nan",
+        "status": "SUSPENDED",
+        "title": "Use of Stromal Vascular Fraction in Multiple Sclerosis"
+      },
+      {
+        "id": "NCT03771768",
         "phase": "nan",
         "status": "UNKNOWN",
-        "title": "P200TE and Predicate Agreement and Precision Study"
+        "title": "Diode Laser Versus Topical Corticosteroids in Management of Oral Ulcers in Behcet's Disease"
       },
       {
-        "id": "NCT06250868",
+        "id": "NCT04844489",
         "phase": "nan",
         "status": "COMPLETED",
-        "title": "TRK-3 Performance of Pachymetry"
+        "title": "Study of the Humoral Response to SARS-CoV-2 Variants and of the Cellular Response After Vaccination Against COVID-19 in Immunocompromised People"
       },
       {
-        "id": "NCT06267807",
+        "id": "NCT04872257",
         "phase": "nan",
         "status": "COMPLETED",
-        "title": "Lymphatic Phenotype in Noonan Syndrome Spectrum Disorders"
+        "title": "Oral Vitamin D Supplementation Combined With Phototherapy as a Treatment for Vitiligo"
       },
       {
-        "id": "NCT06550635",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Joint and Hematologic Disorders of Noonan Syndrome: French Descriptive Cross-sectional Study"
-      },
-      {
-        "id": "NCT06701708",
-        "phase": "nan",
-        "status": "NOT_YET_RECRUITING",
-        "title": "Exploratory Study on Artifact Denoising of Cerebral Blood Flow and EEG Data in Ambulance Settings"
-      },
-      {
-        "id": "NCT06704789",
-        "phase": "nan",
-        "status": "NOT_YET_RECRUITING",
-        "title": "Investigation of the Possibility of Determining Cerebrovascular Disease Based on Hemodynamic Information of Localized Brain Regions"
-      },
-      {
-        "id": "NCT06892171",
+        "id": "NCT05697159",
         "phase": "nan",
         "status": "RECRUITING",
-        "title": "The Study of the Phenotype of Hereditary Xerocytosis"
+        "title": "7 Tesla MRI Brain Imaging to Decipher Filgotinib's Mode of Analgesic Action in Rheumatoid Arthritis"
       },
       {
-        "id": "NCT06938542",
+        "id": "NCT05984316",
         "phase": "nan",
-        "status": "ENROLLING_BY_INVITATION",
-        "title": "Palliative Care Needs of Children With Rare Diseases and Their Families"
-      },
-      {
-        "id": "NCT06981871",
-        "phase": "nan",
-        "status": "NOT_YET_RECRUITING",
-        "title": "Prevalence of Lower and Upper Incisor Periodontal Phenotypes and Risk Indicators."
-      },
-      {
-        "id": "NCT06992323",
-        "phase": "nan",
-        "status": "ACTIVE_NOT_RECRUITING",
-        "title": "Cardiometabolic Properties of Omega-3 Functionalized With Hydroxytyrosol"
-      },
-      {
-        "id": "NCT07055152",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Retinal OCTA for Microvascular Dysfunction Evaluation and Outcome Prediction in MINOCA Patients"
-      },
-      {
-        "id": "NCT07085533",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Natural History Study of Inherited Retinal Diseases"
-      },
-      {
-        "id": "NCT07109453",
-        "phase": "nan",
-        "status": "NOT_YET_RECRUITING",
-        "title": "To Assess Skin Safety of Test Product(s) by Patch Test on Adult Healthy Human Subjects"
-      },
-      {
-        "id": "NCT07138963",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Phenotype - Genotype Correlation in a Sample of Egyptian Patients With Congenital Myopathies and Congenital Muscular Dystrophies"
-      },
-      {
-        "id": "NCT07259135",
-        "phase": "nan",
-        "status": "NOT_YET_RECRUITING",
-        "title": "Link Between Abnormal Bleeding and Coagulation Disorders in Noonan Syndromes"
-      },
-      {
-        "id": "NCT07308028",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Postural and Shoulder Function Norms"
-      },
-      {
-        "id": "NCT07336394",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Precision Diagnosis and Risk Stratification of Rare Cardiomyopathies Based on Novel Cardiac Magnetic Resonance Techniques"
+        "status": "UNKNOWN",
+        "title": "Systemic Lupus Erythematosus"
       },
       {
         "id": "NCT02559479",
@@ -2896,90 +2991,6 @@
         "phase": "nan",
         "status": "NOT_YET_RECRUITING",
         "title": "Leucine Requirements During Pregnancy"
-      },
-      {
-        "id": "NCT00605657",
-        "phase": "PHASE1/PHASE2",
-        "status": "COMPLETED",
-        "title": "Valproic Acid (Depakote[Registered Trademark]) to Treat Autoimmune Lymphoproliferative Syndrome (ALPS)"
-      },
-      {
-        "id": "NCT06546436",
-        "phase": "EARLY_PHASE1",
-        "status": "NOT_YET_RECRUITING",
-        "title": "The Safety and Efficiency of a Single Dose of CARC-101C in Patients With Autoimmune Type 1 Diabetes Mellitus"
-      },
-      {
-        "id": "NCT07144462",
-        "phase": "EARLY_PHASE1",
-        "status": "RECRUITING",
-        "title": "A Study to Evaluate the Safety, Tolerability, and Preliminary Efficacy of NEUK203-215 Injection in Adult Chinese Patients With Relapsed/Refractory Autoimmune Diseases"
-      },
-      {
-        "id": "NCT07291323",
-        "phase": "EARLY_PHASE1",
-        "status": "NOT_YET_RECRUITING",
-        "title": "Study of JANX011 in Healthy Adult Volunteers to Assess Safety and Tolerability."
-      },
-      {
-        "id": "NCT00001978",
-        "phase": "nan",
-        "status": "TERMINATED",
-        "title": "Determination of Kidney Function"
-      },
-      {
-        "id": "NCT00341679",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Studies of the Natural History and Pathogenesis of Autoimmune/Connective Tissue Diseases"
-      },
-      {
-        "id": "NCT01793168",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "Rare Disease Patient Registry & Natural History Study - Coordination of Rare Diseases at Sanford"
-      },
-      {
-        "id": "NCT02394964",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "The Human Microbiome in Immune-Mediated Diseases"
-      },
-      {
-        "id": "NCT03461419",
-        "phase": "nan",
-        "status": "SUSPENDED",
-        "title": "Use of Stromal Vascular Fraction in Multiple Sclerosis"
-      },
-      {
-        "id": "NCT03771768",
-        "phase": "nan",
-        "status": "UNKNOWN",
-        "title": "Diode Laser Versus Topical Corticosteroids in Management of Oral Ulcers in Behcet's Disease"
-      },
-      {
-        "id": "NCT04844489",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Study of the Humoral Response to SARS-CoV-2 Variants and of the Cellular Response After Vaccination Against COVID-19 in Immunocompromised People"
-      },
-      {
-        "id": "NCT04872257",
-        "phase": "nan",
-        "status": "COMPLETED",
-        "title": "Oral Vitamin D Supplementation Combined With Phototherapy as a Treatment for Vitiligo"
-      },
-      {
-        "id": "NCT05697159",
-        "phase": "nan",
-        "status": "RECRUITING",
-        "title": "7 Tesla MRI Brain Imaging to Decipher Filgotinib's Mode of Analgesic Action in Rheumatoid Arthritis"
-      },
-      {
-        "id": "NCT05984316",
-        "phase": "nan",
-        "status": "UNKNOWN",
-        "title": "Systemic Lupus Erythematosus"
       },
       {
         "id": "NCT00359476",
@@ -3534,6 +3545,21 @@
         "inheritance": "Autosomal dominant"
       },
       {
+        "classification": "Disputed Evidence",
+        "disease": "Costello syndrome",
+        "inheritance": "Autosomal dominant"
+      },
+      {
+        "classification": "Strong",
+        "disease": "cardiofaciocutaneous syndrome",
+        "inheritance": "Autosomal dominant"
+      },
+      {
+        "classification": "Definitive",
+        "disease": "Noonan syndrome",
+        "inheritance": "Autosomal dominant"
+      },
+      {
         "classification": "Strong",
         "disease": "Noonan syndrome 3",
         "inheritance": "Autosomal dominant"
@@ -3569,6 +3595,21 @@
         "inheritance": "Autosomal dominant"
       },
       {
+        "classification": "Strong",
+        "disease": "Noonan syndrome 3",
+        "inheritance": "Autosomal dominant"
+      },
+      {
+        "classification": "Strong",
+        "disease": "autoimmune lymphoproliferative syndrome type 4",
+        "inheritance": "Autosomal dominant"
+      },
+      {
+        "classification": "Strong",
+        "disease": "cardiofaciocutaneous syndrome 2",
+        "inheritance": "Autosomal dominant"
+      },
+      {
         "classification": "Definitive",
         "disease": "Noonan syndrome 3",
         "inheritance": "Autosomal dominant"
@@ -3594,12 +3635,12 @@
         "trait": "Disease progression in age-related macular degeneration (adjusted for baseline)"
       },
       {
-        "id": "GCST90011898_15",
+        "id": "GCST90011898_136",
         "p_value": "3.000000e-08",
         "trait": "Alanine aminotransferase levels"
       },
       {
-        "id": "GCST90013407_55",
+        "id": "GCST90013407_15",
         "p_value": "4.000000e-20",
         "trait": "Liver enzyme levels (gamma-glutamyl transferase)"
       }
@@ -3634,6 +3675,16 @@
       "GCST90651360",
       "GCST90041858",
       "GCST90043898",
+      "GCST90077631",
+      "GCST90079115",
+      "GCST90079116",
+      "GCST90079611",
+      "GCST90079612",
+      "GCST90081617",
+      "GCST90083101",
+      "GCST90083102",
+      "GCST90083597",
+      "GCST90083598",
       "GCST90095079",
       "GCST90095080",
       "GCST90104599",
@@ -3648,6 +3699,12 @@
       "GCST90104608",
       "GCST90104609",
       "GCST90104610",
+      "GCST90296729",
+      "GCST90296730",
+      "GCST90296731",
+      "GCST90296732",
+      "GCST90296733",
+      "GCST90296734",
       "GCST90435615",
       "GCST90435619",
       "GCST90435620",
@@ -3666,8 +3723,20 @@
       "GCST90503279",
       "GCST90651416",
       "GCST90651980",
+      "GCST90727250",
+      "GCST90837326",
       "GCST011974",
       "GCST90041821",
+      "GCST90079088",
+      "GCST90079587",
+      "GCST90079588",
+      "GCST90079589",
+      "GCST90079590",
+      "GCST90083074",
+      "GCST90083573",
+      "GCST90083574",
+      "GCST90083575",
+      "GCST90083576",
       "GCST90101896",
       "GCST90239710",
       "GCST90243964",
@@ -3693,195 +3762,230 @@
       "GCST90652533",
       "GCST90672022",
       "GCST90711137",
-      "GCST90296469",
-      "GCST90296470",
-      "GCST90296479",
-      "GCST90296480",
-      "GCST000052",
-      "GCST000053",
-      "GCST000113",
-      "GCST000168",
-      "GCST000169",
-      "GCST000270",
-      "GCST000472",
-      "GCST000722",
-      "GCST000843",
-      "GCST000948",
-      "GCST000989",
-      "GCST001161",
-      "GCST001544",
-      "GCST001731",
-      "GCST001787",
-      "GCST001792",
-      "GCST001794",
-      "GCST001832",
-      "GCST002099",
-      "GCST002340",
-      "GCST002411",
-      "GCST002415",
-      "GCST002454",
-      "GCST002512",
-      "GCST002513",
-      "GCST002528",
-      "GCST002561",
-      "GCST002596",
-      "GCST002816",
-      "GCST002820",
-      "GCST002919",
-      "GCST003017",
-      "GCST003208",
-      "GCST003209",
-      "GCST003229",
-      "GCST003230",
-      "GCST003231",
-      "GCST003385",
-      "GCST003386",
-      "GCST003387",
-      "GCST003420",
-      "GCST003494",
+      "GCST90726827",
+      "GCST002210",
+      "GCST008413",
+      "GCST90020096",
+      "GCST90042758",
+      "GCST90043912",
+      "GCST90054800",
+      "GCST90054801",
+      "GCST90054802",
+      "GCST90094652",
+      "GCST90094653",
+      "GCST90435652",
+      "GCST90481546",
+      "GCST90651246",
+      "GCST90707271",
+      "GCST90707272",
+      "GCST90707273",
+      "GCST90707274",
+      "GCST003436",
+      "GCST003524",
+      "GCST005906",
+      "GCST006464",
+      "GCST006465",
+      "GCST006466",
+      "GCST009827",
+      "GCST009828",
+      "GCST010879",
+      "GCST90011820",
+      "GCST90013698",
+      "GCST90018618",
+      "GCST90018838",
+      "GCST000223",
+      "GCST000506",
+      "GCST000761",
+      "GCST000810",
+      "GCST000947",
+      "GCST001609",
+      "GCST002466",
+      "GCST003326",
       "GCST003587",
       "GCST003588",
-      "GCST003799",
-      "GCST003873",
-      "GCST003874",
-      "GCST004168",
-      "GCST004839",
-      "GCST004840",
-      "GCST004895",
-      "GCST005148",
-      "GCST005149",
-      "GCST005150",
-      "GCST005152",
-      "GCST005591",
-      "GCST005856",
-      "GCST006035",
-      "GCST006131",
-      "GCST007552",
-      "GCST007856",
-      "GCST007992",
-      "GCST008372",
-      "GCST008977",
-      "GCST009869",
-      "GCST011108",
-      "GCST011298",
-      "GCST011973",
-      "GCST012176",
-      "GCST012202",
-      "GCST012205",
-      "GCST012206",
-      "GCST012421",
-      "GCST012876",
-      "GCST012877",
-      "GCST012878",
-      "GCST012879",
-      "GCST012880",
-      "GCST90013697",
-      "GCST90013737",
-      "GCST90013772",
-      "GCST90013862",
-      "GCST90013866",
-      "GCST90018588",
-      "GCST90018808",
-      "GCST90027054",
-      "GCST90093302",
-      "GCST90093303",
-      "GCST90095126",
-      "GCST90095127",
-      "GCST90095128",
-      "GCST90101725",
-      "GCST90101895",
-      "GCST90102456",
-      "GCST90102457",
-      "GCST90102458",
-      "GCST90102459",
-      "GCST90102510",
-      "GCST90105079",
-      "GCST90129505",
-      "GCST90162552",
-      "GCST90179123",
-      "GCST90179124",
-      "GCST90243993",
-      "GCST90243994",
-      "GCST90243995",
-      "GCST90243996",
-      "GCST90243997",
-      "GCST90243998",
-      "GCST90243999",
-      "GCST90244000",
-      "GCST90244001",
-      "GCST90244553",
-      "GCST90250827",
-      "GCST90250828",
-      "GCST90250829",
-      "GCST90255675",
-      "GCST90255676",
-      "GCST90255677",
-      "GCST90267392",
-      "GCST90267393",
-      "GCST90267394",
-      "GCST90267395",
-      "GCST90267396",
-      "GCST90267397",
-      "GCST90271715",
-      "GCST90308753",
-      "GCST90428118",
-      "GCST90435268",
-      "GCST90446191",
-      "GCST90446192",
-      "GCST90446193",
-      "GCST90446194",
-      "GCST90446195",
-      "GCST90446196",
-      "GCST90446197",
-      "GCST90446198",
-      "GCST90446199",
-      "GCST90446200",
-      "GCST90446201",
-      "GCST90446202",
-      "GCST90446203",
-      "GCST90446204",
-      "GCST90446205",
-      "GCST90446206",
-      "GCST90446207",
-      "GCST90446208",
-      "GCST90446487",
-      "GCST90455527",
-      "GCST90472804",
-      "GCST90475566",
-      "GCST90477176",
-      "GCST90477177",
-      "GCST90479783",
-      "GCST90502765",
-      "GCST90502810",
-      "GCST90502811",
-      "GCST90502812",
-      "GCST90502813",
-      "GCST90502814",
-      "GCST90502815",
-      "GCST90502816",
-      "GCST90502817",
-      "GCST90502818",
-      "GCST90502819",
-      "GCST90502820",
-      "GCST90503118",
-      "GCST90504004",
-      "GCST90504005",
-      "GCST90504006",
+      "GCST003605",
+      "GCST003776",
+      "GCST003794",
+      "GCST004744",
+      "GCST005909",
+      "GCST006087",
+      "GCST008375",
+      "GCST008836",
+      "GCST011177",
+      "GCST012201",
+      "GCST90134662",
+      "GCST90296661",
+      "GCST90297562",
+      "GCST90297563",
+      "GCST90455519",
+      "GCST90455522",
+      "GCST90568465",
+      "GCST90624808",
+      "GCST90652534",
+      "GCST000011",
+      "GCST000170",
+      "GCST000172",
+      "GCST000233",
+      "GCST000256",
+      "GCST000257",
+      "GCST000459",
+      "GCST000633",
+      "GCST001140",
+      "GCST001543",
+      "GCST001638",
+      "GCST001718",
+      "GCST001721",
+      "GCST001740",
+      "GCST002392",
+      "GCST002739",
+      "GCST002753",
+      "GCST003049",
+      "GCST003325",
+      "GCST003775",
+      "GCST004747",
+      "GCST004748",
+      "GCST004749",
+      "GCST005267",
+      "GCST006086",
+      "GCST006398",
+      "GCST006399",
+      "GCST006400",
+      "GCST006413",
+      "GCST006866",
+      "GCST008376",
+      "GCST011178",
+      "GCST011656",
+      "GCST90011812",
+      "GCST90013703",
+      "GCST90013742",
+      "GCST90013777",
+      "GCST90018655",
+      "GCST90018875",
+      "GCST90027056",
+      "GCST90041885",
+      "GCST90043863",
+      "GCST90043864",
+      "GCST90043865",
+      "GCST90134661",
+      "GCST90141002",
+      "GCST90141019",
+      "GCST90246027",
+      "GCST90255396",
+      "GCST90255469",
+      "GCST90277434",
+      "GCST90296660",
+      "GCST90296664",
+      "GCST90296665",
+      "GCST90624798",
+      "GCST90624799",
+      "GCST90624800",
+      "GCST90624801",
+      "GCST90624802",
+      "GCST90624803",
+      "GCST90624804",
+      "GCST90624805",
+      "GCST90624806",
+      "GCST000815",
+      "GCST000871",
+      "GCST001210",
+      "GCST001734",
+      "GCST001827",
+      "GCST002032",
+      "GCST002412",
+      "GCST002577",
+      "GCST005747",
+      "GCST005910",
+      "GCST008834",
+      "GCST012199",
+      "GCST90014045",
+      "GCST90132908",
+      "GCST90301329",
+      "GCST90315948",
+      "GCST90319689",
+      "GCST90568462",
+      "GCST90568463",
+      "GCST90568464",
+      "GCST90568467",
+      "GCST90624807",
+      "GCST90672021",
+      "GCST003777",
+      "GCST004750",
+      "GCST005911",
+      "GCST006088",
+      "GCST008835",
+      "GCST012200",
+      "GCST90134663",
+      "GCST90296662",
+      "GCST90455520",
+      "GCST90455523",
+      "GCST90568466",
       "GCST90570630",
-      "GCST90651043",
-      "GCST90651058",
-      "GCST90651244",
-      "GCST90693318",
-      "GCST90693323",
-      "GCST90693328",
-      "GCST90693332",
-      "GCST90693336",
-      "GCST90693340",
-      "GCST90693344",
-      "GCST90693346",
-      "GCST90693350",
-      "GCST90709777",
-      "GCST90709778"
+      "GCST90570631",
+      "GCST90624809",
+      "GCST90652535",
+      "GCST000456",
+      "GCST000574",
+      "GCST000686",
+      "GCST000745",
+      "GCST001350",
+      "GCST001556",
+      "GCST001749",
+      "GCST002553",
+      "GCST002991",
+      "GCST003758",
+      "GCST004485",
+      "GCST005434",
+      "GCST007235",
+      "GCST009895",
+      "GCST010616",
+      "GCST011117",
+      "GCST011817",
+      "GCST012178",
+      "GCST012978",
+      "GCST012979",
+      "GCST90011815",
+      "GCST90011857",
+      "GCST90011858",
+      "GCST90013705",
+      "GCST90013743",
+      "GCST90013778",
+      "GCST90018673",
+      "GCST90018893",
+      "GCST90027059",
+      "GCST90041814",
+      "GCST90043860",
+      "GCST90043861",
+      "GCST90100588",
+      "GCST90141007",
+      "GCST90141024",
+      "GCST90246026",
+      "GCST90255400",
+      "GCST90255499",
+      "GCST90308761",
+      "GCST90428859",
+      "GCST90432146",
+      "GCST90435582",
+      "GCST90475570",
+      "GCST90479786",
+      "GCST90481488",
+      "GCST90503274",
+      "GCST90554823",
+      "GCST90651051",
+      "GCST90651066",
+      "GCST90651702",
+      "GCST90041850",
+      "GCST90043893",
+      "GCST90079111",
+      "GCST90079609",
+      "GCST90083097",
+      "GCST90083595",
+      "GCST90454203",
+      "GCST001063",
+      "GCST90041913",
+      "GCST90042759",
+      "GCST90043913",
+      "GCST90435653",
+      "GCST90481547"
     ],
     "gwas_total": 4,
     "hpo": [
@@ -5397,6 +5501,16 @@
         ]
       },
       {
+        "id": "D056685",
+        "is_supplementary": false,
+        "name": "Costello Syndrome",
+        "tree_numbers": [
+          "C05.660.207.219",
+          "C16.131.077.256",
+          "C16.320.188"
+        ]
+      },
+      {
         "id": "D061325",
         "is_supplementary": false,
         "name": "Hereditary Breast and Ovarian Cancer Syndrome",
@@ -5747,6 +5861,10 @@
       {
         "id": "MONDO:0003582",
         "name": "hereditary breast ovarian cancer syndrome"
+      },
+      {
+        "id": "MONDO:0009026",
+        "name": "Costello syndrome"
       }
     ],
     "orphanet": [
@@ -5815,12 +5933,12 @@
         "name": "Rare carcinoma of pancreas"
       },
       {
-        "id": "Orphanet:79414",
-        "name": "Woolly hair nevus"
+        "id": "Orphanet:693907",
+        "name": "RASA1-related capillary malformation-arteriovenous malformation"
       },
       {
-        "id": "Orphanet:90307",
-        "name": "Parkes Weber syndrome"
+        "id": "Orphanet:79414",
+        "name": "Woolly hair nevus"
       },
       {
         "id": "Orphanet:521",
@@ -5869,6 +5987,10 @@
       {
         "id": "Orphanet:488201",
         "name": "NON RARE IN EUROPE: Non-small cell lung cancer"
+      },
+      {
+        "id": "Orphanet:90307",
+        "name": "Parkes Weber syndrome"
       },
       {
         "id": "Orphanet:155",
@@ -5986,30 +6108,12 @@
     ],
     "mane_select_refseq": "NM_004985",
     "refseq_mrna": [
-      "NM_001003744",
-      "NM_001362494",
       "NM_001369786",
       "NM_001369787",
-      "NM_001403240",
-      "NM_001403241",
-      "NM_001403242",
-      "NM_001403243",
-      "NM_001403244",
-      "NM_001403245",
-      "NM_001403246",
       "NM_004985",
-      "NM_021284",
-      "NM_031515",
-      "NM_033360",
-      "XM_006506919",
-      "XM_017592443",
-      "XM_039107022",
-      "XM_039107023",
-      "XM_047428826",
-      "XM_054372015",
-      "XM_063285523"
+      "NM_033360"
     ],
-    "refseq_mrna_count": 22,
+    "refseq_mrna_count": 4,
     "section": "02_transcripts",
     "symbol": "KRAS"
   },
@@ -6045,14 +6149,6 @@
     ],
     "refseq_protein": [
       {
-        "id": "NP_001003744",
-        "mane": false
-      },
-      {
-        "id": "NP_001349423",
-        "mane": false
-      },
-      {
         "id": "NP_001356715",
         "mane": false
       },
@@ -6061,51 +6157,15 @@
         "mane": false
       },
       {
-        "id": "NP_001390169",
-        "mane": false
-      },
-      {
-        "id": "NP_001390170",
-        "mane": false
-      },
-      {
-        "id": "NP_001390171",
-        "mane": false
-      },
-      {
-        "id": "NP_001390172",
-        "mane": false
-      },
-      {
-        "id": "NP_001390173",
-        "mane": false
-      },
-      {
-        "id": "NP_001390174",
-        "mane": false
-      },
-      {
-        "id": "NP_001390175",
-        "mane": false
-      },
-      {
         "id": "NP_004976",
         "mane": true
-      },
-      {
-        "id": "NP_067259",
-        "mane": false
-      },
-      {
-        "id": "NP_113703",
-        "mane": false
       },
       {
         "id": "NP_203524",
         "mane": false
       }
     ],
-    "refseq_protein_count": 15,
+    "refseq_protein_count": 4,
     "reviewed_uniprot": [
       "P01116"
     ],
@@ -6812,13 +6872,13 @@
       }
     ],
     "uniprot_all": [
+      "P01116",
       "A0A8I5KQ21",
       "A0A8I5KQU3",
       "A0A8I5KR86",
       "A0A8I5KUB5",
       "A0A8I5KXN3",
       "A0A8I5KYH6",
-      "P01116",
       "G3V4K2",
       "G3V5T7",
       "L7RSL8"
@@ -6857,6 +6917,26 @@
         "resolution": "2.1"
       },
       {
+        "id": "1N4P",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.65"
+      },
+      {
+        "id": "1N4Q",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.4"
+      },
+      {
+        "id": "1N4R",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.8"
+      },
+      {
+        "id": "1N4S",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.6"
+      },
+      {
         "id": "2MSC",
         "method": "SOLUTION NMR",
         "resolution": ""
@@ -6877,6 +6957,26 @@
         "resolution": "2.27"
       },
       {
+        "id": "10JT",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.489"
+      },
+      {
+        "id": "10NU",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.5"
+      },
+      {
+        "id": "10NV",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.52"
+      },
+      {
+        "id": "11QE",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.23"
+      },
+      {
         "id": "4DSN",
         "method": "X-RAY DIFFRACTION",
         "resolution": "2.03"
@@ -6885,16 +6985,6 @@
         "id": "4DSO",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.85"
-      },
-      {
-        "id": "4DST",
-        "method": "X-RAY DIFFRACTION",
-        "resolution": "2.3"
-      },
-      {
-        "id": "4DSU",
-        "method": "X-RAY DIFFRACTION",
-        "resolution": "1.7"
       },
       {
         "id": "4EPR",
@@ -6955,6 +7045,31 @@
         "id": "4LV6",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.5"
+      },
+      {
+        "id": "24HR",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.07"
+      },
+      {
+        "id": "24HS",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.53"
+      },
+      {
+        "id": "24HT",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.7"
+      },
+      {
+        "id": "4DST",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.3"
+      },
+      {
+        "id": "4DSU",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.7"
       },
       {
         "id": "4LYF",
@@ -7602,29 +7717,9 @@
         "resolution": "2.31"
       },
       {
-        "id": "1N4P",
-        "method": "X-RAY DIFFRACTION",
-        "resolution": "2.65"
-      },
-      {
-        "id": "1N4Q",
-        "method": "X-RAY DIFFRACTION",
-        "resolution": "2.4"
-      },
-      {
         "id": "6P8Z",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.65"
-      },
-      {
-        "id": "1N4R",
-        "method": "X-RAY DIFFRACTION",
-        "resolution": "2.8"
-      },
-      {
-        "id": "1N4S",
-        "method": "X-RAY DIFFRACTION",
-        "resolution": "2.6"
       },
       {
         "id": "6PGO",
@@ -8767,11 +8862,6 @@
         "resolution": "1.7"
       },
       {
-        "id": "9C3L",
-        "method": "X-RAY DIFFRACTION",
-        "resolution": "1.42"
-      },
-      {
         "id": "9C3M",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.74"
@@ -9027,6 +9117,16 @@
         "resolution": "1.11"
       },
       {
+        "id": "9N9N",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.24"
+      },
+      {
+        "id": "9NF2",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.7"
+      },
+      {
         "id": "9NFB",
         "method": "ELECTRON MICROSCOPY",
         "resolution": "3.23"
@@ -9035,6 +9135,46 @@
         "id": "9NFC",
         "method": "ELECTRON MICROSCOPY",
         "resolution": "2.58"
+      },
+      {
+        "id": "9NI3",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "2.82"
+      },
+      {
+        "id": "9NI4",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "2.61"
+      },
+      {
+        "id": "9NI5",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "2.89"
+      },
+      {
+        "id": "9NI6",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "3.01"
+      },
+      {
+        "id": "9NI8",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "3.23"
+      },
+      {
+        "id": "9NID",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "5.0"
+      },
+      {
+        "id": "9NIE",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "5.0"
+      },
+      {
+        "id": "9NLC",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution": "10.0"
       },
       {
         "id": "9NZM",
@@ -9077,6 +9217,16 @@
         "resolution": "3.0"
       },
       {
+        "id": "9OEL",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.5"
+      },
+      {
+        "id": "9OEX",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.5"
+      },
+      {
         "id": "9P44",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.7"
@@ -9085,6 +9235,26 @@
         "id": "9P45",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.35"
+      },
+      {
+        "id": "9PIZ",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.94"
+      },
+      {
+        "id": "9PVF",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2"
+      },
+      {
+        "id": "9PZF",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.84"
+      },
+      {
+        "id": "9PZY",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.17"
       },
       {
         "id": "9QPZ",
@@ -9127,6 +9297,41 @@
         "resolution": "2.85"
       },
       {
+        "id": "9TBM",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.6"
+      },
+      {
+        "id": "9TBR",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.65"
+      },
+      {
+        "id": "9TBW",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.54"
+      },
+      {
+        "id": "9TC0",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.6"
+      },
+      {
+        "id": "9TC2",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.3"
+      },
+      {
+        "id": "9TC5",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.35"
+      },
+      {
+        "id": "9TC6",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.63"
+      },
+      {
         "id": "9U50",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.87"
@@ -9135,6 +9340,71 @@
         "id": "9U5T",
         "method": "X-RAY DIFFRACTION",
         "resolution": "1.8"
+      },
+      {
+        "id": "9U8L",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.23"
+      },
+      {
+        "id": "9U8T",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.4"
+      },
+      {
+        "id": "9U8U",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.32"
+      },
+      {
+        "id": "9U8V",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.57"
+      },
+      {
+        "id": "9U8W",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.5"
+      },
+      {
+        "id": "9U8X",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.65"
+      },
+      {
+        "id": "9U8Y",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.73"
+      },
+      {
+        "id": "9U8Z",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.2"
+      },
+      {
+        "id": "9U90",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.2"
+      },
+      {
+        "id": "9U95",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.75"
+      },
+      {
+        "id": "9U97",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.79"
+      },
+      {
+        "id": "9U99",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.5"
+      },
+      {
+        "id": "9UOH",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.75"
       },
       {
         "id": "9USB",
@@ -9147,7 +9417,7 @@
         "resolution": "1.96"
       }
     ],
-    "pdb_count": 462,
+    "pdb_count": 504,
     "reviewed_uniprot": [
       "P01116"
     ],
@@ -9324,13 +9594,13 @@
     "alphamissense_total": 1249,
     "canonical_transcript": "ENST00000311936",
     "clinvar_breakdown": {
-      "Benign": 30,
-      "Likely benign": 159,
-      "Likely pathogenic": 37,
-      "Pathogenic": 37,
-      "Uncertain significance": 218
+      "Benign": 35,
+      "Likely benign": 162,
+      "Likely pathogenic": 39,
+      "Pathogenic": 39,
+      "Uncertain significance": 200
     },
-    "clinvar_total": 565,
+    "clinvar_total": 549,
     "dbsnp_sample": [
       {
         "change": "G>A,T",
@@ -9643,6 +9913,11 @@
     "top_pathogenic": [
       {
         "classification": "Pathogenic",
+        "hgvs": "NM_004985.5(KRAS):c.214A&gt;C (p.Met72Leu)",
+        "id": "1016209"
+      },
+      {
+        "classification": "Pathogenic",
         "hgvs": "NM_004985.5(KRAS):c.197_198insTGACCTGCT (p.Ala66_Met67insAspLeuLeu)",
         "id": "1172833"
       },
@@ -9785,11 +10060,6 @@
         "classification": "Pathogenic",
         "hgvs": "NM_004985.5(KRAS):c.65A&gt;G (p.Gln22Arg)",
         "id": "40452"
-      },
-      {
-        "classification": "Pathogenic",
-        "hgvs": "NM_004985.5(KRAS):c.101C&gt;T (p.Pro34Leu)",
-        "id": "40454"
       }
     ],
     "top_spliceai": [
@@ -18495,7 +18765,7 @@
         "score": "923"
       }
     ],
-    "string_count": 3380,
+    "string_count": 6100,
     "symbol": "KRAS"
   },
   "9": {
