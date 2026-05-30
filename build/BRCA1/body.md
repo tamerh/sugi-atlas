@@ -568,22 +568,22 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 
 **ChEMBL targets (1):** CHEMBL5990 (SINGLE PROTEIN)
 
-**Molecules with ChEMBL bioactivity (phase ≥1): 12**, by development phase (incl. off-target/promiscuous compounds):
+**Molecules with ChEMBL bioactivity (phase ≥1): 12**, by development phase (incl. off-target/promiscuous compounds). Patent mentions across the top 20 by phase: **940,377** (via chembl_molecule>>patent_compound — counts attach to the compound, not the gene–compound relationship, so off-target/promiscuous molecules can dominate). 
 
-| Molecule | Name | Phase |
-| --- | --- | --- |
-| CHEMBL1534 | RIBOFLAVIN | 4 |
-| CHEMBL1563 | DAUNORUBICIN HYDROCHLORIDE | 4 |
-| CHEMBL1607 | TOPOTECAN HYDROCHLORIDE | 4 |
-| CHEMBL178 | DAUNORUBICIN | 4 |
-| CHEMBL359744 | DOXORUBICIN HYDROCHLORIDE | 4 |
-| CHEMBL704 | MESALAMINE | 4 |
-| CHEMBL932 | DIPYRIDAMOLE | 4 |
-| CHEMBL140 | CURCUMIN | 3 |
-| CHEMBL265502 | SURAMIN | 3 |
-| CHEMBL413376 | SURAMIN HEXASODIUM | 3 |
-| CHEMBL1473252 | SODIUM TANSHINONE IIA SULFONATE | 2 |
-| CHEMBL284328 | HOMIDIUM BROMIDE | 2 |
+| Molecule | Name | Phase | Patents |
+| --- | --- | --- | --- |
+| CHEMBL1534 | RIBOFLAVIN | 4 | 134,308 |
+| CHEMBL1563 | DAUNORUBICIN HYDROCHLORIDE | 4 | 28,083 |
+| CHEMBL1607 | TOPOTECAN HYDROCHLORIDE | 4 | 55,633 |
+| CHEMBL178 | DAUNORUBICIN | 4 | 200,862 |
+| CHEMBL359744 | DOXORUBICIN HYDROCHLORIDE | 4 | 140,139 |
+| CHEMBL704 | MESALAMINE | 4 | 51,847 |
+| CHEMBL932 | DIPYRIDAMOLE | 4 | 51,356 |
+| CHEMBL140 | CURCUMIN | 3 | 92,092 |
+| CHEMBL265502 | SURAMIN | 3 | 36,456 |
+| CHEMBL413376 | SURAMIN HEXASODIUM | 3 | 2,710 |
+| CHEMBL1473252 | SODIUM TANSHINONE IIA SULFONATE | 2 | 153 |
+| CHEMBL284328 | HOMIDIUM BROMIDE | 2 | 146,738 |
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 

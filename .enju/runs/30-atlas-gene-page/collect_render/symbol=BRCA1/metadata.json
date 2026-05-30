@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 1469,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "src/atlas/gene/tasks/collect_render.py",
+  "task_id": "3:30:BRCA1:collect_render",
+  "timestamp": "2026-05-30T18:47:10+02:00"
+}

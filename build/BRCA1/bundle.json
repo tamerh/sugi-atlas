@@ -2063,76 +2063,147 @@
       {
         "id": "CHEMBL1534",
         "name": "RIBOFLAVIN",
+        "patent_compound_ids": [
+          "29374783",
+          "7706"
+        ],
+        "patent_count": 134308,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1563",
         "name": "DAUNORUBICIN HYDROCHLORIDE",
+        "patent_compound_ids": [
+          "14973357",
+          "29354055",
+          "29462666",
+          "4444"
+        ],
+        "patent_count": 28083,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1607",
         "name": "TOPOTECAN HYDROCHLORIDE",
+        "patent_compound_ids": [
+          "133645",
+          "29375999",
+          "7247",
+          "7248"
+        ],
+        "patent_count": 55633,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL178",
         "name": "DAUNORUBICIN",
+        "patent_compound_ids": [
+          "29354538",
+          "29996035",
+          "3041"
+        ],
+        "patent_count": 200862,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL359744",
         "name": "DOXORUBICIN HYDROCHLORIDE",
+        "patent_compound_ids": [
+          "28158260",
+          "29349501",
+          "29567127",
+          "3242"
+        ],
+        "patent_count": 140139,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL704",
         "name": "MESALAMINE",
+        "patent_compound_ids": [
+          "29354798",
+          "31297"
+        ],
+        "patent_count": 51847,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL932",
         "name": "DIPYRIDAMOLE",
+        "patent_compound_ids": [
+          "16119",
+          "29381078"
+        ],
+        "patent_count": 51356,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL140",
         "name": "CURCUMIN",
+        "patent_compound_ids": [
+          "13521974",
+          "8440"
+        ],
+        "patent_count": 92092,
         "phase": "3",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL265502",
         "name": "SURAMIN",
+        "patent_compound_ids": [
+          "29357785",
+          "29371906",
+          "30312075",
+          "30552218",
+          "3161"
+        ],
+        "patent_count": 36456,
         "phase": "3",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL413376",
         "name": "SURAMIN HEXASODIUM",
+        "patent_compound_ids": [
+          "414636"
+        ],
+        "patent_count": 2710,
         "phase": "3",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1473252",
         "name": "SODIUM TANSHINONE IIA SULFONATE",
+        "patent_compound_ids": [
+          "28665868",
+          "30094475"
+        ],
+        "patent_count": 153,
         "phase": "2",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL284328",
         "name": "HOMIDIUM BROMIDE",
+        "patent_compound_ids": [
+          "20520",
+          "29376492",
+          "29498260"
+        ],
+        "patent_count": 146738,
         "phase": "2",
         "type": "Small molecule"
       }
     ],
+    "patent_total": 940377,
     "pharmgkb": [
       {
         "cpic_guideline": "false",
