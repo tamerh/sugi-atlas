@@ -2177,6 +2177,11 @@
     ]
   },
   "12": {
+    "civic": {
+      "description": "CDKN2A loss has been shown to be a significant event in a number of cancer types. While no targeted therapeutic has been engaged in clinical trials, the prognostic impact has been studied by a number of meta-analyses. In majority of cases CDKN2A is inactivated by homozygous deletions. One of the mechanisms by which loss of CDKN2A can occur is by hypermethylation of the promoter region for the gene. However, the prognostic impact of promoter hypermethylation has been relatively ambiguous. Many studies have suggesting poorer prognostic outcome for patients with hypermethylation in colorectal, liver, and younger lung cancer patients. This being said, there is still research to be done before this becomes a widely-accepted prognostic indicator. Additionally, CDKN2A (p16) expression is a surrogate marker for HPV infection. As such, CDKN2A expression is prognostic in Oropharyngeal and probably also non-oropharyngeal head and neck squamous cell carcinomas.",
+      "id": "14",
+      "name": "CDKN2A"
+    },
     "disease_omim": [
       "MIM:606719",
       "MIM:155755",
@@ -3640,6 +3645,11 @@
       }
     ],
     "hpo_total": 96,
+    "intogen": {
+      "cancer_types": "ACYC,BLCA,BRCA,CHOL,COAD,COADREAD,CSCC,EGC,ESCA,ESCC,GBM,HCC,HNSC,LGGNOS,LUAD,LUSC,MEL,MLYM,NPC,NSCLC,OS,PAAD,PANCREAS,RCC,SKCM,SKIN,STAD,STOMACH,WDTC",
+      "role": "LoF",
+      "symbol": "CDKN2A"
+    },
     "mesh_descriptors": [
       {
         "id": "D006528",
