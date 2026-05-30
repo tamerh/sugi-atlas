@@ -723,11 +723,11 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | ATM | up-regulates quantity by stabilization | TP53 | phosphorylation |
 | FHIT | up-regulates | TP53 |  |
 
-## Transcription factor regulatory data
+## Regulation
 
 **Is transcription factor: True**
 
-**Downstream targets: 1043**
+**Downstream targets (CollecTRI): 1043**
 
 | Target | Regulation |
 | --- | --- |
@@ -770,7 +770,42 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | MA0106.2 | TP53 | p53-related factors |
 | MA0106.3 | TP53 | p53-related factors |
 
-**Upstream regulators (top):** AATF, ABL1, AHR, AP1, AR, ATF3, BACH2, BCL6, BCLAF1, BDP1, BHLHE40, BMAL1, CASZ1, CEBPB, CELF1, CREB1, CREBBP, CTCF, DNMT1, DRAM2
+**Upstream regulators (CollecTRI, top):** AATF, ABL1, AHR, AP1, AR, ATF3, BACH2, BCL6, BCLAF1, BDP1, BHLHE40, BMAL1, CASZ1, CEBPB, CELF1, CREB1, CREBBP, CTCF, DNMT1, DRAM2
+
+**miRNA regulators (miRDB): 110** targeting TP53, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+
+| miRNA | Max score | Avg score | miRNA target_count |
+| --- | --- | --- | --- |
+| HSA-MIR-3163 | 100.00 | 77.23 | 8605 |
+| HSA-MIR-150-5P | 99.99 | 66.69 | 1976 |
+| HSA-MIR-10401-5P | 99.99 | 65.79 | 948 |
+| HSA-MIR-4500 | 99.99 | 72.72 | 2367 |
+| HSA-MIR-223-3P | 99.99 | 70.14 | 1140 |
+| HSA-LET-7A-5P | 99.98 | 72.29 | 1790 |
+| HSA-LET-7B-5P | 99.98 | 72.31 | 1790 |
+| HSA-LET-7C-5P | 99.98 | 72.29 | 1790 |
+| HSA-LET-7E-5P | 99.98 | 72.29 | 1790 |
+| HSA-LET-7F-5P | 99.98 | 72.56 | 1784 |
+| HSA-LET-7G-5P | 99.98 | 72.37 | 1784 |
+| HSA-LET-7I-5P | 99.98 | 72.37 | 1788 |
+| HSA-MIR-98-5P | 99.98 | 72.33 | 1787 |
+| HSA-MIR-12136 | 99.98 | 72.81 | 5713 |
+| HSA-LET-7D-5P | 99.96 | 71.76 | 1632 |
+| HSA-MIR-4458 | 99.96 | 71.64 | 1650 |
+| HSA-MIR-381-3P | 99.93 | 71.87 | 2854 |
+| HSA-MIR-22-3P | 99.93 | 68.13 | 917 |
+| HSA-MIR-300 | 99.92 | 71.76 | 2856 |
+| HSA-MIR-1305 | 99.91 | 71.43 | 3443 |
+| HSA-MIR-4697-3P | 99.89 | 67.09 | 1123 |
+| HSA-MIR-548D-3P | 99.87 | 70.67 | 4362 |
+| HSA-MIR-548BB-3P | 99.86 | 70.58 | 4354 |
+| HSA-MIR-4728-5P | 99.85 | 69.39 | 4718 |
+| RNO-MIR-3584-5P | 99.85 | 68.75 | 535 |
+| HSA-MIR-548AC | 99.84 | 70.77 | 4351 |
+| HSA-MIR-548H-3P | 99.84 | 70.80 | 4349 |
+| HSA-MIR-548Z | 99.84 | 70.80 | 4349 |
+| HSA-MIR-6785-5P | 99.82 | 68.68 | 4428 |
+| HSA-MIR-6756-5P | 99.82 | 67.97 | 2466 |
 
 ## Drug & pharmacology data
 

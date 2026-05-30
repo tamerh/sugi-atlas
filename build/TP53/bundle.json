@@ -36185,6 +36185,189 @@
         "name": "TP53"
       }
     ],
+    "mirna_count": 110,
+    "mirna_regulators": [
+      {
+        "avg_score": "77.23",
+        "id": "HSA-MIR-3163",
+        "max_score": "100.00",
+        "target_count": "8605"
+      },
+      {
+        "avg_score": "66.69",
+        "id": "HSA-MIR-150-5P",
+        "max_score": "99.99",
+        "target_count": "1976"
+      },
+      {
+        "avg_score": "65.79",
+        "id": "HSA-MIR-10401-5P",
+        "max_score": "99.99",
+        "target_count": "948"
+      },
+      {
+        "avg_score": "72.72",
+        "id": "HSA-MIR-4500",
+        "max_score": "99.99",
+        "target_count": "2367"
+      },
+      {
+        "avg_score": "70.14",
+        "id": "HSA-MIR-223-3P",
+        "max_score": "99.99",
+        "target_count": "1140"
+      },
+      {
+        "avg_score": "72.29",
+        "id": "HSA-LET-7A-5P",
+        "max_score": "99.98",
+        "target_count": "1790"
+      },
+      {
+        "avg_score": "72.31",
+        "id": "HSA-LET-7B-5P",
+        "max_score": "99.98",
+        "target_count": "1790"
+      },
+      {
+        "avg_score": "72.29",
+        "id": "HSA-LET-7C-5P",
+        "max_score": "99.98",
+        "target_count": "1790"
+      },
+      {
+        "avg_score": "72.29",
+        "id": "HSA-LET-7E-5P",
+        "max_score": "99.98",
+        "target_count": "1790"
+      },
+      {
+        "avg_score": "72.56",
+        "id": "HSA-LET-7F-5P",
+        "max_score": "99.98",
+        "target_count": "1784"
+      },
+      {
+        "avg_score": "72.37",
+        "id": "HSA-LET-7G-5P",
+        "max_score": "99.98",
+        "target_count": "1784"
+      },
+      {
+        "avg_score": "72.37",
+        "id": "HSA-LET-7I-5P",
+        "max_score": "99.98",
+        "target_count": "1788"
+      },
+      {
+        "avg_score": "72.33",
+        "id": "HSA-MIR-98-5P",
+        "max_score": "99.98",
+        "target_count": "1787"
+      },
+      {
+        "avg_score": "72.81",
+        "id": "HSA-MIR-12136",
+        "max_score": "99.98",
+        "target_count": "5713"
+      },
+      {
+        "avg_score": "71.76",
+        "id": "HSA-LET-7D-5P",
+        "max_score": "99.96",
+        "target_count": "1632"
+      },
+      {
+        "avg_score": "71.64",
+        "id": "HSA-MIR-4458",
+        "max_score": "99.96",
+        "target_count": "1650"
+      },
+      {
+        "avg_score": "71.87",
+        "id": "HSA-MIR-381-3P",
+        "max_score": "99.93",
+        "target_count": "2854"
+      },
+      {
+        "avg_score": "68.13",
+        "id": "HSA-MIR-22-3P",
+        "max_score": "99.93",
+        "target_count": "917"
+      },
+      {
+        "avg_score": "71.76",
+        "id": "HSA-MIR-300",
+        "max_score": "99.92",
+        "target_count": "2856"
+      },
+      {
+        "avg_score": "71.43",
+        "id": "HSA-MIR-1305",
+        "max_score": "99.91",
+        "target_count": "3443"
+      },
+      {
+        "avg_score": "67.09",
+        "id": "HSA-MIR-4697-3P",
+        "max_score": "99.89",
+        "target_count": "1123"
+      },
+      {
+        "avg_score": "70.67",
+        "id": "HSA-MIR-548D-3P",
+        "max_score": "99.87",
+        "target_count": "4362"
+      },
+      {
+        "avg_score": "70.58",
+        "id": "HSA-MIR-548BB-3P",
+        "max_score": "99.86",
+        "target_count": "4354"
+      },
+      {
+        "avg_score": "69.39",
+        "id": "HSA-MIR-4728-5P",
+        "max_score": "99.85",
+        "target_count": "4718"
+      },
+      {
+        "avg_score": "68.75",
+        "id": "RNO-MIR-3584-5P",
+        "max_score": "99.85",
+        "target_count": "535"
+      },
+      {
+        "avg_score": "70.77",
+        "id": "HSA-MIR-548AC",
+        "max_score": "99.84",
+        "target_count": "4351"
+      },
+      {
+        "avg_score": "70.80",
+        "id": "HSA-MIR-548H-3P",
+        "max_score": "99.84",
+        "target_count": "4349"
+      },
+      {
+        "avg_score": "70.80",
+        "id": "HSA-MIR-548Z",
+        "max_score": "99.84",
+        "target_count": "4349"
+      },
+      {
+        "avg_score": "68.68",
+        "id": "HSA-MIR-6785-5P",
+        "max_score": "99.82",
+        "target_count": "4428"
+      },
+      {
+        "avg_score": "67.97",
+        "id": "HSA-MIR-6756-5P",
+        "max_score": "99.82",
+        "target_count": "2466"
+      }
+    ],
     "section": "09_tf_regulation",
     "symbol": "TP53",
     "upstream_regulators": [
