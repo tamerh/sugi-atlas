@@ -477,11 +477,11 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | ATR | up-regulates activity | BRCA1 | phosphorylation |
 | ATR | up-regulates activity | BRCA1 | phosphorylation |
 
-## Transcription factor regulatory data
+## Regulation
 
 **Is transcription factor: True**
 
-**Downstream targets: 61**
+**Downstream targets (CollecTRI): 61**
 
 | Target | Regulation |
 | --- | --- |
@@ -521,7 +521,42 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | Motif | Name | Family |
 | --- | --- | --- |
 
-**Upstream regulators (top):** AHR, AP1, APEX1, ARNT, ASPM, BHLHE41, BRCA1, CHD8, CREB1, CREBBP, CTBP1, CTBP2, CTCF, CTCFL, CTNNBL1, DLX4, DNMT1, DNMT3A, DNMT3B, E2F1
+**Upstream regulators (CollecTRI, top):** AHR, AP1, APEX1, ARNT, ASPM, BHLHE41, BRCA1, CHD8, CREB1, CREBBP, CTBP1, CTBP2, CTCF, CTCFL, CTNNBL1, DLX4, DNMT1, DNMT3A, DNMT3B, E2F1
+
+**miRNA regulators (miRDB): 121** targeting BRCA1, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+
+| miRNA | Max score | Avg score | miRNA target_count |
+| --- | --- | --- | --- |
+| HSA-MIR-3163 | 100.00 | 77.23 | 8605 |
+| HSA-MIR-5692A | 100.00 | 74.40 | 6850 |
+| MMU-MIR-669N | 99.99 | 68.53 | 1287 |
+| HSA-MIR-548P | 99.98 | 72.25 | 3784 |
+| HSA-MIR-493-5P | 99.96 | 72.47 | 2382 |
+| HSA-MIR-1250-3P | 99.96 | 70.04 | 4038 |
+| HSA-MIR-545-3P | 99.95 | 70.74 | 2783 |
+| HSA-LET-7C-3P | 99.95 | 73.42 | 2862 |
+| HSA-MIR-4525 | 99.94 | 64.38 | 675 |
+| HSA-MIR-5010-5P | 99.94 | 64.11 | 705 |
+| MMU-MIR-712-5P | 99.94 | 69.23 | 1189 |
+| MMU-MIR-21B | 99.92 | 70.45 | 1512 |
+| HSA-MIR-6499-3P | 99.90 | 66.38 | 1212 |
+| MMU-MIR-22-5P | 99.88 | 68.28 | 843 |
+| MMU-MIR-1B-5P | 99.88 | 70.16 | 970 |
+| MMU-MIR-29A-3P | 99.87 | 73.25 | 1228 |
+| MMU-MIR-29B-3P | 99.87 | 73.22 | 1228 |
+| MMU-MIR-29C-3P | 99.87 | 73.24 | 1227 |
+| HSA-MIR-221-5P | 99.86 | 65.45 | 1052 |
+| HSA-MIR-8073 | 99.86 | 65.21 | 1118 |
+| HSA-MIR-4447 | 99.85 | 67.81 | 2900 |
+| MMU-MIR-6516-5P | 99.84 | 69.95 | 755 |
+| HSA-MIR-5010-3P | 99.83 | 70.60 | 2357 |
+| HSA-MIR-6875-3P | 99.82 | 70.26 | 2983 |
+| HSA-MIR-944 | 99.82 | 70.85 | 3042 |
+| MMU-MIR-382-3P | 99.76 | 69.72 | 1083 |
+| HSA-MIR-92A-2-5P | 99.75 | 67.01 | 2164 |
+| HSA-MIR-199A-3P | 99.75 | 70.48 | 929 |
+| HSA-MIR-199B-3P | 99.75 | 70.48 | 929 |
+| HSA-MIR-3129-5P | 99.75 | 70.46 | 914 |
 
 ## Drug & pharmacology data
 
