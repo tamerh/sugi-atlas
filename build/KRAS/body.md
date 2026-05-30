@@ -1057,38 +1057,38 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 
 **Top tissues by expression (298 total):**
 
-| Tissue | Score | Rank | Quality |
-| --- | --- | --- | --- |
-| trigeminal ganglion | 97.68 | 1080 | gold quality |
-| pylorus | 97.66 | 1090 | gold quality |
-| nipple | 97.52 | 1160 | gold quality |
-| oral cavity | 97.50 | 1170 | gold quality |
-| mucosa of sigmoid colon | 97.42 | 1200 | gold quality |
-| esophagus squamous epithelium | 97.37 | 1230 | gold quality |
-| pharyngeal mucosa | 97.14 | 1330 | gold quality |
-| cardia of stomach | 97.13 | 1340 | gold quality |
-| jejunal mucosa | 97.12 | 1340 | gold quality |
-| tongue squamous epithelium | 97.03 | 1380 | gold quality |
-| colonic mucosa | 96.92 | 1430 | gold quality |
-| cauda epididymis | 96.75 | 1520 | gold quality |
-| endothelial cell | 96.54 | 1610 | gold quality |
-| Brodmann (1909) area 23 | 96.46 | 1650 | gold quality |
-| dorsal root ganglion | 96.40 | 1680 | gold quality |
-| superficial temporal artery | 96.24 | 1750 | gold quality |
-| mammary duct | 96.20 | 1770 | gold quality |
-| palpebral conjunctiva | 96.05 | 1840 | gold quality |
-| superior surface of tongue | 96.03 | 1850 | gold quality |
-| lower lobe of lung | 95.92 | 1900 | gold quality |
-| olfactory bulb | 95.91 | 1910 | gold quality |
-| epithelium of esophagus | 95.85 | 1930 | gold quality |
-| corpus epididymis | 95.78 | 1970 | gold quality |
-| renal medulla | 95.77 | 1970 | gold quality |
-| cerebellar vermis | 95.75 | 1980 | gold quality |
-| caput epididymis | 95.74 | 1990 | gold quality |
-| pons | 95.69 | 2010 | gold quality |
-| saphenous vein | 95.62 | 2040 | gold quality |
-| upper leg skin | 95.60 | 2050 | gold quality |
-| hair follicle | 95.42 | 2140 | gold quality |
+| Tissue | Anatomy ID | Score | Rank | Quality |
+| --- | --- | --- | --- | --- |
+| [trigeminal ganglion](https://bioregistry.io/UBERON:0001675) | UBERON:0001675 | 97.68 | 1080 | gold quality |
+| [pylorus](https://bioregistry.io/UBERON:0001166) | UBERON:0001166 | 97.66 | 1090 | gold quality |
+| [nipple](https://bioregistry.io/UBERON:0002030) | UBERON:0002030 | 97.52 | 1160 | gold quality |
+| [oral cavity](https://bioregistry.io/UBERON:0000167) | UBERON:0000167 | 97.50 | 1170 | gold quality |
+| [mucosa of sigmoid colon](https://bioregistry.io/UBERON:0004993) | UBERON:0004993 | 97.42 | 1200 | gold quality |
+| [esophagus squamous epithelium](https://bioregistry.io/UBERON:0006920) | UBERON:0006920 | 97.37 | 1230 | gold quality |
+| [pharyngeal mucosa](https://bioregistry.io/UBERON:0000355) | UBERON:0000355 | 97.14 | 1330 | gold quality |
+| [cardia of stomach](https://bioregistry.io/UBERON:0001162) | UBERON:0001162 | 97.13 | 1340 | gold quality |
+| [jejunal mucosa](https://bioregistry.io/UBERON:0000399) | UBERON:0000399 | 97.12 | 1340 | gold quality |
+| [tongue squamous epithelium](https://bioregistry.io/UBERON:0006919) | UBERON:0006919 | 97.03 | 1380 | gold quality |
+| [colonic mucosa](https://bioregistry.io/UBERON:0000317) | UBERON:0000317 | 96.92 | 1430 | gold quality |
+| [cauda epididymis](https://bioregistry.io/UBERON:0004360) | UBERON:0004360 | 96.75 | 1520 | gold quality |
+| [endothelial cell](https://bioregistry.io/CL:0000115) | CL:0000115 | 96.54 | 1610 | gold quality |
+| [Brodmann (1909) area 23](https://bioregistry.io/UBERON:0013554) | UBERON:0013554 | 96.46 | 1650 | gold quality |
+| [dorsal root ganglion](https://bioregistry.io/UBERON:0000044) | UBERON:0000044 | 96.40 | 1680 | gold quality |
+| [superficial temporal artery](https://bioregistry.io/UBERON:0001614) | UBERON:0001614 | 96.24 | 1750 | gold quality |
+| [mammary duct](https://bioregistry.io/UBERON:0001765) | UBERON:0001765 | 96.20 | 1770 | gold quality |
+| [palpebral conjunctiva](https://bioregistry.io/UBERON:0001812) | UBERON:0001812 | 96.05 | 1840 | gold quality |
+| [superior surface of tongue](https://bioregistry.io/UBERON:0007371) | UBERON:0007371 | 96.03 | 1850 | gold quality |
+| [lower lobe of lung](https://bioregistry.io/UBERON:0008949) | UBERON:0008949 | 95.92 | 1900 | gold quality |
+| [olfactory bulb](https://bioregistry.io/UBERON:0002264) | UBERON:0002264 | 95.91 | 1910 | gold quality |
+| [epithelium of esophagus](https://bioregistry.io/UBERON:0001976) | UBERON:0001976 | 95.85 | 1930 | gold quality |
+| [corpus epididymis](https://bioregistry.io/UBERON:0004359) | UBERON:0004359 | 95.78 | 1970 | gold quality |
+| [renal medulla](https://bioregistry.io/UBERON:0000362) | UBERON:0000362 | 95.77 | 1970 | gold quality |
+| [cerebellar vermis](https://bioregistry.io/UBERON:0004720) | UBERON:0004720 | 95.75 | 1980 | gold quality |
+| [caput epididymis](https://bioregistry.io/UBERON:0004358) | UBERON:0004358 | 95.74 | 1990 | gold quality |
+| [pons](https://bioregistry.io/UBERON:0000988) | UBERON:0000988 | 95.69 | 2010 | gold quality |
+| [saphenous vein](https://bioregistry.io/UBERON:0007318) | UBERON:0007318 | 95.62 | 2040 | gold quality |
+| [upper leg skin](https://bioregistry.io/UBERON:0004262) | UBERON:0004262 | 95.60 | 2050 | gold quality |
+| [hair follicle](https://bioregistry.io/UBERON:0002073) | UBERON:0002073 | 95.42 | 2140 | gold quality |
 
 **Single-cell datasets (2):**
 

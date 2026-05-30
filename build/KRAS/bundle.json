@@ -3281,180 +3281,210 @@
     "tissue_count": 298,
     "top_tissues": [
       {
+        "anatomy_id": "UBERON:0001675",
         "quality": "gold quality",
         "rank": "1080",
         "score": "97.68",
         "tissue": "trigeminal ganglion"
       },
       {
+        "anatomy_id": "UBERON:0001166",
         "quality": "gold quality",
         "rank": "1090",
         "score": "97.66",
         "tissue": "pylorus"
       },
       {
+        "anatomy_id": "UBERON:0002030",
         "quality": "gold quality",
         "rank": "1160",
         "score": "97.52",
         "tissue": "nipple"
       },
       {
+        "anatomy_id": "UBERON:0000167",
         "quality": "gold quality",
         "rank": "1170",
         "score": "97.50",
         "tissue": "oral cavity"
       },
       {
+        "anatomy_id": "UBERON:0004993",
         "quality": "gold quality",
         "rank": "1200",
         "score": "97.42",
         "tissue": "mucosa of sigmoid colon"
       },
       {
+        "anatomy_id": "UBERON:0006920",
         "quality": "gold quality",
         "rank": "1230",
         "score": "97.37",
         "tissue": "esophagus squamous epithelium"
       },
       {
+        "anatomy_id": "UBERON:0000355",
         "quality": "gold quality",
         "rank": "1330",
         "score": "97.14",
         "tissue": "pharyngeal mucosa"
       },
       {
+        "anatomy_id": "UBERON:0001162",
         "quality": "gold quality",
         "rank": "1340",
         "score": "97.13",
         "tissue": "cardia of stomach"
       },
       {
+        "anatomy_id": "UBERON:0000399",
         "quality": "gold quality",
         "rank": "1340",
         "score": "97.12",
         "tissue": "jejunal mucosa"
       },
       {
+        "anatomy_id": "UBERON:0006919",
         "quality": "gold quality",
         "rank": "1380",
         "score": "97.03",
         "tissue": "tongue squamous epithelium"
       },
       {
+        "anatomy_id": "UBERON:0000317",
         "quality": "gold quality",
         "rank": "1430",
         "score": "96.92",
         "tissue": "colonic mucosa"
       },
       {
+        "anatomy_id": "UBERON:0004360",
         "quality": "gold quality",
         "rank": "1520",
         "score": "96.75",
         "tissue": "cauda epididymis"
       },
       {
+        "anatomy_id": "CL:0000115",
         "quality": "gold quality",
         "rank": "1610",
         "score": "96.54",
         "tissue": "endothelial cell"
       },
       {
+        "anatomy_id": "UBERON:0013554",
         "quality": "gold quality",
         "rank": "1650",
         "score": "96.46",
         "tissue": "Brodmann (1909) area 23"
       },
       {
+        "anatomy_id": "UBERON:0000044",
         "quality": "gold quality",
         "rank": "1680",
         "score": "96.40",
         "tissue": "dorsal root ganglion"
       },
       {
+        "anatomy_id": "UBERON:0001614",
         "quality": "gold quality",
         "rank": "1750",
         "score": "96.24",
         "tissue": "superficial temporal artery"
       },
       {
+        "anatomy_id": "UBERON:0001765",
         "quality": "gold quality",
         "rank": "1770",
         "score": "96.20",
         "tissue": "mammary duct"
       },
       {
+        "anatomy_id": "UBERON:0001812",
         "quality": "gold quality",
         "rank": "1840",
         "score": "96.05",
         "tissue": "palpebral conjunctiva"
       },
       {
+        "anatomy_id": "UBERON:0007371",
         "quality": "gold quality",
         "rank": "1850",
         "score": "96.03",
         "tissue": "superior surface of tongue"
       },
       {
+        "anatomy_id": "UBERON:0008949",
         "quality": "gold quality",
         "rank": "1900",
         "score": "95.92",
         "tissue": "lower lobe of lung"
       },
       {
+        "anatomy_id": "UBERON:0002264",
         "quality": "gold quality",
         "rank": "1910",
         "score": "95.91",
         "tissue": "olfactory bulb"
       },
       {
+        "anatomy_id": "UBERON:0001976",
         "quality": "gold quality",
         "rank": "1930",
         "score": "95.85",
         "tissue": "epithelium of esophagus"
       },
       {
+        "anatomy_id": "UBERON:0004359",
         "quality": "gold quality",
         "rank": "1970",
         "score": "95.78",
         "tissue": "corpus epididymis"
       },
       {
+        "anatomy_id": "UBERON:0000362",
         "quality": "gold quality",
         "rank": "1970",
         "score": "95.77",
         "tissue": "renal medulla"
       },
       {
+        "anatomy_id": "UBERON:0004720",
         "quality": "gold quality",
         "rank": "1980",
         "score": "95.75",
         "tissue": "cerebellar vermis"
       },
       {
+        "anatomy_id": "UBERON:0004358",
         "quality": "gold quality",
         "rank": "1990",
         "score": "95.74",
         "tissue": "caput epididymis"
       },
       {
+        "anatomy_id": "UBERON:0000988",
         "quality": "gold quality",
         "rank": "2010",
         "score": "95.69",
         "tissue": "pons"
       },
       {
+        "anatomy_id": "UBERON:0007318",
         "quality": "gold quality",
         "rank": "2040",
         "score": "95.62",
         "tissue": "saphenous vein"
       },
       {
+        "anatomy_id": "UBERON:0004262",
         "quality": "gold quality",
         "rank": "2050",
         "score": "95.60",
         "tissue": "upper leg skin"
       },
       {
+        "anatomy_id": "UBERON:0002073",
         "quality": "gold quality",
         "rank": "2140",
         "score": "95.42",
