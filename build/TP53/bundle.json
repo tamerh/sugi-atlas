@@ -3772,120 +3772,228 @@
       {
         "id": "CHEMBL572",
         "name": "NITROFURANTOIN",
+        "patent_compound_ids": [
+          "26698906",
+          "29470"
+        ],
+        "patent_count": 25866,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL231884",
         "name": "DIOSMIN",
+        "patent_compound_ids": [
+          "120870",
+          "29368789",
+          "29449210",
+          "29558633"
+        ],
+        "patent_count": 4790,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL5314346",
         "name": "VERTEPORFIN",
+        "patent_compound_ids": [],
+        "patent_count": 0,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1014",
         "name": "CANDESARTAN CILEXETIL",
+        "patent_compound_ids": [
+          "40831",
+          "612936"
+        ],
+        "patent_count": 11107,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1018",
         "name": "DIENESTROL",
+        "patent_compound_ids": [
+          "52170"
+        ],
+        "patent_count": 5553,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL104",
         "name": "CLOTRIMAZOLE",
+        "patent_compound_ids": [
+          "29358270",
+          "3850"
+        ],
+        "patent_count": 55643,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL107",
         "name": "COLCHICINE",
+        "patent_compound_ids": [
+          "29374654",
+          "8469"
+        ],
+        "patent_count": 92433,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1070",
         "name": "NABUMETONE",
+        "patent_compound_ids": [
+          "2256",
+          "29373228",
+          "29570823"
+        ],
+        "patent_count": 54542,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1082607",
         "name": "SALMETEROL XINAFOATE",
+        "patent_compound_ids": [
+          "18070",
+          "2833182",
+          "29352164",
+          "29372524"
+        ],
+        "patent_count": 15098,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1083993",
         "name": "AMIODARONE HYDROCHLORIDE",
+        "patent_compound_ids": [
+          "1648547",
+          "29362650",
+          "41348"
+        ],
+        "patent_count": 3206,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1103",
         "name": "FURAZOLIDONE",
+        "patent_compound_ids": [
+          "64996"
+        ],
+        "patent_count": 14303,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1113",
         "name": "AMOXAPINE",
+        "patent_compound_ids": [
+          "29354942",
+          "29370074",
+          "29482386",
+          "33950"
+        ],
+        "patent_count": 19901,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1116",
         "name": "RALOXIFENE HYDROCHLORIDE",
+        "patent_compound_ids": [
+          "1665291",
+          "19077",
+          "19078"
+        ],
+        "patent_count": 28117,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200326",
         "name": "NICARDIPINE HYDROCHLORIDE",
+        "patent_compound_ids": [
+          "1650611",
+          "29465066",
+          "41845"
+        ],
+        "patent_count": 3879,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200348",
         "name": "SULCONAZOLE NITRATE",
+        "patent_compound_ids": [
+          "30880044",
+          "36906"
+        ],
+        "patent_count": 3107,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200471",
         "name": "PYRITHIONE ZINC",
+        "patent_compound_ids": [
+          "1829425",
+          "29636340",
+          "40083",
+          "959712"
+        ],
+        "patent_count": 24491,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200559",
         "name": "LACTIC ACID",
+        "patent_compound_ids": [
+          "15902696",
+          "5474224",
+          "999"
+        ],
+        "patent_count": 1147737,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200585",
         "name": "OXYMETHOLONE",
+        "patent_compound_ids": [
+          "145158"
+        ],
+        "patent_count": 5060,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200596",
         "name": "CHLOROXINE",
+        "patent_compound_ids": [
+          "29389908",
+          "29399997",
+          "3350"
+        ],
+        "patent_count": 1762,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL1200627",
         "name": "PROPIOLACTONE",
+        "patent_compound_ids": [
+          "10680620",
+          "17977"
+        ],
+        "patent_count": 20340,
         "phase": "4",
         "type": "Small molecule"
       },
@@ -4940,6 +5048,7 @@
         "type": "Small molecule"
       }
     ],
+    "patent_total": 1536935,
     "pharmgkb": [
       {
         "cpic_guideline": "false",
