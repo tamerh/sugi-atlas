@@ -41,7 +41,10 @@
     "xref_counts": {
       "alphafold": 2,
       "ccds": 4,
-      "clinvar": 1594,
+      "cellosaurus": 4344,
+      "civic": 1,
+      "civic_evidence": 35,
+      "clinvar": 1611,
       "collectri": 166,
       "cosmic": 1,
       "ena": 1,
@@ -50,15 +53,16 @@
       "fantom5_enhancer": 44,
       "fantom5_gene": 1,
       "fantom5_promoter": 21,
-      "gencc": 6,
+      "gencc": 7,
       "gwas": 93,
       "hpo": 96,
+      "intogen": 1,
       "mim": 1,
       "msigdb": 804,
       "orphanet": 8,
       "pharmgkb_gene": 1,
       "pubmed": 2,
-      "refseq": 40,
+      "refseq": 1,
       "spliceai": 1710,
       "uniprot": 2,
       "vega": 1
@@ -81,15 +85,15 @@
     "ctd_interactions": [
       {
         "actions": [
-          "affects^cotreatment",
           "increases^expression",
+          "affects^methylation",
+          "decreases^reaction",
+          "decreases^methylation",
+          "affects^cotreatment",
           "increases^reaction",
           "affects^expression",
           "decreases^expression",
           "increases^methylation",
-          "decreases^methylation",
-          "affects^methylation",
-          "decreases^reaction",
           "increases^phosphorylation"
         ],
         "chemical": "Decitabine",
@@ -126,9 +130,9 @@
       },
       {
         "actions": [
+          "increases^methylation",
           "affects^expression",
-          "increases^expression",
-          "increases^methylation"
+          "increases^expression"
         ],
         "chemical": "Valproic Acid",
         "chemical_id": "D014635",
@@ -137,14 +141,14 @@
       },
       {
         "actions": [
-          "increases^abundance",
-          "affects^reaction",
           "increases^expression",
-          "increases^reaction",
+          "affects^binding",
+          "increases^abundance",
           "affects^cotreatment",
-          "decreases^methylation",
+          "affects^reaction",
           "decreases^reaction",
-          "affects^binding"
+          "increases^reaction",
+          "decreases^methylation"
         ],
         "chemical": "Particulate Matter",
         "chemical_id": "D052638",
@@ -153,10 +157,10 @@
       },
       {
         "actions": [
-          "decreases^expression",
           "increases^methylation",
           "affects^cotreatment",
-          "increases^expression"
+          "increases^expression",
+          "decreases^expression"
         ],
         "chemical": "sodium arsenite",
         "chemical_id": "C017947",
@@ -177,11 +181,11 @@
       },
       {
         "actions": [
+          "increases^expression",
           "decreases^reaction",
           "decreases^methylation",
           "affects^cotreatment",
-          "decreases^expression",
-          "increases^expression"
+          "decreases^expression"
         ],
         "chemical": "Quercetin",
         "chemical_id": "D011794",
@@ -214,12 +218,12 @@
       },
       {
         "actions": [
-          "affects^expression",
-          "affects^response to substance",
           "affects^cotreatment",
           "increases^expression",
           "decreases^expression",
-          "decreases^response to substance"
+          "decreases^response to substance",
+          "affects^expression",
+          "affects^response to substance"
         ],
         "chemical": "Cisplatin",
         "chemical_id": "D002945",
@@ -240,10 +244,10 @@
       },
       {
         "actions": [
+          "increases^response to substance",
           "affects^cotreatment",
           "decreases^response to substance",
-          "affects^response to substance",
-          "increases^response to substance"
+          "affects^response to substance"
         ],
         "chemical": "palbociclib",
         "chemical_id": "C500026",
@@ -266,12 +270,12 @@
       },
       {
         "actions": [
+          "affects^binding",
           "increases^reaction",
           "decreases^expression",
           "decreases^methylation",
           "increases^methylation",
-          "decreases^reaction",
-          "affects^binding"
+          "decreases^reaction"
         ],
         "chemical": "arsenite",
         "chemical_id": "C015001",
@@ -280,9 +284,9 @@
       },
       {
         "actions": [
+          "decreases^metabolic processing",
           "decreases^methylation",
-          "increases^expression",
-          "decreases^metabolic processing"
+          "increases^expression"
         ],
         "chemical": "epigallocatechin gallate",
         "chemical_id": "C045651",
@@ -291,10 +295,10 @@
       },
       {
         "actions": [
-          "decreases^reaction",
           "increases^expression",
           "affects^reaction",
-          "decreases^expression"
+          "decreases^expression",
+          "decreases^reaction"
         ],
         "chemical": "Resveratrol",
         "chemical_id": "D000077185",
@@ -303,9 +307,9 @@
       },
       {
         "actions": [
+          "increases^mutagenesis",
           "decreases^expression",
-          "increases^methylation",
-          "increases^mutagenesis"
+          "increases^methylation"
         ],
         "chemical": "Asbestos",
         "chemical_id": "D001194",
@@ -325,10 +329,10 @@
       },
       {
         "actions": [
+          "affects^binding",
           "decreases^expression",
           "increases^activity",
-          "increases^expression",
-          "affects^binding"
+          "increases^expression"
         ],
         "chemical": "Copper",
         "chemical_id": "D003300",
@@ -337,8 +341,8 @@
       },
       {
         "actions": [
-          "increases^expression",
-          "decreases^expression"
+          "decreases^expression",
+          "increases^expression"
         ],
         "chemical": "Nanotubes, Carbon",
         "chemical_id": "D037742",
@@ -376,10 +380,10 @@
       },
       {
         "actions": [
-          "increases^expression",
-          "decreases^reaction",
           "affects^reaction",
-          "decreases^expression"
+          "decreases^expression",
+          "increases^expression",
+          "decreases^reaction"
         ],
         "chemical": "hydroquinone",
         "chemical_id": "C031927",
@@ -409,8 +413,8 @@
       },
       {
         "actions": [
-          "increases^expression",
-          "decreases^expression"
+          "decreases^expression",
+          "increases^expression"
         ],
         "chemical": "(+)-JQ1 compound",
         "chemical_id": "C561695",
@@ -419,9 +423,9 @@
       },
       {
         "actions": [
-          "decreases^expression",
           "increases^response to substance",
-          "affects^expression"
+          "affects^expression",
+          "decreases^expression"
         ],
         "chemical": "Irinotecan",
         "chemical_id": "D000077146",
@@ -430,11 +434,11 @@
       },
       {
         "actions": [
+          "increases^reaction",
+          "decreases^reaction",
           "increases^expression",
           "affects^binding",
-          "increases^abundance",
-          "increases^reaction",
-          "decreases^reaction"
+          "increases^abundance"
         ],
         "chemical": "Acetylcysteine",
         "chemical_id": "D000111",
@@ -2200,6 +2204,11 @@
         "inheritance": "Autosomal dominant"
       },
       {
+        "classification": "Definitive",
+        "disease": "melanoma-pancreatic cancer syndrome",
+        "inheritance": "Autosomal dominant"
+      },
+      {
         "classification": "Strong",
         "disease": "melanoma-pancreatic cancer syndrome",
         "inheritance": "Autosomal dominant"
@@ -2250,7 +2259,7 @@
         "trait": "Myocardial infarction"
       },
       {
-        "id": "GCST000045_2",
+        "id": "GCST000045_1",
         "p_value": "1.000000e-13",
         "trait": "Coronary heart disease"
       },
@@ -2340,7 +2349,7 @@
         "trait": "Melanoma"
       },
       {
-        "id": "GCST001337_19",
+        "id": "GCST001337_11",
         "p_value": "6.000000e-14",
         "trait": "Platelet count"
       },
@@ -2360,7 +2369,7 @@
         "trait": "Coronary artery calcification"
       },
       {
-        "id": "GCST001937_28",
+        "id": "GCST001937_29",
         "p_value": "6.000000e-08",
         "trait": "Breast cancer"
       },
@@ -2425,22 +2434,22 @@
         "trait": "Intracranial, abdominal aortic or thoracic aortic aneurysm (pleiotropy)"
       },
       {
-        "id": "GCST004142_26",
+        "id": "GCST004142_1",
         "p_value": "7.000000e-09",
         "trait": "Melanoma"
       },
       {
-        "id": "GCST004347_7",
+        "id": "GCST004347_2",
         "p_value": "1.000000e-45",
         "trait": "Glioma"
       },
       {
-        "id": "GCST004348_11",
+        "id": "GCST004348_4",
         "p_value": "1.000000e-15",
         "trait": "Non-glioblastoma glioma"
       },
       {
-        "id": "GCST004349_7",
+        "id": "GCST004349_10",
         "p_value": "7.000000e-45",
         "trait": "Glioblastoma"
       },
@@ -2450,32 +2459,32 @@
         "trait": "Multiple myeloma"
       },
       {
-        "id": "GCST004603_137",
+        "id": "GCST004603_162",
         "p_value": "5.000000e-24",
         "trait": "Platelet count"
       },
       {
-        "id": "GCST004607_54",
+        "id": "GCST004607_229",
         "p_value": "6.000000e-29",
         "trait": "Plateletcrit"
       },
       {
-        "id": "GCST004610_175",
+        "id": "GCST004610_75",
         "p_value": "3.000000e-12",
         "trait": "White blood cell count"
       },
       {
-        "id": "GCST004625_107",
+        "id": "GCST004625_82",
         "p_value": "6.000000e-13",
         "trait": "Monocyte count"
       },
       {
-        "id": "GCST004627_137",
+        "id": "GCST004627_162",
         "p_value": "4.000000e-23",
         "trait": "Lymphocyte count"
       },
       {
-        "id": "GCST004988_267",
+        "id": "GCST004988_245",
         "p_value": "1.000000e-15",
         "trait": "Breast cancer"
       },
@@ -2510,7 +2519,7 @@
         "trait": "Acute lymphoblastic leukemia (childhood)"
       },
       {
-        "id": "GCST005413_19",
+        "id": "GCST005413_4",
         "p_value": "1.000000e-13",
         "trait": "Type 2 diabetes"
       },
@@ -2525,12 +2534,12 @@
         "trait": "Acute lymphoblastic leukemia in childhood (B cell precursor)"
       },
       {
-        "id": "GCST006464_14",
+        "id": "GCST006464_3",
         "p_value": "6.000000e-09",
         "trait": "Endometrial cancer"
       },
       {
-        "id": "GCST006465_15",
+        "id": "GCST006465_12",
         "p_value": "4.000000e-06",
         "trait": "Endometrial cancer (endometrioid histology)"
       },
@@ -2550,42 +2559,42 @@
         "trait": "Type 2 diabetes"
       },
       {
-        "id": "GCST007847_110",
+        "id": "GCST007847_52",
         "p_value": "1.000000e-87",
         "trait": "Type 2 diabetes"
       },
       {
-        "id": "GCST007847_75",
+        "id": "GCST007847_68",
         "p_value": "5.000000e-13",
         "trait": "Type 2 diabetes"
       },
       {
-        "id": "GCST008834_11",
+        "id": "GCST008834_1",
         "p_value": "7.000000e-10",
         "trait": "Non-small cell lung cancer"
       },
       {
-        "id": "GCST009379_254",
+        "id": "GCST009379_71",
         "p_value": "9.000000e-08",
         "trait": "Type 2 diabetes"
       },
       {
-        "id": "GCST009379_255",
+        "id": "GCST009379_72",
         "p_value": "1.000000e-07",
         "trait": "Type 2 diabetes"
       },
       {
-        "id": "GCST009379_256",
+        "id": "GCST009379_73",
         "p_value": "1.000000e-115",
         "trait": "Type 2 diabetes"
       },
       {
-        "id": "GCST009379_257",
+        "id": "GCST009379_74",
         "p_value": "2.000000e-41",
         "trait": "Type 2 diabetes"
       },
       {
-        "id": "GCST009379_258",
+        "id": "GCST009379_75",
         "p_value": "6.000000e-07",
         "trait": "Type 2 diabetes"
       },
@@ -2600,7 +2609,7 @@
         "trait": "B-cell acute lymphoblastic leukaemia"
       },
       {
-        "id": "GCST010118_115",
+        "id": "GCST010118_113",
         "p_value": "4.000000e-164",
         "trait": "Type 2 diabetes"
       },
@@ -2610,82 +2619,82 @@
         "trait": "Coronary heart disease x type 2 diabetes interaction"
       },
       {
-        "id": "GCST90002379_159",
+        "id": "GCST90002379_201",
         "p_value": "1.000000e-12",
         "trait": "Basophil count"
       },
       {
-        "id": "GCST90002381_38",
+        "id": "GCST90002381_599",
         "p_value": "8.000000e-14",
         "trait": "Eosinophil count"
       },
       {
-        "id": "GCST90002388_504",
+        "id": "GCST90002388_191",
         "p_value": "1.000000e-71",
         "trait": "Lymphocyte count"
       },
       {
-        "id": "GCST90002389_459",
+        "id": "GCST90002389_36",
         "p_value": "2.000000e-21",
         "trait": "Lymphocyte percentage of white cells"
       },
       {
-        "id": "GCST90002391_131",
+        "id": "GCST90002391_151",
         "p_value": "2.000000e-13",
         "trait": "Mean corpuscular hemoglobin concentration"
       },
       {
-        "id": "GCST90002393_240",
+        "id": "GCST90002393_445",
         "p_value": "2.000000e-29",
         "trait": "Monocyte count"
       },
       {
-        "id": "GCST90002397_758",
+        "id": "GCST90002397_733",
         "p_value": "4.000000e-24",
         "trait": "Mean spheric corpuscular volume"
       },
       {
-        "id": "GCST90002399_299",
+        "id": "GCST90002399_413",
         "p_value": "2.000000e-23",
         "trait": "Neutrophil percentage of white cells"
       },
       {
-        "id": "GCST90002400_4",
+        "id": "GCST90002400_254",
         "p_value": "4.000000e-89",
         "trait": "Plateletcrit"
       },
       {
-        "id": "GCST90002402_175",
+        "id": "GCST90002402_50",
         "p_value": "9.000000e-65",
         "trait": "Platelet count"
       },
       {
-        "id": "GCST90002404_287",
+        "id": "GCST90002404_62",
         "p_value": "7.000000e-10",
         "trait": "Red cell distribution width"
       },
       {
-        "id": "GCST90002406_220",
+        "id": "GCST90002406_320",
         "p_value": "1.000000e-09",
         "trait": "Reticulocyte fraction of red cells"
       },
       {
-        "id": "GCST90002407_34",
+        "id": "GCST90002407_109",
         "p_value": "2.000000e-32",
         "trait": "White blood cell count"
       },
       {
-        "id": "GCST90016667_32",
+        "id": "GCST90016667_27",
         "p_value": "2.000000e-15",
         "trait": "Spleen volume"
       },
       {
-        "id": "GCST90020025_578",
+        "id": "GCST90020025_775",
         "p_value": "4.000000e-08",
         "trait": "Waist-to-hip ratio adjusted for BMI"
       },
       {
-        "id": "GCST90020027_24",
+        "id": "GCST90020027_99",
         "p_value": "3.000000e-08",
         "trait": "Waist-hip index"
       }
@@ -2773,6 +2782,25 @@
       "GCST90016667",
       "GCST90020025",
       "GCST90020027",
+      "GCST000323",
+      "GCST000463",
+      "GCST000464",
+      "GCST000608",
+      "GCST000749",
+      "GCST001320",
+      "GCST001693",
+      "GCST001912",
+      "GCST002236",
+      "GCST002657",
+      "GCST002713",
+      "GCST007276",
+      "GCST007727",
+      "GCST012357",
+      "GCST012358",
+      "GCST012359",
+      "GCST90056175",
+      "GCST90077632",
+      "GCST90081618",
       "GCST90308760",
       "GCST90308764",
       "GCST90435610",
@@ -2793,6 +2821,53 @@
       "GCST90693343",
       "GCST90693349",
       "GCST90693352",
+      "GCST000752",
+      "GCST000902",
+      "GCST001041",
+      "GCST001348",
+      "GCST001603",
+      "GCST001775",
+      "GCST003189",
+      "GCST004160",
+      "GCST004736",
+      "GCST005309",
+      "GCST005570",
+      "GCST005746",
+      "GCST005858",
+      "GCST006037",
+      "GCST007514",
+      "GCST90013702",
+      "GCST90013741",
+      "GCST90013776",
+      "GCST90041897",
+      "GCST90043858",
+      "GCST90092003",
+      "GCST90104489",
+      "GCST90134423",
+      "GCST90255398",
+      "GCST90308757",
+      "GCST90651047",
+      "GCST90651062",
+      "GCST90809294",
+      "GCST90809295",
+      "GCST90809296",
+      "GCST003587",
+      "GCST003588",
+      "GCST003777",
+      "GCST004750",
+      "GCST005911",
+      "GCST006088",
+      "GCST008835",
+      "GCST012200",
+      "GCST90134663",
+      "GCST90296662",
+      "GCST90455520",
+      "GCST90455523",
+      "GCST90568466",
+      "GCST90570630",
+      "GCST90570631",
+      "GCST90624809",
+      "GCST90652535",
       "GCST90043847",
       "GCST90104163",
       "GCST90104894",
@@ -2813,8 +2888,66 @@
       "GCST90651046",
       "GCST90651061",
       "GCST90651360",
+      "GCST000198",
+      "GCST001129",
+      "GCST001245",
+      "GCST001266",
+      "GCST001886",
+      "GCST002514",
+      "GCST90011809",
+      "GCST90027057",
+      "GCST90041914",
+      "GCST90043866",
+      "GCST90043867",
+      "GCST90043868",
+      "GCST90043869",
+      "GCST90043870",
+      "GCST90043916",
+      "GCST90043917",
+      "GCST90043918",
+      "GCST90043919",
+      "GCST90077638",
+      "GCST90079089",
+      "GCST90079090",
+      "GCST90079091",
+      "GCST90079126",
+      "GCST90079644",
+      "GCST90081624",
+      "GCST90083075",
+      "GCST90083076",
+      "GCST90083077",
+      "GCST90083112",
+      "GCST90083630",
+      "GCST90094985",
+      "GCST90103972",
+      "GCST90132200",
+      "GCST90137504",
+      "GCST90141010",
+      "GCST90141027",
+      "GCST90468141",
+      "GCST90503280",
+      "GCST90558252",
+      "GCST90558253",
+      "GCST90558254",
+      "GCST90041850",
+      "GCST90043893",
+      "GCST90079111",
+      "GCST90079609",
+      "GCST90083097",
+      "GCST90083595",
+      "GCST90454203",
       "GCST90041858",
       "GCST90043898",
+      "GCST90077631",
+      "GCST90079115",
+      "GCST90079116",
+      "GCST90079611",
+      "GCST90079612",
+      "GCST90081617",
+      "GCST90083101",
+      "GCST90083102",
+      "GCST90083597",
+      "GCST90083598",
       "GCST90095079",
       "GCST90095080",
       "GCST90104599",
@@ -2829,6 +2962,12 @@
       "GCST90104608",
       "GCST90104609",
       "GCST90104610",
+      "GCST90296729",
+      "GCST90296730",
+      "GCST90296731",
+      "GCST90296732",
+      "GCST90296733",
+      "GCST90296734",
       "GCST90435615",
       "GCST90435619",
       "GCST90435620",
@@ -2847,6 +2986,8 @@
       "GCST90503279",
       "GCST90651416",
       "GCST90651980",
+      "GCST90727250",
+      "GCST90837326",
       "GCST000016",
       "GCST000155",
       "GCST000163",
@@ -3103,7 +3244,9 @@
       "GCST90624696",
       "GCST90624697",
       "GCST90651433",
-      "GCST90651940"
+      "GCST90651940",
+      "GCST90726760",
+      "GCST90727267"
     ],
     "gwas_total": 93,
     "hpo": [
@@ -3665,6 +3808,14 @@
         "name": "gastric cancer"
       },
       {
+        "id": "MONDO:0005105",
+        "name": "melanoma"
+      },
+      {
+        "id": "MONDO:0021068",
+        "name": "ovarian neoplasm"
+      },
+      {
         "id": "MONDO:0023644",
         "name": "lip and oral cavity carcinoma"
       },
@@ -3675,10 +3826,6 @@
       {
         "id": "MONDO:0011789",
         "name": "familial meningioma"
-      },
-      {
-        "id": "MONDO:0005105",
-        "name": "melanoma"
       },
       {
         "id": "MONDO:0005090",
@@ -3743,12 +3890,12 @@
         "name": "Retinoblastoma"
       },
       {
-        "id": "Orphanet:157980",
-        "name": "NON RARE IN EUROPE: Bladder cancer"
-      },
-      {
         "id": "Orphanet:411533",
         "name": "NON RARE IN EUROPE: Melanoma"
+      },
+      {
+        "id": "Orphanet:157980",
+        "name": "NON RARE IN EUROPE: Bladder cancer"
       },
       {
         "id": "Orphanet:3140",
@@ -3847,28 +3994,12 @@
     "mane_select_refseq": "NM_000077",
     "refseq_mrna": [
       "NM_000077",
-      "NM_001040654",
       "NM_001195132",
-      "NM_001354077",
       "NM_001363763",
-      "NM_009877",
-      "NM_031550",
       "NM_058195",
-      "NM_058197",
-      "XM_011517675",
-      "XM_011517676",
-      "XM_047422596",
-      "XM_047422597",
-      "XM_047422598",
-      "XM_054361700",
-      "XM_054361701",
-      "XM_054361702",
-      "XM_054361703",
-      "XM_054361704",
-      "XM_063287166",
-      "XM_718424"
+      "NM_058197"
     ],
-    "refseq_mrna_count": 21,
+    "refseq_mrna_count": 5,
     "section": "02_transcripts",
     "symbol": "CDKN2A"
   },
@@ -3903,27 +4034,11 @@
         "mane": true
       },
       {
-        "id": "NP_001035744",
-        "mane": false
-      },
-      {
         "id": "NP_001182061",
         "mane": false
       },
       {
-        "id": "NP_001341006",
-        "mane": false
-      },
-      {
         "id": "NP_001350692",
-        "mane": false
-      },
-      {
-        "id": "NP_034007",
-        "mane": false
-      },
-      {
-        "id": "NP_113738",
         "mane": false
       },
       {
@@ -3935,7 +4050,7 @@
         "mane": false
       }
     ],
-    "refseq_protein_count": 9,
+    "refseq_protein_count": 5,
     "reviewed_uniprot": [
       "P42771",
       "Q8N726"
@@ -5215,13 +5330,13 @@
     "alphamissense_total": 983,
     "canonical_transcript": "ENST00000304494",
     "clinvar_breakdown": {
-      "Benign": 123,
-      "Likely benign": 260,
+      "Benign": 120,
+      "Likely benign": 275,
       "Likely pathogenic": 41,
-      "Pathogenic": 109,
-      "Uncertain significance": 719
+      "Pathogenic": 112,
+      "Uncertain significance": 722
     },
-    "clinvar_total": 1594,
+    "clinvar_total": 1611,
     "dbsnp_sample": [
       {
         "change": "T>A",
@@ -5594,6 +5709,11 @@
       },
       {
         "classification": "Pathogenic",
+        "hgvs": "NM_000077.5(CDKN2A):c.457+2T&gt;G",
+        "id": "1510258"
+      },
+      {
+        "classification": "Pathogenic",
         "hgvs": "GRCh37/hg19 9p21.3(chr9:21902071-22015434)",
         "id": "1527514"
       },
@@ -5654,6 +5774,11 @@
       },
       {
         "classification": "Pathogenic",
+        "hgvs": "NM_058195.4(CDKN2A):c.194-3653G&gt;T",
+        "id": "182414"
+      },
+      {
+        "classification": "Pathogenic",
         "hgvs": "NM_000077.5(CDKN2A):c.151-1G&gt;C",
         "id": "182416"
       },
@@ -5671,16 +5796,6 @@
         "classification": "Pathogenic",
         "hgvs": "NM_000077.5(CDKN2A):c.28G&gt;T (p.Glu10Ter)",
         "id": "2000887"
-      },
-      {
-        "classification": "Pathogenic",
-        "hgvs": "NM_000077.5(CDKN2A):c.387C&gt;A (p.Tyr129Ter)",
-        "id": "2146592"
-      },
-      {
-        "classification": "Pathogenic",
-        "hgvs": "NM_000077.5(CDKN2A):c.148C&gt;T (p.Gln50Ter)",
-        "id": "220711"
       }
     ],
     "top_spliceai": [
@@ -11817,7 +11932,7 @@
         "score": "918"
       }
     ],
-    "string_count": 2551,
+    "string_count": 6100,
     "symbol": "CDKN2A"
   },
   "9": {
@@ -11830,7 +11945,7 @@
     ],
     "is_transcription_factor": true,
     "jaspar_motifs": [],
-    "mirna_count": 51,
+    "mirna_count": 29,
     "mirna_regulators": [
       {
         "avg_score": "83.46",
@@ -11855,12 +11970,6 @@
         "id": "HSA-MIR-3662",
         "max_score": "99.99",
         "target_count": "5684"
-      },
-      {
-        "avg_score": "70.11",
-        "id": "HSA-MIR-507",
-        "max_score": "99.97",
-        "target_count": "1915"
       },
       {
         "avg_score": "71.17",
@@ -11905,18 +12014,6 @@
         "target_count": "2663"
       },
       {
-        "avg_score": "69.04",
-        "id": "MMU-MIR-742-3P",
-        "max_score": "99.79",
-        "target_count": "1276"
-      },
-      {
-        "avg_score": "68.12",
-        "id": "RNO-MIR-3541",
-        "max_score": "99.76",
-        "target_count": "572"
-      },
-      {
         "avg_score": "64.04",
         "id": "HSA-MIR-1296-3P",
         "max_score": "99.72",
@@ -11927,12 +12024,6 @@
         "id": "HSA-MIR-3714",
         "max_score": "99.71",
         "target_count": "2671"
-      },
-      {
-        "avg_score": "68.84",
-        "id": "HSA-MIR-4310",
-        "max_score": "99.59",
-        "target_count": "2527"
       },
       {
         "avg_score": "66.10",
@@ -11951,12 +12042,6 @@
         "id": "HSA-MIR-365B-3P",
         "max_score": "99.43",
         "target_count": "836"
-      },
-      {
-        "avg_score": "65.56",
-        "id": "MMU-MIR-7681-5P",
-        "max_score": "99.37",
-        "target_count": "674"
       },
       {
         "avg_score": "70.46",
@@ -11989,28 +12074,52 @@
         "target_count": "1133"
       },
       {
-        "avg_score": "67.51",
-        "id": "MMU-MIR-7083-3P",
-        "max_score": "98.95",
-        "target_count": "920"
-      },
-      {
-        "avg_score": "65.59",
-        "id": "HSA-MIR-4755-3P",
-        "max_score": "98.77",
-        "target_count": "1915"
-      },
-      {
-        "avg_score": "67.14",
-        "id": "MMU-MIR-5710",
-        "max_score": "98.72",
-        "target_count": "769"
-      },
-      {
         "avg_score": "65.49",
         "id": "HSA-MIR-6796-3P",
         "max_score": "98.68",
         "target_count": "689"
+      },
+      {
+        "avg_score": "68.17",
+        "id": "HSA-MIR-4769-3P",
+        "max_score": "97.95",
+        "target_count": "1002"
+      },
+      {
+        "avg_score": "67.86",
+        "id": "HSA-MIR-6817-5P",
+        "max_score": "97.95",
+        "target_count": "1026"
+      },
+      {
+        "avg_score": "63.85",
+        "id": "HSA-MIR-6787-5P",
+        "max_score": "97.54",
+        "target_count": "457"
+      },
+      {
+        "avg_score": "66.52",
+        "id": "HSA-MIR-134-5P",
+        "max_score": "97.11",
+        "target_count": "976"
+      },
+      {
+        "avg_score": "66.58",
+        "id": "HSA-MIR-3118",
+        "max_score": "97.11",
+        "target_count": "984"
+      },
+      {
+        "avg_score": "65.89",
+        "id": "HSA-MIR-1291",
+        "max_score": "96.28",
+        "target_count": "1224"
+      },
+      {
+        "avg_score": "65.91",
+        "id": "HSA-MIR-6775-3P",
+        "max_score": "95.76",
+        "target_count": "982"
       }
     ],
     "section": "09_tf_regulation",

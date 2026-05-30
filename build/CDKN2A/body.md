@@ -35,8 +35,8 @@
 | ENST00000579122 | protein_coding |
 | ENST00000579755 | protein_coding |
 
-**RefSeq mRNA: 21** — MANE Select: `NM_000077`
-`NM_000077`, `NM_001040654`, `NM_001195132`, `NM_001354077`, `NM_001363763`, `NM_009877`, `NM_031550`, `NM_058195`, `NM_058197`, `XM_011517675`, `XM_011517676`, `XM_047422596`, `XM_047422597`, `XM_047422598`, `XM_054361700`, `XM_054361701`, `XM_054361702`, `XM_054361703`, `XM_054361704`, `XM_063287166`, `XM_718424`
+**RefSeq mRNA: 5** — MANE Select: `NM_000077`
+`NM_000077`, `NM_001195132`, `NM_001363763`, `NM_058195`, `NM_058197`
 
 **CCDS:** `CCDS56565`, `CCDS6510`, `CCDS6511`, `CCDS87644`
 
@@ -54,7 +54,7 @@
 
 **All UniProt accessions (6):** `P42771`, `Q8N726`, `J3QRG6`, `K7ENC6`, `K7ES20`, `K7PML8`
 
-**RefSeq proteins (9):** `NP_000068`*, `NP_001035744`, `NP_001182061`, `NP_001341006`, `NP_001350692`, `NP_034007`, `NP_113738`, `NP_478102`, `NP_478104`  (*=MANE)
+**RefSeq proteins (5):** `NP_000068`*, `NP_001182061`, `NP_001350692`, `NP_478102`, `NP_478104`  (*=MANE)
 
 **Domains & families (InterPro):**
 
@@ -132,15 +132,15 @@
 
 ## Clinical variants & AI predictions
 
-**ClinVar: 1594 variants total.** Per-class counts are floors (≥ shown; pagination cap):
+**ClinVar: 1611 variants total.** Per-class counts are floors (≥ shown; pagination cap):
 
 | Classification | Count (floor) |
 | --- | --- |
-| Pathogenic | 109 |
+| Pathogenic | 112 |
 | Likely pathogenic | 41 |
-| Uncertain significance | 719 |
-| Likely benign | 260 |
-| Benign | 123 |
+| Uncertain significance | 722 |
+| Likely benign | 275 |
+| Benign | 120 |
 
 **Top pathogenic / likely-pathogenic (30):**
 
@@ -158,6 +158,7 @@
 | 1454814 | NM_000077.5(CDKN2A):c.76G>T (p.Glu26Ter) | Pathogenic |
 | 1456941 | NM_000077.5(CDKN2A):c.151-861_252del | Pathogenic |
 | 1457805 | NC_000009.11:g.(?_21970891)_(21975027_?)del | Pathogenic |
+| 1510258 | NM_000077.5(CDKN2A):c.457+2T>G | Pathogenic |
 | 1527514 | GRCh37/hg19 9p21.3(chr9:21902071-22015434) | Pathogenic |
 | 1735064 | NM_000077.5(CDKN2A):c.38_68del (p.Ala13fs) | Pathogenic |
 | 1752844 | NM_000077.5(CDKN2A):c.122_123delinsT (p.Pro41fs) | Pathogenic |
@@ -170,12 +171,11 @@
 | 182409 | NM_000077.5(CDKN2A):c.131_132insAA (p.Tyr44Ter) | Pathogenic |
 | 182410 | NM_000077.4:c.206_229delAGCCCAACTGCGCCGACCCCGinsCAG | Pathogenic |
 | 182412 | NM_000077.5(CDKN2A):c.240_253del (p.Pro81fs) | Pathogenic |
+| 182414 | NM_058195.4(CDKN2A):c.194-3653G>T | Pathogenic |
 | 182416 | NM_000077.5(CDKN2A):c.151-1G>C | Pathogenic |
 | 183759 | NM_000077.5(CDKN2A):c.335_337dup (p.Arg112dup) | Pathogenic |
 | 2000623 | NM_000077.5(CDKN2A):c.287_291del (p.Val96fs) | Pathogenic |
 | 2000887 | NM_000077.5(CDKN2A):c.28G>T (p.Glu10Ter) | Pathogenic |
-| 2146592 | NM_000077.5(CDKN2A):c.387C>A (p.Tyr129Ter) | Pathogenic |
-| 220711 | NM_000077.5(CDKN2A):c.148C>T (p.Gln50Ter) | Pathogenic |
 
 **SpliceAI: 1710 predictions.** Top by Δscore:
 
@@ -300,7 +300,7 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 
 ## Protein interactions & networks
 
-**STRING (2551), top by confidence (×1000):**
+**STRING (6100), top by confidence (×1000):**
 
 | Partner | Score |
 | --- | --- |
@@ -404,7 +404,7 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 
 **Upstream regulators (CollecTRI, top):** AFF4, AHR, AP1, ASXL1, ATF2, ATF6, BCL11A, BCL3, BCL6, BMI1, CDX2, CEBPB, CREB1, CREB3, CTBP1, CTBP2, CTCF, CTNNBL1, DBP, DDB1
 
-**miRNA regulators (miRDB): 51** targeting CDKN2A, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+**miRNA regulators (miRDB): 29** targeting CDKN2A, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
 
 | miRNA | Max score | Avg score | miRNA target_count |
 | --- | --- | --- | --- |
@@ -412,7 +412,6 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | HSA-MIR-3646 | 100.00 | 73.56 | 5283 |
 | HSA-MIR-1277-5P | 100.00 | 73.95 | 5056 |
 | HSA-MIR-3662 | 99.99 | 73.82 | 5684 |
-| HSA-MIR-507 | 99.97 | 70.11 | 1915 |
 | HSA-MIR-128-3P | 99.95 | 71.17 | 2484 |
 | HSA-MIR-216A-3P | 99.95 | 71.19 | 2505 |
 | HSA-MIR-153-5P | 99.89 | 73.86 | 6317 |
@@ -420,24 +419,24 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | HSA-MIR-3681-3P | 99.88 | 70.46 | 2254 |
 | HSA-MIR-4447 | 99.85 | 67.81 | 2900 |
 | HSA-MIR-4799-5P | 99.82 | 70.60 | 2663 |
-| MMU-MIR-742-3P | 99.79 | 69.04 | 1276 |
-| RNO-MIR-3541 | 99.76 | 68.12 | 572 |
 | HSA-MIR-1296-3P | 99.72 | 64.04 | 636 |
 | HSA-MIR-3714 | 99.71 | 70.74 | 2671 |
-| HSA-MIR-4310 | 99.59 | 68.84 | 2527 |
 | HSA-MIR-4519 | 99.48 | 66.10 | 859 |
 | HSA-MIR-365A-3P | 99.43 | 70.02 | 836 |
 | HSA-MIR-365B-3P | 99.43 | 70.02 | 836 |
-| MMU-MIR-7681-5P | 99.37 | 65.56 | 674 |
 | HSA-MIR-6507-5P | 99.36 | 70.46 | 2524 |
 | HSA-MIR-190B-3P | 99.33 | 68.29 | 1382 |
 | HSA-MIR-4727-5P | 99.23 | 67.55 | 1154 |
 | HSA-MIR-1286 | 99.09 | 66.23 | 1046 |
 | HSA-MIR-1257 | 98.97 | 68.02 | 1133 |
-| MMU-MIR-7083-3P | 98.95 | 67.51 | 920 |
-| HSA-MIR-4755-3P | 98.77 | 65.59 | 1915 |
-| MMU-MIR-5710 | 98.72 | 67.14 | 769 |
 | HSA-MIR-6796-3P | 98.68 | 65.49 | 689 |
+| HSA-MIR-4769-3P | 97.95 | 68.17 | 1002 |
+| HSA-MIR-6817-5P | 97.95 | 67.86 | 1026 |
+| HSA-MIR-6787-5P | 97.54 | 63.85 | 457 |
+| HSA-MIR-134-5P | 97.11 | 66.52 | 976 |
+| HSA-MIR-3118 | 97.11 | 66.58 | 984 |
+| HSA-MIR-1291 | 96.28 | 65.89 | 1224 |
+| HSA-MIR-6775-3P | 95.76 | 65.91 | 982 |
 
 ## Drug & pharmacology data
 
@@ -456,36 +455,36 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 
 | Chemical | Actions (CV verbs) | PubMed papers |
 | --- | --- | --- |
-| [Decitabine](http://ctdbase.org/detail.go?type=chem&acc=D000077209) | affects^cotreatment, increases^expression, increases^reaction, affects^expression, decreases^expression, increases^methylation, decreases^methylation, affects^methylation, decreases^reaction, increases^phosphorylation | 25 |
+| [Decitabine](http://ctdbase.org/detail.go?type=chem&acc=D000077209) | increases^expression, affects^methylation, decreases^reaction, decreases^methylation, affects^cotreatment, increases^reaction, affects^expression, decreases^expression, increases^methylation, increases^phosphorylation | 25 |
 | [Arsenic Trioxide](http://ctdbase.org/detail.go?type=chem&acc=D000077237) | decreases^reaction, affects^cotreatment, decreases^expression, increases^expression, increases^reaction, decreases^methylation, affects^localization | 11 |
 | [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | affects^expression, decreases^expression, increases^expression, increases^methylation | 8 |
-| [Valproic Acid](http://ctdbase.org/detail.go?type=chem&acc=D014635) | affects^expression, increases^expression, increases^methylation | 7 |
-| [Particulate Matter](http://ctdbase.org/detail.go?type=chem&acc=D052638) | increases^abundance, affects^reaction, increases^expression, increases^reaction, affects^cotreatment, decreases^methylation, decreases^reaction, affects^binding | 7 |
-| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | decreases^expression, increases^methylation, affects^cotreatment, increases^expression | 6 |
+| [Valproic Acid](http://ctdbase.org/detail.go?type=chem&acc=D014635) | increases^methylation, affects^expression, increases^expression | 7 |
+| [Particulate Matter](http://ctdbase.org/detail.go?type=chem&acc=D052638) | increases^expression, affects^binding, increases^abundance, affects^cotreatment, affects^reaction, decreases^reaction, increases^reaction, decreases^methylation | 7 |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | increases^methylation, affects^cotreatment, increases^expression, decreases^expression | 6 |
 | [Hydrogen Peroxide](http://ctdbase.org/detail.go?type=chem&acc=D006861) | decreases^reaction, increases^expression, affects^expression, increases^reaction | 6 |
-| [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | decreases^reaction, decreases^methylation, affects^cotreatment, decreases^expression, increases^expression | 6 |
+| [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | increases^expression, decreases^reaction, decreases^methylation, affects^cotreatment, decreases^expression | 6 |
 | [Tobacco Smoke Pollution](http://ctdbase.org/detail.go?type=chem&acc=D014028) | decreases^expression, increases^expression, increases^methylation | 6 |
 | [trichostatin A](http://ctdbase.org/detail.go?type=chem&acc=C012589) | affects^cotreatment, affects^expression, affects^methylation, decreases^expression, increases^expression | 5 |
-| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | affects^expression, affects^response to substance, affects^cotreatment, increases^expression, decreases^expression, decreases^response to substance | 5 |
+| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | affects^cotreatment, increases^expression, decreases^expression, decreases^response to substance, affects^expression, affects^response to substance | 5 |
 | [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | affects^cotreatment, decreases^expression, increases^expression, increases^methylation | 4 |
-| [palbociclib](http://ctdbase.org/detail.go?type=chem&acc=C500026) | affects^cotreatment, decreases^response to substance, affects^response to substance, increases^response to substance | 4 |
+| [palbociclib](http://ctdbase.org/detail.go?type=chem&acc=C500026) | increases^response to substance, affects^cotreatment, decreases^response to substance, affects^response to substance | 4 |
 | [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | decreases^expression, increases^methylation, decreases^response to substance, decreases^reaction, affects^cotreatment, increases^expression | 4 |
-| [arsenite](http://ctdbase.org/detail.go?type=chem&acc=C015001) | increases^reaction, decreases^expression, decreases^methylation, increases^methylation, decreases^reaction, affects^binding | 3 |
-| [epigallocatechin gallate](http://ctdbase.org/detail.go?type=chem&acc=C045651) | decreases^methylation, increases^expression, decreases^metabolic processing | 3 |
-| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | decreases^reaction, increases^expression, affects^reaction, decreases^expression | 3 |
-| [Asbestos](http://ctdbase.org/detail.go?type=chem&acc=D001194) | decreases^expression, increases^methylation, increases^mutagenesis | 3 |
+| [arsenite](http://ctdbase.org/detail.go?type=chem&acc=C015001) | affects^binding, increases^reaction, decreases^expression, decreases^methylation, increases^methylation, decreases^reaction | 3 |
+| [epigallocatechin gallate](http://ctdbase.org/detail.go?type=chem&acc=C045651) | decreases^metabolic processing, decreases^methylation, increases^expression | 3 |
+| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | increases^expression, affects^reaction, decreases^expression, decreases^reaction | 3 |
+| [Asbestos](http://ctdbase.org/detail.go?type=chem&acc=D001194) | increases^mutagenesis, decreases^expression, increases^methylation | 3 |
 | [Cannabidiol](http://ctdbase.org/detail.go?type=chem&acc=D002185) | affects^cotreatment, increases^expression, increases^reaction | 3 |
-| [Copper](http://ctdbase.org/detail.go?type=chem&acc=D003300) | decreases^expression, increases^activity, increases^expression, affects^binding | 3 |
-| [Nanotubes, Carbon](http://ctdbase.org/detail.go?type=chem&acc=D037742) | increases^expression, decreases^expression | 3 |
+| [Copper](http://ctdbase.org/detail.go?type=chem&acc=D003300) | affects^binding, decreases^expression, increases^activity, increases^expression | 3 |
+| [Nanotubes, Carbon](http://ctdbase.org/detail.go?type=chem&acc=D037742) | decreases^expression, increases^expression | 3 |
 | [perfluorooctanoic acid](http://ctdbase.org/detail.go?type=chem&acc=C023036) | increases^expression | 2 |
 | [butylidenephthalide](http://ctdbase.org/detail.go?type=chem&acc=C026105) | increases^expression | 2 |
 | [monobutyl phthalate](http://ctdbase.org/detail.go?type=chem&acc=C028577) | decreases^expression, increases^methylation, affects^cotreatment | 2 |
-| [hydroquinone](http://ctdbase.org/detail.go?type=chem&acc=C031927) | increases^expression, decreases^reaction, affects^reaction, decreases^expression | 2 |
+| [hydroquinone](http://ctdbase.org/detail.go?type=chem&acc=C031927) | affects^reaction, decreases^expression, increases^expression, decreases^reaction | 2 |
 | [mercuric bromide](http://ctdbase.org/detail.go?type=chem&acc=C042720) | increases^expression, affects^cotreatment | 2 |
 | [mono-benzyl phthalate](http://ctdbase.org/detail.go?type=chem&acc=C103325) | decreases^expression, increases^methylation, affects^cotreatment | 2 |
-| [(+)-JQ1 compound](http://ctdbase.org/detail.go?type=chem&acc=C561695) | increases^expression, decreases^expression | 2 |
-| [Irinotecan](http://ctdbase.org/detail.go?type=chem&acc=D000077146) | decreases^expression, increases^response to substance, affects^expression | 2 |
-| [Acetylcysteine](http://ctdbase.org/detail.go?type=chem&acc=D000111) | increases^expression, affects^binding, increases^abundance, increases^reaction, decreases^reaction | 2 |
+| [(+)-JQ1 compound](http://ctdbase.org/detail.go?type=chem&acc=C561695) | decreases^expression, increases^expression | 2 |
+| [Irinotecan](http://ctdbase.org/detail.go?type=chem&acc=D000077146) | increases^response to substance, affects^expression, decreases^expression | 2 |
+| [Acetylcysteine](http://ctdbase.org/detail.go?type=chem&acc=D000111) | increases^reaction, decreases^reaction, increases^expression, affects^binding, increases^abundance | 2 |
 
 **Clinical trials for the gene's associated diseases (224, via MONDO — disease-level, not drug-specific):**
 
@@ -589,14 +588,15 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | --- | --- | --- |
 | melanoma and neural system tumor syndrome | Limited | Autosomal dominant |
 | melanoma-pancreatic cancer syndrome | Definitive | Autosomal dominant |
+| melanoma-pancreatic cancer syndrome | Definitive | Autosomal dominant |
 | melanoma-pancreatic cancer syndrome | Strong | Autosomal dominant |
 | melanoma-pancreatic cancer syndrome | Strong | Autosomal dominant |
 | familial atypical multiple mole melanoma syndrome | Supportive | Autosomal dominant |
 | melanoma, cutaneous malignant, susceptibility to, 2 | Definitive | Autosomal dominant |
 
-**Mondo (22):** hereditary neoplastic syndrome (MONDO:0015356), familial melanoma (MONDO:0018961), atypical endometrial hyperplasia (MONDO:0006096), melanoma-pancreatic cancer syndrome (MONDO:0011713), melanoma and neural system tumor syndrome (MONDO:0007967), melanoma, cutaneous malignant, susceptibility to, 2 (MONDO:0007964), familial pancreatic carcinoma (MONDO:0015278), Li-Fraumeni syndrome (MONDO:0018875), acute lymphoblastic leukemia (MONDO:0004967), osteoblastic osteosarcoma (MONDO:0020660), Maffucci syndrome (MONDO:0013808), ovarian cancer (MONDO:0008170), hepatocellular carcinoma (MONDO:0007256), squamous cell lung carcinoma (MONDO:0005097), gastric cancer (MONDO:0001056)
+**Mondo (23):** hereditary neoplastic syndrome (MONDO:0015356), familial melanoma (MONDO:0018961), atypical endometrial hyperplasia (MONDO:0006096), melanoma-pancreatic cancer syndrome (MONDO:0011713), melanoma and neural system tumor syndrome (MONDO:0007967), melanoma, cutaneous malignant, susceptibility to, 2 (MONDO:0007964), familial pancreatic carcinoma (MONDO:0015278), Li-Fraumeni syndrome (MONDO:0018875), acute lymphoblastic leukemia (MONDO:0004967), osteoblastic osteosarcoma (MONDO:0020660), Maffucci syndrome (MONDO:0013808), ovarian cancer (MONDO:0008170), hepatocellular carcinoma (MONDO:0007256), squamous cell lung carcinoma (MONDO:0005097), gastric cancer (MONDO:0001056)
 
-**Orphanet (15):** Inherited cancer-predisposing syndrome (Orphanet:140162), Familial melanoma (Orphanet:618), Familial atypical multiple mole melanoma syndrome (Orphanet:404560), Melanoma and neural system tumor syndrome (Orphanet:252206), Familial pancreatic carcinoma (Orphanet:1333), Li-Fraumeni syndrome (Orphanet:524), Acute lymphoblastic leukemia (Orphanet:513), Maffucci syndrome (Orphanet:163634), Rare ovarian cancer (Orphanet:213500), Hepatocellular carcinoma (Orphanet:88673), Familial multiple meningioma (Orphanet:263662), Retinoblastoma (Orphanet:790), NON RARE IN EUROPE: Bladder cancer (Orphanet:157980), NON RARE IN EUROPE: Melanoma (Orphanet:411533), NON RARE IN EUROPE: Schizophrenia (Orphanet:3140)
+**Orphanet (15):** Inherited cancer-predisposing syndrome (Orphanet:140162), Familial melanoma (Orphanet:618), Familial atypical multiple mole melanoma syndrome (Orphanet:404560), Melanoma and neural system tumor syndrome (Orphanet:252206), Familial pancreatic carcinoma (Orphanet:1333), Li-Fraumeni syndrome (Orphanet:524), Acute lymphoblastic leukemia (Orphanet:513), Maffucci syndrome (Orphanet:163634), Rare ovarian cancer (Orphanet:213500), Hepatocellular carcinoma (Orphanet:88673), Familial multiple meningioma (Orphanet:263662), Retinoblastoma (Orphanet:790), NON RARE IN EUROPE: Melanoma (Orphanet:411533), NON RARE IN EUROPE: Bladder cancer (Orphanet:157980), NON RARE IN EUROPE: Schizophrenia (Orphanet:3140)
 
 **HPO phenotypes: 96** (top):
 
@@ -642,7 +642,7 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | GCST000025_7 | Type 2 diabetes | 1.000000e-06 |
 | GCST000028_2 | Type 2 diabetes | 8.000000e-15 |
 | GCST000030_1 | Myocardial infarction | 1.000000e-20 |
-| GCST000045_2 | Coronary heart disease | 1.000000e-13 |
+| GCST000045_1 | Coronary heart disease | 1.000000e-13 |
 | GCST000167_5 | Type 2 diabetes | 2.000000e-07 |
 | GCST000262_3 | Intracranial aneurysm | 1.000000e-10 |
 | GCST000340_1 | Myocardial infarction (early onset) | 3.000000e-44 |
@@ -660,11 +660,11 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | GCST001084_4 | Coronary heart disease (SNP X SNP interaction) | 7.000000e-14 |
 | GCST001260_2 | Coronary heart disease | 6.000000e-16 |
 | GCST001267_6 | Melanoma | 7.000000e-09 |
-| GCST001337_19 | Platelet count | 6.000000e-14 |
+| GCST001337_11 | Platelet count | 6.000000e-14 |
 | GCST001720_6 | Endometriosis | 2.000000e-09 |
 | GCST001759_5 | Type 2 diabetes | 3.000000e-06 |
 | GCST001902_2 | Coronary artery calcification | 2.000000e-11 |
-| GCST001937_28 | Breast cancer | 6.000000e-08 |
+| GCST001937_29 | Breast cancer | 6.000000e-08 |
 | GCST002128_6 | Type 2 diabetes | 1.000000e-18 |
 | GCST002331_7 | Basal cell carcinoma | 3.000000e-10 |
 
