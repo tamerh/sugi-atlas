@@ -12,9 +12,10 @@ CHAINS = (
     ">>hgnc>>hpo", ">>hgnc>>clinvar>>mondo>>hpo",
     ">>hgnc>>gwas",
     ">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar>>mondo>>gwas_study",
+    ">>hgnc>>clinvar>>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh",   # MeSH disease categories
 )
 DATASETS = ("mim", "gencc", "mondo", "orphanet", "hpo", "gwas", "gwas_study",
-            "clinvar", "hgnc")
+            "mesh", "clinvar", "hgnc")
 
 def collect(a):
     bundle = {"section": "12_diseases", "symbol": a.symbol}
@@ -64,13 +65,36 @@ def collect(a):
         for t in map_all(a.hgnc_id, ch):
             gws[t["id"]] = 1
     bundle["gwas_studies"] = list(gws)
+
+    # MeSH disease descriptors — union of clinvar and gencc disease routes.
+    # `descriptor_class=1` is a Main MeSH heading (D-code); supplementary
+    # concepts (C-code, `is_supplementary=true`) are a smaller fallback set.
+    # Tree numbers (e.g. C04.700.600) classify the descriptor into the MeSH
+    # category hierarchy — useful for rollup to top-level disease groupings.
+    mesh = {}
+    for ch in (">>hgnc>>clinvar>>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh"):
+        for t in map_all(a.hgnc_id, ch):
+            mesh[t["id"]] = t  # later route wins on dupes (gencc carries class info too)
+    def _msort(t):
+        # Main descriptors first (descriptor_class=1), then alphabetical by name.
+        return (0 if t.get("descriptor_class") == "1" else 1,
+                t.get("descriptor_name") or "")
+    rows = sorted(mesh.values(), key=_msort)
+    bundle["mesh_descriptors"] = [{
+        "id": r["id"],
+        "name": r.get("descriptor_name"),
+        "tree_numbers": [tn for tn in (r.get("tree_numbers") or "").split(";") if tn],
+        "is_supplementary": r.get("is_supplementary") == "true",
+    } for r in rows]
     return bundle
 
 SECTION = Section(
     id="12", name="diseases",
-    description="Disease associations — OMIM (gene + disease phenotype), GenCC, MONDO, Orphanet, HPO phenotypes, GWAS (gene-mapped + disease-associated)",
+    description=("Disease associations — OMIM (gene + disease phenotype), GenCC, MONDO, "
+                 "Orphanet, HPO phenotypes, GWAS (gene-mapped + disease-associated), "
+                 "MeSH descriptors (NLM disease vocabulary with tree-number category paths)"),
     needs=("hgnc_id", "hgnc_entry"),
     produces=("gene_omim", "disease_omim", "gencc", "mondo", "orphanet", "hpo",
-              "gwas", "gwas_studies"),
+              "gwas", "gwas_studies", "mesh_descriptors"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

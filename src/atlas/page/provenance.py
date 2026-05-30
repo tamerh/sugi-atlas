@@ -81,6 +81,7 @@ UPSTREAM = {
     "hpo":               ("Human Phenotype Ontology",              "https://hpo.jax.org/"),
     "gwas":              ("GWAS Catalog",                          "https://www.ebi.ac.uk/gwas/"),
     "gwas_study":        ("GWAS Catalog",                          "https://www.ebi.ac.uk/gwas/"),
+    "mesh":              ("MeSH (NLM Medical Subject Headings)",   "https://www.ncbi.nlm.nih.gov/mesh/"),
     # expression
     "bgee":              ("Bgee",                                  "https://www.bgee.org/"),
     "bgee_evidence":     ("Bgee",                                  "https://www.bgee.org/"),

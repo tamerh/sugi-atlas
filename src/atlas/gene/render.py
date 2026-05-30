@@ -298,6 +298,19 @@ def r_diseases(b):
     L.append(f"\n**GWAS associations: {b.get('gwas_total', 0)}** (top):\n")
     L.append(table(["Study", "Trait", "p-value"],
                    [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]]))
+
+    # MeSH disease descriptors — NLM's controlled disease vocabulary.
+    # Tree numbers (e.g. C04.700.600) classify into MeSH categories
+    # (C04=Neoplasms, C16=Congenital, C18=Nutritional/Metabolic, etc.) —
+    # useful for grouping diseases at a coarser level.
+    mesh = b.get("mesh_descriptors") or []
+    if mesh:
+        L.append(f"\n**MeSH disease descriptors ({len(mesh)}):**\n")
+        L.append(table(["Descriptor", "Name", "Tree numbers"],
+                       [(f"[{m['id']}](https://www.ncbi.nlm.nih.gov/mesh/?term={m['id']})",
+                         m["name"] + (" *(supp.)*" if m.get("is_supplementary") else ""),
+                         "; ".join(m.get("tree_numbers") or []))
+                        for m in mesh[:30]]))
     return "\n".join(L)
 
 
