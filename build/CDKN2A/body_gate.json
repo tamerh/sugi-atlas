@@ -1,20 +1,5 @@
 {
-  "verdict": "drift",
-  "summary": "0 changed, 2 added, 0 removed",
-  "diff": [
-    {
-      "section": "12",
-      "key": "civic",
-      "old": 0,
-      "new": 3,
-      "kind": "added"
-    },
-    {
-      "section": "12",
-      "key": "intogen",
-      "old": 0,
-      "new": 3,
-      "kind": "added"
-    }
-  ]
+  "verdict": "clean",
+  "summary": "byte-identical to snapshot",
+  "diff": []
 }
