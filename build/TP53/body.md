@@ -993,13 +993,13 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 
 **ChEMBL screening assays (863 unique, capped per target):** 769 binding, 83 admet, 10 functional, 1 toxicity
 
-Representative assays:
+Representative assays (with source publication via chembl_document):
 
-| Assay ID | Type | Description |
-| --- | --- | --- |
-| [CHEMBL1040569](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1040569/) | Binding | Inhibition of MDM2-p53 interaction in human SJSA1 cells assessed as p53 activation by Western blot |
-| [CHEMBL907753](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL907753/) | Functional | Induction of p53 dependent transcription in SJSA cell line by reporter gene assay |
-| [CHEMBL3762104](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL3762104/) | ADMET | Activation of p53 in human MCF10A cells assessed as upregulation of p21Clip1/WAF1 mRNA expression at 0.1 to 1 uM after 12 hrs by RT-PCR analysis |
+| Assay ID | Type | Description | Source paper |
+| --- | --- | --- | --- |
+| [CHEMBL1040569](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1040569/) | Binding | Inhibition of MDM2-p53 interaction in human SJSA1 cells assessed as p53 activation by Western blot | [Potent and orally active small-molecule inhibitors of the MDM2-p53 interaction.](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL1154717/) — *J Med Chem* |
+| [CHEMBL907753](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL907753/) | Functional | Induction of p53 dependent transcription in SJSA cell line by reporter gene assay | [Small-molecule inhibitors of the MDM2-p53 protein-protein interaction based on an isoin…](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL1137314/) — *J Med Chem* |
+| [CHEMBL3762104](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL3762104/) | ADMET | Activation of p53 in human MCF10A cells assessed as upregulation of p21Clip1/WAF1 mRNA expression at 0.1 to 1 uM after 12 hrs by RT-PCR analysis | [3-(Dipropylamino)-5-hydroxybenzofuro[2,3-f]quinazolin-1(2H)-one (DPA-HBFQ-1) plays an i…](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL3758098/) — *Eur J Med Chem* |
 
 **Cellosaurus cell lines (6,100):** 5,983 cancer cell line, 32 transformed cell line, 20 spontaneously immortalized cell line, 17 induced pluripotent stem cell, 16 telomerase immortalized cell line, 13 finite cell line, 10 embryonic stem cell, 7 undefined cell line type, 2 hybrid cell line
 

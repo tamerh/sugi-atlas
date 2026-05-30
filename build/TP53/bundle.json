@@ -502,16 +502,25 @@
     "chembl_assay_samples": [
       {
         "desc": "Inhibition of MDM2-p53 interaction in human SJSA1 cells assessed as p53 activation by Western blot",
+        "doc_id": "CHEMBL1154717",
+        "doc_journal": "J Med Chem",
+        "doc_title": "Potent and orally active small-molecule inhibitors of the MDM2-p53 interaction.",
         "id": "CHEMBL1040569",
         "type": "Binding"
       },
       {
         "desc": "Induction of p53 dependent transcription in SJSA cell line by reporter gene assay",
+        "doc_id": "CHEMBL1137314",
+        "doc_journal": "J Med Chem",
+        "doc_title": "Small-molecule inhibitors of the MDM2-p53 protein-protein interaction based on an isoindolinone scaffold.",
         "id": "CHEMBL907753",
         "type": "Functional"
       },
       {
         "desc": "Activation of p53 in human MCF10A cells assessed as upregulation of p21Clip1/WAF1 mRNA expression at 0.1 to 1 uM after 12 hrs by RT-PCR analysis",
+        "doc_id": "CHEMBL3758098",
+        "doc_journal": "Eur J Med Chem",
+        "doc_title": "3-(Dipropylamino)-5-hydroxybenzofuro[2,3-f]quinazolin-1(2H)-one (DPA-HBFQ-1) plays an inhibitory role on breast cancer cell growth and progression.",
         "id": "CHEMBL3762104",
         "type": "ADMET"
       }
