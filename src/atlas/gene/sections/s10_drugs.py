@@ -9,6 +9,7 @@ CHAINS = (
     '>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=1]',
     ">>uniprot>>chembl_activity",
     ">>uniprot>>chembl_target>>chembl_assay",
+    ">>hgnc>>cellosaurus",
     ">>hgnc>>pharmgkb_gene",
     ">>uniprot>>bindingdb",
     ">>uniprot>>pubchem_activity",
@@ -17,6 +18,7 @@ CHAINS = (
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
+            "cellosaurus",
             "pharmgkb_gene", "bindingdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
@@ -152,6 +154,24 @@ def collect(a):
          "desc": s["desc"][:240]} for s in samples
     ]
 
+    # Cellosaurus — cell lines associated with this gene (mutated, deficient,
+    # expressed-in, model-of, etc.). Totals run into the thousands for
+    # heavily-studied tumor suppressors / oncogenes (TP53 ≈10k, KRAS ≈5k);
+    # the category breakdown is the load-bearing signal. Surfaces "what
+    # experimental resources exist for this gene" for downstream wet-lab
+    # choices. Uncapped — full pagination.
+    cell_rows = map_all(a.hgnc_id, ">>hgnc>>cellosaurus")
+    cell_cats = Counter()
+    cells = []
+    for r in cell_rows:
+        cat = (r.get("category") or "Unclassified").strip()
+        cell_cats[cat] += 1
+        cells.append({"id": r.get("id"), "name": r.get("name"),
+                      "category": cat, "sex": r.get("sex")})
+    bundle["cellosaurus_total"] = len(cells)
+    bundle["cellosaurus_category_counts"] = dict(cell_cats.most_common())
+    bundle["cellosaurus_samples"] = cells[:10]
+
     # CTD literature-mined chemical-gene interactions. Each row is a
     # PubMed-evidenced interaction with CV-coded action verbs (e.g.
     # 'increases^expression', 'decreases^activity'). Sort by pubmed_count
@@ -199,7 +219,9 @@ SECTION = Section(
     needs=("hgnc_id", "canonical_uniprot"),
     produces=("chembl_targets", "molecules", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
-              "chembl_assay_samples", "pharmgkb",
+              "chembl_assay_samples",
+              "cellosaurus_total", "cellosaurus_category_counts",
+              "cellosaurus_samples", "pharmgkb",
               "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",
               "disease_trials", "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

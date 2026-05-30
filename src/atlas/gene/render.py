@@ -286,6 +286,23 @@ def r_drugs(b):
                            [(f"[{s['id']}](https://www.ebi.ac.uk/chembl/assay_report_card/{s['id']}/)",
                              s["type"], s["desc"]) for s in samples]))
 
+    # Cellosaurus — cell lines associated with this gene (mutated, deficient,
+    # expressed-in, model-of). Counts can run into thousands for heavily-
+    # studied tumor suppressors / oncogenes. Sample list is the first 10
+    # returned by biobtree (id-ordered, not curated) — meant as a starting
+    # point for downstream lookups, not a "top 10".
+    cct = b.get("cellosaurus_total") or 0
+    if cct:
+        cats = b.get("cellosaurus_category_counts") or {}
+        breakdown = ", ".join(f"{n:,} {k.lower()}" for k, n in cats.items())
+        L.append(f"\n**Cellosaurus cell lines ({cct:,}):** {breakdown}")
+        cs = b.get("cellosaurus_samples") or []
+        if cs:
+            L.append("\nFirst 10 cell lines (id-ordered, not curated):\n")
+            L.append(table(["Cellosaurus", "Name", "Category", "Sex"],
+                           [(f"[{c['id']}](https://www.cellosaurus.org/{c['id']})",
+                             c.get("name"), c.get("category"), c.get("sex")) for c in cs]))
+
     ct = b.get("disease_trials", [])
     L.append(f"\n**Clinical trials for the gene's associated diseases "
              f"({b.get('disease_trial_count', 0)}, via MONDO — disease-level, not drug-specific):**\n")
