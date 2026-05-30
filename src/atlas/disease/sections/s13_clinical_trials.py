@@ -4,7 +4,7 @@ drugs tested across them via clinical_trials → chembl_molecule.
 
 NEW collector — disease anchors directly to trials, no gene cohort fanout."""
 from collections import Counter
-from atlas.biobtree import map_all, bbmap, map_targets
+from atlas.biobtree import map_all, bbmap, map_targets, entry
 from atlas.section import Section
 
 CHAINS   = (">>mondo>>clinical_trials",
@@ -41,7 +41,12 @@ def collect(a):
     trials = map_all(a.mondo_id, ">>mondo>>clinical_trials", cap=10)
     trial_count = (a.xref_counts or {}).get("clinical_trials") or len(trials)
 
-    # ---- 2. top 20 trials by phase/status (no entry call needed) ----------
+    # ---- 2. true phase/status distribution over ALL trials (not the
+    # top-20 sample, which is biased toward PHASE4 by sort).
+    phase_counts  = dict(Counter((t.get("phase")  or "NA").upper() for t in trials))
+    status_counts = dict(Counter((t.get("overall_status") or "NA").upper() for t in trials))
+
+    # ---- 3. top 20 trials by phase/status (no entry call needed) ----------
     trials_sorted = sorted(trials, key=_trial_sort_key)
     top_trials = [
         {"id": t.get("id"),
@@ -51,9 +56,6 @@ def collect(a):
          "sponsor": None}                     # not exposed by biobtree
         for t in trials_sorted[:20]
     ]
-
-    phase_counts  = dict(Counter(t["phase"]  or "NA" for t in top_trials))
-    status_counts = dict(Counter(t["status"] or "NA" for t in top_trials))
 
     # ---- 3. trial drugs: mondo + (optional) mesh union -------------------
     drugs = {}                                # molecule_id -> dict
@@ -102,8 +104,48 @@ def collect(a):
         for mid, d in drugs.items():
             d["trial_count"] = len(per_drug_trials[mid])
 
+    # ---- 5. parent/child salt-form dedupe via biobtree's `childs` field.
+    # ChEMBL treats salt/anhydrous/etc. forms as distinct molecules (CHEMBL92
+    # = "DOCETAXEL ANHYDROUS" parent, CHEMBL3545252 = "DOCETAXEL" child).
+    # Both can appear in trial_drugs because both are referenced by trials.
+    # We fold every child into its parent, summing trial_count and keeping
+    # the parent's name. Build child→parent map only for the top candidates
+    # (bounds entry calls to ~30 per disease).
+    candidate_ids = sorted(drugs.keys(),
+                           key=lambda mid: -(drugs[mid].get("trial_count") or 0))[:60]
+    child_to_parent = {}
+    for mid in candidate_ids:
+        try:
+            en = entry(mid, "chembl_molecule")
+            attrs = (((en.get("Attributes") or {}).get("Chembl") or {}))
+            mol = attrs.get("molecule") if isinstance(attrs.get("molecule"), dict) else attrs
+            for child_id in (mol.get("childs") or []):
+                child_to_parent[child_id] = mid
+        except Exception:
+            continue
+    # Apply: replace child entries with parent (sum trial_count).
+    folded = {}
+    for mid, d in drugs.items():
+        parent_id = child_to_parent.get(mid, mid)
+        if parent_id in folded:
+            folded[parent_id]["trial_count"] = (folded[parent_id]["trial_count"] or 0) \
+                                               + (d.get("trial_count") or 0)
+            folded[parent_id]["max_phase"] = max(folded[parent_id]["max_phase"] or 0,
+                                                  d.get("max_phase") or 0)
+        else:
+            # Use the parent's metadata if we have it loaded, else the child's.
+            if parent_id != mid and parent_id in drugs:
+                folded[parent_id] = dict(drugs[parent_id])
+                folded[parent_id]["trial_count"] = (drugs[parent_id].get("trial_count") or 0) \
+                                                   + (d.get("trial_count") or 0)
+                folded[parent_id]["max_phase"] = max(drugs[parent_id].get("max_phase") or 0,
+                                                     d.get("max_phase") or 0)
+            else:
+                folded[parent_id] = dict(d)
+                folded[parent_id]["molecule_id"] = parent_id
+
     # Top-30 by max_phase desc, then trial_count desc, then name.
-    top_drugs = sorted(drugs.values(),
+    top_drugs = sorted(folded.values(),
                        key=lambda x: (-(x["max_phase"] or 0),
                                       -(x["trial_count"] or 0),
                                       x["name"] or ""))[:30]

@@ -105,7 +105,9 @@ snapshot → dist) and visible on the six reference-gene pages. Per `git log`:
 | **#9 UniProt CC + reviewed flag + isoforms** | **open — biggest** | Blocks Path C UniProt CC + named isoforms |
 | #10 AlphaFold empty for >2700 aa | 🕓 fix tomorrow | §4 currently constructs `AF-<acc>-F1` heuristically; pLDDT missing for ATM/BRCA2/DMD |
 | #12 pubchem_activity KRAS gap | 🕓 fix tomorrow | Workaround in place via chembl_activity; no functional gap |
-| #13 pharmgkb_guideline / _clinical / _variant empty | open (just filed) | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
+| #13 pharmgkb_guideline / _clinical / _variant empty | open | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
+| #14 reactome pathway entries with empty `name` | open (just filed) | Disease §14 renders "Unnamed pathway (R-HSA-N…)" for 1-2 pathways per cohort; graceful fallback in place |
+| #15 chembl_molecule parent/child salt-form linkage exposed only via `childs` on parent | open (just filed) | Disease §13 pays ~30 extra entry calls per disease to dedupe salt-form drugs (TAMOXIFEN + TAMOXIFEN CITRATE, DOCETAXEL + DOCETAXEL ANHYDROUS); workaround acceptable now, won't scale to drug pages |
 
 ## Pre-launch / cross-repo work (defer to launch day)
 
@@ -150,13 +152,48 @@ the path-of-least-resistance v1 release can ship with CIViC paragraphs as
 the headline narrative for the cancer-genome subset and defer the broader
 UniProt CC question.
 
+## Disease entity — status
+
+**SHIPPED 2026-05-30:**
+- 14-section deterministic collector (§1–§14) + 3 render-only derived
+  views (§15 drug_repurposing, §16 druggability_pyramid, §17 undrugged_target_profiles)
+- `DiseaseAnchors` + `resolve(name|mondo_id)` with 4-route gene-cohort
+  union (GWAS, GenCC, ClinVar, CIViC-evidence) capped at top-50 by
+  evidence-route count
+- `cohort.fan()` helper that reuses 9 of the gene §-collectors over the
+  disease cohort — massive code reuse, no duplication
+- Render parity with gene side; shared `atlas.render_common.table()`
+- Pipeline integration (`run_disease()` in atlas.pipeline)
+- Workflow + 4 Enju task scripts (collect_render / body_gate / summary / publish)
+- schema.org/MedicalCondition JSON-LD sidecar + provenance.json sidecar
+  (per-section dataset + chain + upstream URL trail)
+- 18 disease pages built deterministically (dev backlog; full 61-disease
+  backlog can resume any time via `/tmp/run_disease_backlog.py`)
+- 9-item polish pass: §1 empty-row omission + monarchinitiative Mondo URL,
+  §4 CIViC link + dual-evidence enrichment, §13 true-set phase distribution
+  + parent/child salt-form drug dedupe, §14 unnamed-pathway fallback,
+  §16 "+N more" overflow indicator
+
+**OPEN — deferred to future iteration:**
+- [ ] **LLM executive summaries** for the 18 disease pages (Task #42)
+- [ ] **Full 61-disease backlog** (43 more diseases to run)
+- [ ] **Disease body_gate threshold tuning** — first_run vs drift mechanics
+      are gene-tuned; disease may need its own thresholds
+- [ ] **Disease declarative-lead sentence** (gene side has one; disease
+      currently skips it — `assemble_page(bundle=None)` path)
+- [ ] **schema.org/MedicalCondition coverage audit** — check whether more
+      schema.org fields apply (`epidemiology`, `riskFactor`, `signOrSymptom`)
+- [ ] **Slug stability override** — currently slug derives from
+      Mondo's canonical_name (e.g. endometrial cancer → "endometrial-carcinoma").
+      Caller can pass slug explicitly through the workflow record; document.
+
 ## Out of scope for now
 
 - Open Targets-style genetic associations (L2G scores) — would require
   their GraphQL API. Revisit after Path A+B+C land.
 - Multi-language pages — defer until corpus is committed.
-- Drug / disease entities — same shape as gene; do after gene pipeline is
-  battle-tested at 100+ genes.
+- Drug entity — same Section/anchors pattern; tackle once disease+gene
+  pages have run at scale.
 
 ## V1 release-ready page checklist
 

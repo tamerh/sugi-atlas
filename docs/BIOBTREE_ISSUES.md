@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-05-30
+**Last updated:** 2026-05-30 (now includes disease-page findings: #14, #15)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -254,3 +254,66 @@ the single most-cited PGx-decision source in clinical pharmacology.
 Without them, Atlas's §10 PharmGKB block can only state "there's a
 pharmgkb_gene entry"; the *contents* are unreachable. Will be more
 pronounced once drug-pages are tackled.
+
+## Issue #14 — Reactome pathway entries with empty `name` field
+
+Some pathway records are indexed in biobtree (they're returned from
+`>>uniprot>>reactome` / `>>ensembl>>reactome` map chains and have working
+`/entry` endpoints) but their `name` attribute is empty.
+
+**Repro:**
+```
+search(R-HSA-549132)  → R-HSA-549132|reactome||54    # name column blank
+search(R-HSA-425366)  → R-HSA-425366|reactome||284   # name column blank
+entry(R-HSA-549132, "reactome")  → Attributes.Reactome is empty
+entry(R-HSA-425366, "reactome")  → Attributes.Reactome is empty
+```
+
+Both pathways are real Reactome entries
+(`reactome.org/PathwayBrowser/#/R-HSA-549132` = "Synthesis of bile acids
+and bile salts via 24-hydroxycholesterol"; `R-HSA-425366` = "Transport of
+bile salts and organic acids, metal ions and amine compounds"). The
+biobtree index has the id but is missing the human-readable label.
+
+**Atlas impact:** Sugi Atlas's §14 cohort-pathway aggregation surfaces
+these as `[Unnamed pathway (R-HSA-NNNN)]` with a working Reactome link,
+which is a graceful fallback but reads as a data hole on the page. We've
+seen 1–2 unnamed pathways per disease in the gout / kidney / hepatic
+cohorts (transport-heavy gene sets).
+
+**Suggested fix:** the Reactome ingest's `name` resolution likely keys
+off a separate file (`ReactomePathways.txt`) that wasn't fully joined for
+these older pathway ids — refresh against the upstream pathway-name table.
+
+## Issue #15 — `chembl_molecule` parent/child salt-form linkage exposed only via `childs` on the parent
+
+ChEMBL treats salt forms and anhydrous forms as separate molecule IDs
+(e.g. CHEMBL92 = "DOCETAXEL ANHYDROUS" parent, CHEMBL3545252 = "DOCETAXEL"
+child; CHEMBL1542 = "AZATHIOPRINE" parent with multiple children). The
+parent's `/entry` exposes the child list:
+```
+entry(CHEMBL92, "chembl_molecule").Attributes.Chembl.childs
+  → ['CHEMBL3545252']
+entry(CHEMBL1542, "chembl_molecule").Attributes.Chembl.childs
+  → ['CHEMBL1200400', 'CHEMBL3785814', 'CHEMBL3785780']
+```
+
+But there is **no forward edge from child → parent**. Building a
+de-duplication index requires either:
+1. Walking every candidate molecule's `/entry` to read `childs`, then
+   inverting to a child→parent map (Atlas's §13 disease collector does
+   this — adds ~30 entry calls per disease just to dedupe drug names), or
+2. A separate `>>chembl_molecule>>chembl_molecule` self-loop map which
+   doesn't currently exist.
+
+**Suggested fix:** surface `parent_molecule_chembl_id` (the field is
+already in ChEMBL's source data) either as a target schema column on
+relevant edges or as a queryable attribute, so a single map call can
+return parent-deduplicated lists.
+
+**Atlas impact:** the same drug shows up as 2-3 rows in §10 / §13 drug
+tables (TAMOXIFEN + TAMOXIFEN CITRATE + TAMOXIFEN HEMICITRATE;
+DOCETAXEL + DOCETAXEL ANHYDROUS) without this. Atlas works around it
+today by paying the per-molecule `/entry` calls — fine at our scale
+(top-30 drugs per disease) but won't scale to drug pages where the entire
+ChEMBL graph is walked.

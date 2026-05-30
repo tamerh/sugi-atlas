@@ -33,17 +33,24 @@ def _trunc(s, n=80):
 # §1 disease_ids ------------------------------------------------------------
 
 def r_disease_ids(b):
-    rows = [
+    # Skip rows whose value is empty so the ID table only carries facts.
+    # Cleaner than rendering empty `| |` cells for diseases that don't have
+    # the given cross-reference (most diseases miss at least one of MeSH /
+    # OMIM / Orphanet).
+    candidate_rows = [
         ("Canonical name", b.get("canonical_name")),
-        ("Mondo ID", f"[{b['mondo_id']}](https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/"
-                     f"http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252F{b['mondo_id'].replace(':','_')})"
-                     if b.get("mondo_id") else ""),
+        # Use monarchinitiative.org's stable Mondo redirect — shorter + more
+        # human-readable than the OLS4 percent-encoded URL.
+        ("Mondo ID",
+         f"[{b['mondo_id']}](https://monarchinitiative.org/{b['mondo_id']})"
+         if b.get("mondo_id") else None),
         ("EFO", b.get("efo_id")),
-        ("MeSH", ", ".join(b.get("mesh_ids") or [])),
-        ("OMIM", ", ".join(b.get("omim_ids") or [])),
-        ("Orphanet", ", ".join(b.get("orphanet_ids") or [])),
+        ("MeSH", ", ".join(b.get("mesh_ids") or []) or None),
+        ("OMIM", ", ".join(b.get("omim_ids") or []) or None),
+        ("Orphanet", ", ".join(b.get("orphanet_ids") or []) or None),
         ("Is cancer (heuristic)", "yes" if b.get("is_cancer") else "no"),
     ]
+    rows = [(k, v) for k, v in candidate_rows if v not in (None, "")]
     out = ["## Disease identifiers", "", table(["Field", "Value"], rows)]
 
     xc = b.get("xref_counts") or {}
@@ -127,16 +134,37 @@ def r_mendelian_overlap(b):
            f"Dual-evidence (GWAS+Mendelian): {len(b.get('dual_evidence_genes') or [])}**"]
     dual = b.get("dual_evidence_genes") or []
     if dual:
-        out += ["", "**Dual-evidence genes (GWAS + Mendelian = highest-confidence targets):**", "",
-                table(["Gene"], [(g,) for g in dual[:50]])]
+        # Enrich the dual-evidence table: HGNC link + evidence-route flags so
+        # the reader sees *why* each gene qualifies as dual-evidence.
+        # cohort_evidence isn't directly on this section's bundle so we
+        # surface evidence labels by walking gencc/orphanet/clinvar lists.
+        gencc_set = {g.get("symbol") for g in (b.get("gencc_genes") or [])}
+        orph_set  = {g.get("symbol") for g in (b.get("orphanet_genes") or [])}
+        omim_set  = {g.get("symbol") for g in (b.get("omim_genes") or [])}
+        def _routes(sym):
+            r = ["GWAS"]
+            if sym in gencc_set: r.append("GenCC")
+            if sym in orph_set:  r.append("Orphanet")
+            if sym in omim_set:  r.append("OMIM")
+            return ", ".join(r)
+        out += ["", "**Dual-evidence genes (GWAS + Mendelian — highest-confidence targets):**", "",
+                table(["Gene", "HGNC", "Evidence routes"],
+                      [(f"[{sym}](https://www.genenames.org/tools/search/#!/?query={sym})",
+                        sym, _routes(sym))
+                       for sym in dual[:50]])]
     sg = b.get("somatic_driver_genes") or []
     if sg:
+        # CIViC's `name` field equals the gene symbol — we surface the CIViC
+        # ID as a clickable link to the gene's CIViC summary instead, which
+        # is the actual value-add.
         out += ["", "**Somatic driver evidence (intOGen + CIViC, cohort fanout):**", "",
                 table(["Gene", "intOGen role", "Cancer types", "CIViC"],
                       [(g.get("symbol"),
                         (g.get("intogen") or {}).get("role"),
                         _trunc((g.get("intogen") or {}).get("cancer_types") or "", 50),
-                        ((g.get("civic") or {}).get("name")) or "")
+                        (f"[CIViC #{(g.get('civic') or {}).get('id')}]"
+                         f"(https://civicdb.org/genes/{(g.get('civic') or {}).get('id')}/summary)"
+                         if (g.get("civic") or {}).get("id") else ""))
                        for g in sg[:30]])]
     gc = b.get("gencc_genes") or []
     if gc:
@@ -380,7 +408,7 @@ def r_clinical_trials(b):
            f"**Total trials: {_i(b.get('trial_count'))}.**"]
     pc = b.get("phase_counts") or {}
     if pc:
-        out += ["", "**Phase distribution (top 20 trials):**", ""]
+        out += ["", "**Phase distribution (across all retrieved trials):**", ""]
         rows = sorted(pc.items(), key=lambda kv: -kv[1])
         out.append(table(["Phase", "Trials"], [(k, _i(v)) for k, v in rows]))
     tt = b.get("top_trials") or []
@@ -410,11 +438,19 @@ def r_pathways(b):
            f"{_i(b.get('pathway_count'))}.**"]
     tp = b.get("top_pathways") or []
     if tp:
+        def _pname(p):
+            # Some Reactome pathways are indexed without a name in biobtree
+            # (BIOBTREE_ISSUES — file an upstream issue). Fall back to a
+            # graceful "Unnamed pathway" label so the table doesn't lead
+            # with bare R-HSA-NNNN identifiers.
+            n = p.get("name")
+            if n:
+                return n
+            return f"Unnamed pathway ({p.get('id') or '?'})"
         out += ["", "**Top pathways by cohort coverage:**", "",
                 table(["Pathway", "Genes", "Sample cohort genes"],
-                      [(f"[{p.get('name') or p.get('id')}]"
-                        f"(https://reactome.org/PathwayBrowser/#/{p['id']})"
-                        if p.get("id") else (p.get("name") or ""),
+                      [(f"[{_pname(p)}](https://reactome.org/PathwayBrowser/#/{p['id']})"
+                        if p.get("id") else _pname(p),
                         _i(p.get("gene_count")),
                         ", ".join((p.get("gene_symbols") or [])[:8]))
                        for p in tp[:30]])]
@@ -487,12 +523,18 @@ def r_druggability_pyramid(bundles):
         "D": "Druggable family + AlphaFold only, no drug",
         "E": "Difficult family or no structure, no drug",
     }
+    def _members(t):
+        m = tier_members[t]
+        if not m:
+            return ""
+        if len(m) <= 10:
+            return ", ".join(m)
+        return ", ".join(m[:10]) + f" (+{len(m) - 10} more)"
+
     out = ["## Druggability pyramid", "",
            "Cohort genes binned by druggability tier (high → low):", "",
            table(["Tier", "Definition", "Genes", "Symbols"],
-                 [(t, labels[t], _i(tiers.get(t, 0)),
-                   ", ".join(tier_members[t][:10])
-                   + ("…" if len(tier_members[t]) > 10 else ""))
+                 [(t, labels[t], _i(tiers.get(t, 0)), _members(t))
                   for t in "ABCDE"])]
     return "\n".join(out)
 
