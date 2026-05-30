@@ -77,6 +77,29 @@ From the biobtree mining + page audit. Each is independently shippable.
 - [ ] **Fix `src/atlas/bench/dataset_coverage.py`** — still references the old
       `collect.py` shape, broke during the refactor.
 
+## Pre-launch / cross-repo work (defer to launch day)
+
+These all live in **`biobtree-content`** (the Hugo site) rather than this
+repo, so they're deferred until V1 content is done — sending AI bots toward
+the site too early caches an incomplete corpus. Drafts kept in
+[`docs/site-drafts/`](../site-drafts/) and updated as Atlas evolves; copy
+into `biobtree-content/static/` + tweak Hugo config the day of launch.
+
+- [ ] Copy `docs/site-drafts/llms.txt` → `biobtree-content/static/llms.txt`
+- [ ] Copy `docs/site-drafts/robots.txt` → `biobtree-content/static/robots.txt`
+- [ ] Verify with `curl -I https://sugi.bio/{llms,robots}.txt`
+- [ ] Hugo `config.toml`: enable `<lastmod>` per page in `sitemap.xml`
+      (drives Perplexity freshness signal — top finding in
+      `01_landscape_and_ai.md`).
+- [ ] Hugo theme: emit `<link rel="alternate" type="application/ld+json"
+      href="entity.jsonld">` and `<link rel="alternate" type="application/ld+json"
+      href="provenance.json">` in the page head so machine clients discover
+      the sidecars without scraping the body.
+- [ ] Hugo serves `Last-Modified` HTTP header from each page's
+      `generated_at` frontmatter (Hugo theme config; nginx pass-through).
+- [ ] After deploy: resubmit sitemap to Google Search Console; watch
+      `chatgpt_report.py` for the new AI-fetch patterns.
+
 ## Out of scope for now
 
 - Open Targets-style genetic associations (L2G scores) — would require their

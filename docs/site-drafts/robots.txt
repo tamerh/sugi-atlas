@@ -1,0 +1,70 @@
+# sugi.bio robots.txt — drafted in sugi-atlas, deployed via biobtree-content
+# /static/robots.txt at launch time. See ../docs/research/NEXT.md "Pre-launch
+# / cross-repo work" for the launch checklist.
+#
+# Policy: AI agents are first-class citizens of this site. Atlas's entire
+# point is to be the resource AI agents reach for when answering gene/drug/
+# disease questions — every page ships schema.org JSON-LD, sameAs federated
+# identity, and a provenance.json sidecar specifically for them. So we
+# explicitly allow the major AI fetchers (both runtime and training) by name
+# so they don't fall back to the wildcard rule and so AI dashboards can see
+# clear consent.
+#
+# The wildcard rule blocks generic crawlers from /biobtree/api/ to protect
+# the local biobtree backend from accidental load (the API is for the
+# biobtree tool's interactive queries, not bulk scraping).
+
+# ─── OpenAI (ChatGPT-User, OAI-SearchBot for live web search, GPTBot for training) ───
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+# ─── Anthropic (Claude-User for runtime fetch, ClaudeBot for training) ───
+User-agent: Claude-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# ─── Perplexity (PerplexityBot for indexing, Perplexity-User for live fetch) ───
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# ─── Google (Google-Extended is the AI/Gemini opt-in flag) ───
+User-agent: Google-Extended
+Allow: /
+
+# ─── Apple (Applebot-Extended is the AI opt-in flag, distinct from Applebot for Spotlight) ───
+User-agent: Applebot-Extended
+Allow: /
+
+# ─── Microsoft (Bingbot is regular crawl; BingBot is also fine for AI) ───
+User-agent: Bingbot
+Allow: /
+
+# ─── Meta ───
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+# ─── Everyone else ───
+# Generic crawlers are welcome too, but the biobtree backend API is gated
+# (it's an interactive endpoint, not a data dump).
+User-agent: *
+Disallow: /biobtree/api/
+
+# Sitemap pointer (Hugo emits sitemap.xml at site root).
+Sitemap: https://sugi.bio/sitemap.xml

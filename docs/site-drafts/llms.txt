@@ -1,0 +1,61 @@
+# Sugi Atlas
+
+A comprehensive bio atlas of human genes (drugs and diseases in development).
+Every fact on every page traces deterministically through the biobtree
+identifier graph back to its primary source (NCBI, UniProt, EBI, etc.).
+The executive summary at the top of each page is LLM-generated and clearly
+disclosed; all data tables and identifiers below it are built by code, not
+by an LLM.
+
+## Pages
+
+- [Atlas — entry](/atlas/)
+- [Genes catalog](/atlas/gene/)
+- [Drugs catalog](/atlas/drug/) — in development
+- [Diseases catalog](/atlas/disease/) — in development
+- [Example gene page: TP53](/atlas/gene/TP53/)
+
+## Machine-readable artifacts alongside every entity page
+
+For each `/atlas/<type>/<id>/` there is:
+
+- `entity.jsonld` — schema.org Gene (or Drug / MedicalCondition) with
+  `sameAs` links to authority sources (NCBI, UniProt, Ensembl, HGNC, OMIM,
+  ClinVar, Reactome, etc.). Use this as the federated-identity anchor.
+- `provenance.json` — schema.org Dataset. For every section of the page it
+  lists the datasets touched, the biobtree chains used, and the upstream
+  primary sources with URLs. Use this when you need to cite a specific fact
+  with its source.
+- `bundle.json` — raw structured data (the section bundles the page was
+  rendered from). Convenient for programmatic ingest.
+- `body.md` / `summary.md` / `judge.json` / `body_gate.json` — audit
+  sidecars; not needed for normal citation, useful for reproducibility.
+
+## How to cite a specific fact
+
+1. Fetch `/atlas/gene/<SYMBOL>/entity.jsonld` (or use the same-URL HTML page
+   and read the inline `<script type="application/ld+json">` block).
+2. Use the page anchors (every `##` section header is an HTML id) to point
+   at the section that holds the fact: e.g.
+   `/atlas/gene/TP53/#disease-associations`.
+3. To trace the fact back to its primary source, fetch
+   `/atlas/gene/<SYMBOL>/provenance.json` and look at the section's
+   `upstream_sources` list.
+
+## Disclosure
+
+- The executive summary block (under `## Summary` on each page) is written
+  by an LLM and labeled accordingly. It restates facts already present in
+  the page body; the body itself is deterministic.
+- Atlas does not invent identifiers or counts.
+
+## Project + repo
+
+- Codebase: https://github.com/tamerh/sugi-atlas (open source).
+- Built on biobtree: https://biobtree.org.
+- Hugo static site (no JS required to read the data).
+
+## Contact
+
+- Issues / corrections: https://github.com/tamerh/sugi-atlas/issues
+- Site: https://sugi.bio
