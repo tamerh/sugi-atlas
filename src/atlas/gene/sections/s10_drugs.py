@@ -8,14 +8,24 @@ CHAINS = (
     '>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=1]',
     ">>hgnc>>pharmgkb_gene",
     ">>uniprot>>bindingdb",
+    ">>uniprot>>pubchem_activity",
     ">>hgnc>>gencc>>mondo>>clinical_trials",
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "pharmgkb_gene", "bindingdb",
-            "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
+            "pubchem_activity", "clinical_trials", "mondo", "gencc", "clinvar",
+            "uniprot", "hgnc")
+
+# Activity types we sort by potency (low value = potent). Other outcomes carry
+# qualifier flags rather than affinity values.
+_AFFINITY_TYPES = {"ki", "ic50", "kd", "ec50"}
 
 def _phase(d):
     return int(d) if (d or "").isdigit() else 0
+
+def _f(x):
+    try: return float(x)
+    except (TypeError, ValueError): return float("inf")
 
 def collect(a):
     bundle = {"section": "10_drugs", "symbol": a.symbol}
@@ -44,6 +54,29 @@ def collect(a):
                                    "ic50": t.get("ic50")} for t in bd[:30]]
     bundle["bindingdb_sampled"] = len(bd)
 
+    # PubChem BioAssay activities — Active outcomes with a real affinity value,
+    # sorted by potency (low IC50/Ki/Kd/EC50 = most potent). The activity_id
+    # itself encodes CID_AID_VERSION so we surface those without per-row entry
+    # fetches (PMID enrichment would require entries — deferred to scale-out).
+    pa = map_all(uni, ">>uniprot>>pubchem_activity") if uni else []
+    actives = [r for r in pa if r.get("activity_outcome") == "Active"
+               and (r.get("activity_type") or "").lower() in _AFFINITY_TYPES
+               and _f(r.get("value")) not in (0.0, float("inf"))]
+    actives.sort(key=lambda r: _f(r.get("value")))
+    bioassays = []
+    for r in actives[:30]:
+        parts = (r.get("id") or "").split("_")
+        cid = parts[0] if parts else None
+        aid = parts[1] if len(parts) > 1 else None
+        bioassays.append({
+            "id": r["id"], "cid": cid, "aid": aid,
+            "activity_type": r.get("activity_type"),
+            "value": r.get("value"), "unit": r.get("unit"),
+        })
+    bundle["pubchem_bioassay"] = bioassays
+    bundle["pubchem_bioassay_total"] = len(pa)
+    bundle["pubchem_bioassay_active_count"] = len(actives)
+
     # Clinical trials via the DISEASE route — chembl_molecule>>clinical_trials would
     # pollute with off-target drugs (ChEMBL target↔molecule is bioactivity-based).
     # Disease-level is biobtree's intended pattern.
@@ -63,9 +96,11 @@ def collect(a):
 
 SECTION = Section(
     id="10", name="drugs",
-    description="ChEMBL targets + phased targeting molecules, PharmGKB, BindingDB affinities, clinical trials via disease route",
+    description=("ChEMBL targets + phased targeting molecules, PharmGKB, BindingDB "
+                 "affinities, PubChem BioAssay actives (sorted by potency, with "
+                 "clickable CID/AID), clinical trials via disease route"),
     needs=("hgnc_id", "canonical_uniprot"),
     produces=("chembl_targets", "molecules", "pharmgkb", "bindingdb_sample",
-              "disease_trials", "is_drug_target"),
+              "pubchem_bioassay", "disease_trials", "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

@@ -207,6 +207,21 @@ def r_drugs(b):
         L.append(f"\n**Binding affinities (BindingDB, sampled {b.get('bindingdb_sampled', 0)}):**\n")
         L.append(table(["Ligand", "Ki", "IC50"],
                        [(x.get("ligand"), x.get("ki"), x.get("ic50")) for x in bd[:15]]))
+
+    # PubChem BioAssay actives — sorted by potency. CID/AID get clickable
+    # PubChem URLs so an AI agent (or human) can drill into the assay record
+    # directly without needing a separate entry fetch.
+    pba = b.get("pubchem_bioassay") or []
+    if pba:
+        L.append(f"\n**PubChem BioAssay actives ({b.get('pubchem_bioassay_active_count', 0)} "
+                 f"Active w/ measured affinity, of {b.get('pubchem_bioassay_total', 0)} total "
+                 f"PubChem activities), top 30 by potency:**\n")
+        L.append(table(["CID", "AID", "Type", "Value", "Unit"],
+                       [(f"[{p['cid']}](https://pubchem.ncbi.nlm.nih.gov/compound/{p['cid']})" if p.get('cid') else '',
+                         f"[{p['aid']}](https://pubchem.ncbi.nlm.nih.gov/bioassay/{p['aid']})" if p.get('aid') else '',
+                         p.get("activity_type"), p.get("value"), p.get("unit"))
+                        for p in pba]))
+
     ct = b.get("disease_trials", [])
     L.append(f"\n**Clinical trials for the gene's associated diseases "
              f"({b.get('disease_trial_count', 0)}, via MONDO — disease-level, not drug-specific):**\n")

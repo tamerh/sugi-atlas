@@ -70,6 +70,7 @@ UPSTREAM = {
     "chembl_molecule":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "pharmgkb_gene":     ("PharmGKB",                              "https://www.pharmgkb.org/"),
     "bindingdb":         ("BindingDB",                             "https://www.bindingdb.org/"),
+    "pubchem_activity":  ("PubChem BioAssay",                      "https://pubchem.ncbi.nlm.nih.gov/"),
     "clinical_trials":   ("ClinicalTrials.gov",                    "https://clinicaltrials.gov/"),
     # diseases / phenotypes
     "mondo":             ("Mondo Disease Ontology",                "https://mondo.monarchinitiative.org/"),
