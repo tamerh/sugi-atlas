@@ -1,0 +1,128 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:620",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:620",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">>uniprot>>jaspar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "AHR:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "AP1:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CTCF:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "STAT1:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "APP",
+      "chain": ">>collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "SMAD2:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MYC:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PURA:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ETS2:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PPARG:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "RARA:APP",
+      "dataset": "collectri"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MYC:APP",
+      "dataset": "collectri"
+    }
+  }
+]

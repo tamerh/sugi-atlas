@@ -1,0 +1,133 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "PD-L1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000120217",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:17635",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000120217",
+      "chain": ">>ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000120217",
+      "chain": ">>ensembl>>scxa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000120217",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274",
+      "dataset": "gtex"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274",
+      "dataset": "tabula_sapiens"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000120217",
+      "chain": ">>ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q9NZQ7",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9NZQ7",
+      "chain": ">>uniprot>>hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:17635",
+      "chain": ">>hgnc>>msigdb"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274",
+      "dataset": "scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "E-CURD-10",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "E-MTAB-7037",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "E-MTAB-8498",
+      "dataset": "scxa"
+    }
+  }
+]

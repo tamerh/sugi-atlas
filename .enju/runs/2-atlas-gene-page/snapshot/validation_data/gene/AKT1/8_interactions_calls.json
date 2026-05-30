@@ -1,0 +1,73 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AKT1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:391",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P31749",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>string_interaction>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>string_interaction>>uniprot",
+      "page": "-1[]P31749,1,P31749,89,9,9606.ENSP00000380450_0135_P31749,2,-1]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>intact>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>biogrid_interaction>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>string_interaction>>uniprot",
+      "page": "-1[]P31749,1,P31749,156,19,9606.ENSP00000309572_0242_P31749,1,-1]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>diamond_similarity>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P31749",
+      "chain": ">uniprot>>esm2_similarity>>uniprot"
+    }
+  }
+]

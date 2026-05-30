@@ -1,0 +1,75 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX human protein"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "P19174"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P19174",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P19174",
+      "dataset": "alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P19174",
+      "dataset": "smr"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Q07812"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q07812",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q07812",
+      "dataset": "alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q07812",
+      "dataset": "smr"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q07812",
+      "chain": ">uniprot>>pdb"
+    }
+  }
+]

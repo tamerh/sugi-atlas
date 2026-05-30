@@ -1,0 +1,78 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3 human caspase-3",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000164305",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P42574",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">uniprot>>string_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">uniprot>>biogrid_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">uniprot>>intact"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">uniprot>>esm2_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">uniprot>>diamond_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P98170,O14727,Q14790,P10415,P55211,P09874,Q07817,P04637,P01375,P31749,P45983,Q13489,Q13158,P08758,A1KZ92,Q92626,O76075,P34932,P01584,Q14457,P02570,P00354,P48023,P04053,P01106,P05231,P07900,Q9NR28,P35354,Q07820",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "A0A1D5PPP7,F1NV61,O08738,O35397,P55210,P55212,P55213,P55214,P70677,P97864,Q08DY9,Q2PFV2,Q3T0P5,Q5IS54,Q5IS99,Q60431,Q8MJC3,Q8MJU1,Q8MKI5,Q95ND5,Q9MZV6,Q9MZV7",
+      "chain": ">uniprot>>hgnc"
+    }
+  }
+]

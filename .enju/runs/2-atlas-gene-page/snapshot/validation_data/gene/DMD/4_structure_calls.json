@@ -1,0 +1,56 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD dystrophin"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:2928",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P11532",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11532",
+      "chain": ">uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11532",
+      "chain": ">uniprot>>alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "P11532",
+      "dataset": "alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P11532",
+      "dataset": "alphafold"
+    }
+  }
+]

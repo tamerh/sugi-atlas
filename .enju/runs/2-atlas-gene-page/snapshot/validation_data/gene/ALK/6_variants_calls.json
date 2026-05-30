@@ -1,0 +1,230 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ALK",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ALK",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:427",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:427",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9UM73",
+      "chain": ">uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q9UM73",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9UM73",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1000122",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9UM73",
+      "chain": ">hgnc>>clinvar",
+      "page": "-1[]Q9UM73,1,Q9UM73,84,20][\"antml:parameter>\n<invoke name=\"mcp__biobtree__biobtree_map\">\n<parameter name=\"terms\">HGNC:427"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ALK",
+      "dataset": "clinvar",
+      "page": "0,0,0,107"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1001467",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1003120",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002387",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002763",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002872",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1000849",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002687",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1000852",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1000895",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1001113",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1000602",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:427",
+      "chain": ">hgnc>>spliceai"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1001211",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002636",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1000590",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002785",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002333",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002998",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002096",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1001771",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:427",
+      "chain": ">hgnc>>spliceai",
+      "page": "-1[]HGNC:427,10,HGNC:427,169,-1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9UM73",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]",
+      "page": "-1[]Q9UM73,1,Q9UM73,84,20][\""
+    }
+  }
+]

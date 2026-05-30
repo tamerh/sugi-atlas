@@ -1,0 +1,98 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:11110",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>msigdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">>uniprot>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">>uniprot>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000117713",
+      "chain": ">>ensembl>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:11110,10,HGNC:11110,158,1]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:11110,10,HGNC:11110,32,5]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:11110,10,HGNC:11110,188,7]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:11110,10,HGNC:11110,92,9]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:11110,10,HGNC:11110,14,11]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">>hgnc>>msigdb",
+      "page": "-1[]HGNC:11110,10,HGNC:11110,195,11]["
+    }
+  }
+]
