@@ -9,7 +9,7 @@ from atlas.gene.sections import s07_pathways
 CHAINS   = (">>hgnc>>reactome", ">>hgnc>>ensembl>>reactome")
 DATASETS = ("hgnc", "ensembl", "reactome")
 
-TOP_N = 20
+TOP_N = 30
 
 
 def collect(a):

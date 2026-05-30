@@ -70,13 +70,35 @@ def collect(a):
     # ---- top assocs ------------------------------------------------------
     rows = map_all(a.mondo_id, ">>mondo>>gwas", cap=_GWAS_PAGE_CAP)
     rows_sorted = sorted(rows, key=lambda r: _parse_pvalue(r.get("p_value")))
-    top_rows = rows_sorted[:_TOP_ASSOCS_N]
+    # Walk the sorted list, fetch each entry, and dedupe by rsID as we go
+    # (best p-value wins because the list is already p-sorted). Stops once
+    # we have _TOP_ASSOCS_N unique rsIDs — bounds entry cost the same as the
+    # old slice-then-fetch path but produces 50 unique variants instead of
+    # the prior 50 repeated rows for the same handful of lead SNPs.
+    seen_rsids = set()
+    top_rows = []
+    top_attrs = []  # parallel array: cached gwas entries to avoid re-fetching
+    for r in rows_sorted:
+        gid = r.get("id")
+        if not gid:
+            continue
+        attrs = _gwas_attrs(gid)
+        rsid = attrs.get("snp_id") or r.get("snp_id")
+        if not rsid:
+            # No rsID — keep at most one such row to retain coverage
+            rsid = f"_no_rsid:{gid}"
+        if rsid in seen_rsids:
+            continue
+        seen_rsids.add(rsid)
+        top_rows.append(r)
+        top_attrs.append(attrs)
+        if len(top_rows) >= _TOP_ASSOCS_N:
+            break
 
     top_assocs = []
     gene_ids = set()
-    for r in top_rows:
+    for r, attrs in zip(top_rows, top_attrs):
         gid = r.get("id")
-        attrs = _gwas_attrs(gid)
         rsid = attrs.get("snp_id") or None
         # strongest_snp_risk_allele looks like 'rs380390-C'; split off the allele
         risk_allele = None

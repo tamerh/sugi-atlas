@@ -127,8 +127,8 @@ def r_mendelian_overlap(b):
            f"Dual-evidence (GWAS+Mendelian): {len(b.get('dual_evidence_genes') or [])}**"]
     dual = b.get("dual_evidence_genes") or []
     if dual:
-        out += ["", "**Dual-evidence genes (highest-confidence targets):** "
-                + ", ".join(dual[:30])]
+        out += ["", "**Dual-evidence genes (GWAS + Mendelian = highest-confidence targets):**", "",
+                table(["Gene"], [(g,) for g in dual[:50]])]
     sg = b.get("somatic_driver_genes") or []
     if sg:
         out += ["", "**Somatic driver evidence (intOGen + CIViC, cohort fanout):**", "",
@@ -145,6 +145,22 @@ def r_mendelian_overlap(b):
                       [(g.get("symbol"), g.get("gencc_classification"),
                         g.get("mode_of_inheritance"),
                         _trunc(g.get("mondo_disease"), 50)) for g in gc[:30]])]
+    og = b.get("orphanet_genes") or []
+    if og:
+        out += ["", "**Orphanet rare-disease linkage (cohort genes):**", "",
+                table(["Gene", "Orphanet ID", "Rare disease"],
+                      [(g.get("symbol"),
+                        f"[{g['orphanet_id']}](https://www.orpha.net/en/disease/detail/"
+                        f"{g['orphanet_id'].split(':')[-1] if g.get('orphanet_id') else ''})"
+                        if g.get("orphanet_id") else "",
+                        _trunc(g.get("orphanet_name"), 65))
+                       for g in og[:50]])]
+    omg = b.get("omim_genes") or []
+    if omg:
+        out += ["", "**OMIM-shared genes (cohort gene's MIM ids overlap the disease's):**", "",
+                table(["Gene", "MIM ids"],
+                      [(g.get("symbol"), ", ".join(g.get("mim_ids") or []))
+                       for g in omg[:30]])]
     return "\n".join(out)
 
 
@@ -161,13 +177,13 @@ def r_genes_proteins(b):
                          [(k, _i(v)) for k, v in ev.items()]))
     genes = b.get("genes") or []
     if genes:
-        out += ["", "**Cohort genes (top 30):**", "",
+        out += ["", "**Cohort genes (full):**", "",
                 table(["Symbol", "HGNC", "Ensembl", "UniProt", "Name", "Evidence"],
                       [(g.get("symbol"), g.get("hgnc_id"), g.get("ensembl_id"),
                         g.get("canonical_uniprot"),
                         _trunc(g.get("hgnc_name"), 50),
                         ",".join(k for k, v in (g.get("evidence") or {}).items() if v))
-                       for g in genes[:30]])]
+                       for g in genes[:50]])]
     return "\n".join(out)
 
 
@@ -312,13 +328,18 @@ def r_drug_targets(b):
 def r_bioactivity_enzyme(b):
     out = ["## Bioactivity & enzyme data", "",
            f"**Enzyme cohort genes (≥1 EC): {_i(b.get('enzyme_count'))}.**"]
-    ts = b.get("top_studied_genes") or []
-    if ts:
-        out += ["", "**Top studied genes by ChEMBL assay count:**", "",
+    # Surface every cohort gene with measurable bioactivity (sorted by
+    # assay count). Tighter caps lost the migrated page's long-tail signal.
+    pgb = b.get("per_gene_bioactivity") or []
+    studied_all = sorted(
+        [g for g in pgb if (g.get("chembl_assay_total") or 0) > 0],
+        key=lambda g: -(g.get("chembl_assay_total") or 0))
+    if studied_all:
+        out += ["", "**Cohort genes with ChEMBL bioactivity (full, sorted by assay count):**", "",
                 table(["Symbol", "Assays", "Type breakdown"],
-                      [(g.get("symbol"), _i(g.get("total")),
-                        ", ".join(f"{k}:{v}" for k, v in (g.get("type_summary") or {}).items()))
-                       for g in ts])]
+                      [(g.get("symbol"), _i(g.get("chembl_assay_total")),
+                        ", ".join(f"{k}:{v}" for k, v in (g.get("chembl_assay_types") or {}).items()))
+                       for g in studied_all[:50]])]
     eg = b.get("enzyme_genes") or []
     if eg:
         out += ["", "**Cohort enzymes (BRENDA EC):**", "",
@@ -326,7 +347,13 @@ def r_bioactivity_enzyme(b):
                       [(g.get("symbol"),
                         ", ".join(g.get("ec_numbers") or []),
                         _trunc(", ".join(g.get("ec_names") or []), 60))
-                       for g in eg[:30]])]
+                       for g in eg[:50]])]
+    usp = b.get("undrugged_starting_points") or []
+    if usp:
+        out += ["", "**Undrugged cohort genes with high screening signal (≥100 ChEMBL assays):**", "",
+                table(["Symbol", "ChEMBL assays", "Note"],
+                      [(g.get("symbol"), _i(g.get("chembl_assay_total")),
+                        g.get("note") or "") for g in usp[:30]])]
     return "\n".join(out)
 
 
@@ -390,7 +417,7 @@ def r_pathways(b):
                         if p.get("id") else (p.get("name") or ""),
                         _i(p.get("gene_count")),
                         ", ".join((p.get("gene_symbols") or [])[:8]))
-                       for p in tp[:20]])]
+                       for p in tp[:30]])]
     return "\n".join(out)
 
 
