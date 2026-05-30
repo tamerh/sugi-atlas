@@ -1690,6 +1690,7 @@
     "is_drug_target": true,
     "molecule_count": 0,
     "molecules": [],
+    "patent_total": 0,
     "pharmgkb": [
       {
         "cpic_guideline": "false",

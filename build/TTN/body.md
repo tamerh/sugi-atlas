@@ -801,10 +801,10 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 
 **ChEMBL targets (1):** CHEMBL6067440 (SINGLE PROTEIN)
 
-**Molecules with ChEMBL bioactivity (phase ≥1): 0**, by development phase (incl. off-target/promiscuous compounds):
+**Molecules with ChEMBL bioactivity (phase ≥1): 0**, by development phase (incl. off-target/promiscuous compounds).
 
-| Molecule | Name | Phase |
-| --- | --- | --- |
+| Molecule | Name | Phase | Patents |
+| --- | --- | --- | --- |
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 
