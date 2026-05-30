@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Body-gate — regression-test the collector bundle vs a saved per-gene snapshot.
 
-For every entity we publish, we keep a JSON snapshot of its collector bundle at
-`validation_data/snapshots/gene/<SYMBOL>.json`. The next run diffs the new
-bundle against that snapshot and reports STRUCTURAL changes (counts that moved,
-sections that emptied, ids added/removed).
+Snapshots live in the PRIVATE dist repo (alongside the published pages), not in
+the public atlas code repo. Default snap_dir is `$ATLAS_DIST_ROOT/snapshots/gene/`
+(default ATLAS_DIST_ROOT=/data/sugi-atlas-dist). The workflow body_gate.py script
+passes ctx["params"]["dist_root"] explicitly; ad-hoc CLI use picks up the env.
 
 Verdicts:
   clean      — bundles are byte-identical
@@ -13,25 +13,29 @@ Verdicts:
   first_run  — no snapshot yet, no comparison possible
 
 CLI:
-  python -m atlas.validation.body_gate TP53            # check
-  python -m atlas.validation.body_gate TP53 --update   # overwrite the snapshot
+  python -m atlas.validation.body_gate TP53                # check
+  python -m atlas.validation.body_gate TP53 --update       # overwrite the snapshot
+  python -m atlas.validation.body_gate TP53 --dist /path   # override dist root
 """
 import argparse, json, os, sys
 from atlas.gene import collect as C
 
-REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-SNAP_DIR = os.path.join(REPO, "validation_data", "snapshots", "gene")
+def default_dist_root():
+    return os.environ.get("ATLAS_DIST_ROOT", "/data/sugi-atlas-dist")
 
-def _snap_path(symbol):
-    return os.path.join(SNAP_DIR, f"{symbol}.json")
+def snap_dir_for(dist_root):
+    return os.path.join(dist_root, "snapshots", "gene")
 
-def load_snapshot(symbol):
-    p = _snap_path(symbol)
+def _snap_path(snap_dir, symbol):
+    return os.path.join(snap_dir, f"{symbol}.json")
+
+def load_snapshot(snap_dir, symbol):
+    p = _snap_path(snap_dir, symbol)
     return json.load(open(p)) if os.path.exists(p) else None
 
-def save_snapshot(symbol, bundle):
-    os.makedirs(SNAP_DIR, exist_ok=True)
-    with open(_snap_path(symbol), "w") as f:
+def save_snapshot(snap_dir, symbol, bundle):
+    os.makedirs(snap_dir, exist_ok=True)
+    with open(_snap_path(snap_dir, symbol), "w") as f:
         json.dump(bundle, f, indent=2, sort_keys=True)
 
 def _size(v):
@@ -71,8 +75,10 @@ def verdict(differences):
             return "regression"
     return "drift"
 
-def check(symbol, bundle):
-    old = load_snapshot(symbol)
+def check(symbol, bundle, snap_dir=None):
+    if snap_dir is None:
+        snap_dir = snap_dir_for(default_dist_root())
+    old = load_snapshot(snap_dir, symbol)
     d = diff(old, bundle)
     v = verdict(d)
     if v == "first_run":
@@ -89,14 +95,18 @@ def check(symbol, bundle):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("symbol")
-    ap.add_argument("--update", action="store_true", help="overwrite the snapshot with current bundle")
+    ap.add_argument("--update", action="store_true",
+                    help="overwrite the snapshot with current bundle")
+    ap.add_argument("--dist", default=default_dist_root(),
+                    help="dist repo root (snapshots live at <dist>/snapshots/gene/)")
     args = ap.parse_args()
+    snap_dir = snap_dir_for(args.dist)
     bundle = {s: C.SECTIONS[s](args.symbol) for s in C.SECTIONS}
     if args.update:
-        save_snapshot(args.symbol, bundle)
-        print(f"snapshot updated: {_snap_path(args.symbol)}")
+        save_snapshot(snap_dir, args.symbol, bundle)
+        print(f"snapshot updated: {_snap_path(snap_dir, args.symbol)}")
         return
-    r = check(args.symbol, bundle)
+    r = check(args.symbol, bundle, snap_dir)
     print(f"{args.symbol}: {r['verdict']} ({r['summary']})")
     for d in r["diff"][:25]:
         if d.get("kind") in {"added", "removed", "changed"}:
