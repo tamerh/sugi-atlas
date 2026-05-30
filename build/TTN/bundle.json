@@ -2416,6 +2416,7 @@
     ]
   },
   "12": {
+    "civic": null,
     "disease_omim": [
       "MIM:604145",
       "MIM:608807",
@@ -3938,6 +3939,7 @@
       }
     ],
     "hpo_total": 147,
+    "intogen": null,
     "mesh_descriptors": [
       {
         "id": "D019571",
