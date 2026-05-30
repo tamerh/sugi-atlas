@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 48,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "src/atlas/gene/tasks/summary.py",
+  "task_id": "3:25:KRAS:summary",
+  "timestamp": "2026-05-30T17:40:41+02:00"
+}
