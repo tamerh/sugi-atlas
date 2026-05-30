@@ -1,0 +1,55 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Duchenne muscular dystrophy"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "MONDO:0010679",
+      "dataset": "mondo"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:2928",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "MONDO:0010679",
+      "chain": ">>mondo>>clinical_trials>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Duchenne muscular dystrophy",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "MONDO:0010679",
+      "chain": ">>mondo>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DMD pharmacogenomics"
+    }
+  }
+]

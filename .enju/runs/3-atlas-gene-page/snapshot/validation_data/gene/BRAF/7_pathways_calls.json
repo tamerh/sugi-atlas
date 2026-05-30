@@ -1,0 +1,44 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRAF",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "BRAF",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "BRAF",
+      "chain": ">>hgnc>>msigdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P15056",
+      "chain": ">>uniprot>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P15056",
+      "chain": ">>uniprot>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1097",
+      "chain": ">>hgnc>>msigdb"
+    }
+  }
+]

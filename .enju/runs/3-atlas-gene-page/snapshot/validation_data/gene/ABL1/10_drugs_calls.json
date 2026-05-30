@@ -1,0 +1,149 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:76",
+      "chain": ">hgnc>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00519",
+      "chain": ">uniprot>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1862",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL1862",
+      "dataset": "chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1862",
+      "chain": ">chembl_target>>chembl_molecule",
+      "page": "-1[]CHEMBL1862,24,CHEMBL1862,50,0]["
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "imatinib",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "dasatinib",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "nilotinib",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ponatinib",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "bosutinib",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL941",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL5416410",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL255863",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL1171837",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL288441",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL941,CHEMBL5416410,CHEMBL255863,CHEMBL1171837,CHEMBL288441",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PA24413",
+      "dataset": "pharmgkb_gene"
+    }
+  }
+]

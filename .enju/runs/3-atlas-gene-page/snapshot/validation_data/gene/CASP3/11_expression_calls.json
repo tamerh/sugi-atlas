@@ -1,0 +1,119 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "caspase-3"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000164305",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P42574",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000164305",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">uniprot>>hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "836",
+      "chain": ">entrez>>gwas"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000164305",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000164305",
+      "chain": ">ensembl>>go"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3",
+      "dataset": "expressionatlas"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3",
+      "dataset": "scxa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P42574",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000164305",
+      "chain": ">ensembl>>scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000164305",
+      "dataset": "scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000164305",
+      "chain": ">ensembl>>scxa_gene_experiment"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000164305",
+      "dataset": "scxa"
+    }
+  }
+]

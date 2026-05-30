@@ -1,0 +1,110 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000164305",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000164305",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000821",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000417",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000820",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "WBGENE00000417",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "WBGENE00000820",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "caspase saccharomyces",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "C elegans caspase ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ced-3 caenorhabditis"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "yeast caspase"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "WBGENE00000417,WBGENE00000820",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FBGN0010501",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FBGN0019972",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000164305",
+      "chain": ">ensembl>>ortholog>>ortholog"
+    }
+  }
+]

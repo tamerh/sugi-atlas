@@ -1,0 +1,51 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA2",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000139618",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000139618",
+      "chain": ">ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000139618",
+      "chain": ">ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000139618",
+      "chain": ">ensembl>>ccds"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "NM_000059",
+      "chain": ">refseq>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000380152",
+      "chain": ">transcript>>exon"
+    }
+  }
+]

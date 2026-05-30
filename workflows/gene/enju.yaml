@@ -62,8 +62,6 @@ tasks:
   - id: collect_render
     action: compute
     script: scripts/collect_render.sh
-    env:
-      SYMBOL: "{{symbol}}"
     writes:
       - "build/{{symbol}}/bundle.json"
       - "build/{{symbol}}/body.md"
@@ -73,8 +71,6 @@ tasks:
     action: compute
     script: scripts/body_gate.sh
     depends_on: [collect_render]
-    env:
-      SYMBOL: "{{symbol}}"
     reads:
       - "build/{{symbol}}/bundle.json"
     writes:
@@ -85,10 +81,6 @@ tasks:
     action: compute
     script: scripts/summary.sh
     depends_on: [collect_render]
-    env:
-      SYMBOL: "{{symbol}}"
-      SUMMARY_MODEL: "{{summary_model}}"
-      SKIP_SUMMARY: "{{skip_summary}}"
     reads:
       - "build/{{symbol}}/body.md"
     writes:
@@ -99,9 +91,6 @@ tasks:
     action: compute
     script: scripts/summary_gate.sh
     depends_on: [summary]
-    env:
-      SYMBOL: "{{symbol}}"
-      SKIP_SUMMARY: "{{skip_summary}}"
     reads:
       - "build/{{symbol}}/body.md"
       - "build/{{symbol}}/summary.md"
@@ -113,9 +102,6 @@ tasks:
     action: compute
     script: scripts/publish.sh
     depends_on: [body_gate, summary_gate]
-    env:
-      SYMBOL: "{{symbol}}"
-      DIST_ROOT: "{{dist_root}}"
     reads:
       - "build/{{symbol}}/bundle.json"
       - "build/{{symbol}}/body.md"

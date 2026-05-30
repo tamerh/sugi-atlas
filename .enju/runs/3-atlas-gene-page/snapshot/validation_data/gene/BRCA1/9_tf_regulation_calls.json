@@ -1,0 +1,59 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000012048",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000012048",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P38398",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38398",
+      "chain": ">uniprot>>jaspar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "BRCA1",
+      "chain": ">collectri"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "BRCA1",
+      "chain": ">collectri",
+      "page": "0,0,-1,68[]-1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "BRCA1",
+      "chain": ">collectri",
+      "page": "0,0,-1,118[]-1"
+    }
+  }
+]

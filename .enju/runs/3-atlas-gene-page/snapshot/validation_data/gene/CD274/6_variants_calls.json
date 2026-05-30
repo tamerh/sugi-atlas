@@ -1,0 +1,100 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:17635",
+      "chain": ">hgnc>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000120217",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9NZQ7",
+      "chain": ">uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9NZQ7",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q9NZQ7",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q9NZQ7",
+      "chain": ">ensembl>>transcript",
+      "page": "-1[]Q9NZQ7,1,Q9NZQ7,155,26][\"antml:parameter>\n<invoke name=\"mcp__biobtree__biobtree_map\">\n<parameter name=\"terms\">ENSG00000120217"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000120217",
+      "chain": ">ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000381573",
+      "chain": ">transcript>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1251725",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "3906943",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1703576",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "2659049",
+      "dataset": "clinvar"
+    }
+  }
+]

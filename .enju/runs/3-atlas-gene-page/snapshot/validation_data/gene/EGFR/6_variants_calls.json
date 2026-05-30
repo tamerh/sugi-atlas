@@ -1,0 +1,71 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "EGFR"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000146648",
+      "chain": ">ensembl>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000146648",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000146648",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00533",
+      "chain": ">uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000146648",
+      "chain": ">ensembl>>clinvar[germline_classification==\"Pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000146648",
+      "chain": ">ensembl>>clinvar[germline_classification==\"Likely pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00533",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P00533",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000146648",
+      "chain": ">ensembl>>spliceai"
+    }
+  }
+]

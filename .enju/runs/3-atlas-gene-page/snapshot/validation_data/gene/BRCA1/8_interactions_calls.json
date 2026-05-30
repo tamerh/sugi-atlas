@@ -1,0 +1,86 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000012048",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P38398",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38398",
+      "chain": ">uniprot>>string_interaction>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P38398",
+      "dataset": "string_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38398",
+      "chain": ">uniprot>>biogrid_interaction>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38398",
+      "chain": ">uniprot>>intact>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38398",
+      "chain": ">uniprot>>esm2_similarity>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38398",
+      "chain": ">uniprot>>diamond_similarity>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P38398",
+      "chain": ">uniprot>>diamond_similarity>>uniprot",
+      "page": "-1[]P38398,1,P38398,66,0,B6VQ60,1,-1][\"antml:function_calls>\n</invoke>"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q86YC2,P04637,Q13315,P51587,Q12888,Q06609,Q9BXW9,Q99708,Q9BX63,Q6UWZ7,O96017,Q96RL1,Q14676,Q9NXR7,P46736,Q7Z569,P03372,P01106,Q9GZX5,Q99728,Q9NWV8,Q92560,P16104,P52701,O15360,P49959,Q08211,O14757,Q7Z333",
+      "chain": ">uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "A0A140LI88,A4D1E1,D3Z987,D3ZUC6,E5FYH0,E5FYH1,E9Q3S4,F6ULY3,F7DF15,G3S077,G7H7V7,G7NY55,O35923,O54952,O88491,O95405,P48754,P51587,P97929,Q0VBV7",
+      "chain": ">uniprot>>hgnc"
+    }
+  }
+]

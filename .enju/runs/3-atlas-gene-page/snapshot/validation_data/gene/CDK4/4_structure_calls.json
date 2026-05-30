@@ -1,0 +1,42 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4 human"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK4"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1773",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P11802",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P11802",
+      "chain": ">uniprot>>alphafold"
+    }
+  }
+]

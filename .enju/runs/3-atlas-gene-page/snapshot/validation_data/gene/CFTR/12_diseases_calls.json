@@ -1,0 +1,94 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": "::hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": "::hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": "::hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": "::hgnc>>gwas"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>gwas"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "602421",
+      "dataset": "mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>clinvar>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>clinvar>>orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>hpo",
+      "page": "-1[]HGNC:1884,10,HGNC:1884,153,1][\"antml:parameter>\n</invoke>"
+    }
+  }
+]

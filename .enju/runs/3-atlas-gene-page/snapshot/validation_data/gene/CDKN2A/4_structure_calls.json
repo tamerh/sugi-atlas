@@ -1,0 +1,42 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDKN2A human"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDKN2A"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000147889",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P42771",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42771",
+      "chain": ">uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42771",
+      "chain": ">uniprot>>alphafold"
+    }
+  }
+]

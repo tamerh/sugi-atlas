@@ -1,0 +1,113 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "C9orf72"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q96LT7",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q96LT7",
+      "chain": ">>uniprot>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q96LT7",
+      "chain": ">>uniprot>>pfam"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q96LT7",
+      "chain": ">>uniprot>>interpro"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q96LT7",
+      "chain": ">>uniprot>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PF15019",
+      "dataset": "pfam"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "IPR027819",
+      "dataset": "interpro"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "C9orf72",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q66HC3",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q6DFW0",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "C9orf72",
+      "dataset": "antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000147894",
+      "chain": ">>ensembl>>antibody"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q96LT7",
+      "chain": ">>uniprot>>panther"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PTHR31855",
+      "dataset": "panther"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PTHR31855:SF2",
+      "dataset": "panther"
+    }
+  }
+]

@@ -1,0 +1,160 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:76",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:76",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000097007",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000097007",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FBGN0000017",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "abl ABL",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "FBGN0000017",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000018",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "WBGENE00000018"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL tyrosine kinase",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSMUSG00000026842",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000026842",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSRNOG00000047356",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSDARG00000035187",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "STE20 tyrosine kinase yeast",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "FBGN0000017",
+      "chain": ">ensembl>>ortholog>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "WBGENE00000018",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "WBGENE00000018",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "saccharomyces cerevisiae kinase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDC15 ARK1 YPL141C"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000026842",
+      "chain": ">ensembl>>ortholog"
+    }
+  }
+]

@@ -1,0 +1,80 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P00519",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00519",
+      "chain": ">>uniprot>>string_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00519",
+      "chain": ">>uniprot>>biogrid_interaction"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00519",
+      "chain": ">>uniprot>>intact"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00519",
+      "chain": ">>uniprot>>diamond_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00519",
+      "chain": ">>uniprot>>esm2_similarity"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P00519",
+      "chain": ">>uniprot>>string_interaction",
+      "page": "-1[]P00519,1,P00519,179,4][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q8IZP0,P29354,Q92817,P46108,Q8NEB9,P41212,P07900,P08238,P35658,P35703,P04637,Q14457,P11274,Q13671,P46109,Q13322,P06748,P10276,P28482,Q99704,P56945,P22681,Q6UN15,P09919,P01116,P52948,Q03164,P01111,P10415,Q99062",
+      "chain": ">>uniprot>>hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "A0M8S8,P00520,P00521,P00533,O15357,O60674,O43283,P42684,P47708,P47709,P57058,P80192,Q07912,Q15746,Q28619,Q3SZK8,Q3TN34,Q3ULB5,Q498M5,Q4JIM5",
+      "chain": ">>uniprot>>hgnc"
+    }
+  }
+]

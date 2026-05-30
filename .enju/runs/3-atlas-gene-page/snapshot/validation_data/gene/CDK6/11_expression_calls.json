@@ -1,0 +1,71 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK6"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000105810",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000105810",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000105810",
+      "chain": ">ensembl>>scxa"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000105810",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000105810",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "Q00534",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "Q00534",
+      "chain": ">uniprot>>hpa"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CDK6",
+      "dataset": "hpa"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000105810",
+      "chain": ">bgee>>cl"
+    }
+  }
+]

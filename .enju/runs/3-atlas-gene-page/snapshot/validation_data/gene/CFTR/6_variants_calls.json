@@ -1,0 +1,357 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1884",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": "::hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense[am_class==&quot;likely_pathogenic&quot;]"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P13569",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1060053",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "P13569"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "HGNC:1884"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "P13569",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "clinvar",
+      "page": "0,0,0,93"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1884",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "clinvar",
+      "page": "0,0,0,143"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense",
+      "page": "-1[]P13569,1,P13569,101,1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>spliceai"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense",
+      "page": "-1[]P13569,1,P13569,124,9][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1884",
+      "chain": ">>hgnc>>spliceai",
+      "page": "-1[]HGNC:1884,10,HGNC:1884,81,2][\""
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1585-2A>T",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1046296",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1027585",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1043026",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1069526",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1070544",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1073653",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1069549",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense",
+      "page": "-1[]P13569,1,P13569,94,15][\""
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "2560dup",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1048778",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1009463",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1055358",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1054952",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1060053",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1052121",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense",
+      "page": "-1[]P13569,1,P13569,144,17][\""
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1007213",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1002760",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1053748",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense",
+      "page": "-1[]P13569,1,P13569,172,23][\""
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1010196",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1011536",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1012571",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P13569",
+      "chain": ">>uniprot>>alphamissense",
+      "page": "-1[]P13569,1,P13569,115,28][\""
+    }
+  }
+]

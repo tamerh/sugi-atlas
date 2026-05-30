@@ -1,0 +1,50 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000117713",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000117713",
+      "chain": ">>ensembl>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000117713",
+      "chain": ">>ensembl>>refseq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000117713",
+      "chain": ">>ensembl>>ccds"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "NM_006015",
+      "chain": ">>refseq>>transcript"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENST00000324856",
+      "chain": ">>transcript>>exon"
+    }
+  }
+]

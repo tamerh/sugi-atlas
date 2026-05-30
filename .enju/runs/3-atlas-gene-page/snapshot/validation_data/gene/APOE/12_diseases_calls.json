@@ -1,0 +1,81 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APOE",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>gencc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>hpo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>gwas"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>clinvar>>mondo",
+      "page": "-1[]HGNC:613,10,HGNC:613,155,1][\"antml:parameter>\n<invoke name=\"mcp__biobtree__biobtree_map\">\n<parameter name=\"terms\">HGNC:613"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>clinvar>>orphanet"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>mim>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>gwas",
+      "page": "-1[]HGNC:613,10,HGNC:613,155,1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:613",
+      "chain": ">>hgnc>>clinvar>>mondo"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "107741",
+      "dataset": "mim"
+    }
+  }
+]

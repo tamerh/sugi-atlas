@@ -1,0 +1,50 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BCL2"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "BCL2",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:990",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": ">hgnc>>mim"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:990",
+      "chain": ">hgnc>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000171791",
+      "dataset": "ensembl"
+    }
+  }
+]
