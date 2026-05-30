@@ -729,38 +729,38 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 
 **Top tissues by expression (266 total):**
 
-| Tissue | Score | Rank | Quality |
-| --- | --- | --- | --- |
-| ventricular zone | 90.68 | 4340 | gold quality |
-| male germ line stem cell (sensu Vertebrata) in testis | 89.54 | 4880 | gold quality |
-| primordial germ cell in gonad | 86.44 | 6320 | gold quality |
-| ganglionic eminence | 86.30 | 6390 | gold quality |
-| embryo | 85.26 | 6870 | gold quality |
-| secondary oocyte | 84.10 | 7410 | gold quality |
-| bone marrow cell | 82.00 | 8390 | gold quality |
-| oocyte | 81.87 | 8450 | gold quality |
-| endometrium epithelium | 81.67 | 8550 | gold quality |
-| sural nerve | 81.55 | 8600 | gold quality |
-| trabecular bone tissue | 80.40 | 9140 | gold quality |
-| stromal cell of endometrium | 79.88 | 9380 | gold quality |
-| colonic epithelium | 79.56 | 9530 | gold quality |
-| bone marrow | 79.55 | 9540 | gold quality |
-| testis | 78.58 | 9990 | gold quality |
-| hair follicle | 78.46 | 10000 | gold quality |
-| right testis | 78.11 | 10200 | gold quality |
-| rectum | 78.05 | 10200 | gold quality |
-| left testis | 77.69 | 10400 | gold quality |
-| right lobe of thyroid gland | 77.35 | 10600 | gold quality |
-| vermiform appendix | 77.10 | 10700 | gold quality |
-| tonsil | 76.23 | 11100 | gold quality |
-| left lobe of thyroid gland | 75.58 | 11400 | gold quality |
-| hindlimb stylopod muscle | 74.97 | 11700 | gold quality |
-| thyroid gland | 74.62 | 11800 | gold quality |
-| mucosa of transverse colon | 74.61 | 11800 | gold quality |
-| adrenal tissue | 74.41 | 11900 | gold quality |
-| choroid plexus epithelium | 74.34 | 12000 | silver quality |
-| calcaneal tendon | 73.96 | 12100 | gold quality |
-| lymph node | 73.91 | 12200 | gold quality |
+| Tissue | Anatomy ID | Score | Rank | Quality |
+| --- | --- | --- | --- | --- |
+| [ventricular zone](https://bioregistry.io/UBERON:0003053) | UBERON:0003053 | 90.68 | 4340 | gold quality |
+| [male germ line stem cell (sensu Vertebrata) in testis](https://bioregistry.io/CL:0000089 ∩ UBERON:0000473) | CL:0000089 ∩ UBERON:0000473 | 89.54 | 4880 | gold quality |
+| [primordial germ cell in gonad](https://bioregistry.io/CL:0000670 ∩ UBERON:0000991) | CL:0000670 ∩ UBERON:0000991 | 86.44 | 6320 | gold quality |
+| [ganglionic eminence](https://bioregistry.io/UBERON:0004023) | UBERON:0004023 | 86.30 | 6390 | gold quality |
+| [embryo](https://bioregistry.io/UBERON:0000922) | UBERON:0000922 | 85.26 | 6870 | gold quality |
+| [secondary oocyte](https://bioregistry.io/CL:0000655) | CL:0000655 | 84.10 | 7410 | gold quality |
+| [bone marrow cell](https://bioregistry.io/CL:0002092) | CL:0002092 | 82.00 | 8390 | gold quality |
+| [oocyte](https://bioregistry.io/CL:0000023) | CL:0000023 | 81.87 | 8450 | gold quality |
+| [endometrium epithelium](https://bioregistry.io/UBERON:0004811) | UBERON:0004811 | 81.67 | 8550 | gold quality |
+| [sural nerve](https://bioregistry.io/UBERON:0015488) | UBERON:0015488 | 81.55 | 8600 | gold quality |
+| [trabecular bone tissue](https://bioregistry.io/UBERON:0002483) | UBERON:0002483 | 80.40 | 9140 | gold quality |
+| [stromal cell of endometrium](https://bioregistry.io/CL:0002255) | CL:0002255 | 79.88 | 9380 | gold quality |
+| [colonic epithelium](https://bioregistry.io/UBERON:0000397) | UBERON:0000397 | 79.56 | 9530 | gold quality |
+| [bone marrow](https://bioregistry.io/UBERON:0002371) | UBERON:0002371 | 79.55 | 9540 | gold quality |
+| [testis](https://bioregistry.io/UBERON:0000473) | UBERON:0000473 | 78.58 | 9990 | gold quality |
+| [hair follicle](https://bioregistry.io/UBERON:0002073) | UBERON:0002073 | 78.46 | 10000 | gold quality |
+| [right testis](https://bioregistry.io/UBERON:0004534) | UBERON:0004534 | 78.11 | 10200 | gold quality |
+| [rectum](https://bioregistry.io/UBERON:0001052) | UBERON:0001052 | 78.05 | 10200 | gold quality |
+| [left testis](https://bioregistry.io/UBERON:0004533) | UBERON:0004533 | 77.69 | 10400 | gold quality |
+| [right lobe of thyroid gland](https://bioregistry.io/UBERON:0001119) | UBERON:0001119 | 77.35 | 10600 | gold quality |
+| [vermiform appendix](https://bioregistry.io/UBERON:0001154) | UBERON:0001154 | 77.10 | 10700 | gold quality |
+| [tonsil](https://bioregistry.io/UBERON:0002372) | UBERON:0002372 | 76.23 | 11100 | gold quality |
+| [left lobe of thyroid gland](https://bioregistry.io/UBERON:0001120) | UBERON:0001120 | 75.58 | 11400 | gold quality |
+| [hindlimb stylopod muscle](https://bioregistry.io/UBERON:0004252) | UBERON:0004252 | 74.97 | 11700 | gold quality |
+| [thyroid gland](https://bioregistry.io/UBERON:0002046) | UBERON:0002046 | 74.62 | 11800 | gold quality |
+| [mucosa of transverse colon](https://bioregistry.io/UBERON:0004991) | UBERON:0004991 | 74.61 | 11800 | gold quality |
+| [adrenal tissue](https://bioregistry.io/UBERON:0018303) | UBERON:0018303 | 74.41 | 11900 | gold quality |
+| [choroid plexus epithelium](https://bioregistry.io/UBERON:0003911) | UBERON:0003911 | 74.34 | 12000 | silver quality |
+| [calcaneal tendon](https://bioregistry.io/UBERON:0003701) | UBERON:0003701 | 73.96 | 12100 | gold quality |
+| [lymph node](https://bioregistry.io/UBERON:0000029) | UBERON:0000029 | 73.91 | 12200 | gold quality |
 
 **Single-cell datasets (1):**
 
