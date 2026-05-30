@@ -24,6 +24,7 @@
       "191170"
     ],
     "name": "tumor protein p53",
+    "rnacentral": null,
     "section": "01_gene_ids",
     "symbol": "TP53",
     "xref_counts": {
@@ -7983,6 +7984,7 @@
   },
   "3": {
     "antibody_count": 0,
+    "brenda_ec": [],
     "canonical_uniprot": "P04637",
     "ensembl_id": "ENSG00000141510",
     "hgnc_id": "HGNC:11998",
