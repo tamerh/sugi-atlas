@@ -1,0 +1,49 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX gene human"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000087088",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000087088",
+      "chain": ">ensembl>>bgee"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000087088",
+      "dataset": "bgee"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000087088",
+      "dataset": "scxa_expression"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000087088",
+      "chain": ">ensembl>>scxa"
+    }
+  }
+]

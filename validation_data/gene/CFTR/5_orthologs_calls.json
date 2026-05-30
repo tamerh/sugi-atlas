@@ -1,0 +1,176 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000001626",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000001626",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000477",
+      "dataset": "wormbase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "wormbase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CFTR",
+      "dataset": "sgd"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FBGN0039207",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSMUSG00000041301",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSRNOG00000055103",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSDARG00000041107",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000001626",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABC transporter",
+      "dataset": "wormbase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABC transporter",
+      "dataset": "sgd"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "1080",
+      "chain": ">entrez>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "cftr"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "WBGene00000477"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "cftr C. elegans"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000477",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "yeast ABC transporter S. cerevisiae"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "WBGENE00000477",
+      "chain": ">ensembl>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "cft-1"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Saccharomyces cerevisiae ABC"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "PDR5 PDR12 SNQ2 yeast"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSMUSG00000041301,ENSRNOG00000055103,ENSDARG00000041107,FBGN0039207",
+      "chain": ">ensembl>>entrez"
+    }
+  }
+]

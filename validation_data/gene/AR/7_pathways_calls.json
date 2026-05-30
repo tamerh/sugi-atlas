@@ -1,0 +1,37 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AR",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:644",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10275",
+      "chain": ">uniprot>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10275",
+      "chain": ">uniprot>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:644",
+      "chain": ">hgnc>>msigdb"
+    }
+  }
+]

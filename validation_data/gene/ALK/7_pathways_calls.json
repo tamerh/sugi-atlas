@@ -1,0 +1,53 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ALK",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ALK",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:427",
+      "chain": ">hgnc>>msigdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000171094",
+      "chain": ">ensembl>>uniprot>>reactome"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000171094",
+      "chain": ">ensembl>>go"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:427",
+      "chain": ">hgnc>>msigdb",
+      "page": "-1[]HGNC:427,10,HGNC:427,115,1][\"antml:parameter>\n</invoke>"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:427",
+      "chain": ">hgnc>>msigdb",
+      "page": "-1[]HGNC:427,10,HGNC:427,74,3][\"antml:parameter>\n</invoke>"
+    }
+  }
+]

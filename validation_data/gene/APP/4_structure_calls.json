@@ -1,0 +1,88 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP human protein amyloid precursor"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "APP",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:620",
+      "chain": "&gt;&gt;hgnc&gt;&gt;uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:620",
+      "chain": ">>hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P05067",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">>uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">>uniprot>>pdb",
+      "page": "-1[]P05067,1,P05067,111,2][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">>uniprot>>pdb",
+      "page": "-1[]P05067,1,P05067,121,5][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">>uniprot>>pdb",
+      "page": "-1[]P05067,1,P05067,177,9][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P05067",
+      "chain": ">>uniprot>>alphafold"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P05067",
+      "dataset": "alphafold"
+    }
+  }
+]

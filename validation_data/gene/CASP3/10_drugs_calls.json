@@ -1,0 +1,132 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "caspase-3"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">>uniprot>>chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P42574",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">>uniprot>>chembl_target>>chembl_molecule",
+      "page": "-1[]P42574,1,P42574,130,0,CHEMBL2334,104,0][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">>uniprot>>drugbank"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "caspase-3 inhibitor clinical trial"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CHEMBL2334"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "VX-765 caspase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CHEMBL1213366"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL1213366",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "caspase-3 apoptosis inhibitor drug"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "DB00282"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "caspase drug apoptosis mechanism"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1504",
+      "chain": ">>hgnc>>pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PA26087",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "PA26087",
+      "chain": ">>pharmgkb_gene>>pharmgkb_drug_gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3 caspase-3 pharmacogenomics variant"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "clinical trial caspase inhibitor"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1504",
+      "chain": ">>hgnc>>clinvar"
+    }
+  }
+]

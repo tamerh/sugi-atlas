@@ -1,0 +1,170 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "PD-L1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000120217",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:17635",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000120217",
+      "chain": ">ensembl>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:17635",
+      "chain": ">hgnc>>ensembl>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000120217",
+      "chain": ">ensembl>>uniprot>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:17635",
+      "chain": ">hgnc>>uniprot>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3580522",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL3580522",
+      "dataset": "chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3580522",
+      "chain": ">chembl_target>>chembl_molecule",
+      "page": "-1[]CHEMBL3580522,24,CHEMBL3580522,93,0["
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274, PD-L1, immune checkpoint inhibitor",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "atezolizumab"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "avelumab"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "durvalumab"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "PD-L1 monoclonal antibody",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL3707227",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL3833373",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL3301587",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "asunercept, cosibelimab, LY3300054, CA-170"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3707227",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3301587",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CD274, PD-L1 pharmacogenomics, pharmacogenetic"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CX-072, monalizumab, imfinzi, bavencio, tecentriq"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL3833373",
+      "chain": ">chembl_molecule>>clinical_trials"
+    }
+  }
+]

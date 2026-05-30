@@ -1,0 +1,43 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CASP3 human"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "P42574"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P42574",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">>uniprot>>pdb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">>uniprot>>pdb",
+      "page": "-1[]P42574,1,P42574,36,5][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P42574",
+      "chain": ">>uniprot>>alphafold"
+    }
+  }
+]

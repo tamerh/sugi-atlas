@@ -1,0 +1,29 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ABL1"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P00519",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:76",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:76",
+      "chain": ">hgnc>>collectri"
+    }
+  }
+]

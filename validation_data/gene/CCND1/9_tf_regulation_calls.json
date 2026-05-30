@@ -1,0 +1,45 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CCND1"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000110092",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>collectri"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>collectri",
+      "page": "-1[]ENSG00000110092,2,ENSG00000110092,141,1]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000110092",
+      "chain": ">ensembl>>collectri",
+      "page": "-1[]ENSG00000110092,2,ENSG00000110092,161,2]["
+    }
+  }
+]

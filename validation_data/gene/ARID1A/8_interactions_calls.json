@@ -1,0 +1,77 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A protein human"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ARID1A"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:11110",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "O14497",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">uniprot>>string_interaction>>string"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">uniprot>>biogrid_interaction>>biogrid"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">uniprot>>intact>>intact"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">uniprot>>esm2_similarity>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">uniprot>>diamond_similarity>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">uniprot>>ortholog>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O14497",
+      "chain": ">uniprot>>paralog>>ensembl"
+    }
+  }
+]
