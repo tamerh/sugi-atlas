@@ -1040,13 +1040,13 @@ Golgi membrane (GO:0000139), obsolete extracellular space (GO:0005615), nucleus 
 
 **ChEMBL screening assays (6308 unique, capped per target):** 5991 binding, 170 functional, 138 admet, 9 toxicity
 
-Representative assays:
+Representative assays (with source publication via chembl_document):
 
-| Assay ID | Type | Description |
-| --- | --- | --- |
-| [CHEMBL1001226](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1001226/) | Binding | Inhibition of EGFR |
-| [CHEMBL1614029](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1614029/) | Functional | PUBCHEM_BIOASSAY: Assay for Inhibitors of the ERK Signaling Pathway using a Homogeneous Screening Assay: EGFR L858R Kinase Inhibition. (Class of assay: confirmatory) [Related pubchem assays: 1454, 995 ] |
-| [CHEMBL3635803](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL3635803/) | ADMET | Inhibition of wild type EGFR phosphorylation in human A431 cells after 60 mins by mesoscale multiplex assay |
+| Assay ID | Type | Description | Source paper |
+| --- | --- | --- | --- |
+| [CHEMBL1001226](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1001226/) | Binding | Inhibition of EGFR | [The identification of pyrazolo[1,5-a]pyridines as potent p38 kinase inhibitors.](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL1152233/) — *Bioorg Med Chem Lett* |
+| [CHEMBL1614029](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1614029/) | Functional | PUBCHEM_BIOASSAY: Assay for Inhibitors of the ERK Signaling Pathway using a Homogeneous Screening Assay: EGFR L858R Kinase Inhibition. (Class of assay: confirmatory) [Related pubchem assays: 1454, 995 ] | [PubChem BioAssay data set](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL1201862/) |
+| [CHEMBL3635803](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL3635803/) | ADMET | Inhibition of wild type EGFR phosphorylation in human A431 cells after 60 mins by mesoscale multiplex assay | [Oxopyrido[2,3-d]pyrimidines as Covalent L858R/T790M Mutant Selective Epidermal Growth F…](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL3632511/) — *ACS Med Chem Lett* |
 
 **Cellosaurus cell lines (653):** 468 cancer cell line, 130 factor-dependent cell line, 45 spontaneously immortalized cell line, 8 transformed cell line, 1 finite cell line, 1 telomerase immortalized cell line
 

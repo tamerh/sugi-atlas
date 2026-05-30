@@ -501,16 +501,25 @@
     "chembl_assay_samples": [
       {
         "desc": "Inhibition of EGFR",
+        "doc_id": "CHEMBL1152233",
+        "doc_journal": "Bioorg Med Chem Lett",
+        "doc_title": "The identification of pyrazolo[1,5-a]pyridines as potent p38 kinase inhibitors.",
         "id": "CHEMBL1001226",
         "type": "Binding"
       },
       {
         "desc": "PUBCHEM_BIOASSAY: Assay for Inhibitors of the ERK Signaling Pathway using a Homogeneous Screening Assay: EGFR L858R Kinase Inhibition. (Class of assay: confirmatory) [Related pubchem assays: 1454, 995 ]",
+        "doc_id": "CHEMBL1201862",
+        "doc_journal": null,
+        "doc_title": "PubChem BioAssay data set",
         "id": "CHEMBL1614029",
         "type": "Functional"
       },
       {
         "desc": "Inhibition of wild type EGFR phosphorylation in human A431 cells after 60 mins by mesoscale multiplex assay",
+        "doc_id": "CHEMBL3632511",
+        "doc_journal": "ACS Med Chem Lett",
+        "doc_title": "Oxopyrido[2,3-d]pyrimidines as Covalent L858R/T790M Mutant Selective Epidermal Growth Factor Receptor (EGFR) Inhibitors.",
         "id": "CHEMBL3635803",
         "type": "ADMET"
       }
