@@ -690,6 +690,15 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | [trichostatin A](http://ctdbase.org/detail.go?type=chem&acc=C012589) | affects^cotreatment, affects^expression, decreases^expression | 2 |
 | [epigallocatechin gallate](http://ctdbase.org/detail.go?type=chem&acc=C045651) | increases^expression, affects^cotreatment, decreases^expression | 2 |
 
+**ChEMBL screening assays (12 unique, capped per target):** 8 binding, 4 functional
+
+Representative assays:
+
+| Assay ID | Type | Description |
+| --- | --- | --- |
+| [CHEMBL1613817](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1613817/) | Functional | PUBCHEM_BIOASSAY: qHTS Assay for Inhibitors of BRCT-Phosphoprotein Interaction (Green Fluorophore). (Class of assay: confirmatory) |
+| [CHEMBL1785941](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL1785941/) | Binding | Inhibition of BRCA1 by fluorescence polarization assay |
+
 **Clinical trials for the gene's associated diseases (190, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

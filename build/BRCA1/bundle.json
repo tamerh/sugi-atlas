@@ -427,6 +427,23 @@
     ],
     "chembl_activity_potent_count": 107,
     "chembl_activity_total": 358,
+    "chembl_assay_samples": [
+      {
+        "desc": "PUBCHEM_BIOASSAY: qHTS Assay for Inhibitors of BRCT-Phosphoprotein Interaction (Green Fluorophore). (Class of assay: confirmatory)",
+        "id": "CHEMBL1613817",
+        "type": "Functional"
+      },
+      {
+        "desc": "Inhibition of BRCA1 by fluorescence polarization assay",
+        "id": "CHEMBL1785941",
+        "type": "Binding"
+      }
+    ],
+    "chembl_assay_total": 12,
+    "chembl_assay_type_counts": {
+      "Binding": 8,
+      "Functional": 4
+    },
     "chembl_targets": [
       {
         "id": "CHEMBL5990",
