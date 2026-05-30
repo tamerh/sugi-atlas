@@ -1,0 +1,149 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AR androgen receptor"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AR",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:644",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:644",
+      "chain": ">hgnc>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P10275",
+      "chain": ">uniprot>>chembl_target"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1871",
+      "chain": ">chembl_target>>chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1871",
+      "chain": ">chembl_target>>chembl_molecule",
+      "page": "-1[]CHEMBL1871,24,CHEMBL1871,70,0][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1871",
+      "chain": ">chembl_target>>chembl_molecule",
+      "page": "-1[]CHEMBL1871,24,CHEMBL1871,138,1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "CHEMBL1871",
+      "chain": ">chembl_target>>chembl_molecule",
+      "page": "-1[]CHEMBL1871,24,CHEMBL1871,22,3][\""
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "androgen receptor prostate cancer clinical trial",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "enzalutamide bicalutamide nilutamide",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "enzalutamide"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "prostate cancer drug treatment",
+      "dataset": "clinical_trials"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "HGNC:644",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "AR androgen receptor",
+      "dataset": "pharmgkb_gene"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "bicalutamide"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "PA164746255",
+      "dataset": "pharmgkb"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL1082407",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL409",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL1274",
+      "dataset": "chembl_molecule"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CHEMBL1738889",
+      "dataset": "chembl_molecule"
+    }
+  }
+]

@@ -1,0 +1,135 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:959",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:959",
+      "chain": ">hgnc>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000087088",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000087088",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSMUSG00000003873",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSRNOG00000020876",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSDARG00000020623",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00000423",
+      "dataset": "wormbase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX",
+      "dataset": "wormbase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "bax",
+      "dataset": "flybase"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000087088",
+      "chain": ">ensembl>>ortholog>>entrez"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "apoptosis regulator",
+      "dataset": "flybase"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BAX",
+      "dataset": "sgd"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ark, drob-1",
+      "dataset": "flybase"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "3565776",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ced-9",
+      "chain": ">entrez>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "12028,24887",
+      "chain": ">entrez>>flybase"
+    }
+  }
+]

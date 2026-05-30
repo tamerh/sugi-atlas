@@ -1,0 +1,104 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000163599",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "1493",
+      "dataset": "entrez"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P16410",
+      "chain": ">uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>spliceai"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "CTLA4",
+      "dataset": "clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4",
+      "dataset": "clinvar",
+      "page": "0,0,0,125"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P16410",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>spliceai",
+      "page": "-1[]ENSG00000163599,2,ENSG00000163599,198,0]["
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "CTLA4",
+      "dataset": "clinvar",
+      "page": "0,0,0,175"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P16410",
+      "chain": ">uniprot>>alphamissense[am_class==\"likely_pathogenic\"]",
+      "page": "-1[]P16410,1,P16410,144,7]["
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000163599",
+      "chain": ">ensembl>>spliceai",
+      "page": "-1[]ENSG00000163599,2,ENSG00000163599,58,2]["
+    }
+  }
+]

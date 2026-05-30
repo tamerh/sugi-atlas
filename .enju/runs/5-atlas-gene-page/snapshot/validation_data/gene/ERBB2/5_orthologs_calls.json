@@ -1,0 +1,142 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ERBB2",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ERBB2"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSG00000141736",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">ensembl>>ortholog"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "ERBB2",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "erbb, drosophila"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "EGFR drosophila"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "Torpedo",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "receptor tyrosine kinase 2"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "ENSG00000141736",
+      "chain": ">ensembl>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "P04626",
+      "dataset": "uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "P04626",
+      "chain": ">uniprot>>orthodb"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "6219513AT2759",
+      "dataset": "orthodb"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "6219513AT2759",
+      "chain": ">orthodb>>uniprot"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "O18735,P00533,P04412,P04626,P0CY46,P13387,P21860,P24348,P55245,P70424,Q01279,Q15303,Q5RB22,Q60553,Q61526,Q61527,Q62799",
+      "chain": ">uniprot>>ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "receptor tyrosine kinase saccharomyces"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "FBGN0003731",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "WBGENE00002299",
+      "dataset": "ensembl"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "let-23 C elegans"
+    }
+  },
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "let-23"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "ENSRNOG00000006450",
+      "dataset": "ensembl"
+    }
+  }
+]

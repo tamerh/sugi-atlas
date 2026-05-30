@@ -61,7 +61,7 @@ defaults:
 tasks:
   - id: collect_render
     action: compute
-    script: workflows/gene/collect_render.py
+    script: scripts/collect_render.py
     writes:
       - "build/{{symbol}}/bundle.json"
       - "build/{{symbol}}/body.md"
@@ -69,7 +69,7 @@ tasks:
 
   - id: body_gate
     action: compute
-    script: workflows/gene/body_gate.py
+    script: scripts/body_gate.py
     depends_on: [collect_render]
     reads:
       - "build/{{symbol}}/bundle.json"
@@ -79,7 +79,7 @@ tasks:
 
   - id: summary
     action: compute
-    script: workflows/gene/summary.py
+    script: scripts/summary.py
     depends_on: [collect_render]
     reads:
       - "build/{{symbol}}/body.md"
@@ -89,7 +89,7 @@ tasks:
 
   - id: summary_gate
     action: compute
-    script: workflows/gene/summary_gate.py
+    script: scripts/summary_gate.py
     depends_on: [summary]
     reads:
       - "build/{{symbol}}/body.md"
@@ -100,7 +100,7 @@ tasks:
 
   - id: publish
     action: compute
-    script: workflows/gene/publish.py
+    script: scripts/publish.py
     depends_on: [body_gate, summary_gate]
     reads:
       - "build/{{symbol}}/bundle.json"

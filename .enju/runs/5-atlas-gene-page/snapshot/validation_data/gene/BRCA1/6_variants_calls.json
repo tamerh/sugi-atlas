@@ -1,0 +1,66 @@
+[
+  {
+    "tool": "biobtree_search",
+    "args": {
+      "terms": "BRCA1",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_entry",
+    "args": {
+      "identifier": "HGNC:1100",
+      "dataset": "hgnc"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>clinvar"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>spliceai",
+      "page": "-1[]HGNC:1100,10,HGNC:1100,27,1][\""
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>uniprot>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>ensembl>>transcript>>alphamissense"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>clinvar[germline_classification==\"Pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>clinvar[germline_classification==\"Likely pathogenic\"]"
+    }
+  },
+  {
+    "tool": "biobtree_map",
+    "args": {
+      "terms": "HGNC:1100",
+      "chain": ">>hgnc>>uniprot>>alphamissense[am_class==\"likely_pathogenic\"]"
+    }
+  }
+]
