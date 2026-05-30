@@ -68,6 +68,7 @@ UPSTREAM = {
     # drugs
     "chembl_target":     ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "chembl_molecule":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
+    "chembl_activity":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "pharmgkb_gene":     ("PharmGKB",                              "https://www.pharmgkb.org/"),
     "bindingdb":         ("BindingDB",                             "https://www.bindingdb.org/"),
     "pubchem_activity":  ("PubChem BioAssay",                      "https://pubchem.ncbi.nlm.nih.gov/"),

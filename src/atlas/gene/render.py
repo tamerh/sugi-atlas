@@ -208,6 +208,18 @@ def r_drugs(b):
         L.append(table(["Ligand", "Ki", "IC50"],
                        [(x.get("ligand"), x.get("ki"), x.get("ic50")) for x in bd[:15]]))
 
+    # ChEMBL bioactivities (pchembl-ranked). pchembl is the gold potency
+    # metric — directly comparable across assay types. Renders even when
+    # PubChem activity is empty (e.g. KRAS — see BIOBTREE_ISSUES.md #12).
+    ca = b.get("chembl_activities") or []
+    if ca:
+        L.append(f"\n**ChEMBL bioactivities ({b.get('chembl_activity_potent_count', 0)} "
+                 f"potent at pChembl≥5 of {b.get('chembl_activity_total', 0)} total), "
+                 f"top 30 by pChembl (potency: 10 = 0.1 nM, 6 = 1 µM):**\n")
+        L.append(table(["pChembl", "Type", "Value", "Unit", "Activity ID"],
+                       [(r.get("pchembl"), r.get("type"), r.get("value"),
+                         r.get("unit"), r["id"]) for r in ca]))
+
     # PubChem BioAssay actives — sorted by potency. CID/AID get clickable
     # PubChem URLs so an AI agent (or human) can drill into the assay record
     # directly without needing a separate entry fetch.

@@ -6,15 +6,16 @@ from atlas.gene.sections.base import Section
 CHAINS = (
     ">>uniprot>>chembl_target",
     '>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=1]',
+    ">>uniprot>>chembl_activity",
     ">>hgnc>>pharmgkb_gene",
     ">>uniprot>>bindingdb",
     ">>uniprot>>pubchem_activity",
     ">>hgnc>>gencc>>mondo>>clinical_trials",
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
 )
-DATASETS = ("chembl_target", "chembl_molecule", "pharmgkb_gene", "bindingdb",
-            "pubchem_activity", "clinical_trials", "mondo", "gencc", "clinvar",
-            "uniprot", "hgnc")
+DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity",
+            "pharmgkb_gene", "bindingdb", "pubchem_activity",
+            "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
 
 # Activity types we sort by potency (low value = potent). Other outcomes carry
 # qualifier flags rather than affinity values.
@@ -77,6 +78,27 @@ def collect(a):
     bundle["pubchem_bioassay_total"] = len(pa)
     bundle["pubchem_bioassay_active_count"] = len(actives)
 
+    # ChEMBL bioactivities for the target — pchembl is the gold metric
+    # (-log10(M) standardized potency: 10 = 0.1 nM, 9 = 1 nM, 6 = 1 µM).
+    # Sort by pchembl desc, keep rows with pchembl ≥ 5 (≤10 µM, "real binding").
+    # Closes the gap for targets where PubChem activity is empty (e.g. KRAS,
+    # see BIOBTREE_ISSUES.md #12).
+    def _pchembl(r):
+        try: return float(r.get("pchembl") or 0)
+        except (TypeError, ValueError): return 0.0
+    ca = map_all(uni, ">>uniprot>>chembl_activity") if uni else []
+    potent = [r for r in ca if _pchembl(r) >= 5.0]
+    potent.sort(key=_pchembl, reverse=True)
+    bundle["chembl_activities"] = [{
+        "id": r["id"],
+        "type": r.get("standard_type"),
+        "value": r.get("standard_value"),
+        "unit": r.get("standard_units"),
+        "pchembl": r.get("pchembl"),
+    } for r in potent[:30]]
+    bundle["chembl_activity_total"] = len(ca)
+    bundle["chembl_activity_potent_count"] = len(potent)
+
     # Clinical trials via the DISEASE route — chembl_molecule>>clinical_trials would
     # pollute with off-target drugs (ChEMBL target↔molecule is bioactivity-based).
     # Disease-level is biobtree's intended pattern.
@@ -100,7 +122,8 @@ SECTION = Section(
                  "affinities, PubChem BioAssay actives (sorted by potency, with "
                  "clickable CID/AID), clinical trials via disease route"),
     needs=("hgnc_id", "canonical_uniprot"),
-    produces=("chembl_targets", "molecules", "pharmgkb", "bindingdb_sample",
-              "pubchem_bioassay", "disease_trials", "is_drug_target"),
+    produces=("chembl_targets", "molecules", "chembl_activities", "pharmgkb",
+              "bindingdb_sample", "pubchem_bioassay", "disease_trials",
+              "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
