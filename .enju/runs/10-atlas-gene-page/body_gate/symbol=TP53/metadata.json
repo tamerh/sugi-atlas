@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 57,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "workflows/gene/body_gate.py",
+  "task_id": "3:10:TP53:body_gate",
+  "timestamp": "2026-05-30T12:20:19+02:00"
+}
