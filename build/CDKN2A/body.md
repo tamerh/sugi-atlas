@@ -535,38 +535,38 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 
 **Top tissues by expression (276 total):**
 
-| Tissue | Score | Rank | Quality |
-| --- | --- | --- | --- |
-| parotid gland | 93.57 | 3000 | silver quality |
-| cervix squamous epithelium | 92.83 | 3350 | silver quality |
-| pituitary gland | 92.49 | 3500 | gold quality |
-| male germ line stem cell (sensu Vertebrata) in testis | 92.11 | 3680 | gold quality |
-| adenohypophysis | 91.60 | 3920 | gold quality |
-| vena cava | 91.22 | 4090 | gold quality |
-| skeletal muscle tissue of rectus abdominis | 90.42 | 4470 | gold quality |
-| cardia of stomach | 89.74 | 4790 | gold quality |
-| dorsal motor nucleus of vagus nerve | 88.92 | 5160 | silver quality |
-| pons | 88.91 | 5170 | silver quality |
-| subthalamic nucleus | 88.38 | 5420 | silver quality |
-| tongue | 88.36 | 5430 | silver quality |
-| ventral tegmental area | 88.11 | 5540 | silver quality |
-| pharyngeal mucosa | 87.98 | 5600 | gold quality |
-| superior surface of tongue | 87.97 | 5610 | gold quality |
-| lateral globus pallidus | 87.93 | 5630 | silver quality |
-| dorsal plus ventral thalamus | 87.71 | 5730 | silver quality |
-| pericardium | 87.62 | 5770 | gold quality |
-| inferior vagus X ganglion | 87.61 | 5770 | silver quality |
-| substantia nigra pars reticulata | 87.51 | 5820 | gold quality |
-| nipple | 87.43 | 5860 | silver quality |
-| substantia nigra pars compacta | 87.34 | 5900 | silver quality |
-| lower esophagus mucosa | 87.34 | 5900 | gold quality |
-| saphenous vein | 87.05 | 6040 | silver quality |
-| myocardium | 86.88 | 6120 | gold quality |
-| trigeminal ganglion | 86.57 | 6260 | gold quality |
-| dorsal root ganglion | 86.51 | 6290 | gold quality |
-| renal medulla | 86.08 | 6490 | gold quality |
-| nasal cavity epithelium | 85.99 | 6530 | silver quality |
-| trachea | 85.88 | 6580 | silver quality |
+| Tissue | Anatomy ID | Score | Rank | Quality |
+| --- | --- | --- | --- | --- |
+| [parotid gland](https://bioregistry.io/UBERON:0001831) | UBERON:0001831 | 93.57 | 3000 | silver quality |
+| [cervix squamous epithelium](https://bioregistry.io/UBERON:0006922) | UBERON:0006922 | 92.83 | 3350 | silver quality |
+| [pituitary gland](https://bioregistry.io/UBERON:0000007) | UBERON:0000007 | 92.49 | 3500 | gold quality |
+| [male germ line stem cell (sensu Vertebrata) in testis](https://bioregistry.io/CL:0000089 ∩ UBERON:0000473) | CL:0000089 ∩ UBERON:0000473 | 92.11 | 3680 | gold quality |
+| [adenohypophysis](https://bioregistry.io/UBERON:0002196) | UBERON:0002196 | 91.60 | 3920 | gold quality |
+| [vena cava](https://bioregistry.io/UBERON:0004087) | UBERON:0004087 | 91.22 | 4090 | gold quality |
+| [skeletal muscle tissue of rectus abdominis](https://bioregistry.io/UBERON:0004511) | UBERON:0004511 | 90.42 | 4470 | gold quality |
+| [cardia of stomach](https://bioregistry.io/UBERON:0001162) | UBERON:0001162 | 89.74 | 4790 | gold quality |
+| [dorsal motor nucleus of vagus nerve](https://bioregistry.io/UBERON:0002870) | UBERON:0002870 | 88.92 | 5160 | silver quality |
+| [pons](https://bioregistry.io/UBERON:0000988) | UBERON:0000988 | 88.91 | 5170 | silver quality |
+| [subthalamic nucleus](https://bioregistry.io/UBERON:0001906) | UBERON:0001906 | 88.38 | 5420 | silver quality |
+| [tongue](https://bioregistry.io/UBERON:0001723) | UBERON:0001723 | 88.36 | 5430 | silver quality |
+| [ventral tegmental area](https://bioregistry.io/UBERON:0002691) | UBERON:0002691 | 88.11 | 5540 | silver quality |
+| [pharyngeal mucosa](https://bioregistry.io/UBERON:0000355) | UBERON:0000355 | 87.98 | 5600 | gold quality |
+| [superior surface of tongue](https://bioregistry.io/UBERON:0007371) | UBERON:0007371 | 87.97 | 5610 | gold quality |
+| [lateral globus pallidus](https://bioregistry.io/UBERON:0002476) | UBERON:0002476 | 87.93 | 5630 | silver quality |
+| [dorsal plus ventral thalamus](https://bioregistry.io/UBERON:0001897) | UBERON:0001897 | 87.71 | 5730 | silver quality |
+| [pericardium](https://bioregistry.io/UBERON:0002407) | UBERON:0002407 | 87.62 | 5770 | gold quality |
+| [inferior vagus X ganglion](https://bioregistry.io/UBERON:0005363) | UBERON:0005363 | 87.61 | 5770 | silver quality |
+| [substantia nigra pars reticulata](https://bioregistry.io/UBERON:0001966) | UBERON:0001966 | 87.51 | 5820 | gold quality |
+| [nipple](https://bioregistry.io/UBERON:0002030) | UBERON:0002030 | 87.43 | 5860 | silver quality |
+| [substantia nigra pars compacta](https://bioregistry.io/UBERON:0001965) | UBERON:0001965 | 87.34 | 5900 | silver quality |
+| [lower esophagus mucosa](https://bioregistry.io/UBERON:0035834) | UBERON:0035834 | 87.34 | 5900 | gold quality |
+| [saphenous vein](https://bioregistry.io/UBERON:0007318) | UBERON:0007318 | 87.05 | 6040 | silver quality |
+| [myocardium](https://bioregistry.io/UBERON:0002349) | UBERON:0002349 | 86.88 | 6120 | gold quality |
+| [trigeminal ganglion](https://bioregistry.io/UBERON:0001675) | UBERON:0001675 | 86.57 | 6260 | gold quality |
+| [dorsal root ganglion](https://bioregistry.io/UBERON:0000044) | UBERON:0000044 | 86.51 | 6290 | gold quality |
+| [renal medulla](https://bioregistry.io/UBERON:0000362) | UBERON:0000362 | 86.08 | 6490 | gold quality |
+| [nasal cavity epithelium](https://bioregistry.io/UBERON:0005384) | UBERON:0005384 | 85.99 | 6530 | silver quality |
+| [trachea](https://bioregistry.io/UBERON:0003126) | UBERON:0003126 | 85.88 | 6580 | silver quality |
 
 **Single-cell datasets (6):**
 

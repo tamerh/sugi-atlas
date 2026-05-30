@@ -1961,180 +1961,210 @@
     "tissue_count": 276,
     "top_tissues": [
       {
+        "anatomy_id": "UBERON:0001831",
         "quality": "silver quality",
         "rank": "3000",
         "score": "93.57",
         "tissue": "parotid gland"
       },
       {
+        "anatomy_id": "UBERON:0006922",
         "quality": "silver quality",
         "rank": "3350",
         "score": "92.83",
         "tissue": "cervix squamous epithelium"
       },
       {
+        "anatomy_id": "UBERON:0000007",
         "quality": "gold quality",
         "rank": "3500",
         "score": "92.49",
         "tissue": "pituitary gland"
       },
       {
+        "anatomy_id": "CL:0000089 \u2229 UBERON:0000473",
         "quality": "gold quality",
         "rank": "3680",
         "score": "92.11",
         "tissue": "male germ line stem cell (sensu Vertebrata) in testis"
       },
       {
+        "anatomy_id": "UBERON:0002196",
         "quality": "gold quality",
         "rank": "3920",
         "score": "91.60",
         "tissue": "adenohypophysis"
       },
       {
+        "anatomy_id": "UBERON:0004087",
         "quality": "gold quality",
         "rank": "4090",
         "score": "91.22",
         "tissue": "vena cava"
       },
       {
+        "anatomy_id": "UBERON:0004511",
         "quality": "gold quality",
         "rank": "4470",
         "score": "90.42",
         "tissue": "skeletal muscle tissue of rectus abdominis"
       },
       {
+        "anatomy_id": "UBERON:0001162",
         "quality": "gold quality",
         "rank": "4790",
         "score": "89.74",
         "tissue": "cardia of stomach"
       },
       {
+        "anatomy_id": "UBERON:0002870",
         "quality": "silver quality",
         "rank": "5160",
         "score": "88.92",
         "tissue": "dorsal motor nucleus of vagus nerve"
       },
       {
+        "anatomy_id": "UBERON:0000988",
         "quality": "silver quality",
         "rank": "5170",
         "score": "88.91",
         "tissue": "pons"
       },
       {
+        "anatomy_id": "UBERON:0001906",
         "quality": "silver quality",
         "rank": "5420",
         "score": "88.38",
         "tissue": "subthalamic nucleus"
       },
       {
+        "anatomy_id": "UBERON:0001723",
         "quality": "silver quality",
         "rank": "5430",
         "score": "88.36",
         "tissue": "tongue"
       },
       {
+        "anatomy_id": "UBERON:0002691",
         "quality": "silver quality",
         "rank": "5540",
         "score": "88.11",
         "tissue": "ventral tegmental area"
       },
       {
+        "anatomy_id": "UBERON:0000355",
         "quality": "gold quality",
         "rank": "5600",
         "score": "87.98",
         "tissue": "pharyngeal mucosa"
       },
       {
+        "anatomy_id": "UBERON:0007371",
         "quality": "gold quality",
         "rank": "5610",
         "score": "87.97",
         "tissue": "superior surface of tongue"
       },
       {
+        "anatomy_id": "UBERON:0002476",
         "quality": "silver quality",
         "rank": "5630",
         "score": "87.93",
         "tissue": "lateral globus pallidus"
       },
       {
+        "anatomy_id": "UBERON:0001897",
         "quality": "silver quality",
         "rank": "5730",
         "score": "87.71",
         "tissue": "dorsal plus ventral thalamus"
       },
       {
+        "anatomy_id": "UBERON:0002407",
         "quality": "gold quality",
         "rank": "5770",
         "score": "87.62",
         "tissue": "pericardium"
       },
       {
+        "anatomy_id": "UBERON:0005363",
         "quality": "silver quality",
         "rank": "5770",
         "score": "87.61",
         "tissue": "inferior vagus X ganglion"
       },
       {
+        "anatomy_id": "UBERON:0001966",
         "quality": "gold quality",
         "rank": "5820",
         "score": "87.51",
         "tissue": "substantia nigra pars reticulata"
       },
       {
+        "anatomy_id": "UBERON:0002030",
         "quality": "silver quality",
         "rank": "5860",
         "score": "87.43",
         "tissue": "nipple"
       },
       {
+        "anatomy_id": "UBERON:0001965",
         "quality": "silver quality",
         "rank": "5900",
         "score": "87.34",
         "tissue": "substantia nigra pars compacta"
       },
       {
+        "anatomy_id": "UBERON:0035834",
         "quality": "gold quality",
         "rank": "5900",
         "score": "87.34",
         "tissue": "lower esophagus mucosa"
       },
       {
+        "anatomy_id": "UBERON:0007318",
         "quality": "silver quality",
         "rank": "6040",
         "score": "87.05",
         "tissue": "saphenous vein"
       },
       {
+        "anatomy_id": "UBERON:0002349",
         "quality": "gold quality",
         "rank": "6120",
         "score": "86.88",
         "tissue": "myocardium"
       },
       {
+        "anatomy_id": "UBERON:0001675",
         "quality": "gold quality",
         "rank": "6260",
         "score": "86.57",
         "tissue": "trigeminal ganglion"
       },
       {
+        "anatomy_id": "UBERON:0000044",
         "quality": "gold quality",
         "rank": "6290",
         "score": "86.51",
         "tissue": "dorsal root ganglion"
       },
       {
+        "anatomy_id": "UBERON:0000362",
         "quality": "gold quality",
         "rank": "6490",
         "score": "86.08",
         "tissue": "renal medulla"
       },
       {
+        "anatomy_id": "UBERON:0005384",
         "quality": "silver quality",
         "rank": "6530",
         "score": "85.99",
         "tissue": "nasal cavity epithelium"
       },
       {
+        "anatomy_id": "UBERON:0003126",
         "quality": "silver quality",
         "rank": "6580",
         "score": "85.88",
