@@ -603,6 +603,41 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | (2S)-2-acetamido-3-((2S)-2-((2S,3R)-1-(1-amino-3-(naphthalen-2-yl)-1-oxopropan-2-ylamino)-3-hydroxy-1-oxobutan-2-ylcarbamoyl)pyrrolidin-1-yl)-3-oxopropyl dihydrogen phosphate::CHEMBL1784769 |  | 17700 nM |
 | (2S)-2-acetamido-3-((2S)-2-((2S,3R)-1-(1-amino-3-(naphthalen-1-yl)-1-oxopropan-2-ylamino)-3-hydroxy-1-oxobutan-2-ylcarbamoyl)pyrrolidin-1-yl)-3-oxopropyl dihydrogen phosphate::CHEMBL1784778 |  | 171700 nM |
 
+**ChEMBL bioactivities (107 potent at pChembl≥5 of 358 total), top 30 by pChembl (potency: 10 = 0.1 nM, 6 = 1 µM):**
+
+| pChembl | Type | Value | Unit | Activity ID |
+| --- | --- | --- | --- | --- |
+| 7.40 | Ki | 40 | nM | CHEMBL_ACT_10852205 |
+| 7.10 | Ki | 80 | nM | CHEMBL_ACT_10852204 |
+| 7.00 | Ki | 100 | nM | CHEMBL_ACT_10852199 |
+| 6.90 | Potency | 125.9 | nM | CHEMBL_ACT_3659490 |
+| 6.90 | Potency | 125.9 | nM | CHEMBL_ACT_3659560 |
+| 6.89 | Ki | 130 | nM | CHEMBL_ACT_10852198 |
+| 6.80 | Potency | 158.5 | nM | CHEMBL_ACT_3659503 |
+| 6.72 | Kd | 190 | nM | CHEMBL_ACT_6222864 |
+| 6.70 | Ki | 200 | nM | CHEMBL_ACT_10852194 |
+| 6.57 | Ki | 270 | nM | CHEMBL_ACT_10852192 |
+| 6.52 | Kd | 300 | nM | CHEMBL_ACT_26335732 |
+| 6.51 | IC50 | 310 | nM | CHEMBL_ACT_26335731 |
+| 6.50 | Potency | 316.2 | nM | CHEMBL_ACT_4518112 |
+| 6.39 | Kd | 410 | nM | CHEMBL_ACT_6222866 |
+| 6.36 | Kd | 440 | nM | CHEMBL_ACT_6222865 |
+| 6.30 | Ki | 500 | nM | CHEMBL_ACT_10852200 |
+| 6.27 | Ki | 540 | nM | CHEMBL_ACT_10852197 |
+| 6.20 | Potency | 631 | nM | CHEMBL_ACT_3659552 |
+| 6.20 | Potency | 631 | nM | CHEMBL_ACT_4518072 |
+| 6.20 | Potency | 631 | nM | CHEMBL_ACT_4518073 |
+| 6.20 | Potency | 631 | nM | CHEMBL_ACT_4518123 |
+| 6.10 | Potency | 794.3 | nM | CHEMBL_ACT_3658801 |
+| 6.10 | Potency | 794.3 | nM | CHEMBL_ACT_3659561 |
+| 6.00 | Potency | 1000 | nM | CHEMBL_ACT_3659435 |
+| 6.00 | Potency | 1000 | nM | CHEMBL_ACT_3659538 |
+| 6.00 | Potency | 1000 | nM | CHEMBL_ACT_4518085 |
+| 6.00 | IC50 | 1000 | nM | CHEMBL_ACT_6222859 |
+| 5.91 | Ki | 1240 | nM | CHEMBL_ACT_10852195 |
+| 5.90 | Potency | 1259 | nM | CHEMBL_ACT_3659493 |
+| 5.90 | Potency | 1259 | nM | CHEMBL_ACT_3659539 |
+
 **PubChem BioAssay actives (8 Active w/ measured affinity, of 28 total PubChem activities), top 30 by potency:**
 
 | CID | AID | Type | Value | Unit |

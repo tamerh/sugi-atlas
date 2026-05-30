@@ -208,6 +208,220 @@
       }
     ],
     "bindingdb_sampled": 35,
+    "chembl_activities": [
+      {
+        "id": "CHEMBL_ACT_10852205",
+        "pchembl": "7.40",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "40"
+      },
+      {
+        "id": "CHEMBL_ACT_10852204",
+        "pchembl": "7.10",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "80"
+      },
+      {
+        "id": "CHEMBL_ACT_10852199",
+        "pchembl": "7.00",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "100"
+      },
+      {
+        "id": "CHEMBL_ACT_3659490",
+        "pchembl": "6.90",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "125.9"
+      },
+      {
+        "id": "CHEMBL_ACT_3659560",
+        "pchembl": "6.90",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "125.9"
+      },
+      {
+        "id": "CHEMBL_ACT_10852198",
+        "pchembl": "6.89",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "130"
+      },
+      {
+        "id": "CHEMBL_ACT_3659503",
+        "pchembl": "6.80",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "158.5"
+      },
+      {
+        "id": "CHEMBL_ACT_6222864",
+        "pchembl": "6.72",
+        "type": "Kd",
+        "unit": "nM",
+        "value": "190"
+      },
+      {
+        "id": "CHEMBL_ACT_10852194",
+        "pchembl": "6.70",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "200"
+      },
+      {
+        "id": "CHEMBL_ACT_10852192",
+        "pchembl": "6.57",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "270"
+      },
+      {
+        "id": "CHEMBL_ACT_26335732",
+        "pchembl": "6.52",
+        "type": "Kd",
+        "unit": "nM",
+        "value": "300"
+      },
+      {
+        "id": "CHEMBL_ACT_26335731",
+        "pchembl": "6.51",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "310"
+      },
+      {
+        "id": "CHEMBL_ACT_4518112",
+        "pchembl": "6.50",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "316.2"
+      },
+      {
+        "id": "CHEMBL_ACT_6222866",
+        "pchembl": "6.39",
+        "type": "Kd",
+        "unit": "nM",
+        "value": "410"
+      },
+      {
+        "id": "CHEMBL_ACT_6222865",
+        "pchembl": "6.36",
+        "type": "Kd",
+        "unit": "nM",
+        "value": "440"
+      },
+      {
+        "id": "CHEMBL_ACT_10852200",
+        "pchembl": "6.30",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "500"
+      },
+      {
+        "id": "CHEMBL_ACT_10852197",
+        "pchembl": "6.27",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "540"
+      },
+      {
+        "id": "CHEMBL_ACT_3659552",
+        "pchembl": "6.20",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "631"
+      },
+      {
+        "id": "CHEMBL_ACT_4518072",
+        "pchembl": "6.20",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "631"
+      },
+      {
+        "id": "CHEMBL_ACT_4518073",
+        "pchembl": "6.20",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "631"
+      },
+      {
+        "id": "CHEMBL_ACT_4518123",
+        "pchembl": "6.20",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "631"
+      },
+      {
+        "id": "CHEMBL_ACT_3658801",
+        "pchembl": "6.10",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "794.3"
+      },
+      {
+        "id": "CHEMBL_ACT_3659561",
+        "pchembl": "6.10",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "794.3"
+      },
+      {
+        "id": "CHEMBL_ACT_3659435",
+        "pchembl": "6.00",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "1000"
+      },
+      {
+        "id": "CHEMBL_ACT_3659538",
+        "pchembl": "6.00",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "1000"
+      },
+      {
+        "id": "CHEMBL_ACT_4518085",
+        "pchembl": "6.00",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "1000"
+      },
+      {
+        "id": "CHEMBL_ACT_6222859",
+        "pchembl": "6.00",
+        "type": "IC50",
+        "unit": "nM",
+        "value": "1000"
+      },
+      {
+        "id": "CHEMBL_ACT_10852195",
+        "pchembl": "5.91",
+        "type": "Ki",
+        "unit": "nM",
+        "value": "1240"
+      },
+      {
+        "id": "CHEMBL_ACT_3659493",
+        "pchembl": "5.90",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "1259"
+      },
+      {
+        "id": "CHEMBL_ACT_3659539",
+        "pchembl": "5.90",
+        "type": "Potency",
+        "unit": "nM",
+        "value": "1259"
+      }
+    ],
+    "chembl_activity_potent_count": 107,
+    "chembl_activity_total": 358,
     "chembl_targets": [
       {
         "id": "CHEMBL5990",
