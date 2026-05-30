@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from atlas import __version__ as V
 from atlas.pipeline import assemble_page, biobtree_version
 from atlas.page.jsonld import build_jsonld, as_jsonld_string
+from atlas.page.provenance import build_provenance, as_provenance_string
 
 ctx = json.load(open(os.path.join(os.environ["ENJU_RUN_DIR"], "context.json")))
 symbol = ctx["iteration"]["symbol"]
@@ -32,6 +33,12 @@ open(f"{out}/page.md", "w").write(page)
 # the <link rel="alternate" type="application/ld+json"> hint (added by Hugo
 # theme; the file itself lives here next to page.md).
 open(f"{out}/entity.jsonld", "w").write(as_jsonld_string(build_jsonld(bundle)))
+
+# Per-page provenance trail (schema.org Dataset). Maps every section's
+# datasets/chains to their upstream source (NCBI/UniProt/EBI/etc.) so an
+# AI agent can cite a fact with its primary-source URL, not just the page.
+open(f"{out}/provenance.json", "w").write(
+    as_provenance_string(build_provenance(bundle, meta=meta)))
 
 for f in ("bundle.json", "body.md", "summary.md", "judge.json", "body_gate.json"):
     src = f"build/{symbol}/{f}"
