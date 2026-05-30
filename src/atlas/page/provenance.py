@@ -72,6 +72,7 @@ UPSTREAM = {
     "pharmgkb_gene":     ("PharmGKB",                              "https://www.pharmgkb.org/"),
     "bindingdb":         ("BindingDB",                             "https://www.bindingdb.org/"),
     "pubchem_activity":  ("PubChem BioAssay",                      "https://pubchem.ncbi.nlm.nih.gov/"),
+    "ctd_gene_interaction":("Comparative Toxicogenomics Database (CTD)", "http://ctdbase.org/"),
     "clinical_trials":   ("ClinicalTrials.gov",                    "https://clinicaltrials.gov/"),
     # diseases / phenotypes
     "mondo":             ("Mondo Disease Ontology",                "https://mondo.monarchinitiative.org/"),

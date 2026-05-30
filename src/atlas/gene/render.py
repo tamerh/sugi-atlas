@@ -234,6 +234,19 @@ def r_drugs(b):
                          p.get("activity_type"), p.get("value"), p.get("unit"))
                         for p in pba]))
 
+    # CTD literature-mined chemical-gene interactions — Comparative
+    # Toxicogenomics Database. Each row: a chemical (drug, toxin,
+    # environmental compound) + CV-coded action verbs + PubMed-count support.
+    # High AI value: every claim is anchored by literature counts.
+    ctd = b.get("ctd_interactions") or []
+    if ctd:
+        L.append(f"\n**CTD chemical–gene interactions (human, "
+                 f"{b.get('ctd_interaction_total', 0)} total), top 30 by PubMed support:**\n")
+        L.append(table(["Chemical", "Actions (CV verbs)", "PubMed papers"],
+                       [(f"[{r['chemical']}](http://ctdbase.org/detail.go?type=chem&acc={r['chemical_id']})",
+                         ", ".join(r["actions"]),
+                         r["pmids"]) for r in ctd]))
+
     ct = b.get("disease_trials", [])
     L.append(f"\n**Clinical trials for the gene's associated diseases "
              f"({b.get('disease_trial_count', 0)}, via MONDO — disease-level, not drug-specific):**\n")

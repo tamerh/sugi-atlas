@@ -10,11 +10,13 @@ CHAINS = (
     ">>hgnc>>pharmgkb_gene",
     ">>uniprot>>bindingdb",
     ">>uniprot>>pubchem_activity",
+    ">>hgnc>>entrez>>ctd_gene_interaction",
     ">>hgnc>>gencc>>mondo>>clinical_trials",
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity",
             "pharmgkb_gene", "bindingdb", "pubchem_activity",
+            "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
 
 # Activity types we sort by potency (low value = potent). Other outcomes carry
@@ -99,6 +101,28 @@ def collect(a):
     bundle["chembl_activity_total"] = len(ca)
     bundle["chembl_activity_potent_count"] = len(potent)
 
+    # CTD literature-mined chemical-gene interactions. Each row is a
+    # PubMed-evidenced interaction with CV-coded action verbs (e.g.
+    # 'increases^expression', 'decreases^activity'). Sort by pubmed_count
+    # (top hits are the most-cited / best-supported); filter to Homo sapiens
+    # since the CTD index has rodent/cell-line rows too. CTD's chemical_id
+    # (e.g. C000228) is the head of the activity_id; we surface it for
+    # clickable links to ctdbase.org.
+    def _pmc(r):
+        try: return int(r.get("pubmed_count") or 0)
+        except (TypeError, ValueError): return 0
+    ctd = map_all(a.hgnc_id, ">>hgnc>>entrez>>ctd_gene_interaction")
+    ctd_human = [r for r in ctd if (r.get("organism") or "") == "Homo sapiens"]
+    ctd_human.sort(key=_pmc, reverse=True)
+    bundle["ctd_interactions"] = [{
+        "id": r["id"],
+        "chemical_id": (r.get("id") or "").split("_", 1)[0],
+        "chemical": r.get("chemical_name"),
+        "actions": [act.strip() for act in (r.get("interaction_actions") or "").split(";") if act.strip()],
+        "pmids": r.get("pubmed_count"),
+    } for r in ctd_human[:30]]
+    bundle["ctd_interaction_total"] = len(ctd_human)
+
     # Clinical trials via the DISEASE route — chembl_molecule>>clinical_trials would
     # pollute with off-target drugs (ChEMBL target↔molecule is bioactivity-based).
     # Disease-level is biobtree's intended pattern.
@@ -123,7 +147,7 @@ SECTION = Section(
                  "clickable CID/AID), clinical trials via disease route"),
     needs=("hgnc_id", "canonical_uniprot"),
     produces=("chembl_targets", "molecules", "chembl_activities", "pharmgkb",
-              "bindingdb_sample", "pubchem_bioassay", "disease_trials",
-              "is_drug_target"),
+              "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",
+              "disease_trials", "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
