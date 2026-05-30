@@ -457,6 +457,326 @@
         "type": "PROTEIN-PROTEIN INTERACTION"
       }
     ],
+    "ctd_interaction_total": 135,
+    "ctd_interactions": [
+      {
+        "actions": [
+          "affects^mutagenesis",
+          "increases^reaction",
+          "increases^mutagenesis"
+        ],
+        "chemical": "Vinyl Chloride",
+        "chemical_id": "D014752",
+        "id": "D014752_3845_9606",
+        "pmids": "7"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "affects^cotreatment",
+          "increases^expression"
+        ],
+        "chemical": "Resveratrol",
+        "chemical_id": "D000077185",
+        "id": "D000077185_3845_9606",
+        "pmids": "5"
+      },
+      {
+        "actions": [
+          "increases^mutagenesis",
+          "affects^expression",
+          "increases^expression"
+        ],
+        "chemical": "Tobacco Smoke Pollution",
+        "chemical_id": "D014028",
+        "id": "D014028_3845_9606",
+        "pmids": "5"
+      },
+      {
+        "actions": [
+          "increases^mutagenesis",
+          "affects^cotreatment",
+          "increases^expression",
+          "decreases^expression"
+        ],
+        "chemical": "bisphenol A",
+        "chemical_id": "C006780",
+        "id": "C006780_3845_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "increases^expression",
+          "affects^activity",
+          "decreases^reaction",
+          "decreases^expression"
+        ],
+        "chemical": "Quercetin",
+        "chemical_id": "D011794",
+        "id": "D011794_3845_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "affects^expression"
+        ],
+        "chemical": "Tetrachlorodibenzodioxin",
+        "chemical_id": "D013749",
+        "id": "D013749_3845_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "decreases^expression",
+          "decreases^reaction",
+          "increases^reaction",
+          "increases^secretion"
+        ],
+        "chemical": "Cadmium Chloride",
+        "chemical_id": "D019256",
+        "id": "D019256_3845_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "affects^expression",
+          "increases^expression"
+        ],
+        "chemical": "sodium arsenite",
+        "chemical_id": "C017947",
+        "id": "C017947_3845_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Fluorouracil",
+        "chemical_id": "D005472",
+        "id": "D005472_3845_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide",
+        "chemical_id": "D015123",
+        "id": "D015123_3845_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression",
+          "increases^mutagenesis"
+        ],
+        "chemical": "arsenite",
+        "chemical_id": "C015001",
+        "id": "C015001_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "affects^response to substance",
+          "affects^expression"
+        ],
+        "chemical": "hydroquinone",
+        "chemical_id": "C031927",
+        "id": "C031927_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "affects^cotreatment"
+        ],
+        "chemical": "mercuric bromide",
+        "chemical_id": "C042720",
+        "id": "C042720_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^reaction",
+          "increases^response to substance"
+        ],
+        "chemical": "2-(1H-indazol-4-yl)-6-(4-methanesulfonylpiperazin-1-ylmethyl)-4-morpholin-4-ylthieno(3,2-d)pyrimidine",
+        "chemical_id": "C532162",
+        "id": "C532162_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^response to substance",
+          "affects^reaction",
+          "affects^response to substance"
+        ],
+        "chemical": "Gefitinib",
+        "chemical_id": "D000077156",
+        "id": "D000077156_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "increases^secretion",
+          "affects^response to substance",
+          "increases^mutagenesis",
+          "affects^reaction",
+          "increases^phosphorylation"
+        ],
+        "chemical": "Arsenic",
+        "chemical_id": "D001151",
+        "id": "D001151_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Cadmium",
+        "chemical_id": "D002104",
+        "id": "D002104_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Doxorubicin",
+        "chemical_id": "D004317",
+        "id": "D004317_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "Estradiol",
+        "chemical_id": "D004958",
+        "id": "D004958_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "affects^response to substance",
+          "increases^mutagenesis"
+        ],
+        "chemical": "Smoke",
+        "chemical_id": "D012906",
+        "id": "D012906_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "Genistein",
+        "chemical_id": "D019833",
+        "id": "D019833_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "decreases^expression"
+        ],
+        "chemical": "p-Chloromercuribenzoic Acid",
+        "chemical_id": "D020245",
+        "id": "D020245_3845_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "aristolochic acid I",
+        "chemical_id": "C000228",
+        "id": "C000228_3845_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "affects^response to substance",
+          "increases^response to substance"
+        ],
+        "chemical": "AZ-628",
+        "chemical_id": "C000592454",
+        "id": "C000592454_3845_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "2-methoxy-6-undecyl-1,4-benzoquinone",
+        "chemical_id": "C000594525",
+        "id": "C000594525_3845_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "affects^expression"
+        ],
+        "chemical": "ammonium 2,3,3,3-tetrafluoro-2-(heptafluoropropoxy)-propanoate",
+        "chemical_id": "C000611729",
+        "id": "C000611729_3845_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^binding"
+        ],
+        "chemical": "ARS-1620",
+        "chemical_id": "C000629713",
+        "id": "C000629713_3845_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^response to substance",
+          "affects^binding",
+          "affects^reaction",
+          "decreases^phosphorylation"
+        ],
+        "chemical": "sotorasib",
+        "chemical_id": "C000706028",
+        "id": "C000706028_3845_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^binding",
+          "decreases^reaction"
+        ],
+        "chemical": "BI-2852",
+        "chemical_id": "C000726313",
+        "id": "C000726313_3845_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^reaction",
+          "increases^expression"
+        ],
+        "chemical": "chymostatin",
+        "chemical_id": "C002101",
+        "id": "C002101_3845_9606",
+        "pmids": "1"
+      }
+    ],
     "disease_trial_count": 398,
     "disease_trials": [
       {

@@ -983,6 +983,41 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_28813688 |
 | 9.39 | IC50 | 0.405 | nM | CHEMBL_ACT_26114349 |
 
+**CTD chemical–gene interactions (human, 135 total), top 30 by PubMed support:**
+
+| Chemical | Actions (CV verbs) | PubMed papers |
+| --- | --- | --- |
+| [Vinyl Chloride](http://ctdbase.org/detail.go?type=chem&acc=D014752) | affects^mutagenesis, increases^reaction, increases^mutagenesis | 7 |
+| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | decreases^expression, affects^cotreatment, increases^expression | 5 |
+| [Tobacco Smoke Pollution](http://ctdbase.org/detail.go?type=chem&acc=D014028) | increases^mutagenesis, affects^expression, increases^expression | 5 |
+| [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | increases^mutagenesis, affects^cotreatment, increases^expression, decreases^expression | 4 |
+| [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | affects^cotreatment, increases^expression, affects^activity, decreases^reaction, decreases^expression | 4 |
+| [Tetrachlorodibenzodioxin](http://ctdbase.org/detail.go?type=chem&acc=D013749) | decreases^reaction, increases^expression, affects^expression | 4 |
+| [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | increases^expression, decreases^expression, decreases^reaction, increases^reaction, increases^secretion | 4 |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | affects^expression, increases^expression | 3 |
+| [Fluorouracil](http://ctdbase.org/detail.go?type=chem&acc=D005472) | decreases^expression, increases^expression | 3 |
+| [7,8-Dihydro-7,8-dihydroxybenzo(a)pyrene 9,10-oxide](http://ctdbase.org/detail.go?type=chem&acc=D015123) | decreases^expression, increases^expression | 3 |
+| [arsenite](http://ctdbase.org/detail.go?type=chem&acc=C015001) | decreases^reaction, increases^expression, increases^mutagenesis | 2 |
+| [hydroquinone](http://ctdbase.org/detail.go?type=chem&acc=C031927) | increases^expression, affects^response to substance, affects^expression | 2 |
+| [mercuric bromide](http://ctdbase.org/detail.go?type=chem&acc=C042720) | decreases^expression, affects^cotreatment | 2 |
+| [2-(1H-indazol-4-yl)-6-(4-methanesulfonylpiperazin-1-ylmethyl)-4-morpholin-4-ylthieno(3,2-d)pyrimidine](http://ctdbase.org/detail.go?type=chem&acc=C532162) | increases^reaction, increases^response to substance | 2 |
+| [Gefitinib](http://ctdbase.org/detail.go?type=chem&acc=D000077156) | decreases^response to substance, affects^reaction, affects^response to substance | 2 |
+| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | increases^secretion, affects^response to substance, increases^mutagenesis, affects^reaction, increases^phosphorylation | 2 |
+| [Cadmium](http://ctdbase.org/detail.go?type=chem&acc=D002104) | decreases^expression, increases^expression | 2 |
+| [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | decreases^expression, increases^expression | 2 |
+| [Estradiol](http://ctdbase.org/detail.go?type=chem&acc=D004958) | decreases^expression, increases^expression | 2 |
+| [Smoke](http://ctdbase.org/detail.go?type=chem&acc=D012906) | affects^response to substance, increases^mutagenesis | 2 |
+| [Genistein](http://ctdbase.org/detail.go?type=chem&acc=D019833) | decreases^expression | 2 |
+| [p-Chloromercuribenzoic Acid](http://ctdbase.org/detail.go?type=chem&acc=D020245) | affects^cotreatment, decreases^expression | 2 |
+| [aristolochic acid I](http://ctdbase.org/detail.go?type=chem&acc=C000228) | decreases^expression | 1 |
+| [AZ-628](http://ctdbase.org/detail.go?type=chem&acc=C000592454) | affects^cotreatment, affects^response to substance, increases^response to substance | 1 |
+| [2-methoxy-6-undecyl-1,4-benzoquinone](http://ctdbase.org/detail.go?type=chem&acc=C000594525) | decreases^expression | 1 |
+| [ammonium 2,3,3,3-tetrafluoro-2-(heptafluoropropoxy)-propanoate](http://ctdbase.org/detail.go?type=chem&acc=C000611729) | affects^cotreatment, affects^expression | 1 |
+| [ARS-1620](http://ctdbase.org/detail.go?type=chem&acc=C000629713) | affects^binding | 1 |
+| [sotorasib](http://ctdbase.org/detail.go?type=chem&acc=C000706028) | increases^response to substance, affects^binding, affects^reaction, decreases^phosphorylation | 1 |
+| [BI-2852](http://ctdbase.org/detail.go?type=chem&acc=C000726313) | affects^binding, decreases^reaction | 1 |
+| [chymostatin](http://ctdbase.org/detail.go?type=chem&acc=C002101) | decreases^reaction, increases^expression | 1 |
+
 **Clinical trials for the gene's associated diseases (398, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
