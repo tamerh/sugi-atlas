@@ -35,6 +35,18 @@ def r_gene_ids(b):
             ("Ensembl biotype", (b.get("ensembl") or {}).get("biotype")),
             ("OMIM", ", ".join(b.get("mim", []))),
             ("Entrez", ", ".join(b.get("entrez", [])))]
+    # RNAcentral row — ncRNA genes only; protein-coding genes have None
+    # and the row elides. Builds a clickable RNAcentral URL.
+    rc = b.get("rnacentral")
+    if rc:
+        rid = rc.get("id")
+        rt = rc.get("rna_type") or ""
+        ln = rc.get("length")
+        oc = rc.get("organism_count")
+        rows.append(("RNAcentral",
+                     f"[{rid}](https://rnacentral.org/rna/{rid}) — {rt}"
+                     + (f", {ln} nt" if ln else "")
+                     + (f", {oc} organism(s)" if oc else "")))
     return "## Gene identifiers\n\n" + table(["Field", "Value"], rows)
 
 

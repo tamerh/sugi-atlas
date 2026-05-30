@@ -28,6 +28,7 @@ UPSTREAM = {
     "ensembl":           ("Ensembl",                               "https://www.ensembl.org/"),
     "entrez":            ("NCBI Gene (Entrez)",                    "https://www.ncbi.nlm.nih.gov/gene/"),
     "mim":               ("OMIM",                                  "https://www.omim.org/"),
+    "rnacentral":        ("RNAcentral",                            "https://rnacentral.org/"),
     # transcripts / exons
     "transcript":        ("Ensembl",                               "https://www.ensembl.org/"),
     "exon":              ("Ensembl",                               "https://www.ensembl.org/"),
