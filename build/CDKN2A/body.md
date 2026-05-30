@@ -667,3 +667,19 @@ nucleus (GO:0005634), nucleolus (GO:0005730), cytoplasm (GO:0005737), cytosol (G
 | GCST001937_28 | Breast cancer | 6.000000e-08 |
 | GCST002128_6 | Type 2 diabetes | 1.000000e-18 |
 | GCST002331_7 | Basal cell carcinoma | 3.000000e-10 |
+
+**MeSH disease descriptors (11):**
+
+| Descriptor | Name | Tree numbers |
+| --- | --- | --- |
+| [D006528](https://www.ncbi.nlm.nih.gov/mesh/?term=D006528) | Carcinoma, Hepatocellular | C04.557.470.200.025.255; C04.588.274.623.160; C06.301.623.160; C06.552.697.160 |
+| [D004416](https://www.ncbi.nlm.nih.gov/mesh/?term=D004416) | Dysplastic Nevus Syndrome | C04.557.665.560.260; C04.700.305; C16.320.700.305 |
+| [D016864](https://www.ncbi.nlm.nih.gov/mesh/?term=D016864) | Li-Fraumeni Syndrome | C04.700.600; C16.320.700.600; C18.452.284.520 |
+| [D008545](https://www.ncbi.nlm.nih.gov/mesh/?term=D008545) | Melanoma | C04.557.465.625.650.510; C04.557.580.625.650.510; C04.557.665.510; C04.588.805.377; C17.800.882.445 |
+| [D009386](https://www.ncbi.nlm.nih.gov/mesh/?term=D009386) | Neoplastic Syndromes, Hereditary | C04.700; C16.320.700 |
+| [D010051](https://www.ncbi.nlm.nih.gov/mesh/?term=D010051) | Ovarian Neoplasms | C04.588.322.455; C12.050.351.500.056.630.705; C12.050.351.937.418.685; C12.100.250.056.630.705; C12.900.418.685; C19.344.410; C19.391.630.705 |
+| [D012175](https://www.ncbi.nlm.nih.gov/mesh/?term=D012175) | Retinoblastoma | C04.557.465.625.600.725; C04.557.470.670.725; C04.557.580.625.600.725; C04.588.364.818.760; C11.270.862; C11.319.475.760; C11.768.717.760 |
+| [C536149](https://www.ncbi.nlm.nih.gov/mesh/?term=C536149) | Melanoma astrocytoma syndrome *(supp.)* |  |
+| [C563985](https://www.ncbi.nlm.nih.gov/mesh/?term=C563985) | Melanoma-Pancreatic Cancer Syndrome *(supp.)* |  |
+| [C537443](https://www.ncbi.nlm.nih.gov/mesh/?term=C537443) | Meningioma, familial *(supp.)* |  |
+| [C535837](https://www.ncbi.nlm.nih.gov/mesh/?term=C535837) | Pancreatic carcinoma, familial *(supp.)* |  |

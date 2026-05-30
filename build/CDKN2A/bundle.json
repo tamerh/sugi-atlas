@@ -3467,6 +3467,112 @@
       }
     ],
     "hpo_total": 96,
+    "mesh_descriptors": [
+      {
+        "id": "D006528",
+        "is_supplementary": false,
+        "name": "Carcinoma, Hepatocellular",
+        "tree_numbers": [
+          "C04.557.470.200.025.255",
+          "C04.588.274.623.160",
+          "C06.301.623.160",
+          "C06.552.697.160"
+        ]
+      },
+      {
+        "id": "D004416",
+        "is_supplementary": false,
+        "name": "Dysplastic Nevus Syndrome",
+        "tree_numbers": [
+          "C04.557.665.560.260",
+          "C04.700.305",
+          "C16.320.700.305"
+        ]
+      },
+      {
+        "id": "D016864",
+        "is_supplementary": false,
+        "name": "Li-Fraumeni Syndrome",
+        "tree_numbers": [
+          "C04.700.600",
+          "C16.320.700.600",
+          "C18.452.284.520"
+        ]
+      },
+      {
+        "id": "D008545",
+        "is_supplementary": false,
+        "name": "Melanoma",
+        "tree_numbers": [
+          "C04.557.465.625.650.510",
+          "C04.557.580.625.650.510",
+          "C04.557.665.510",
+          "C04.588.805.377",
+          "C17.800.882.445"
+        ]
+      },
+      {
+        "id": "D009386",
+        "is_supplementary": false,
+        "name": "Neoplastic Syndromes, Hereditary",
+        "tree_numbers": [
+          "C04.700",
+          "C16.320.700"
+        ]
+      },
+      {
+        "id": "D010051",
+        "is_supplementary": false,
+        "name": "Ovarian Neoplasms",
+        "tree_numbers": [
+          "C04.588.322.455",
+          "C12.050.351.500.056.630.705",
+          "C12.050.351.937.418.685",
+          "C12.100.250.056.630.705",
+          "C12.900.418.685",
+          "C19.344.410",
+          "C19.391.630.705"
+        ]
+      },
+      {
+        "id": "D012175",
+        "is_supplementary": false,
+        "name": "Retinoblastoma",
+        "tree_numbers": [
+          "C04.557.465.625.600.725",
+          "C04.557.470.670.725",
+          "C04.557.580.625.600.725",
+          "C04.588.364.818.760",
+          "C11.270.862",
+          "C11.319.475.760",
+          "C11.768.717.760"
+        ]
+      },
+      {
+        "id": "C536149",
+        "is_supplementary": true,
+        "name": "Melanoma astrocytoma syndrome",
+        "tree_numbers": []
+      },
+      {
+        "id": "C563985",
+        "is_supplementary": true,
+        "name": "Melanoma-Pancreatic Cancer Syndrome",
+        "tree_numbers": []
+      },
+      {
+        "id": "C537443",
+        "is_supplementary": true,
+        "name": "Meningioma, familial",
+        "tree_numbers": []
+      },
+      {
+        "id": "C535837",
+        "is_supplementary": true,
+        "name": "Pancreatic carcinoma, familial",
+        "tree_numbers": []
+      }
+    ],
     "mondo": [
       {
         "id": "MONDO:0015356",
