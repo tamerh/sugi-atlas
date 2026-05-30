@@ -948,6 +948,41 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 | US10829487, Example I-12 |  | 7.00 nM |
 | US10829487, Example I-13 |  | 11.0 nM |
 
+**ChEMBL bioactivities (4825 potent at pChembl≥5 of 5239 total), top 30 by pChembl (potency: 10 = 0.1 nM, 6 = 1 µM):**
+
+| pChembl | Type | Value | Unit | Activity ID |
+| --- | --- | --- | --- | --- |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_23316920 |
+| 10.00 | Kd | 0.1 | nM | CHEMBL_ACT_28812359 |
+| 10.00 | IC50 | 0.1 | nM | CHEMBL_ACT_28812758 |
+| 9.85 | Kd | 0.14 | nM | CHEMBL_ACT_26000036 |
+| 9.80 | Kd | 0.16 | nM | CHEMBL_ACT_26000031 |
+| 9.77 | Kd | 0.17 | nM | CHEMBL_ACT_26000041 |
+| 9.74 | Kd | 0.18 | nM | CHEMBL_ACT_26000033 |
+| 9.72 | Kd | 0.19 | nM | CHEMBL_ACT_26000032 |
+| 9.70 | IC50 | 0.2 | nM | CHEMBL_ACT_23316917 |
+| 9.70 | IC50 | 0.2 | nM | CHEMBL_ACT_28812560 |
+| 9.67 | IC50 | 0.216 | nM | CHEMBL_ACT_26114350 |
+| 9.64 | Kd | 0.23 | nM | CHEMBL_ACT_26000039 |
+| 9.61 | IC50 | 0.246 | nM | CHEMBL_ACT_26114347 |
+| 9.59 | Kd | 0.26 | nM | CHEMBL_ACT_26000040 |
+| 9.52 | IC50 | 0.3 | nM | CHEMBL_ACT_23316912 |
+| 9.52 | Kd | 0.3 | nM | CHEMBL_ACT_28812329 |
+| 9.52 | IC50 | 0.3 | nM | CHEMBL_ACT_28813523 |
+| 9.49 | Kd | 0.32 | nM | CHEMBL_ACT_26000035 |
+| 9.43 | IC50 | 0.371 | nM | CHEMBL_ACT_26114345 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_23316911 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_23316914 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_23316918 |
+| 9.40 | Kd | 0.4 | nM | CHEMBL_ACT_28812278 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_28812512 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_28812566 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_28812629 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_28812791 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_28813094 |
+| 9.40 | IC50 | 0.4 | nM | CHEMBL_ACT_28813688 |
+| 9.39 | IC50 | 0.405 | nM | CHEMBL_ACT_26114349 |
+
 **Clinical trials for the gene's associated diseases (398, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |
