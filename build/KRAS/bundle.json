@@ -3504,6 +3504,11 @@
     ]
   },
   "12": {
+    "civic": {
+      "description": "Mutations in the RAS family of proteins are frequently observed across cancer types. The amino acid positions that account for the overwhelming majority of these mutations are G12, G13 and Q61. The different protein isoforms, despite their raw similarity, also behave very differently when expressed in non-native tissue types, likely due to differences in the C-terminal hyper-variable regions. Mis-regulation of isoform expression has been shown to be a driving event in cancer, as well as missense mutations at the three hotspots previously mentioned. While highly recurrent in cancer, attempts to target these RAS mutants with inhibitors have not been successful, and has not yet become common practice in the clinic. The prognostic implications for KRAS mutations vary between cancer types, but have been shown to be associated with poor outcome in colorectal cancer, non-small cell lung cancer, and others.",
+      "id": "30",
+      "name": "KRAS"
+    },
     "disease_omim": [
       "MIM:614470",
       "MIM:613659",
@@ -5479,6 +5484,11 @@
       }
     ],
     "hpo_total": 372,
+    "intogen": {
+      "cancer_types": "ALL,AML,ANSC,BLADDER,BLCA,BRCA,CEAD,CESC,CHOL,CLLSLL,COAD,COADREAD,DLBCLNOS,EGC,ESCA,ESCC,HCC,LUAD,LUSC,MEL,MGCT,MT,NSCLC,OVT,PAAD,PANCREAS,PAST,PCM,PRAD,PRCC,READ,STAD,STOMACH,UCEC,UCS,WDTC",
+      "role": "Act",
+      "symbol": "KRAS"
+    },
     "mesh_descriptors": [
       {
         "id": "D002289",
