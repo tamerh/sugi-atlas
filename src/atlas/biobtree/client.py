@@ -41,9 +41,13 @@ def bbmap(ids, chain, page=None):
     return _get("map", params)
 
 def rows(resp):
-    """search/data rows -> list of dicts keyed by schema columns."""
-    cols = resp.get("schema", "").split("|")
-    return [dict(zip(cols, r.split("|"))) for r in resp.get("data", [])]
+    """search/data rows -> list of dicts keyed by schema columns.
+
+    biobtree returns `"data": null` (literal None, not the missing key) when
+    a search has zero results — `.get(key, [])` would still pick that up
+    as None. Coerce defensively."""
+    cols = (resp.get("schema") or "").split("|")
+    return [dict(zip(cols, r.split("|"))) for r in (resp.get("data") or [])]
 
 def map_targets(resp):
     """map response -> flat list of target dicts keyed by schema columns.
