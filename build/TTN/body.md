@@ -36,8 +36,8 @@
 | ENST00000634225 | protein_coding |
 | ENST00000715174 | protein_coding |
 
-**RefSeq mRNA: 108** — MANE Select: `NM_001267550`
-`NM_001256850`, `NM_001267550`, `NM_001385708`, `NM_003319`, `NM_011652`, `NM_028004`, `NM_032068`, `NM_133378`, `NM_133379`, `NM_133432`, `NM_133437`, `XM_003198128`, `XM_005164056`, `XM_017004819`, `XM_017004820`, `XM_017004821`, `XM_017004822`, `XM_017004823`, `XM_024453095`, `XM_024453097`, `XM_024453098`, `XM_024453099`, `XM_024453100`, `XM_036160520`, `XM_036160524`, `XM_036160527`, `XM_036160528`, `XM_036160529`, `XM_036160534`, `XM_036160535`, `XM_036160536`, `XM_036160537`, `XM_036160538`, `XM_036160540`, `XM_036160543`, `XM_039106384`, `XM_039106385`, `XM_039106386`, `XM_039106387`, `XM_039106388`, `XM_039106389`, `XM_039106391`, `XM_039106393`, `XM_039106400`, `XM_039106402`, `XM_039106403`, `XM_039106405`, `XM_039106406`, `XM_039106407`, `XM_039106408`, `XM_039106409`, `XM_039106412`, `XM_039106413`, `XM_039106415`, `XM_039106416`, `XM_039106417`, `XM_039106418`, `XM_039106420`, `XM_039106421`, `XM_039106423`, `XM_039106424`, `XM_039106425`, `XM_039106426`, `XM_039106428`, `XM_039106429`, `XM_039106430`, `XM_039106431`, `XM_039106432`, `XM_039106433`, `XM_047445660`, `XM_047445661`, `XM_047445663`, `XM_047445665`, `XM_047445668`, `XM_054343654`, `XM_054343655`, `XM_054343656`, `XM_054343657`, `XM_054343658`, `XM_054343659`, `XM_054343660`, `XM_054343661`, `XM_054343662`, `XM_054343663`, `XM_054343664`, `XM_054343665`, `XM_054343666`, `XM_054343667`, `XM_054343668`, `XM_063284689`, `XM_063284690`, `XM_063284691`, `XM_063284693`, `XM_063284694`, `XM_063284695`, `XM_063284696`, `XM_063284697`, `XM_063284699`, `XM_063284700`, `XM_063284701`, `XM_063284702`, `XM_063284703`, `XM_063284705`, `XM_063284706`, `XM_073944555`, `XM_073944556`, `XM_073944557`, `XM_073944558`
+**RefSeq mRNA: 7** — MANE Select: `NM_001267550`
+`NM_001256850`, `NM_001267550`, `NM_003319`, `NM_133378`, `NM_133379`, `NM_133432`, `NM_133437`
 
 **CCDS:** `CCDS33337`, `CCDS54421`, `CCDS54422`, `CCDS54423`, `CCDS54424`, `CCDS59435`
 
@@ -413,9 +413,9 @@
 
 **Canonical reviewed UniProt:** `Q8WZ42` (reviewed: Q8WZ42)
 
-**All UniProt accessions (9):** `A0A0A0MRA3`, `A0A0C4DG59`, `A0A0U1RRH3`, `A0A1B0GXE3`, `A0AAQ5BIC8`, `C9JQJ2`, `Q8WZ42`, `H0Y4J7`, `H7C0U7`
+**All UniProt accessions (9):** `Q8WZ42`, `A0A0A0MRA3`, `A0A0C4DG59`, `A0A0U1RRH3`, `A0A1B0GXE3`, `A0AAQ5BIC8`, `C9JQJ2`, `H0Y4J7`, `H7C0U7`
 
-**RefSeq proteins (11):** `NP_001243779`, `NP_001254479`*, `NP_001372637`, `NP_003310`, `NP_035782`, `NP_082280`, `NP_114457`, `NP_596869`, `NP_596870`, `NP_597676`, `NP_597681`  (*=MANE)
+**RefSeq proteins (7):** `NP_001243779`, `NP_001254479`*, `NP_003310`, `NP_596869`, `NP_596870`, `NP_597676`, `NP_597681`  (*=MANE)
 
 **Domains & families (InterPro):**
 
@@ -562,24 +562,23 @@
 
 ## Clinical variants & AI predictions
 
-**ClinVar: 31454 variants total.** Per-class counts are floors (≥ shown; pagination cap):
+**ClinVar: 30060 variants total.** Per-class counts are floors (≥ shown; pagination cap):
 
 | Classification | Count (floor) |
 | --- | --- |
-| Pathogenic | 227 |
-| Likely pathogenic | 3955 |
+| Pathogenic | 221 |
+| Likely pathogenic | 3580 |
 | Uncertain significance | 6100 |
 | Likely benign | 6100 |
-| Benign | 408 |
+| Benign | 417 |
 
 **Top pathogenic / likely-pathogenic (30):**
 
 | Variant ID | HGVS | Classification |
 | --- | --- | --- |
+| 1011266 | NM_001267550.2(TTN):c.6825del (p.Asp2275fs) | Pathogenic |
 | 1012335 | NM_001267550.2(TTN):c.81274C>T (p.Gln27092Ter) | Pathogenic |
 | 1012351 | NM_001267550.2(TTN):c.49669A>T (p.Lys16557Ter) | Pathogenic |
-| 1012354 | NM_001267550.2(TTN):c.94754T>G (p.Leu31585Ter) | Pathogenic |
-| 1012355 | NM_001267550.2(TTN):c.54809del (p.Ile18270fs) | Pathogenic |
 | 1012357 | NM_001267550.2(TTN):c.3073dup (p.Ser1025fs) | Pathogenic |
 | 1012358 | NM_001267550.2(TTN):c.58240_58244del (p.Pro19414fs) | Pathogenic |
 | 1015906 | NM_001267550.2(TTN):c.26287G>T (p.Glu8763Ter) | Pathogenic |
@@ -593,19 +592,20 @@
 | 1065191 | NM_001267550.2(TTN):c.13592C>G (p.Ser4531Ter) | Pathogenic |
 | 1065192 | NM_001267550.2(TTN):c.80514del (p.Val26839fs) | Pathogenic |
 | 1066283 | NM_001267550.2(TTN):c.93088del (p.Arg31030fs) | Pathogenic |
-| 1067472 | NM_001267550.2(TTN):c.83971C>T (p.Gln27991Ter) | Pathogenic |
 | 1069899 | NM_001267550.2(TTN):c.77646del (p.Ile25883fs) | Pathogenic |
 | 1071779 | NM_001267550.2(TTN):c.88462dup (p.Cys29488fs) | Pathogenic |
 | 1074124 | NM_001267550.2(TTN):c.67348C>T (p.Gln22450Ter) | Pathogenic |
 | 1076903 | NM_001267550.2(TTN):c.85011_85014del (p.Glu28338fs) | Pathogenic |
 | 1120210 | NM_001267550.2(TTN):c.10115-1G>A | Pathogenic |
+| 1120211 | NM_001267550.2(TTN):c.46455del (p.Pro15486fs) | Pathogenic |
+| 1175109 | NM_001267550.2(TTN):c.77452G>T (p.Glu25818Ter) | Pathogenic |
 | 1175980 | NM_001267550.2(TTN):c.32662del (p.Thr10888fs) | Pathogenic |
 | 1177408 | NM_001267550.2(TTN):c.40238dup (p.Tyr13414fs) | Pathogenic |
 | 1200363 | NM_001267550.2(TTN):c.78241_78247del (p.Glu26081fs) | Pathogenic |
 | 1203936 | NM_001267550.2(TTN):c.97440del (p.Phe32480fs) | Pathogenic |
 | 1211111 | NM_001267550.2(TTN):c.68383_68387del (p.Lys22795fs) | Pathogenic |
-| 1228376 | NM_001267550.2(TTN):c.92877G>A (p.Trp30959Ter) | Pathogenic |
 | 12649 | NM_001267550.2(TTN):c.2219G>T (p.Arg740Leu) | Pathogenic |
+| 12652 | NM_001267550.2(TTN):c.107780_107790delinsTGAAAGAAAAA (p.Glu35927_Trp35930delinsValLysGluLys) | Pathogenic |
 
 **SpliceAI: 37896 predictions.** Top by Δscore:
 
@@ -672,7 +672,7 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 
 ## Protein interactions & networks
 
-**STRING (3193), top by confidence (×1000):**
+**STRING (3524), top by confidence (×1000):**
 
 | Partner | Score |
 | --- | --- |
@@ -756,40 +756,40 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 
 **Upstream regulators (CollecTRI, top):** EN1
 
-**miRNA regulators (miRDB): 217** targeting TTN, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+**miRNA regulators (miRDB): 45** targeting TTN, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
 
 | miRNA | Max score | Avg score | miRNA target_count |
 | --- | --- | --- | --- |
 | HSA-MIR-574-5P | 100.00 | 66.01 | 989 |
-| MMU-MIR-126A-5P | 100.00 | 74.78 | 1432 |
-| MMU-MIR-7116-3P | 100.00 | 84.42 | 7037 |
-| MMU-MIR-6903-3P | 100.00 | 80.41 | 2392 |
-| MMU-MIR-6951-3P | 100.00 | 83.23 | 6785 |
-| MMU-MIR-709 | 100.00 | 67.75 | 1788 |
-| MMU-MIR-881-5P | 100.00 | 75.42 | 1687 |
-| MMU-MIR-493-5P | 100.00 | 71.77 | 1465 |
-| MMU-MIR-467A-3P | 100.00 | 76.26 | 2736 |
-| MMU-MIR-669B-3P | 100.00 | 76.33 | 2744 |
-| MMU-MIR-669F-3P | 100.00 | 76.26 | 2734 |
-| HSA-MIR-1277-5P | 100.00 | 73.95 | 5056 |
-| HSA-MIR-5011-5P | 100.00 | 83.46 | 5820 |
-| HSA-MIR-30A-5P | 100.00 | 76.31 | 3233 |
-| HSA-MIR-30B-5P | 100.00 | 76.29 | 3248 |
-| HSA-MIR-30C-5P | 100.00 | 76.29 | 3248 |
-| HSA-MIR-30D-5P | 100.00 | 76.32 | 3233 |
-| HSA-MIR-30E-5P | 100.00 | 76.32 | 3242 |
-| HSA-MIR-190A-3P | 100.00 | 80.35 | 5520 |
 | HSA-MIR-4282 | 99.99 | 75.36 | 6408 |
-| HSA-MIR-4531 | 99.99 | 69.70 | 3181 |
-| HSA-MIR-371B-5P | 99.99 | 75.34 | 4759 |
-| HSA-MIR-4775 | 99.98 | 75.00 | 6394 |
-| HSA-MIR-520D-5P | 99.98 | 73.34 | 4883 |
-| HSA-MIR-524-5P | 99.98 | 73.43 | 4882 |
-| HSA-MIR-373-5P | 99.98 | 75.36 | 4753 |
-| HSA-MIR-616-5P | 99.98 | 75.58 | 4775 |
-| MMU-MIR-290B-5P | 99.97 | 74.14 | 2571 |
-| HSA-MIR-3148 | 99.97 | 75.06 | 6478 |
-| HSA-MIR-607 | 99.97 | 73.62 | 5593 |
+| HSA-MIR-144-3P | 99.94 | 73.98 | 2698 |
+| HSA-MIR-4753-3P | 99.90 | 71.03 | 3786 |
+| HSA-MIR-3919 | 99.87 | 69.45 | 2489 |
+| HSA-MIR-5003-3P | 99.85 | 69.29 | 2517 |
+| HSA-MIR-1323 | 99.83 | 69.89 | 2471 |
+| HSA-MIR-4658 | 99.77 | 64.94 | 514 |
+| HSA-MIR-6790-5P | 99.77 | 65.24 | 505 |
+| HSA-MIR-3913-3P | 99.74 | 66.53 | 938 |
+| HSA-MIR-548O-3P | 99.74 | 69.30 | 2228 |
+| HSA-MIR-4677-5P | 99.70 | 70.09 | 1940 |
+| HSA-MIR-3659 | 99.70 | 67.97 | 694 |
+| HSA-MIR-1827 | 99.63 | 68.57 | 3265 |
+| HSA-MIR-514B-5P | 99.50 | 68.19 | 1766 |
+| HSA-MIR-203A-3P | 99.49 | 70.56 | 2806 |
+| HSA-MIR-7849-3P | 99.47 | 68.17 | 1224 |
+| HSA-MIR-582-5P | 99.47 | 70.79 | 2635 |
+| HSA-MIR-4762-3P | 99.43 | 69.72 | 2363 |
+| HSA-MIR-150-3P | 99.43 | 70.51 | 920 |
+| HSA-MIR-130A-5P | 99.33 | 70.26 | 2623 |
+| HSA-MIR-505-3P | 99.19 | 69.71 | 896 |
+| HSA-MIR-224-3P | 98.91 | 68.42 | 1815 |
+| HSA-MIR-522-3P | 98.91 | 68.56 | 1817 |
+| HSA-MIR-1304-5P | 98.90 | 68.58 | 1054 |
+| HSA-MIR-513B-3P | 98.76 | 68.12 | 1577 |
+| HSA-MIR-222-5P | 98.75 | 69.17 | 1242 |
+| HSA-MIR-12114 | 98.70 | 63.45 | 730 |
+| HSA-MIR-4709-5P | 98.51 | 67.25 | 1335 |
+| HSA-MIR-4490 | 98.51 | 68.47 | 943 |
 
 ## Drug & pharmacology data
 
@@ -813,15 +813,16 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | 7.30 | Kd | 49.56 | nM | CHEMBL_ACT_26223028 |
 | 7.28 | ED50 | 52.2 | nM | CHEMBL_ACT_26223029 |
 
-**CTD chemical–gene interactions (human, 43 total), top 30 by PubMed support:**
+**CTD chemical–gene interactions (human, 45 total), top 30 by PubMed support:**
 
 | Chemical | Actions (CV verbs) | PubMed papers |
 | --- | --- | --- |
-| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | affects^binding, increases^reaction, decreases^expression, increases^expression | 4 |
-| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | decreases^expression, increases^mutagenesis, affects^methylation | 3 |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | increases^expression, affects^binding, increases^reaction, decreases^expression | 4 |
+| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | affects^methylation, decreases^expression, increases^mutagenesis | 3 |
 | [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | decreases^expression, increases^expression | 2 |
 | [Aflatoxin B1](http://ctdbase.org/detail.go?type=chem&acc=D016604) | decreases^methylation, increases^methylation | 2 |
 | [GSK-J4](http://ctdbase.org/detail.go?type=chem&acc=C000593030) | decreases^expression | 1 |
+| [aminomethylphosphonic acid (AMPA)](http://ctdbase.org/detail.go?type=chem&acc=C000710227) | decreases^expression | 1 |
 | [methylmercuric chloride](http://ctdbase.org/detail.go?type=chem&acc=C004925) | decreases^expression | 1 |
 | [methyleugenol](http://ctdbase.org/detail.go?type=chem&acc=C005223) | decreases^expression | 1 |
 | [triphenyl phosphate](http://ctdbase.org/detail.go?type=chem&acc=C005445) | affects^expression | 1 |
@@ -831,7 +832,7 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | [cyanoginosin LR](http://ctdbase.org/detail.go?type=chem&acc=C057862) | increases^expression | 1 |
 | [di-n-butylphosphoric acid](http://ctdbase.org/detail.go?type=chem&acc=C065087) | affects^expression | 1 |
 | [cylindrospermopsin](http://ctdbase.org/detail.go?type=chem&acc=C089595) | decreases^expression | 1 |
-| [CGP 52608](http://ctdbase.org/detail.go?type=chem&acc=C092451) | affects^binding, increases^reaction | 1 |
+| [CGP 52608](http://ctdbase.org/detail.go?type=chem&acc=C092451) | increases^reaction, affects^binding | 1 |
 | [entinostat](http://ctdbase.org/detail.go?type=chem&acc=C118739) | decreases^expression | 1 |
 | [quinocetone](http://ctdbase.org/detail.go?type=chem&acc=C502851) | increases^expression | 1 |
 | [2,2',4,4'-tetrabromodiphenyl ether](http://ctdbase.org/detail.go?type=chem&acc=C511295) | decreases^expression | 1 |
@@ -844,9 +845,8 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | decreases^expression | 1 |
 | [Hydrogen Peroxide](http://ctdbase.org/detail.go?type=chem&acc=D006861) | affects^cotreatment, increases^expression | 1 |
 | [Ivermectin](http://ctdbase.org/detail.go?type=chem&acc=D007559) | decreases^expression | 1 |
-| [Lipopolysaccharides](http://ctdbase.org/detail.go?type=chem&acc=D008070) | increases^expression, affects^cotreatment, affects^response to substance | 1 |
+| [Lipopolysaccharides](http://ctdbase.org/detail.go?type=chem&acc=D008070) | affects^response to substance, increases^expression, affects^cotreatment | 1 |
 | [Nickel](http://ctdbase.org/detail.go?type=chem&acc=D009532) | increases^expression | 1 |
-| [Nitrogen Dioxide](http://ctdbase.org/detail.go?type=chem&acc=D009585) | increases^expression | 1 |
 
 **Clinical trials for the gene's associated diseases (203, via MONDO — disease-level, not drug-specific):**
 
@@ -941,7 +941,7 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 
 ## Disease associations
 
-**OMIM:** gene `MIM:188840` | disease phenotypes: MIM:604145, MIM:608807, MIM:600334, MIM:603689, MIM:607569, MIM:611705, MIM:613765, MIM:609470, MIM:115200, MIM:115195, MIM:119530, MIM:192600, MIM:160150, MIM:601419, MIM:615325, MIM:160500, MIM:117000, MIM:181500, MIM:105210, MIM:601144
+**OMIM:** gene `MIM:188840` | disease phenotypes: MIM:604145, MIM:608807, MIM:600334, MIM:603689, MIM:607569, MIM:611705, MIM:613765, MIM:609470, MIM:115200, MIM:115195, MIM:119530, MIM:192600, MIM:160150, MIM:601419, MIM:615325, MIM:160500, MIM:117000, MIM:181500, MIM:613426, MIM:105210
 
 **GenCC curated gene-disease:**
 
@@ -968,9 +968,9 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | tibial muscular dystrophy | Supportive | Autosomal dominant |
 | dilated cardiomyopathy 1G | Definitive | Autosomal dominant |
 
-**Mondo (65):** dilated cardiomyopathy 1G (MONDO:0011400), autosomal recessive limb-girdle muscular dystrophy type 2J (MONDO:0012127), tibial muscular dystrophy (MONDO:0010870), myopathy, myofibrillar, 9, with early respiratory failure (MONDO:0011362), early-onset myopathy with fatal cardiomyopathy (MONDO:0012714), hypertrophic cardiomyopathy 9 (MONDO:0013412), cardiomyopathy (MONDO:0004994), TTN-related myopathy (MONDO:0100175), left ventricular noncompaction 2 (MONDO:0012285), dilated cardiomyopathy (MONDO:0005021), autosomal recessive centronuclear myopathy (MONDO:0015705), familial dilated cardiomyopathy (MONDO:0016333), cerebral palsy (MONDO:0006497), hypertrophic cardiomyopathy 2 (MONDO:0007266), autosomal recessive titinopathy (MONDO:0100493)
+**Mondo (68):** dilated cardiomyopathy 1G (MONDO:0011400), autosomal recessive limb-girdle muscular dystrophy type 2J (MONDO:0012127), tibial muscular dystrophy (MONDO:0010870), myopathy, myofibrillar, 9, with early respiratory failure (MONDO:0011362), early-onset myopathy with fatal cardiomyopathy (MONDO:0012714), hypertrophic cardiomyopathy 9 (MONDO:0013412), cardiomyopathy (MONDO:0004994), TTN-related myopathy (MONDO:0100175), left ventricular noncompaction 2 (MONDO:0012285), dilated cardiomyopathy (MONDO:0005021), autosomal recessive centronuclear myopathy (MONDO:0015705), familial dilated cardiomyopathy (MONDO:0016333), cerebral palsy (MONDO:0006497), hypertrophic cardiomyopathy 2 (MONDO:0007266), autosomal recessive titinopathy (MONDO:0100493)
 
-**Orphanet (44):** Titin-related limb-girdle muscular dystrophy R10 (Orphanet:140922), Familial isolated dilated cardiomyopathy (Orphanet:154), Hereditary myopathy with early respiratory failure (Orphanet:178464), Early-onset myopathy with fatal cardiomyopathy (Orphanet:289377), Distal myopathy with early respiratory muscle involvement (Orphanet:34521), Tibial muscular dystrophy (Orphanet:609), Rare cardiomyopathy (Orphanet:167848), Left ventricular noncompaction (Orphanet:54260), Autosomal recessive centronuclear myopathy (Orphanet:169186), Dilated cardiomyopathy (Orphanet:217604), Familial dilated cardiomyopathy (Orphanet:217607), Limb-girdle muscular dystrophy (Orphanet:263), Rare hypertrophic cardiomyopathy (Orphanet:217569), Inherited arrhythmogenic cardiomyopathy (Orphanet:247), Inclusion myopathy (Orphanet:206662)
+**Orphanet (47):** Titin-related limb-girdle muscular dystrophy R10 (Orphanet:140922), Familial isolated dilated cardiomyopathy (Orphanet:154), Hereditary myopathy with early respiratory failure (Orphanet:178464), Early-onset myopathy with fatal cardiomyopathy (Orphanet:289377), Distal myopathy with early respiratory muscle involvement (Orphanet:34521), Tibial muscular dystrophy (Orphanet:609), Rare cardiomyopathy (Orphanet:167848), Left ventricular noncompaction (Orphanet:54260), Autosomal recessive centronuclear myopathy (Orphanet:169186), Dilated cardiomyopathy (Orphanet:217604), Familial dilated cardiomyopathy (Orphanet:217607), Limb-girdle muscular dystrophy (Orphanet:263), Rare hypertrophic cardiomyopathy (Orphanet:217569), Inherited arrhythmogenic cardiomyopathy (Orphanet:247), Inclusion myopathy (Orphanet:206662)
 
 **HPO phenotypes: 147** (top):
 
@@ -1024,23 +1024,23 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | GCST005846_4 | Heart rate response to recovery post exercise (10 sec) | 7.000000e-13 |
 | GCST005847_4 | Heart rate response to recovery post exercise (20 sec) | 1.000000e-09 |
 | GCST005959_4 | Waist-to-hip ratio adjusted for BMI x sex interaction | 6.000000e-06 |
-| GCST006061_193 | Atrial fibrillation | 7.000000e-25 |
-| GCST006061_210 | Atrial fibrillation | 3.000000e-23 |
-| GCST006414_52 | Atrial fibrillation | 7.000000e-25 |
-| GCST006444_16 | Bone mineral density (hip) | 8.000000e-06 |
+| GCST006061_107 | Atrial fibrillation | 3.000000e-23 |
+| GCST006061_90 | Atrial fibrillation | 7.000000e-25 |
+| GCST006414_77 | Atrial fibrillation | 7.000000e-25 |
+| GCST006444_21 | Bone mineral density (hip) | 8.000000e-06 |
 | GCST007045_19 | PR interval | 2.000000e-11 |
-| GCST010002_82 | Refractive error | 1.000000e-70 |
+| GCST010002_107 | Refractive error | 1.000000e-70 |
 | GCST010125_2 | Left ventricular ejection fraction | 1.000000e-18 |
 | GCST010130_1 | Left ventricular end-systolic volume | 6.000000e-23 |
 | GCST010131_1 | Left ventricular end-diastolic volume | 2.000000e-14 |
-| GCST010321_93 | PR interval | 8.000000e-28 |
-| GCST010796_834 | Electrocardiogram morphology (amplitude at temporal datapoints) | 5.000000e-13 |
-| GCST010796_835 | Electrocardiogram morphology (amplitude at temporal datapoints) | 2.000000e-18 |
+| GCST010321_158 | PR interval | 8.000000e-28 |
+| GCST010796_2359 | Electrocardiogram morphology (amplitude at temporal datapoints) | 5.000000e-13 |
+| GCST010796_2360 | Electrocardiogram morphology (amplitude at temporal datapoints) | 2.000000e-18 |
 | GCST010919_9 | QT interval | 3.000000e-09 |
 | GCST011010_18 | Electrocardiographic traits (multivariate) | 6.000000e-09 |
 | GCST011198_1 | Left ventricular end-systolic volume | 2.000000e-17 |
 | GCST011202_4 | Dilated cardiomyopathy (MTAG) | 1.000000e-13 |
-| GCST011206_2 | Left ventricular end-diastolic volume | 1.000000e-11 |
+| GCST011206_4 | Left ventricular end-diastolic volume | 1.000000e-11 |
 
 **MeSH disease descriptors (39):**
 
@@ -1056,12 +1056,12 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | [D024741](https://www.ncbi.nlm.nih.gov/mesh/?term=D024741) | Cardiomyopathy, Hypertrophic, Familial | C14.280.238.100.500; C14.280.484.048.750.070.160.500; C16.320.160 |
 | [D002313](https://www.ncbi.nlm.nih.gov/mesh/?term=D002313) | Cardiomyopathy, Restrictive | C14.280.238.160 |
 | [D002547](https://www.ncbi.nlm.nih.gov/mesh/?term=D002547) | Cerebral Palsy | C10.228.140.140.254 |
+| [D003550](https://www.ncbi.nlm.nih.gov/mesh/?term=D003550) | Cystic Fibrosis | C06.689.202; C08.381.187; C16.320.190; C16.614.213 |
 | [D006323](https://www.ncbi.nlm.nih.gov/mesh/?term=D006323) | Heart Arrest | C14.280.383 |
 | [D006333](https://www.ncbi.nlm.nih.gov/mesh/?term=D006333) | Heart Failure | C14.280.434 |
 | [D054143](https://www.ncbi.nlm.nih.gov/mesh/?term=D054143) | Heart Failure, Systolic | C14.280.434.676 |
 | [D008607](https://www.ncbi.nlm.nih.gov/mesh/?term=D008607) | Intellectual Disability | C10.597.606.360; C23.888.592.604.646; F01.700.687; F03.625.539 |
 | [D008133](https://www.ncbi.nlm.nih.gov/mesh/?term=D008133) | Long QT Syndrome | C14.280.067.565; C14.280.123.625; C16.131.240.400.715; C23.550.073.547 |
-| [D008945](https://www.ncbi.nlm.nih.gov/mesh/?term=D008945) | Mitral Valve Prolapse | C14.280.484.400.500 |
 | [D009136](https://www.ncbi.nlm.nih.gov/mesh/?term=D009136) | Muscular Dystrophies | C05.651.534.500; C10.668.491.175.500; C16.320.577 |
 | [D049288](https://www.ncbi.nlm.nih.gov/mesh/?term=D049288) | Muscular Dystrophies, Limb-Girdle | C05.651.534.500.280; C10.668.491.175.500.149; C16.320.577.280 |
 | [D009205](https://www.ncbi.nlm.nih.gov/mesh/?term=D009205) | Myocarditis | C14.280.238.625 |

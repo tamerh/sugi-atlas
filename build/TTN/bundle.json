@@ -33,7 +33,8 @@
     "xref_counts": {
       "alphafold": 1,
       "ccds": 6,
-      "clinvar": 31454,
+      "cellosaurus": 25,
+      "clinvar": 30060,
       "collectri": 2,
       "ena": 1,
       "ensembl": 1,
@@ -50,7 +51,7 @@
       "orphanet": 13,
       "pharmgkb_gene": 1,
       "pubmed": 2,
-      "refseq": 216,
+      "refseq": 1,
       "spliceai": 37896,
       "uniprot": 1,
       "vega": 1
@@ -98,14 +99,14 @@
         "type": "SINGLE PROTEIN"
       }
     ],
-    "ctd_interaction_total": 43,
+    "ctd_interaction_total": 45,
     "ctd_interactions": [
       {
         "actions": [
+          "increases^expression",
           "affects^binding",
           "increases^reaction",
-          "decreases^expression",
-          "increases^expression"
+          "decreases^expression"
         ],
         "chemical": "sodium arsenite",
         "chemical_id": "C017947",
@@ -114,9 +115,9 @@
       },
       {
         "actions": [
+          "affects^methylation",
           "decreases^expression",
-          "increases^mutagenesis",
-          "affects^methylation"
+          "increases^mutagenesis"
         ],
         "chemical": "Benzo(a)pyrene",
         "chemical_id": "D001564",
@@ -150,6 +151,15 @@
         "chemical": "GSK-J4",
         "chemical_id": "C000593030",
         "id": "C000593030_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "aminomethylphosphonic acid (AMPA)",
+        "chemical_id": "C000710227",
+        "id": "C000710227_7273_9606",
         "pmids": "1"
       },
       {
@@ -237,8 +247,8 @@
       },
       {
         "actions": [
-          "affects^binding",
-          "increases^reaction"
+          "increases^reaction",
+          "affects^binding"
         ],
         "chemical": "CGP 52608",
         "chemical_id": "C092451",
@@ -357,9 +367,9 @@
       },
       {
         "actions": [
+          "affects^response to substance",
           "increases^expression",
-          "affects^cotreatment",
-          "affects^response to substance"
+          "affects^cotreatment"
         ],
         "chemical": "Lipopolysaccharides",
         "chemical_id": "D008070",
@@ -373,15 +383,6 @@
         "chemical": "Nickel",
         "chemical_id": "D009532",
         "id": "D009532_7273_9606",
-        "pmids": "1"
-      },
-      {
-        "actions": [
-          "increases^expression"
-        ],
-        "chemical": "Nitrogen Dioxide",
-        "chemical_id": "D009585",
-        "id": "D009585_7273_9606",
         "pmids": "1"
       }
     ],
@@ -2434,16 +2435,18 @@
       "MIM:160500",
       "MIM:117000",
       "MIM:181500",
+      "MIM:613426",
       "MIM:105210",
       "MIM:601144",
-      "MIM:613426",
-      "MIM:194200",
+      "MIM:107970",
       "MIM:192500",
       "MIM:609040",
+      "MIM:219700",
       "MIM:604169",
       "MIM:613254",
       "MIM:614408",
       "MIM:603829",
+      "MIM:194200",
       "MIM:255200",
       "MIM:300696",
       "MIM:115210",
@@ -2626,22 +2629,22 @@
         "trait": "Waist-to-hip ratio adjusted for BMI x sex interaction"
       },
       {
-        "id": "GCST006061_193",
-        "p_value": "7.000000e-25",
-        "trait": "Atrial fibrillation"
-      },
-      {
-        "id": "GCST006061_210",
+        "id": "GCST006061_107",
         "p_value": "3.000000e-23",
         "trait": "Atrial fibrillation"
       },
       {
-        "id": "GCST006414_52",
+        "id": "GCST006061_90",
         "p_value": "7.000000e-25",
         "trait": "Atrial fibrillation"
       },
       {
-        "id": "GCST006444_16",
+        "id": "GCST006414_77",
+        "p_value": "7.000000e-25",
+        "trait": "Atrial fibrillation"
+      },
+      {
+        "id": "GCST006444_21",
         "p_value": "8.000000e-06",
         "trait": "Bone mineral density (hip)"
       },
@@ -2651,7 +2654,7 @@
         "trait": "PR interval"
       },
       {
-        "id": "GCST010002_82",
+        "id": "GCST010002_107",
         "p_value": "1.000000e-70",
         "trait": "Refractive error"
       },
@@ -2671,17 +2674,17 @@
         "trait": "Left ventricular end-diastolic volume"
       },
       {
-        "id": "GCST010321_93",
+        "id": "GCST010321_158",
         "p_value": "8.000000e-28",
         "trait": "PR interval"
       },
       {
-        "id": "GCST010796_834",
+        "id": "GCST010796_2359",
         "p_value": "5.000000e-13",
         "trait": "Electrocardiogram morphology (amplitude at temporal datapoints)"
       },
       {
-        "id": "GCST010796_835",
+        "id": "GCST010796_2360",
         "p_value": "2.000000e-18",
         "trait": "Electrocardiogram morphology (amplitude at temporal datapoints)"
       },
@@ -2706,27 +2709,27 @@
         "trait": "Dilated cardiomyopathy (MTAG)"
       },
       {
-        "id": "GCST011206_2",
+        "id": "GCST011206_4",
         "p_value": "1.000000e-11",
         "trait": "Left ventricular end-diastolic volume"
       },
       {
-        "id": "GCST011207_1",
+        "id": "GCST011207_2",
         "p_value": "4.000000e-13",
         "trait": "Left ventricular mass"
       },
       {
-        "id": "GCST011209_5",
+        "id": "GCST011209_3",
         "p_value": "4.000000e-10",
         "trait": "Left ventricular ejection fraction"
       },
       {
-        "id": "GCST011216_5",
+        "id": "GCST011216_3",
         "p_value": "8.000000e-09",
         "trait": "Left ventricular global radial strain"
       },
       {
-        "id": "GCST011217_2",
+        "id": "GCST011217_6",
         "p_value": "5.000000e-14",
         "trait": "Left ventricular global circumferential strain"
       },
@@ -2736,7 +2739,7 @@
         "trait": "Sick sinus syndrome"
       },
       {
-        "id": "GCST012099_4",
+        "id": "GCST012099_1",
         "p_value": "7.000000e-08",
         "trait": "Hypertrophic cardiomyopathy (sarcomere negative)"
       }
@@ -2774,6 +2777,286 @@
       "GCST011217",
       "GCST011360",
       "GCST012099",
+      "GCST003299",
+      "GCST003300",
+      "GCST90012178",
+      "GCST90043969",
+      "GCST90079999",
+      "GCST90080000",
+      "GCST90083985",
+      "GCST90083986",
+      "GCST90246089",
+      "GCST90267154",
+      "GCST90267155",
+      "GCST90297606",
+      "GCST90297660",
+      "GCST90297709",
+      "GCST90297757",
+      "GCST90399705",
+      "GCST90399706",
+      "GCST90399707",
+      "GCST90399708",
+      "GCST90399709",
+      "GCST90436094",
+      "GCST90436095",
+      "GCST90436098",
+      "GCST90473562",
+      "GCST90475948",
+      "GCST90475949",
+      "GCST90475950",
+      "GCST90475951",
+      "GCST90477897",
+      "GCST90477898",
+      "GCST90477901",
+      "GCST90477902",
+      "GCST90477903",
+      "GCST90480149",
+      "GCST90480150",
+      "GCST90480151",
+      "GCST90480799",
+      "GCST90481989",
+      "GCST90482014",
+      "GCST90651790",
+      "GCST90651993",
+      "GCST90726672",
+      "GCST90726906",
+      "GCST90832960",
+      "GCST001023",
+      "GCST002093",
+      "GCST011210",
+      "GCST012211",
+      "GCST90018614",
+      "GCST90018834",
+      "GCST90079998",
+      "GCST90083984",
+      "GCST90296097",
+      "GCST90624428",
+      "GCST90624429",
+      "GCST90435924",
+      "GCST90473360",
+      "GCST90651560",
+      "GCST001778",
+      "GCST011205",
+      "GCST011211",
+      "GCST012100",
+      "GCST012101",
+      "GCST90018641",
+      "GCST90018861",
+      "GCST90132261",
+      "GCST90296096",
+      "GCST90435254",
+      "GCST90435255",
+      "GCST90435256",
+      "GCST90435257",
+      "GCST90436096",
+      "GCST90436097",
+      "GCST90477899",
+      "GCST90477900",
+      "GCST90480147",
+      "GCST90480148",
+      "GCST90481987",
+      "GCST90481988",
+      "GCST90726889",
+      "GCST000051",
+      "GCST000109",
+      "GCST000445",
+      "GCST000446",
+      "GCST000602",
+      "GCST001499",
+      "GCST002975",
+      "GCST004018",
+      "GCST004044",
+      "GCST004045",
+      "GCST004295",
+      "GCST004296",
+      "GCST004297",
+      "GCST004298",
+      "GCST004299",
+      "GCST004300",
+      "GCST004301",
+      "GCST004352",
+      "GCST004373",
+      "GCST005778",
+      "GCST008486",
+      "GCST010636",
+      "GCST012460",
+      "GCST90012174",
+      "GCST90012175",
+      "GCST90013902",
+      "GCST90013952",
+      "GCST90018576",
+      "GCST90018796",
+      "GCST90038689",
+      "GCST90043977",
+      "GCST90077881",
+      "GCST90077882",
+      "GCST90080015",
+      "GCST90081867",
+      "GCST90081868",
+      "GCST90084001",
+      "GCST90095475",
+      "GCST90132229",
+      "GCST90204201",
+      "GCST90244768",
+      "GCST90244769",
+      "GCST90244770",
+      "GCST90246091",
+      "GCST90319693",
+      "GCST90436116",
+      "GCST90446419",
+      "GCST90446420",
+      "GCST90449054",
+      "GCST90473569",
+      "GCST90473570",
+      "GCST90473571",
+      "GCST90473572",
+      "GCST90475965",
+      "GCST90475966",
+      "GCST90475967",
+      "GCST90475968",
+      "GCST90475969",
+      "GCST90475970",
+      "GCST90480168",
+      "GCST90480170",
+      "GCST90482000",
+      "GCST90482001",
+      "GCST90559230",
+      "GCST90624411",
+      "GCST90624412",
+      "GCST90624413",
+      "GCST90624414",
+      "GCST90624637",
+      "GCST90651130",
+      "GCST90651135",
+      "GCST90667870",
+      "GCST90668073",
+      "GCST90726644",
+      "GCST90726808",
+      "GCST90726911",
+      "GCST90727112",
+      "GCST90832153",
+      "GCST90832154",
+      "GCST90832155",
+      "GCST90832156",
+      "GCST90832959",
+      "GCST003939",
+      "GCST90013686",
+      "GCST90013728",
+      "GCST90013763",
+      "GCST90043985",
+      "GCST90080020",
+      "GCST90084006",
+      "GCST90436127",
+      "GCST90436128",
+      "GCST90475200",
+      "GCST90475201",
+      "GCST90475981",
+      "GCST90475982",
+      "GCST90476596",
+      "GCST90476597",
+      "GCST90476598",
+      "GCST90476599",
+      "GCST90477954",
+      "GCST90477955",
+      "GCST90477956",
+      "GCST90477957",
+      "GCST90479544",
+      "GCST90479545",
+      "GCST90480181",
+      "GCST90480184",
+      "GCST90482007",
+      "GCST90482008",
+      "GCST90651835",
+      "GCST90652020",
+      "GCST90080012",
+      "GCST90083998",
+      "GCST000104",
+      "GCST000675",
+      "GCST005765",
+      "GCST007715",
+      "GCST009541",
+      "GCST010663",
+      "GCST90018586",
+      "GCST90018806",
+      "GCST90043986",
+      "GCST90080021",
+      "GCST90080022",
+      "GCST90080023",
+      "GCST90081485",
+      "GCST90084007",
+      "GCST90084008",
+      "GCST90084009",
+      "GCST90085471",
+      "GCST90085925",
+      "GCST90103407",
+      "GCST90162626",
+      "GCST90239776",
+      "GCST90246093",
+      "GCST90250820",
+      "GCST90274223",
+      "GCST90399710",
+      "GCST90399711",
+      "GCST90399712",
+      "GCST90399713",
+      "GCST90399714",
+      "GCST90399715",
+      "GCST90399716",
+      "GCST90436129",
+      "GCST90455657",
+      "GCST90473574",
+      "GCST90473575",
+      "GCST90473576",
+      "GCST90477958",
+      "GCST90477959",
+      "GCST90480807",
+      "GCST90482009",
+      "GCST90651583",
+      "GCST90651725",
+      "GCST90651998",
+      "GCST90654627",
+      "GCST90654628",
+      "GCST90654629",
+      "GCST90654630",
+      "GCST90667912",
+      "GCST90668009",
+      "GCST90668010",
+      "GCST90668011",
+      "GCST90668012",
+      "GCST90668013",
+      "GCST90668014",
+      "GCST90668015",
+      "GCST90668016",
+      "GCST90668076",
+      "GCST90668077",
+      "GCST90726617",
+      "GCST90726618",
+      "GCST90726619",
+      "GCST90726620",
+      "GCST90726820",
+      "GCST90726881",
+      "GCST90726913",
+      "GCST90728695",
+      "GCST90728696",
+      "GCST90728697",
+      "GCST90728698",
+      "GCST90827692",
+      "GCST90827693",
+      "GCST90832966",
+      "GCST008551",
+      "GCST008552",
+      "GCST008553",
+      "GCST008554",
+      "GCST90435956",
+      "GCST90435958",
+      "GCST90473358",
+      "GCST90477610",
+      "GCST90477611",
+      "GCST90477612",
+      "GCST90477613",
+      "GCST90481042",
+      "GCST90481062",
+      "GCST90652097",
+      "GCST90652218",
       "GCST000016",
       "GCST000155",
       "GCST000163",
@@ -3031,14 +3314,21 @@
       "GCST90624697",
       "GCST90651433",
       "GCST90651940",
+      "GCST90726760",
+      "GCST90727267",
       "GCST002098",
       "GCST011054",
       "GCST90086158",
       "GCST90295916",
       "GCST90295917",
+      "GCST90043972",
+      "GCST90473355",
       "GCST90435957",
       "GCST90481894",
-      "GCST010651"
+      "GCST010651",
+      "GCST000346",
+      "GCST001077",
+      "GCST002025"
     ],
     "gwas_total": 36,
     "hpo": [
@@ -3744,6 +4034,17 @@
         ]
       },
       {
+        "id": "D003550",
+        "is_supplementary": false,
+        "name": "Cystic Fibrosis",
+        "tree_numbers": [
+          "C06.689.202",
+          "C08.381.187",
+          "C16.320.190",
+          "C16.614.213"
+        ]
+      },
+      {
         "id": "D006323",
         "is_supplementary": false,
         "name": "Heart Arrest",
@@ -3787,14 +4088,6 @@
           "C14.280.123.625",
           "C16.131.240.400.715",
           "C23.550.073.547"
-        ]
-      },
-      {
-        "id": "D008945",
-        "is_supplementary": false,
-        "name": "Mitral Valve Prolapse",
-        "tree_numbers": [
-          "C14.280.484.400.500"
         ]
       },
       {
@@ -4068,12 +4361,16 @@
         "name": "myofibrillar myopathy 1"
       },
       {
-        "id": "MONDO:0007269",
-        "name": "dilated cardiomyopathy 1A"
+        "id": "MONDO:0018811",
+        "name": "congenital portosystemic shunt"
       },
       {
         "id": "MONDO:0018949",
         "name": "distal myopathy"
+      },
+      {
+        "id": "MONDO:0005252",
+        "name": "heart failure"
       },
       {
         "id": "MONDO:0015225",
@@ -4096,40 +4393,40 @@
         "name": "schizophrenia"
       },
       {
-        "id": "MONDO:0971004",
-        "name": "amyloidosis, hereditary systemic 1"
+        "id": "MONDO:0013262",
+        "name": "dilated cardiomyopathy 1S"
       },
       {
-        "id": "MONDO:0000190",
-        "name": "ventricular fibrillation"
+        "id": "MONDO:0971004",
+        "name": "amyloidosis, hereditary systemic 1"
       },
       {
         "id": "MONDO:0015263",
         "name": "Brugada syndrome"
       },
       {
-        "id": "MONDO:0019056",
-        "name": "neuromuscular disease"
+        "id": "MONDO:0007269",
+        "name": "dilated cardiomyopathy 1A"
       },
       {
         "id": "MONDO:0100511",
         "name": "sudden cardiac arrest"
       },
       {
-        "id": "MONDO:0013262",
-        "name": "dilated cardiomyopathy 1S"
+        "id": "MONDO:0000468",
+        "name": "third-degree atrioventricular block"
       },
       {
-        "id": "MONDO:0004910",
-        "name": "mitral valve prolapse"
+        "id": "MONDO:0007152",
+        "name": "arrhythmogenic right ventricular dysplasia 1"
+      },
+      {
+        "id": "MONDO:0019056",
+        "name": "neuromuscular disease"
       },
       {
         "id": "MONDO:0020121",
         "name": "muscular dystrophy"
-      },
-      {
-        "id": "MONDO:0008685",
-        "name": "Wolff-Parkinson-White syndrome"
       },
       {
         "id": "MONDO:0005201",
@@ -4146,6 +4443,10 @@
       {
         "id": "MONDO:0018948",
         "name": "multiminicore myopathy"
+      },
+      {
+        "id": "MONDO:0009061",
+        "name": "cystic fibrosis"
       },
       {
         "id": "MONDO:0005418",
@@ -4172,10 +4473,6 @@
         "name": "long QT syndrome"
       },
       {
-        "id": "MONDO:0005252",
-        "name": "heart failure"
-      },
-      {
         "id": "MONDO:0000745",
         "name": "cardiac arrest"
       },
@@ -4184,8 +4481,20 @@
         "name": "ventricular fibrillation, paroxysmal familial, type 1"
       },
       {
+        "id": "MONDO:0000190",
+        "name": "ventricular fibrillation"
+      },
+      {
         "id": "MONDO:0006993",
         "name": "systolic heart failure"
+      },
+      {
+        "id": "MONDO:0700335",
+        "name": "familial isolated dilated cardiomyopathy"
+      },
+      {
+        "id": "MONDO:0008685",
+        "name": "Wolff-Parkinson-White syndrome"
       },
       {
         "id": "MONDO:0001071",
@@ -4198,10 +4507,6 @@
       {
         "id": "MONDO:0010401",
         "name": "X-linked myopathy with postural muscle atrophy"
-      },
-      {
-        "id": "MONDO:0000468",
-        "name": "third-degree atrioventricular block"
       },
       {
         "id": "MONDO:0004496",
@@ -4302,8 +4607,8 @@
         "name": "Desminopathy"
       },
       {
-        "id": "Orphanet:300751",
-        "name": "Familial dilated cardiomyopathy with conduction defect due to LMNA mutation"
+        "id": "Orphanet:480531",
+        "name": "Congenital portosystemic shunt"
       },
       {
         "id": "Orphanet:599",
@@ -4334,6 +4639,14 @@
         "name": "Brugada syndrome"
       },
       {
+        "id": "Orphanet:300751",
+        "name": "Familial dilated cardiomyopathy with conduction defect due to LMNA mutation"
+      },
+      {
+        "id": "Orphanet:3403",
+        "name": "Uhl anomaly"
+      },
+      {
         "id": "Orphanet:68381",
         "name": "Neuromuscular disease"
       },
@@ -4356,6 +4669,10 @@
       {
         "id": "Orphanet:598",
         "name": "Multiminicore myopathy"
+      },
+      {
+        "id": "Orphanet:586",
+        "name": "Cystic fibrosis"
       },
       {
         "id": "Orphanet:805",
@@ -6301,114 +6618,13 @@
     "refseq_mrna": [
       "NM_001256850",
       "NM_001267550",
-      "NM_001385708",
       "NM_003319",
-      "NM_011652",
-      "NM_028004",
-      "NM_032068",
       "NM_133378",
       "NM_133379",
       "NM_133432",
-      "NM_133437",
-      "XM_003198128",
-      "XM_005164056",
-      "XM_017004819",
-      "XM_017004820",
-      "XM_017004821",
-      "XM_017004822",
-      "XM_017004823",
-      "XM_024453095",
-      "XM_024453097",
-      "XM_024453098",
-      "XM_024453099",
-      "XM_024453100",
-      "XM_036160520",
-      "XM_036160524",
-      "XM_036160527",
-      "XM_036160528",
-      "XM_036160529",
-      "XM_036160534",
-      "XM_036160535",
-      "XM_036160536",
-      "XM_036160537",
-      "XM_036160538",
-      "XM_036160540",
-      "XM_036160543",
-      "XM_039106384",
-      "XM_039106385",
-      "XM_039106386",
-      "XM_039106387",
-      "XM_039106388",
-      "XM_039106389",
-      "XM_039106391",
-      "XM_039106393",
-      "XM_039106400",
-      "XM_039106402",
-      "XM_039106403",
-      "XM_039106405",
-      "XM_039106406",
-      "XM_039106407",
-      "XM_039106408",
-      "XM_039106409",
-      "XM_039106412",
-      "XM_039106413",
-      "XM_039106415",
-      "XM_039106416",
-      "XM_039106417",
-      "XM_039106418",
-      "XM_039106420",
-      "XM_039106421",
-      "XM_039106423",
-      "XM_039106424",
-      "XM_039106425",
-      "XM_039106426",
-      "XM_039106428",
-      "XM_039106429",
-      "XM_039106430",
-      "XM_039106431",
-      "XM_039106432",
-      "XM_039106433",
-      "XM_047445660",
-      "XM_047445661",
-      "XM_047445663",
-      "XM_047445665",
-      "XM_047445668",
-      "XM_054343654",
-      "XM_054343655",
-      "XM_054343656",
-      "XM_054343657",
-      "XM_054343658",
-      "XM_054343659",
-      "XM_054343660",
-      "XM_054343661",
-      "XM_054343662",
-      "XM_054343663",
-      "XM_054343664",
-      "XM_054343665",
-      "XM_054343666",
-      "XM_054343667",
-      "XM_054343668",
-      "XM_063284689",
-      "XM_063284690",
-      "XM_063284691",
-      "XM_063284693",
-      "XM_063284694",
-      "XM_063284695",
-      "XM_063284696",
-      "XM_063284697",
-      "XM_063284699",
-      "XM_063284700",
-      "XM_063284701",
-      "XM_063284702",
-      "XM_063284703",
-      "XM_063284705",
-      "XM_063284706",
-      "XM_073944555",
-      "XM_073944556",
-      "XM_073944557",
-      "XM_073944558"
+      "NM_133437"
     ],
-    "refseq_mrna_count": 108,
+    "refseq_mrna_count": 7,
     "section": "02_transcripts",
     "symbol": "TTN"
   },
@@ -6512,23 +6728,7 @@
         "mane": true
       },
       {
-        "id": "NP_001372637",
-        "mane": false
-      },
-      {
         "id": "NP_003310",
-        "mane": false
-      },
-      {
-        "id": "NP_035782",
-        "mane": false
-      },
-      {
-        "id": "NP_082280",
-        "mane": false
-      },
-      {
-        "id": "NP_114457",
         "mane": false
       },
       {
@@ -6548,7 +6748,7 @@
         "mane": false
       }
     ],
-    "refseq_protein_count": 11,
+    "refseq_protein_count": 7,
     "reviewed_uniprot": [
       "Q8WZ42"
     ],
@@ -16888,13 +17088,13 @@
       }
     ],
     "uniprot_all": [
+      "Q8WZ42",
       "A0A0A0MRA3",
       "A0A0C4DG59",
       "A0A0U1RRH3",
       "A0A1B0GXE3",
       "A0AAQ5BIC8",
       "C9JQJ2",
-      "Q8WZ42",
       "H0Y4J7",
       "H7C0U7"
     ],
@@ -17268,13 +17468,13 @@
     "alphamissense_total": 0,
     "canonical_transcript": "ENST00000589042",
     "clinvar_breakdown": {
-      "Benign": 408,
+      "Benign": 417,
       "Likely benign": 6100,
-      "Likely pathogenic": 3955,
-      "Pathogenic": 227,
+      "Likely pathogenic": 3580,
+      "Pathogenic": 221,
       "Uncertain significance": 6100
     },
-    "clinvar_total": 31454,
+    "clinvar_total": 30060,
     "dbsnp_sample": [
       {
         "change": "G>A,C",
@@ -17436,6 +17636,11 @@
     "top_pathogenic": [
       {
         "classification": "Pathogenic",
+        "hgvs": "NM_001267550.2(TTN):c.6825del (p.Asp2275fs)",
+        "id": "1011266"
+      },
+      {
+        "classification": "Pathogenic",
         "hgvs": "NM_001267550.2(TTN):c.81274C&gt;T (p.Gln27092Ter)",
         "id": "1012335"
       },
@@ -17443,16 +17648,6 @@
         "classification": "Pathogenic",
         "hgvs": "NM_001267550.2(TTN):c.49669A&gt;T (p.Lys16557Ter)",
         "id": "1012351"
-      },
-      {
-        "classification": "Pathogenic",
-        "hgvs": "NM_001267550.2(TTN):c.94754T&gt;G (p.Leu31585Ter)",
-        "id": "1012354"
-      },
-      {
-        "classification": "Pathogenic",
-        "hgvs": "NM_001267550.2(TTN):c.54809del (p.Ile18270fs)",
-        "id": "1012355"
       },
       {
         "classification": "Pathogenic",
@@ -17521,11 +17716,6 @@
       },
       {
         "classification": "Pathogenic",
-        "hgvs": "NM_001267550.2(TTN):c.83971C&gt;T (p.Gln27991Ter)",
-        "id": "1067472"
-      },
-      {
-        "classification": "Pathogenic",
         "hgvs": "NM_001267550.2(TTN):c.77646del (p.Ile25883fs)",
         "id": "1069899"
       },
@@ -17548,6 +17738,16 @@
         "classification": "Pathogenic",
         "hgvs": "NM_001267550.2(TTN):c.10115-1G&gt;A",
         "id": "1120210"
+      },
+      {
+        "classification": "Pathogenic",
+        "hgvs": "NM_001267550.2(TTN):c.46455del (p.Pro15486fs)",
+        "id": "1120211"
+      },
+      {
+        "classification": "Pathogenic",
+        "hgvs": "NM_001267550.2(TTN):c.77452G&gt;T (p.Glu25818Ter)",
+        "id": "1175109"
       },
       {
         "classification": "Pathogenic",
@@ -17576,13 +17776,13 @@
       },
       {
         "classification": "Pathogenic",
-        "hgvs": "NM_001267550.2(TTN):c.92877G&gt;A (p.Trp30959Ter)",
-        "id": "1228376"
+        "hgvs": "NM_001267550.2(TTN):c.2219G&gt;T (p.Arg740Leu)",
+        "id": "12649"
       },
       {
         "classification": "Pathogenic",
-        "hgvs": "NM_001267550.2(TTN):c.2219G&gt;T (p.Arg740Leu)",
-        "id": "12649"
+        "hgvs": "NM_001267550.2(TTN):c.107780_107790delinsTGAAAGAAAAA (p.Glu35927_Trp35930delinsValLysGluLys)",
+        "id": "12652"
       }
     ],
     "top_spliceai": [
@@ -22179,7 +22379,7 @@
         "score": "923"
       }
     ],
-    "string_count": 3193,
+    "string_count": 3524,
     "symbol": "TTN"
   },
   "9": {
@@ -22192,7 +22392,7 @@
     ],
     "is_transcription_factor": true,
     "jaspar_motifs": [],
-    "mirna_count": 217,
+    "mirna_count": 45,
     "mirna_regulators": [
       {
         "avg_score": "66.01",
@@ -22201,178 +22401,178 @@
         "target_count": "989"
       },
       {
-        "avg_score": "74.78",
-        "id": "MMU-MIR-126A-5P",
-        "max_score": "100.00",
-        "target_count": "1432"
-      },
-      {
-        "avg_score": "84.42",
-        "id": "MMU-MIR-7116-3P",
-        "max_score": "100.00",
-        "target_count": "7037"
-      },
-      {
-        "avg_score": "80.41",
-        "id": "MMU-MIR-6903-3P",
-        "max_score": "100.00",
-        "target_count": "2392"
-      },
-      {
-        "avg_score": "83.23",
-        "id": "MMU-MIR-6951-3P",
-        "max_score": "100.00",
-        "target_count": "6785"
-      },
-      {
-        "avg_score": "67.75",
-        "id": "MMU-MIR-709",
-        "max_score": "100.00",
-        "target_count": "1788"
-      },
-      {
-        "avg_score": "75.42",
-        "id": "MMU-MIR-881-5P",
-        "max_score": "100.00",
-        "target_count": "1687"
-      },
-      {
-        "avg_score": "71.77",
-        "id": "MMU-MIR-493-5P",
-        "max_score": "100.00",
-        "target_count": "1465"
-      },
-      {
-        "avg_score": "76.26",
-        "id": "MMU-MIR-467A-3P",
-        "max_score": "100.00",
-        "target_count": "2736"
-      },
-      {
-        "avg_score": "76.33",
-        "id": "MMU-MIR-669B-3P",
-        "max_score": "100.00",
-        "target_count": "2744"
-      },
-      {
-        "avg_score": "76.26",
-        "id": "MMU-MIR-669F-3P",
-        "max_score": "100.00",
-        "target_count": "2734"
-      },
-      {
-        "avg_score": "73.95",
-        "id": "HSA-MIR-1277-5P",
-        "max_score": "100.00",
-        "target_count": "5056"
-      },
-      {
-        "avg_score": "83.46",
-        "id": "HSA-MIR-5011-5P",
-        "max_score": "100.00",
-        "target_count": "5820"
-      },
-      {
-        "avg_score": "76.31",
-        "id": "HSA-MIR-30A-5P",
-        "max_score": "100.00",
-        "target_count": "3233"
-      },
-      {
-        "avg_score": "76.29",
-        "id": "HSA-MIR-30B-5P",
-        "max_score": "100.00",
-        "target_count": "3248"
-      },
-      {
-        "avg_score": "76.29",
-        "id": "HSA-MIR-30C-5P",
-        "max_score": "100.00",
-        "target_count": "3248"
-      },
-      {
-        "avg_score": "76.32",
-        "id": "HSA-MIR-30D-5P",
-        "max_score": "100.00",
-        "target_count": "3233"
-      },
-      {
-        "avg_score": "76.32",
-        "id": "HSA-MIR-30E-5P",
-        "max_score": "100.00",
-        "target_count": "3242"
-      },
-      {
-        "avg_score": "80.35",
-        "id": "HSA-MIR-190A-3P",
-        "max_score": "100.00",
-        "target_count": "5520"
-      },
-      {
         "avg_score": "75.36",
         "id": "HSA-MIR-4282",
         "max_score": "99.99",
         "target_count": "6408"
       },
       {
-        "avg_score": "69.70",
-        "id": "HSA-MIR-4531",
-        "max_score": "99.99",
-        "target_count": "3181"
+        "avg_score": "73.98",
+        "id": "HSA-MIR-144-3P",
+        "max_score": "99.94",
+        "target_count": "2698"
       },
       {
-        "avg_score": "75.34",
-        "id": "HSA-MIR-371B-5P",
-        "max_score": "99.99",
-        "target_count": "4759"
+        "avg_score": "71.03",
+        "id": "HSA-MIR-4753-3P",
+        "max_score": "99.90",
+        "target_count": "3786"
       },
       {
-        "avg_score": "75.00",
-        "id": "HSA-MIR-4775",
-        "max_score": "99.98",
-        "target_count": "6394"
+        "avg_score": "69.45",
+        "id": "HSA-MIR-3919",
+        "max_score": "99.87",
+        "target_count": "2489"
       },
       {
-        "avg_score": "73.34",
-        "id": "HSA-MIR-520D-5P",
-        "max_score": "99.98",
-        "target_count": "4883"
+        "avg_score": "69.29",
+        "id": "HSA-MIR-5003-3P",
+        "max_score": "99.85",
+        "target_count": "2517"
       },
       {
-        "avg_score": "73.43",
-        "id": "HSA-MIR-524-5P",
-        "max_score": "99.98",
-        "target_count": "4882"
+        "avg_score": "69.89",
+        "id": "HSA-MIR-1323",
+        "max_score": "99.83",
+        "target_count": "2471"
       },
       {
-        "avg_score": "75.36",
-        "id": "HSA-MIR-373-5P",
-        "max_score": "99.98",
-        "target_count": "4753"
+        "avg_score": "64.94",
+        "id": "HSA-MIR-4658",
+        "max_score": "99.77",
+        "target_count": "514"
       },
       {
-        "avg_score": "75.58",
-        "id": "HSA-MIR-616-5P",
-        "max_score": "99.98",
-        "target_count": "4775"
+        "avg_score": "65.24",
+        "id": "HSA-MIR-6790-5P",
+        "max_score": "99.77",
+        "target_count": "505"
       },
       {
-        "avg_score": "74.14",
-        "id": "MMU-MIR-290B-5P",
-        "max_score": "99.97",
-        "target_count": "2571"
+        "avg_score": "66.53",
+        "id": "HSA-MIR-3913-3P",
+        "max_score": "99.74",
+        "target_count": "938"
       },
       {
-        "avg_score": "75.06",
-        "id": "HSA-MIR-3148",
-        "max_score": "99.97",
-        "target_count": "6478"
+        "avg_score": "69.30",
+        "id": "HSA-MIR-548O-3P",
+        "max_score": "99.74",
+        "target_count": "2228"
       },
       {
-        "avg_score": "73.62",
-        "id": "HSA-MIR-607",
-        "max_score": "99.97",
-        "target_count": "5593"
+        "avg_score": "70.09",
+        "id": "HSA-MIR-4677-5P",
+        "max_score": "99.70",
+        "target_count": "1940"
+      },
+      {
+        "avg_score": "67.97",
+        "id": "HSA-MIR-3659",
+        "max_score": "99.70",
+        "target_count": "694"
+      },
+      {
+        "avg_score": "68.57",
+        "id": "HSA-MIR-1827",
+        "max_score": "99.63",
+        "target_count": "3265"
+      },
+      {
+        "avg_score": "68.19",
+        "id": "HSA-MIR-514B-5P",
+        "max_score": "99.50",
+        "target_count": "1766"
+      },
+      {
+        "avg_score": "70.56",
+        "id": "HSA-MIR-203A-3P",
+        "max_score": "99.49",
+        "target_count": "2806"
+      },
+      {
+        "avg_score": "68.17",
+        "id": "HSA-MIR-7849-3P",
+        "max_score": "99.47",
+        "target_count": "1224"
+      },
+      {
+        "avg_score": "70.79",
+        "id": "HSA-MIR-582-5P",
+        "max_score": "99.47",
+        "target_count": "2635"
+      },
+      {
+        "avg_score": "69.72",
+        "id": "HSA-MIR-4762-3P",
+        "max_score": "99.43",
+        "target_count": "2363"
+      },
+      {
+        "avg_score": "70.51",
+        "id": "HSA-MIR-150-3P",
+        "max_score": "99.43",
+        "target_count": "920"
+      },
+      {
+        "avg_score": "70.26",
+        "id": "HSA-MIR-130A-5P",
+        "max_score": "99.33",
+        "target_count": "2623"
+      },
+      {
+        "avg_score": "69.71",
+        "id": "HSA-MIR-505-3P",
+        "max_score": "99.19",
+        "target_count": "896"
+      },
+      {
+        "avg_score": "68.42",
+        "id": "HSA-MIR-224-3P",
+        "max_score": "98.91",
+        "target_count": "1815"
+      },
+      {
+        "avg_score": "68.56",
+        "id": "HSA-MIR-522-3P",
+        "max_score": "98.91",
+        "target_count": "1817"
+      },
+      {
+        "avg_score": "68.58",
+        "id": "HSA-MIR-1304-5P",
+        "max_score": "98.90",
+        "target_count": "1054"
+      },
+      {
+        "avg_score": "68.12",
+        "id": "HSA-MIR-513B-3P",
+        "max_score": "98.76",
+        "target_count": "1577"
+      },
+      {
+        "avg_score": "69.17",
+        "id": "HSA-MIR-222-5P",
+        "max_score": "98.75",
+        "target_count": "1242"
+      },
+      {
+        "avg_score": "63.45",
+        "id": "HSA-MIR-12114",
+        "max_score": "98.70",
+        "target_count": "730"
+      },
+      {
+        "avg_score": "67.25",
+        "id": "HSA-MIR-4709-5P",
+        "max_score": "98.51",
+        "target_count": "1335"
+      },
+      {
+        "avg_score": "68.47",
+        "id": "HSA-MIR-4490",
+        "max_score": "98.51",
+        "target_count": "943"
       }
     ],
     "section": "09_tf_regulation",
