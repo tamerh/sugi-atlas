@@ -127,6 +127,10 @@
 
 **Antibody resources:** 0
 
+**Enzyme classification (BRENDA):**
+
+- [EC 2.3.2.27](https://www.brenda-enzymes.org/enzyme.php?ecno=2.3.2.27) — RING-type E3 ubiquitin transferase *(BRENDA: 18 organisms, 88 substrates, 9 inhibitors, 0 Km, 0 kcat entries)*
+
 **UniProt features (313 total):** sequence variant 170, modified residue 30, mutagenesis site 27, strand 19, helix 15, cross-link 13, region of interest 9, sequence conflict 8, splice variant 8, compositionally biased region 5, turn 5, domain 2, chain 1, zinc finger region 1
 
 **Annotated functional features (top 25):**

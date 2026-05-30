@@ -26,6 +26,7 @@
       "113705"
     ],
     "name": "BRCA1 DNA repair associated",
+    "rnacentral": null,
     "section": "01_gene_ids",
     "symbol": "BRCA1",
     "xref_counts": {
@@ -4636,6 +4637,18 @@
   },
   "3": {
     "antibody_count": 0,
+    "brenda_ec": [
+      {
+        "ec": "2.3.2.27",
+        "inhibitor_count": "9",
+        "kcat_count": "0",
+        "km_count": "0",
+        "name": "RING-type E3 ubiquitin transferase",
+        "organism_count": "18",
+        "substrate_count": "88",
+        "uniprot": "P38398"
+      }
+    ],
     "canonical_uniprot": "P38398",
     "ensembl_id": "ENSG00000012048",
     "hgnc_id": "HGNC:1100",
