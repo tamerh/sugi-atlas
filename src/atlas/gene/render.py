@@ -165,16 +165,28 @@ def r_interactions(b):
 
 
 def r_tf_regulation(b):
-    L = ["## Transcription factor regulatory data", "",
+    L = ["## Regulation", "",
          f"**Is transcription factor: {b.get('is_transcription_factor')}**\n"]
-    L.append(f"**Downstream targets: {b.get('downstream_count', 0)}**\n")
+    L.append(f"**Downstream targets (CollecTRI): {b.get('downstream_count', 0)}**\n")
     L.append(table(["Target", "Regulation"],
                    [(t.get("target"), t.get("regulation")) for t in b.get("downstream_targets", [])[:30]]))
     L.append("\n**JASPAR motifs:**\n")
     L.append(table(["Motif", "Name", "Family"],
                    [(m["id"], m.get("name"), m.get("family")) for m in b.get("jaspar_motifs", [])]))
-    L.append(f"\n**Upstream regulators (top):** "
+    L.append(f"\n**Upstream regulators (CollecTRI, top):** "
              + ", ".join(r.get("regulator") for r in b.get("upstream_regulators", [])[:20]))
+    # miRDB miRNAs targeting this gene — post-transcriptional regulators.
+    # Sorted by max_score (miRDB confidence). target_count is the miRNA's
+    # promiscuity across all genes (lower = more specific target relationship).
+    n_mir = b.get("mirna_count", 0)
+    if n_mir:
+        L.append(f"\n**miRNA regulators (miRDB): {n_mir}** targeting "
+                 f"{b.get('symbol')}, top 30 by miRDB confidence (max_score; "
+                 f"target_count = how many genes the miRNA targets in total — "
+                 f"lower means more specific):\n")
+        L.append(table(["miRNA", "Max score", "Avg score", "miRNA target_count"],
+                       [(m["id"], m.get("max_score"), m.get("avg_score"),
+                         m.get("target_count")) for m in b.get("mirna_regulators", [])]))
     return "\n".join(L)
 
 

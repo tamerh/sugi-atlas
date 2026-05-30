@@ -61,9 +61,10 @@ UPSTREAM = {
     "signor":            ("SIGNOR",                                "https://signor.uniroma2.it/"),
     "esm2_similarity":   ("ESM2 (Meta AI)",                        "https://github.com/facebookresearch/esm"),
     "diamond_similarity":("DIAMOND alignment",                     "https://github.com/bbuchfink/diamond"),
-    # TF regulation
+    # TF regulation + post-transcriptional regulation
     "collectri":         ("CollecTRI",                             "https://github.com/saezlab/CollecTRI"),
     "jaspar":            ("JASPAR",                                "https://jaspar.genereg.net/"),
+    "mirdb":             ("miRDB",                                 "https://mirdb.org/"),
     # drugs
     "chembl_target":     ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "chembl_molecule":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
