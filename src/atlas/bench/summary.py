@@ -64,8 +64,17 @@ def call(model, prompt, key, max_tokens=400, response_format=None):
                                           "Content-Type": "application/json",
                                           "X-Title": "biobtree-summary-bench"})
     t0 = time.time()
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return json.loads(r.read().decode()), time.time() - t0
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            return json.loads(r.read().decode()), time.time() - t0
+    except urllib.error.HTTPError as e:
+        # Return error body as a dict so callers detect via missing "choices"
+        # (no stack trace; consistent error path for 4xx/5xx).
+        body = e.read().decode(errors="replace")
+        try:
+            return json.loads(body), time.time() - t0
+        except Exception:
+            return {"error": {"code": e.code, "message": body[:300]}}, time.time() - t0
 
 def ungrounded(summary, body):
     return sorted({a for a in ATOM.findall(summary) if a not in body})

@@ -28,7 +28,7 @@ Four hardenings vs. the original judge:
 import os, sys, re, json, glob
 from atlas.bench import summary as B
 
-JUDGE  = os.environ.get("OR_JUDGE",  "deepseek/deepseek-chat|DeepInfra")
+JUDGE  = os.environ.get("OR_JUDGE",  "deepseek/deepseek-chat-v3.1|DeepInfra")
 JUDGE2 = os.environ.get("OR_JUDGE2", "")  # empty = single-judge mode
 
 # Atoms grounded in the body — high recall (better to over-include than to let
