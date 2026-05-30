@@ -1,5 +1,13 @@
 {
-  "verdict": "clean",
-  "summary": "byte-identical to snapshot",
-  "diff": []
+  "verdict": "drift",
+  "summary": "0 changed, 1 added, 0 removed",
+  "diff": [
+    {
+      "section": "3",
+      "key": "brenda_ec",
+      "old": 0,
+      "new": 1,
+      "kind": "added"
+    }
+  ]
 }
