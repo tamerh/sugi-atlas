@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 78,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "src/atlas/gene/tasks/publish.py",
+  "task_id": "3:29:TTN:publish",
+  "timestamp": "2026-05-30T18:43:08+02:00"
+}
