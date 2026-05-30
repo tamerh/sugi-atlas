@@ -813,6 +813,41 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 | 7.30 | Kd | 49.56 | nM | CHEMBL_ACT_26223028 |
 | 7.28 | ED50 | 52.2 | nM | CHEMBL_ACT_26223029 |
 
+**CTD chemical–gene interactions (human, 43 total), top 30 by PubMed support:**
+
+| Chemical | Actions (CV verbs) | PubMed papers |
+| --- | --- | --- |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | affects^binding, increases^reaction, decreases^expression, increases^expression | 4 |
+| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | decreases^expression, increases^mutagenesis, affects^methylation | 3 |
+| [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | decreases^expression, increases^expression | 2 |
+| [Aflatoxin B1](http://ctdbase.org/detail.go?type=chem&acc=D016604) | decreases^methylation, increases^methylation | 2 |
+| [GSK-J4](http://ctdbase.org/detail.go?type=chem&acc=C000593030) | decreases^expression | 1 |
+| [methylmercuric chloride](http://ctdbase.org/detail.go?type=chem&acc=C004925) | decreases^expression | 1 |
+| [methyleugenol](http://ctdbase.org/detail.go?type=chem&acc=C005223) | decreases^expression | 1 |
+| [triphenyl phosphate](http://ctdbase.org/detail.go?type=chem&acc=C005445) | affects^expression | 1 |
+| [cinnamaldehyde](http://ctdbase.org/detail.go?type=chem&acc=C012843) | decreases^expression | 1 |
+| [coumarin](http://ctdbase.org/detail.go?type=chem&acc=C030123) | increases^phosphorylation | 1 |
+| [S-(1,2-dichlorovinyl)cysteine](http://ctdbase.org/detail.go?type=chem&acc=C039961) | affects^response to substance, increases^expression, affects^cotreatment | 1 |
+| [cyanoginosin LR](http://ctdbase.org/detail.go?type=chem&acc=C057862) | increases^expression | 1 |
+| [di-n-butylphosphoric acid](http://ctdbase.org/detail.go?type=chem&acc=C065087) | affects^expression | 1 |
+| [cylindrospermopsin](http://ctdbase.org/detail.go?type=chem&acc=C089595) | decreases^expression | 1 |
+| [CGP 52608](http://ctdbase.org/detail.go?type=chem&acc=C092451) | affects^binding, increases^reaction | 1 |
+| [entinostat](http://ctdbase.org/detail.go?type=chem&acc=C118739) | decreases^expression | 1 |
+| [quinocetone](http://ctdbase.org/detail.go?type=chem&acc=C502851) | increases^expression | 1 |
+| [2,2',4,4'-tetrabromodiphenyl ether](http://ctdbase.org/detail.go?type=chem&acc=C511295) | decreases^expression | 1 |
+| [incobotulinumtoxinA](http://ctdbase.org/detail.go?type=chem&acc=C545476) | decreases^expression | 1 |
+| [Sunitinib](http://ctdbase.org/detail.go?type=chem&acc=D000077210) | increases^expression | 1 |
+| [Vehicle Emissions](http://ctdbase.org/detail.go?type=chem&acc=D001335) | increases^abundance, increases^expression | 1 |
+| [Caffeine](http://ctdbase.org/detail.go?type=chem&acc=D002110) | affects^phosphorylation | 1 |
+| [Dioxins](http://ctdbase.org/detail.go?type=chem&acc=D004147) | increases^mutagenesis | 1 |
+| [Diuron](http://ctdbase.org/detail.go?type=chem&acc=D004237) | decreases^expression | 1 |
+| [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | decreases^expression | 1 |
+| [Hydrogen Peroxide](http://ctdbase.org/detail.go?type=chem&acc=D006861) | affects^cotreatment, increases^expression | 1 |
+| [Ivermectin](http://ctdbase.org/detail.go?type=chem&acc=D007559) | decreases^expression | 1 |
+| [Lipopolysaccharides](http://ctdbase.org/detail.go?type=chem&acc=D008070) | increases^expression, affects^cotreatment, affects^response to substance | 1 |
+| [Nickel](http://ctdbase.org/detail.go?type=chem&acc=D009532) | increases^expression | 1 |
+| [Nitrogen Dioxide](http://ctdbase.org/detail.go?type=chem&acc=D009585) | increases^expression | 1 |
+
 **Clinical trials for the gene's associated diseases (203, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

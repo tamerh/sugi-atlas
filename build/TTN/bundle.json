@@ -98,6 +98,293 @@
         "type": "SINGLE PROTEIN"
       }
     ],
+    "ctd_interaction_total": 43,
+    "ctd_interactions": [
+      {
+        "actions": [
+          "affects^binding",
+          "increases^reaction",
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "sodium arsenite",
+        "chemical_id": "C017947",
+        "id": "C017947_7273_9606",
+        "pmids": "4"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^mutagenesis",
+          "affects^methylation"
+        ],
+        "chemical": "Benzo(a)pyrene",
+        "chemical_id": "D001564",
+        "id": "D001564_7273_9606",
+        "pmids": "3"
+      },
+      {
+        "actions": [
+          "decreases^expression",
+          "increases^expression"
+        ],
+        "chemical": "bisphenol A",
+        "chemical_id": "C006780",
+        "id": "C006780_7273_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^methylation",
+          "increases^methylation"
+        ],
+        "chemical": "Aflatoxin B1",
+        "chemical_id": "D016604",
+        "id": "D016604_7273_9606",
+        "pmids": "2"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "GSK-J4",
+        "chemical_id": "C000593030",
+        "id": "C000593030_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "methylmercuric chloride",
+        "chemical_id": "C004925",
+        "id": "C004925_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "methyleugenol",
+        "chemical_id": "C005223",
+        "id": "C005223_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^expression"
+        ],
+        "chemical": "triphenyl phosphate",
+        "chemical_id": "C005445",
+        "id": "C005445_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "cinnamaldehyde",
+        "chemical_id": "C012843",
+        "id": "C012843_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^phosphorylation"
+        ],
+        "chemical": "coumarin",
+        "chemical_id": "C030123",
+        "id": "C030123_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^response to substance",
+          "increases^expression",
+          "affects^cotreatment"
+        ],
+        "chemical": "S-(1,2-dichlorovinyl)cysteine",
+        "chemical_id": "C039961",
+        "id": "C039961_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^expression"
+        ],
+        "chemical": "cyanoginosin LR",
+        "chemical_id": "C057862",
+        "id": "C057862_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^expression"
+        ],
+        "chemical": "di-n-butylphosphoric acid",
+        "chemical_id": "C065087",
+        "id": "C065087_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "cylindrospermopsin",
+        "chemical_id": "C089595",
+        "id": "C089595_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^binding",
+          "increases^reaction"
+        ],
+        "chemical": "CGP 52608",
+        "chemical_id": "C092451",
+        "id": "C092451_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "entinostat",
+        "chemical_id": "C118739",
+        "id": "C118739_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^expression"
+        ],
+        "chemical": "quinocetone",
+        "chemical_id": "C502851",
+        "id": "C502851_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "2,2',4,4'-tetrabromodiphenyl ether",
+        "chemical_id": "C511295",
+        "id": "C511295_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "incobotulinumtoxinA",
+        "chemical_id": "C545476",
+        "id": "C545476_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^expression"
+        ],
+        "chemical": "Sunitinib",
+        "chemical_id": "D000077210",
+        "id": "D000077210_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^abundance",
+          "increases^expression"
+        ],
+        "chemical": "Vehicle Emissions",
+        "chemical_id": "D001335",
+        "id": "D001335_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^phosphorylation"
+        ],
+        "chemical": "Caffeine",
+        "chemical_id": "D002110",
+        "id": "D002110_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^mutagenesis"
+        ],
+        "chemical": "Dioxins",
+        "chemical_id": "D004147",
+        "id": "D004147_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "Diuron",
+        "chemical_id": "D004237",
+        "id": "D004237_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "Doxorubicin",
+        "chemical_id": "D004317",
+        "id": "D004317_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "affects^cotreatment",
+          "increases^expression"
+        ],
+        "chemical": "Hydrogen Peroxide",
+        "chemical_id": "D006861",
+        "id": "D006861_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "decreases^expression"
+        ],
+        "chemical": "Ivermectin",
+        "chemical_id": "D007559",
+        "id": "D007559_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^expression",
+          "affects^cotreatment",
+          "affects^response to substance"
+        ],
+        "chemical": "Lipopolysaccharides",
+        "chemical_id": "D008070",
+        "id": "D008070_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^expression"
+        ],
+        "chemical": "Nickel",
+        "chemical_id": "D009532",
+        "id": "D009532_7273_9606",
+        "pmids": "1"
+      },
+      {
+        "actions": [
+          "increases^expression"
+        ],
+        "chemical": "Nitrogen Dioxide",
+        "chemical_id": "D009585",
+        "id": "D009585_7273_9606",
+        "pmids": "1"
+      }
+    ],
     "disease_trial_count": 203,
     "disease_trials": [
       {
