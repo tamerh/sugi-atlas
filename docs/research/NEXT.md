@@ -51,8 +51,8 @@ From the biobtree mining + page audit. Each is independently shippable.
 
 ### From the page audit (biggest user-visible gaps)
 - [ ] **UniProt CC narratives** (FUNCTION / SUBUNIT / SUBCELLULAR LOCATION /
-      TISSUE SPECIFICITY / DISEASE / PTM) at top of §3. Verify biobtree exposes
-      these — if not, fetch UniProt's `.txt` directly with caching.
+      TISSUE SPECIFICITY / DISEASE / PTM) — *PAUSED, needs design decision*,
+      see "Important — needs design decision" section below.
 - [ ] **Named isoforms** (p53α/β/γ, K-Ras4A/4B, p16γ, titin N2A/N2B/N2BA/novex).
       Source from UniProt `.txt` ALTERNATIVE PRODUCTS section.
 - [ ] **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
@@ -99,6 +99,45 @@ into `biobtree-content/static/` + tweak Hugo config the day of launch.
       `generated_at` frontmatter (Hugo theme config; nginx pass-through).
 - [ ] After deploy: resubmit sitemap to Google Search Console; watch
       `chatgpt_report.py` for the new AI-fetch patterns.
+
+## Important — needs design decision (currently paused)
+
+### UniProt CC narratives — how do we source them?
+
+Audit's #1 gap (in `03_page_audit.md`). The curated UniProt narrative
+(FUNCTION / SUBUNIT / SUBCELLULAR LOCATION / TISSUE SPECIFICITY / DISEASE /
+PTM) is what makes UniProt + NCBI the AI default today. Shipping it as the
+top-of-page block would flip that default for Atlas.
+
+**biobtree's uniprot `entry` does NOT expose CC text** — only
+`names / alternative_names / sequence / id / name`. Confirmed via curl.
+Same gap is partly captured by `BIOBTREE_ISSUES.md` #9 (no `reviewed` flag,
+limited entry attrs).
+
+Three implementation paths considered:
+
+1. **Forward to biobtree.** File a new issue (would be #12) asking the dev
+   to surface CC blocks on the uniprot entry payload. Slowest but most
+   disciplined — single source of truth, every downstream user benefits.
+2. **Direct UniProt REST per accession** (fetch `rest.uniprot.org/uniprotkb/
+   {acc}.txt`, disk-cache). Fast to ship a parser; **rejected for now**
+   because at full human-genome scale (~20k accessions × further for drugs/
+   diseases) the per-gene network load and pipeline-slowdown risk is real,
+   even with caching, and a network dependency in the hot path is a
+   reliability liability.
+3. **Bulk UniProt parse ourselves.** Download UniProt's Swiss-Prot flat-
+   file dump (~80MB compressed, ~30 curated CC types per record), parse the
+   CC blocks once, store the per-accession parsed result locally. Loads in
+   seconds at pipeline time, no network per gene, rebuilds when UniProt
+   releases a new version.
+
+**Lean:** likely (3), possibly combined with (1) as a long-term goal.
+Existing parser code: biobtree itself parses UniProt during ingest — the
+parser pattern is in `/data/biobtree` (Go); a small Python equivalent
+would suffice. Could also reuse Biopython's `Bio.SwissProt` parser.
+
+**Decide before resuming.** Once resolved, this becomes the next Path C
+item because of the audit's verdict on impact.
 
 ## Out of scope for now
 
