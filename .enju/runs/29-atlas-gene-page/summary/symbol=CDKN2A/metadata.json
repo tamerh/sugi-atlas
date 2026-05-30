@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 50,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "src/atlas/gene/tasks/summary.py",
+  "task_id": "3:29:CDKN2A:summary",
+  "timestamp": "2026-05-30T18:41:56+02:00"
+}
