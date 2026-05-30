@@ -29,7 +29,10 @@
     "xref_counts": {
       "alphafold": 1,
       "ccds": 12,
-      "clinvar": 3850,
+      "cellosaurus": 14784,
+      "civic": 1,
+      "civic_evidence": 273,
+      "clinvar": 3923,
       "collectri": 1207,
       "cosmic": 1,
       "ena": 1,
@@ -38,15 +41,16 @@
       "fantom5_enhancer": 31,
       "fantom5_gene": 1,
       "fantom5_promoter": 4,
-      "gencc": 11,
+      "gencc": 12,
       "gwas": 50,
       "hpo": 224,
+      "intogen": 1,
       "mim": 1,
       "msigdb": 1432,
       "orphanet": 20,
       "pharmgkb_gene": 1,
       "pubmed": 3,
-      "refseq": 93,
+      "refseq": 1,
       "spliceai": 1638,
       "uniprot": 1,
       "vega": 1
@@ -205,7 +209,7 @@
         "ligand": "US9296736, 29::US9593129, Example 29"
       }
     ],
-    "bindingdb_sampled": 300,
+    "bindingdb_sampled": 214,
     "chembl_activities": [
       {
         "id": "CHEMBL_ACT_24994558",
@@ -477,34 +481,34 @@
         "type": "PROTEIN-PROTEIN INTERACTION"
       }
     ],
-    "ctd_interaction_total": 1242,
+    "ctd_interaction_total": 1249,
     "ctd_interactions": [
       {
         "actions": [
+          "affects^activity",
+          "affects^localization",
+          "affects^binding",
+          "decreases^phosphorylation",
+          "decreases^expression",
           "increases^expression",
+          "increases^activity",
+          "increases^acetylation",
+          "increases^glutathionylation",
+          "increases^response to substance",
+          "decreases^response to substance",
+          "decreases^activity",
+          "affects^phosphorylation",
+          "affects^reaction",
+          "increases^cleavage",
+          "decreases^reaction",
+          "increases^reaction",
           "increases^phosphorylation",
           "affects^expression",
           "increases^export",
-          "increases^acetylation",
           "increases^localization",
-          "increases^glutathionylation",
-          "increases^activity",
-          "increases^reaction",
-          "affects^binding",
-          "affects^phosphorylation",
           "increases^stability",
-          "affects^reaction",
-          "decreases^phosphorylation",
           "affects^response to substance",
-          "decreases^reaction",
-          "affects^activity",
-          "increases^response to substance",
-          "increases^cleavage",
-          "affects^cotreatment",
-          "affects^localization",
-          "decreases^expression",
-          "decreases^response to substance",
-          "decreases^activity"
+          "affects^cotreatment"
         ],
         "chemical": "Doxorubicin",
         "chemical_id": "D004317",
@@ -513,29 +517,29 @@
       },
       {
         "actions": [
-          "decreases^acetylation",
-          "increases^cleavage",
-          "decreases^reaction",
-          "increases^abundance",
-          "increases^expression",
-          "affects^localization",
-          "decreases^phosphorylation",
-          "increases^degradation",
-          "affects^response to substance",
+          "increases^localization",
           "increases^reaction",
-          "affects^cotreatment",
-          "increases^phosphorylation",
-          "decreases^expression",
+          "increases^expression",
+          "increases^glutathionylation",
+          "increases^cleavage",
+          "increases^degradation",
+          "increases^abundance",
+          "decreases^reaction",
           "affects^activity",
           "affects^binding",
-          "increases^stability",
+          "decreases^phosphorylation",
+          "increases^acetylation",
+          "affects^cotreatment",
+          "increases^response to substance",
+          "affects^localization",
           "affects^reaction",
-          "increases^localization",
-          "increases^glutathionylation",
+          "affects^response to substance",
+          "increases^phosphorylation",
           "decreases^response to substance",
           "increases^activity",
-          "increases^response to substance",
-          "increases^acetylation"
+          "decreases^expression",
+          "increases^stability",
+          "decreases^acetylation"
         ],
         "chemical": "Cisplatin",
         "chemical_id": "D002945",
@@ -544,25 +548,25 @@
       },
       {
         "actions": [
-          "increases^activity",
-          "increases^response to substance",
-          "decreases^phosphorylation",
-          "increases^reaction",
-          "decreases^activity",
-          "decreases^expression",
-          "affects^response to substance",
-          "affects^localization",
-          "affects^binding",
-          "increases^expression",
-          "affects^cotreatment",
-          "increases^localization",
-          "affects^reaction",
           "affects^expression",
           "decreases^acetylation",
-          "increases^phosphorylation",
-          "increases^acetylation",
+          "affects^response to substance",
           "increases^cleavage",
-          "decreases^reaction"
+          "increases^reaction",
+          "affects^cotreatment",
+          "decreases^phosphorylation",
+          "increases^acetylation",
+          "affects^localization",
+          "increases^expression",
+          "increases^response to substance",
+          "increases^localization",
+          "affects^reaction",
+          "decreases^activity",
+          "decreases^reaction",
+          "affects^binding",
+          "increases^activity",
+          "increases^phosphorylation",
+          "decreases^expression"
         ],
         "chemical": "Resveratrol",
         "chemical_id": "D000077185",
@@ -571,25 +575,25 @@
       },
       {
         "actions": [
+          "affects^phosphorylation",
+          "affects^response to substance",
+          "affects^activity",
+          "increases^cleavage",
+          "affects^reaction",
+          "increases^phosphorylation",
+          "increases^reaction",
+          "affects^binding",
+          "increases^response to substance",
           "decreases^reaction",
           "increases^acetylation",
-          "affects^cotreatment",
-          "increases^reaction",
-          "increases^stability",
-          "increases^phosphorylation",
           "decreases^expression",
-          "increases^cleavage",
-          "increases^expression",
-          "affects^phosphorylation",
-          "affects^reaction",
-          "affects^activity",
-          "affects^expression",
-          "affects^response to substance",
           "decreases^response to substance",
-          "affects^binding",
           "decreases^degradation",
+          "increases^stability",
+          "increases^expression",
+          "affects^cotreatment",
           "increases^activity",
-          "increases^response to substance"
+          "affects^expression"
         ],
         "chemical": "Fluorouracil",
         "chemical_id": "D005472",
@@ -598,31 +602,31 @@
       },
       {
         "actions": [
-          "decreases^expression",
-          "affects^cotreatment",
-          "decreases^acetylation",
-          "increases^acetylation",
+          "decreases^reaction",
           "increases^response to substance",
-          "increases^cleavage",
-          "increases^stability",
-          "decreases^phosphorylation",
-          "affects^localization",
-          "increases^activity",
-          "increases^expression",
-          "increases^ribosylation",
-          "decreases^degradation",
-          "increases^reaction",
-          "decreases^methylation",
-          "increases^methylation",
           "affects^response to substance",
           "decreases^response to substance",
-          "affects^expression",
-          "affects^binding",
-          "decreases^reaction",
+          "increases^reaction",
           "increases^phosphorylation",
+          "increases^activity",
+          "increases^expression",
+          "decreases^methylation",
+          "increases^abundance",
+          "affects^localization",
+          "decreases^expression",
+          "increases^stability",
+          "affects^expression",
+          "decreases^acetylation",
+          "increases^methylation",
+          "decreases^degradation",
+          "increases^cleavage",
           "increases^degradation",
           "affects^reaction",
-          "increases^abundance"
+          "affects^cotreatment",
+          "affects^binding",
+          "increases^acetylation",
+          "increases^ribosylation",
+          "decreases^phosphorylation"
         ],
         "chemical": "sodium arsenite",
         "chemical_id": "C017947",
@@ -631,51 +635,51 @@
       },
       {
         "actions": [
-          "increases^expression",
+          "affects^binding",
           "increases^phosphorylation",
-          "affects^cotreatment",
+          "increases^activity",
           "affects^activity",
-          "affects^expression",
+          "affects^phosphorylation",
+          "affects^response to substance",
+          "increases^reaction",
+          "affects^reaction",
           "increases^response to substance",
+          "decreases^expression",
+          "increases^expression",
           "decreases^reaction",
           "increases^abundance",
-          "increases^activity",
           "affects^methylation",
-          "decreases^expression",
           "increases^mutagenesis",
-          "affects^reaction",
-          "affects^chemical synthesis",
-          "increases^reaction",
-          "affects^localization",
-          "affects^phosphorylation",
-          "increases^metabolic processing",
-          "affects^binding",
           "decreases^abundance",
-          "affects^response to substance"
+          "affects^chemical synthesis",
+          "affects^localization",
+          "affects^cotreatment",
+          "affects^expression",
+          "increases^metabolic processing"
         ],
         "chemical": "Benzo(a)pyrene",
         "chemical_id": "D001564",
         "id": "D001564_7157_9606",
-        "pmids": "48"
+        "pmids": "49"
       },
       {
         "actions": [
-          "increases^reaction",
-          "affects^response to substance",
-          "increases^cleavage",
-          "decreases^reaction",
-          "increases^phosphorylation",
-          "decreases^expression",
-          "increases^abundance",
-          "affects^reaction",
-          "decreases^response to substance",
-          "increases^expression",
-          "increases^degradation",
-          "increases^stability",
-          "affects^cotreatment",
-          "affects^expression",
           "increases^activity",
-          "affects^binding"
+          "affects^response to substance",
+          "decreases^reaction",
+          "increases^expression",
+          "affects^expression",
+          "decreases^response to substance",
+          "increases^phosphorylation",
+          "increases^stability",
+          "affects^reaction",
+          "affects^cotreatment",
+          "decreases^expression",
+          "increases^reaction",
+          "increases^abundance",
+          "increases^degradation",
+          "affects^binding",
+          "increases^cleavage"
         ],
         "chemical": "Arsenic Trioxide",
         "chemical_id": "D000077237",
@@ -684,20 +688,20 @@
       },
       {
         "actions": [
-          "affects^cotreatment",
-          "decreases^reaction",
-          "increases^phosphorylation",
-          "increases^expression",
-          "increases^activity",
-          "increases^reaction",
-          "increases^abundance",
-          "affects^expression",
-          "decreases^expression",
-          "increases^glutathionylation",
-          "affects^localization",
           "decreases^activity",
           "decreases^localization",
-          "affects^reaction"
+          "affects^expression",
+          "affects^cotreatment",
+          "decreases^expression",
+          "decreases^reaction",
+          "increases^expression",
+          "increases^activity",
+          "increases^glutathionylation",
+          "affects^localization",
+          "affects^reaction",
+          "increases^phosphorylation",
+          "increases^reaction",
+          "increases^abundance"
         ],
         "chemical": "Acetylcysteine",
         "chemical_id": "D000111",
@@ -706,21 +710,21 @@
       },
       {
         "actions": [
-          "increases^glutathionylation",
-          "decreases^activity",
-          "increases^acetylation",
-          "decreases^reaction",
+          "decreases^response to substance",
           "decreases^expression",
-          "decreases^acetylation",
           "affects^binding",
-          "increases^response to substance",
-          "affects^cotreatment",
+          "decreases^activity",
           "increases^expression",
+          "decreases^reaction",
+          "increases^glutathionylation",
+          "affects^cotreatment",
           "increases^phosphorylation",
           "increases^reaction",
+          "increases^activity",
+          "increases^acetylation",
+          "increases^response to substance",
           "affects^reaction",
-          "decreases^response to substance",
-          "increases^activity"
+          "decreases^acetylation"
         ],
         "chemical": "Hydrogen Peroxide",
         "chemical_id": "D006861",
@@ -729,19 +733,19 @@
       },
       {
         "actions": [
+          "increases^abundance",
           "increases^phosphorylation",
-          "decreases^expression",
+          "increases^response to substance",
           "decreases^activity",
           "decreases^response to substance",
+          "increases^expression",
+          "increases^activity",
+          "increases^reaction",
+          "decreases^expression",
           "decreases^phosphorylation",
           "affects^cotreatment",
-          "increases^expression",
-          "decreases^reaction",
-          "increases^reaction",
-          "increases^response to substance",
           "affects^localization",
-          "increases^abundance",
-          "increases^activity"
+          "decreases^reaction"
         ],
         "chemical": "pifithrin",
         "chemical_id": "C121565",
@@ -750,24 +754,24 @@
       },
       {
         "actions": [
+          "affects^binding",
           "decreases^reaction",
-          "increases^phosphorylation",
-          "increases^chemical synthesis",
           "increases^expression",
           "affects^cotreatment",
-          "decreases^expression",
-          "affects^reaction",
           "increases^cleavage",
-          "increases^reaction",
-          "increases^acetylation",
-          "affects^activity",
-          "affects^binding",
-          "affects^response to substance",
-          "increases^activity",
           "decreases^response to substance",
+          "increases^reaction",
           "affects^localization",
+          "increases^phosphorylation",
+          "affects^activity",
           "increases^response to substance",
-          "decreases^chemical synthesis"
+          "decreases^chemical synthesis",
+          "affects^reaction",
+          "decreases^expression",
+          "increases^activity",
+          "increases^acetylation",
+          "increases^chemical synthesis",
+          "affects^response to substance"
         ],
         "chemical": "Etoposide",
         "chemical_id": "D005047",
@@ -776,21 +780,21 @@
       },
       {
         "actions": [
-          "affects^expression",
-          "increases^activity",
-          "affects^activity",
-          "decreases^expression",
-          "increases^reaction",
-          "affects^reaction",
-          "decreases^degradation",
-          "affects^localization",
+          "affects^cotreatment",
           "increases^phosphorylation",
           "increases^expression",
           "increases^acetylation",
-          "increases^stability",
           "decreases^ubiquitination",
-          "affects^cotreatment",
-          "decreases^reaction"
+          "increases^activity",
+          "affects^activity",
+          "affects^reaction",
+          "affects^expression",
+          "increases^stability",
+          "decreases^expression",
+          "increases^reaction",
+          "decreases^reaction",
+          "decreases^degradation",
+          "affects^localization"
         ],
         "chemical": "Quercetin",
         "chemical_id": "D011794",
@@ -799,23 +803,23 @@
       },
       {
         "actions": [
-          "affects^cotreatment",
-          "increases^reaction",
+          "affects^reaction",
+          "affects^binding",
+          "decreases^methylation",
+          "affects^methylation",
           "decreases^ubiquitination",
-          "decreases^expression",
+          "increases^acetylation",
+          "increases^stability",
+          "affects^expression",
+          "increases^expression",
           "decreases^reaction",
           "affects^localization",
           "increases^phosphorylation",
-          "affects^binding",
-          "decreases^methylation",
-          "increases^acetylation",
-          "increases^stability",
-          "increases^expression",
-          "affects^methylation",
+          "decreases^expression",
+          "affects^cotreatment",
+          "increases^reaction",
           "increases^activity",
-          "increases^localization",
-          "affects^expression",
-          "affects^reaction"
+          "increases^localization"
         ],
         "chemical": "Decitabine",
         "chemical_id": "D000077209",
@@ -824,17 +828,17 @@
       },
       {
         "actions": [
+          "affects^expression",
+          "increases^abundance",
           "increases^methylation",
           "affects^reaction",
-          "decreases^phosphorylation",
-          "affects^expression",
-          "increases^phosphorylation",
-          "affects^response to substance",
           "decreases^expression",
           "decreases^reaction",
+          "decreases^phosphorylation",
+          "increases^phosphorylation",
+          "affects^response to substance",
           "increases^expression",
-          "affects^cotreatment",
-          "increases^abundance"
+          "affects^cotreatment"
         ],
         "chemical": "Particulate Matter",
         "chemical_id": "D052638",
@@ -843,22 +847,22 @@
       },
       {
         "actions": [
-          "increases^response to substance",
-          "affects^cotreatment",
-          "increases^secretion",
-          "affects^reaction",
-          "increases^expression",
-          "increases^reaction",
-          "increases^localization",
           "increases^cleavage",
-          "decreases^expression",
+          "increases^expression",
           "decreases^reaction",
-          "affects^binding",
-          "decreases^response to substance",
+          "increases^secretion",
           "increases^activity",
+          "increases^localization",
           "affects^localization",
           "increases^phosphorylation",
-          "increases^stability"
+          "increases^stability",
+          "affects^reaction",
+          "affects^cotreatment",
+          "affects^binding",
+          "increases^reaction",
+          "decreases^response to substance",
+          "decreases^expression",
+          "increases^response to substance"
         ],
         "chemical": "nutlin 3",
         "chemical_id": "C482205",
@@ -867,17 +871,17 @@
       },
       {
         "actions": [
-          "increases^methylation",
-          "increases^response to substance",
-          "increases^mutagenesis",
           "affects^expression",
+          "decreases^expression",
           "increases^expression",
           "increases^abundance",
+          "increases^response to substance",
           "affects^reaction",
           "affects^response to substance",
-          "decreases^expression",
           "decreases^methylation",
-          "decreases^phosphorylation"
+          "decreases^phosphorylation",
+          "increases^methylation",
+          "increases^mutagenesis"
         ],
         "chemical": "Arsenic",
         "chemical_id": "D001151",
@@ -886,15 +890,15 @@
       },
       {
         "actions": [
-          "increases^acetylation",
-          "affects^expression",
-          "increases^phosphorylation",
           "decreases^reaction",
+          "affects^expression",
+          "decreases^expression",
+          "increases^activity",
+          "increases^acetylation",
           "affects^cotreatment",
           "increases^expression",
           "affects^localization",
-          "decreases^expression",
-          "increases^activity"
+          "increases^phosphorylation"
         ],
         "chemical": "Curcumin",
         "chemical_id": "D003474",
@@ -903,18 +907,18 @@
       },
       {
         "actions": [
-          "affects^binding",
-          "increases^expression",
-          "increases^activity",
-          "increases^degradation",
           "increases^ubiquitination",
-          "increases^uptake",
-          "affects^expression",
           "affects^cotreatment",
           "decreases^expression",
+          "decreases^reaction",
           "increases^acetylation",
+          "increases^expression",
+          "increases^activity",
+          "increases^uptake",
+          "affects^expression",
+          "affects^binding",
           "affects^localization",
-          "decreases^reaction"
+          "increases^degradation"
         ],
         "chemical": "Tretinoin",
         "chemical_id": "D014212",
@@ -924,21 +928,21 @@
       {
         "actions": [
           "affects^activity",
-          "increases^expression",
-          "decreases^expression",
-          "affects^folding",
-          "increases^abundance",
           "affects^localization",
+          "decreases^activity",
           "affects^binding",
-          "decreases^folding",
-          "increases^ubiquitination",
-          "affects^phosphorylation",
-          "decreases^reaction",
           "affects^response to substance",
+          "affects^phosphorylation",
           "affects^reaction",
+          "decreases^expression",
+          "decreases^folding",
+          "increases^abundance",
           "increases^phosphorylation",
+          "decreases^reaction",
           "increases^activity",
-          "decreases^activity"
+          "affects^folding",
+          "increases^ubiquitination",
+          "increases^expression"
         ],
         "chemical": "Cadmium Chloride",
         "chemical_id": "D019256",
@@ -960,12 +964,12 @@
       },
       {
         "actions": [
-          "decreases^phosphorylation",
-          "increases^reaction",
           "decreases^reaction",
           "increases^phosphorylation",
           "increases^activity",
-          "increases^expression"
+          "increases^expression",
+          "decreases^phosphorylation",
+          "increases^reaction"
         ],
         "chemical": "Caffeine",
         "chemical_id": "D002110",
@@ -974,12 +978,12 @@
       },
       {
         "actions": [
+          "decreases^expression",
           "decreases^reaction",
           "increases^expression",
           "affects^cotreatment",
           "increases^reaction",
-          "decreases^response to substance",
-          "decreases^expression"
+          "decreases^response to substance"
         ],
         "chemical": "Paclitaxel",
         "chemical_id": "D017239",
@@ -988,17 +992,17 @@
       },
       {
         "actions": [
+          "decreases^reaction",
+          "decreases^expression",
+          "increases^activity",
           "affects^reaction",
           "affects^localization",
-          "decreases^activity",
-          "affects^cotreatment",
-          "affects^expression",
           "increases^expression",
-          "decreases^reaction",
           "affects^binding",
           "increases^reaction",
-          "decreases^expression",
-          "increases^activity"
+          "affects^expression",
+          "decreases^activity",
+          "affects^cotreatment"
         ],
         "chemical": "Estradiol",
         "chemical_id": "D004958",
@@ -1007,18 +1011,18 @@
       },
       {
         "actions": [
-          "affects^reaction",
           "affects^expression",
-          "increases^expression",
           "increases^reaction",
           "decreases^expression",
-          "affects^response to substance",
-          "affects^cotreatment",
-          "affects^activity",
           "increases^activity",
-          "increases^methylation",
           "increases^mutagenesis",
-          "increases^phosphorylation"
+          "affects^response to substance",
+          "affects^activity",
+          "increases^expression",
+          "increases^methylation",
+          "increases^phosphorylation",
+          "affects^reaction",
+          "affects^cotreatment"
         ],
         "chemical": "Aflatoxin B1",
         "chemical_id": "D016604",
@@ -1027,19 +1031,19 @@
       },
       {
         "actions": [
-          "increases^activity",
-          "increases^expression",
-          "increases^localization",
-          "increases^stability",
-          "affects^cotreatment",
-          "increases^ubiquitination",
           "increases^phosphorylation",
+          "affects^binding",
+          "increases^localization",
+          "affects^reaction",
+          "increases^ubiquitination",
+          "decreases^reaction",
           "affects^activity",
           "increases^reaction",
-          "affects^reaction",
-          "affects^response to substance",
-          "decreases^reaction",
-          "affects^binding"
+          "increases^activity",
+          "increases^expression",
+          "increases^stability",
+          "affects^cotreatment",
+          "affects^response to substance"
         ],
         "chemical": "Bortezomib",
         "chemical_id": "D000069286",
@@ -1048,16 +1052,37 @@
       },
       {
         "actions": [
-          "increases^expression",
-          "increases^activity",
-          "increases^stability",
+          "increases^mutagenesis",
           "decreases^expression",
-          "affects^cotreatment",
-          "affects^reaction",
+          "increases^abundance",
+          "increases^expression",
+          "increases^stability",
+          "increases^reaction",
+          "affects^localization",
           "decreases^reaction",
-          "increases^phosphorylation",
+          "affects^reaction",
+          "increases^activity",
           "affects^binding",
-          "increases^reaction"
+          "increases^response to substance",
+          "increases^phosphorylation"
+        ],
+        "chemical": "chromium hexavalent ion",
+        "chemical_id": "C074702",
+        "id": "C074702_7157_9606",
+        "pmids": "12"
+      },
+      {
+        "actions": [
+          "increases^stability",
+          "increases^reaction",
+          "affects^reaction",
+          "increases^phosphorylation",
+          "decreases^expression",
+          "affects^binding",
+          "affects^cotreatment",
+          "increases^expression",
+          "decreases^reaction",
+          "increases^activity"
         ],
         "chemical": "pyrazolanthrone",
         "chemical_id": "C432165",
@@ -1066,22 +1091,22 @@
       },
       {
         "actions": [
-          "increases^ubiquitination",
-          "affects^reaction",
+          "affects^phosphorylation",
+          "increases^abundance",
           "affects^activity",
-          "affects^localization",
+          "decreases^expression",
           "decreases^reaction",
           "increases^activity",
-          "decreases^folding",
-          "affects^expression",
+          "affects^reaction",
+          "affects^response to substance",
+          "affects^folding",
           "increases^expression",
           "decreases^activity",
-          "increases^abundance",
-          "decreases^expression",
+          "decreases^folding",
           "increases^phosphorylation",
-          "affects^response to substance",
-          "affects^phosphorylation",
-          "affects^folding"
+          "affects^expression",
+          "affects^localization",
+          "increases^ubiquitination"
         ],
         "chemical": "Cadmium",
         "chemical_id": "D002104",
@@ -1090,15 +1115,15 @@
       },
       {
         "actions": [
-          "increases^degradation",
           "increases^reaction",
           "affects^response to substance",
-          "decreases^reaction",
+          "increases^activity",
           "increases^phosphorylation",
+          "increases^degradation",
           "decreases^degradation",
           "affects^reaction",
           "decreases^expression",
-          "increases^activity",
+          "decreases^reaction",
           "increases^expression"
         ],
         "chemical": "Capsaicin",
@@ -1108,36 +1133,20 @@
       },
       {
         "actions": [
-          "increases^activity",
           "decreases^reaction",
           "increases^expression",
-          "increases^reaction",
-          "decreases^expression",
+          "increases^acetylation",
           "increases^phosphorylation",
-          "increases^stability",
           "affects^reaction",
+          "increases^reaction",
           "increases^response to substance",
-          "increases^acetylation"
+          "decreases^expression",
+          "increases^stability",
+          "increases^activity"
         ],
         "chemical": "Methotrexate",
         "chemical_id": "D008727",
         "id": "D008727_7157_9606",
-        "pmids": "12"
-      },
-      {
-        "actions": [
-          "affects^mutagenesis",
-          "increases^mutagenesis",
-          "affects^reaction",
-          "affects^response to substance",
-          "decreases^expression",
-          "increases^reaction",
-          "increases^response to substance",
-          "increases^expression"
-        ],
-        "chemical": "Vinyl Chloride",
-        "chemical_id": "D014752",
-        "id": "D014752_7157_9606",
         "pmids": "12"
       }
     ],
@@ -5368,6 +5377,7 @@
       "MIM:109800",
       "MIM:254500",
       "MIM:133239",
+      "MIM:167000",
       "MIM:127550",
       "MIM:613399",
       "MIM:612555",
@@ -5399,6 +5409,11 @@
       {
         "classification": "Moderate",
         "disease": "bone marrow failure syndrome 5",
+        "inheritance": "Autosomal dominant"
+      },
+      {
+        "classification": "Definitive",
+        "disease": "Li-Fraumeni syndrome",
         "inheritance": "Autosomal dominant"
       },
       {
@@ -5467,27 +5482,27 @@
         "trait": "Basal cell carcinoma"
       },
       {
-        "id": "GCST004278_22",
+        "id": "GCST004278_63",
         "p_value": "2.000000e-10",
         "trait": "Pulse pressure"
       },
       {
-        "id": "GCST004278_40",
+        "id": "GCST004278_81",
         "p_value": "2.000000e-07",
         "trait": "Pulse pressure"
       },
       {
-        "id": "GCST004280_49",
+        "id": "GCST004280_54",
         "p_value": "1.000000e-13",
         "trait": "Diastolic blood pressure"
       },
       {
-        "id": "GCST004347_18",
+        "id": "GCST004347_7",
         "p_value": "9.000000e-38",
         "trait": "Glioma"
       },
       {
-        "id": "GCST004348_4",
+        "id": "GCST004348_10",
         "p_value": "5.000000e-27",
         "trait": "Non-glioblastoma glioma"
       },
@@ -5502,28 +5517,28 @@
         "trait": "Sporadic neuroblastoma"
       },
       {
-        "id": "GCST004630_260",
+        "id": "GCST004630_131",
         "p_value": "6.000000e-09",
         "trait": "Mean corpuscular hemoglobin"
       },
       {
-        "id": "GCST005931_4",
-        "p_value": "3.000000e-17",
-        "trait": "Glioma"
-      },
-      {
-        "id": "GCST005931_5",
+        "id": "GCST005931_10",
         "p_value": "2.000000e-12",
         "trait": "Glioma"
       },
       {
-        "id": "GCST005932_1",
-        "p_value": "2.000000e-09",
+        "id": "GCST005931_9",
+        "p_value": "3.000000e-17",
+        "trait": "Glioma"
+      },
+      {
+        "id": "GCST005932_8",
+        "p_value": "1.000000e-14",
         "trait": "Glioblastoma"
       },
       {
-        "id": "GCST005932_14",
-        "p_value": "1.000000e-14",
+        "id": "GCST005932_9",
+        "p_value": "2.000000e-09",
         "trait": "Glioblastoma"
       },
       {
@@ -5537,7 +5552,7 @@
         "trait": "Non-glioblastoma glioma"
       },
       {
-        "id": "GCST006462_47",
+        "id": "GCST006462_43",
         "p_value": "4.000000e-37",
         "trait": "Uterine fibroids"
       },
@@ -5557,27 +5572,27 @@
         "trait": "Glioblastoma (age-stratified)"
       },
       {
-        "id": "GCST007094_180",
+        "id": "GCST007094_229",
         "p_value": "1.000000e-08",
         "trait": "Diastolic blood pressure"
       },
       {
-        "id": "GCST007096_39",
+        "id": "GCST007096_133",
         "p_value": "4.000000e-13",
         "trait": "Pulse pressure"
       },
       {
-        "id": "GCST007268_21",
+        "id": "GCST007268_36",
         "p_value": "3.000000e-15",
         "trait": "Diastolic blood pressure"
       },
       {
-        "id": "GCST007269_171",
+        "id": "GCST007269_187",
         "p_value": "8.000000e-23",
         "trait": "Pulse pressure"
       },
       {
-        "id": "GCST008362_2",
+        "id": "GCST008362_127",
         "p_value": "2.000000e-11",
         "trait": "Birth weight"
       },
@@ -5592,17 +5607,17 @@
         "trait": "Keratinocyte cancer (MTAG)"
       },
       {
-        "id": "GCST008871_42",
+        "id": "GCST008871_54",
         "p_value": "6.000000e-33",
         "trait": "Basal cell carcinoma"
       },
       {
-        "id": "GCST009066_44",
+        "id": "GCST009066_19",
         "p_value": "1.000000e-08",
         "trait": "Mosaic loss of chromosome Y (Y chromosome dosage)"
       },
       {
-        "id": "GCST009158_4",
+        "id": "GCST009158_28",
         "p_value": "7.000000e-31",
         "trait": "Uterine fibroids"
       },
@@ -5617,72 +5632,72 @@
         "trait": "Cancer"
       },
       {
-        "id": "GCST010245_90",
+        "id": "GCST010245_161",
         "p_value": "2.000000e-09",
         "trait": "LDL cholesterol levels"
       },
       {
-        "id": "GCST010303_20",
+        "id": "GCST010303_46",
         "p_value": "3.000000e-12",
         "trait": "Nevus count or cutaneous melanoma"
       },
       {
-        "id": "GCST010304_28",
+        "id": "GCST010304_2",
         "p_value": "1.000000e-09",
         "trait": "Cutaneous malignant melanoma"
       },
       {
-        "id": "GCST010304_37",
+        "id": "GCST010304_28",
         "p_value": "3.000000e-10",
         "trait": "Cutaneous malignant melanoma"
       },
       {
-        "id": "GCST010703_12",
+        "id": "GCST010703_112",
         "p_value": "3.000000e-09",
         "trait": "Brain morphology (MOSTest)"
       },
       {
-        "id": "GCST90000025_555",
+        "id": "GCST90000025_521",
         "p_value": "5.000000e-56",
         "trait": "Appendicular lean mass"
       },
       {
-        "id": "GCST90002390_120",
+        "id": "GCST90002390_595",
         "p_value": "1.000000e-22",
         "trait": "Mean corpuscular hemoglobin"
       },
       {
-        "id": "GCST90002392_490",
+        "id": "GCST90002392_485",
         "p_value": "1.000000e-20",
         "trait": "Mean corpuscular volume"
       },
       {
-        "id": "GCST90002394_312",
+        "id": "GCST90002394_307",
         "p_value": "3.000000e-09",
         "trait": "Monocyte percentage of white cells"
       },
       {
-        "id": "GCST90002396_317",
+        "id": "GCST90002396_9",
         "p_value": "2.000000e-12",
         "trait": "Mean reticulocyte volume"
       },
       {
-        "id": "GCST90002397_710",
+        "id": "GCST90002397_560",
         "p_value": "2.000000e-22",
         "trait": "Mean spheric corpuscular volume"
       },
       {
-        "id": "GCST90002403_320",
+        "id": "GCST90002403_395",
         "p_value": "3.000000e-21",
         "trait": "Red blood cell count"
       },
       {
-        "id": "GCST90013410_7",
+        "id": "GCST90013410_32",
         "p_value": "8.000000e-27",
         "trait": "Basal cell carcinoma"
       },
       {
-        "id": "GCST90014033_65",
+        "id": "GCST90014033_15",
         "p_value": "5.000000e-10",
         "trait": "Haemorrhoidal disease"
       }
@@ -5817,6 +5832,8 @@
       "GCST90018588",
       "GCST90018808",
       "GCST90027054",
+      "GCST90077628",
+      "GCST90081614",
       "GCST90093302",
       "GCST90093303",
       "GCST90095126",
@@ -5902,6 +5919,9 @@
       "GCST90504004",
       "GCST90504005",
       "GCST90504006",
+      "GCST90565174",
+      "GCST90565175",
+      "GCST90565176",
       "GCST90570627",
       "GCST90570630",
       "GCST90651043",
@@ -5919,7 +5939,47 @@
       "GCST90693346",
       "GCST90693350",
       "GCST90709777",
-      "GCST90709778"
+      "GCST90709778",
+      "GCST90726829",
+      "GCST90832127",
+      "GCST90832128",
+      "GCST000752",
+      "GCST000902",
+      "GCST001041",
+      "GCST001348",
+      "GCST001603",
+      "GCST001775",
+      "GCST003189",
+      "GCST004160",
+      "GCST004736",
+      "GCST005309",
+      "GCST005570",
+      "GCST005746",
+      "GCST005858",
+      "GCST006037",
+      "GCST007514",
+      "GCST90013702",
+      "GCST90013741",
+      "GCST90013776",
+      "GCST90041897",
+      "GCST90043858",
+      "GCST90092003",
+      "GCST90104489",
+      "GCST90134423",
+      "GCST90255398",
+      "GCST90308757",
+      "GCST90651047",
+      "GCST90651062",
+      "GCST90809294",
+      "GCST90809295",
+      "GCST90809296",
+      "GCST90041850",
+      "GCST90043893",
+      "GCST90079111",
+      "GCST90079609",
+      "GCST90083097",
+      "GCST90083595",
+      "GCST90454203"
     ],
     "gwas_total": 50,
     "hpo": [
@@ -7056,6 +7116,20 @@
         ]
       },
       {
+        "id": "D010051",
+        "is_supplementary": false,
+        "name": "Ovarian Neoplasms",
+        "tree_numbers": [
+          "C04.588.322.455",
+          "C12.050.351.500.056.630.705",
+          "C12.050.351.937.418.685",
+          "C12.100.250.056.630.705",
+          "C12.900.418.685",
+          "C19.344.410",
+          "C19.391.630.705"
+        ]
+      },
+      {
         "id": "D020288",
         "is_supplementary": false,
         "name": "Papilloma, Choroid Plexus",
@@ -7386,6 +7460,10 @@
         "name": "esophageal cancer"
       },
       {
+        "id": "MONDO:0008170",
+        "name": "ovarian cancer"
+      },
+      {
         "id": "MONDO:0021100",
         "name": "breast neoplasm"
       },
@@ -7586,6 +7664,10 @@
       {
         "id": "Orphanet:99977",
         "name": "Squamous cell carcinoma of the esophagus"
+      },
+      {
+        "id": "Orphanet:213500",
+        "name": "Rare ovarian cancer"
       },
       {
         "id": "Orphanet:1775",
@@ -7867,9 +7949,6 @@
       "NM_001126116",
       "NM_001126117",
       "NM_001126118",
-      "NM_001170223",
-      "NM_001260323",
-      "NM_001271820",
       "NM_001276695",
       "NM_001276696",
       "NM_001276697",
@@ -7877,8 +7956,6 @@
       "NM_001276699",
       "NM_001276760",
       "NM_001276761",
-      "NM_001328587",
-      "NM_001328588",
       "NM_001407262",
       "NM_001407263",
       "NM_001407264",
@@ -7888,25 +7965,9 @@
       "NM_001407268",
       "NM_001407269",
       "NM_001407270",
-      "NM_001407271",
-      "NM_030989",
-      "NM_131327",
-      "NM_206544",
-      "NM_206545",
-      "XM_005165101",
-      "XM_008767773",
-      "XM_017597018",
-      "XM_063268429",
-      "XM_063268430",
-      "XM_073949786",
-      "XM_073949787",
-      "XM_073949788",
-      "XM_073949789",
-      "XM_073949791",
-      "XM_073949792",
-      "XM_073949793"
+      "NM_001407271"
     ],
-    "refseq_mrna_count": 46,
+    "refseq_mrna_count": 25,
     "section": "02_transcripts",
     "symbol": "TP53"
   },
@@ -8002,18 +8063,6 @@
         "mane": false
       },
       {
-        "id": "NP_001163694",
-        "mane": false
-      },
-      {
-        "id": "NP_001247252",
-        "mane": false
-      },
-      {
-        "id": "NP_001258749",
-        "mane": false
-      },
-      {
         "id": "NP_001263624",
         "mane": false
       },
@@ -8039,14 +8088,6 @@
       },
       {
         "id": "NP_001263690",
-        "mane": false
-      },
-      {
-        "id": "NP_001315516",
-        "mane": false
-      },
-      {
-        "id": "NP_001315517",
         "mane": false
       },
       {
@@ -8088,25 +8129,9 @@
       {
         "id": "NP_001394200",
         "mane": false
-      },
-      {
-        "id": "NP_112251",
-        "mane": false
-      },
-      {
-        "id": "NP_571402",
-        "mane": false
-      },
-      {
-        "id": "NP_996267",
-        "mane": false
-      },
-      {
-        "id": "NP_996268",
-        "mane": false
       }
     ],
-    "refseq_protein_count": 34,
+    "refseq_protein_count": 25,
     "reviewed_uniprot": [
       "P04637"
     ],
@@ -20276,6 +20301,7 @@
       }
     ],
     "uniprot_all": [
+      "P04637",
       "A0A087WT22",
       "A0A087WXZ1",
       "A0A087X1Q1",
@@ -20289,7 +20315,6 @@
       "E7ESS1",
       "E9PCY9",
       "E9PFT5",
-      "P04637",
       "H2EHT1",
       "I3L0W9",
       "J3KP33",
@@ -21790,12 +21815,92 @@
         "resolution": "3.2"
       },
       {
+        "id": "9S9L",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.38"
+      },
+      {
+        "id": "9S9M",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.83"
+      },
+      {
+        "id": "9S9N",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.72"
+      },
+      {
+        "id": "9S9O",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.49"
+      },
+      {
+        "id": "9S9P",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.4"
+      },
+      {
+        "id": "9S9Q",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.87"
+      },
+      {
+        "id": "9S9R",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.7"
+      },
+      {
+        "id": "9SPM",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.71"
+      },
+      {
+        "id": "9SPN",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.93"
+      },
+      {
+        "id": "9SPO",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.48"
+      },
+      {
+        "id": "9SPP",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.47"
+      },
+      {
+        "id": "9SPQ",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "2.2"
+      },
+      {
         "id": "2F1X",
         "method": "X-RAY DIFFRACTION",
         "resolution": "2.3"
+      },
+      {
+        "id": "9SPR",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.66"
+      },
+      {
+        "id": "9SPS",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.42"
+      },
+      {
+        "id": "9SUK",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.56"
+      },
+      {
+        "id": "9SZZ",
+        "method": "X-RAY DIFFRACTION",
+        "resolution": "1.7"
       }
     ],
-    "pdb_count": 297,
+    "pdb_count": 313,
     "reviewed_uniprot": [
       "P04637"
     ],
@@ -21845,13 +21950,13 @@
     "alphamissense_total": 2569,
     "canonical_transcript": "ENST00000269305",
     "clinvar_breakdown": {
-      "Benign": 123,
-      "Likely benign": 743,
-      "Likely pathogenic": 199,
-      "Pathogenic": 749,
-      "Uncertain significance": 954
+      "Benign": 116,
+      "Likely benign": 767,
+      "Likely pathogenic": 198,
+      "Pathogenic": 771,
+      "Uncertain significance": 972
     },
-    "clinvar_total": 3850,
+    "clinvar_total": 3923,
     "dbsnp_sample": [
       {
         "change": "G>C",
@@ -22619,7 +22724,7 @@
         },
         {
           "id": "GO:0019661",
-          "name": "homolactic fermentation"
+          "name": "obsolete homolactic fermentation"
         },
         {
           "id": "GO:0021549",
@@ -33472,7 +33577,7 @@
         "score": "994"
       }
     ],
-    "string_count": 3754,
+    "string_count": 6100,
     "symbol": "TP53"
   },
   "9": {
@@ -37672,14 +37777,8 @@
         "name": "TP53"
       }
     ],
-    "mirna_count": 110,
+    "mirna_count": 58,
     "mirna_regulators": [
-      {
-        "avg_score": "77.23",
-        "id": "HSA-MIR-3163",
-        "max_score": "100.00",
-        "target_count": "8605"
-      },
       {
         "avg_score": "66.69",
         "id": "HSA-MIR-150-5P",
@@ -37693,112 +37792,16 @@
         "target_count": "948"
       },
       {
-        "avg_score": "72.72",
-        "id": "HSA-MIR-4500",
-        "max_score": "99.99",
-        "target_count": "2367"
-      },
-      {
-        "avg_score": "70.14",
-        "id": "HSA-MIR-223-3P",
-        "max_score": "99.99",
-        "target_count": "1140"
-      },
-      {
-        "avg_score": "72.29",
-        "id": "HSA-LET-7A-5P",
-        "max_score": "99.98",
-        "target_count": "1790"
-      },
-      {
-        "avg_score": "72.31",
-        "id": "HSA-LET-7B-5P",
-        "max_score": "99.98",
-        "target_count": "1790"
-      },
-      {
-        "avg_score": "72.29",
-        "id": "HSA-LET-7C-5P",
-        "max_score": "99.98",
-        "target_count": "1790"
-      },
-      {
-        "avg_score": "72.29",
-        "id": "HSA-LET-7E-5P",
-        "max_score": "99.98",
-        "target_count": "1790"
-      },
-      {
-        "avg_score": "72.56",
-        "id": "HSA-LET-7F-5P",
-        "max_score": "99.98",
-        "target_count": "1784"
-      },
-      {
-        "avg_score": "72.37",
-        "id": "HSA-LET-7G-5P",
-        "max_score": "99.98",
-        "target_count": "1784"
-      },
-      {
-        "avg_score": "72.37",
-        "id": "HSA-LET-7I-5P",
-        "max_score": "99.98",
-        "target_count": "1788"
-      },
-      {
-        "avg_score": "72.33",
-        "id": "HSA-MIR-98-5P",
-        "max_score": "99.98",
-        "target_count": "1787"
-      },
-      {
-        "avg_score": "72.81",
-        "id": "HSA-MIR-12136",
-        "max_score": "99.98",
-        "target_count": "5713"
-      },
-      {
-        "avg_score": "71.76",
-        "id": "HSA-LET-7D-5P",
-        "max_score": "99.96",
-        "target_count": "1632"
-      },
-      {
-        "avg_score": "71.64",
-        "id": "HSA-MIR-4458",
-        "max_score": "99.96",
-        "target_count": "1650"
-      },
-      {
         "avg_score": "71.87",
         "id": "HSA-MIR-381-3P",
         "max_score": "99.93",
         "target_count": "2854"
       },
       {
-        "avg_score": "68.13",
-        "id": "HSA-MIR-22-3P",
-        "max_score": "99.93",
-        "target_count": "917"
-      },
-      {
         "avg_score": "71.76",
         "id": "HSA-MIR-300",
         "max_score": "99.92",
         "target_count": "2856"
-      },
-      {
-        "avg_score": "71.43",
-        "id": "HSA-MIR-1305",
-        "max_score": "99.91",
-        "target_count": "3443"
-      },
-      {
-        "avg_score": "67.09",
-        "id": "HSA-MIR-4697-3P",
-        "max_score": "99.89",
-        "target_count": "1123"
       },
       {
         "avg_score": "70.67",
@@ -37817,12 +37820,6 @@
         "id": "HSA-MIR-4728-5P",
         "max_score": "99.85",
         "target_count": "4718"
-      },
-      {
-        "avg_score": "68.75",
-        "id": "RNO-MIR-3584-5P",
-        "max_score": "99.85",
-        "target_count": "535"
       },
       {
         "avg_score": "70.77",
@@ -37853,6 +37850,114 @@
         "id": "HSA-MIR-6756-5P",
         "max_score": "99.82",
         "target_count": "2466"
+      },
+      {
+        "avg_score": "67.54",
+        "id": "HSA-MIR-6842-5P",
+        "max_score": "99.80",
+        "target_count": "1587"
+      },
+      {
+        "avg_score": "67.84",
+        "id": "HSA-MIR-7110-5P",
+        "max_score": "99.80",
+        "target_count": "1712"
+      },
+      {
+        "avg_score": "69.58",
+        "id": "HSA-MIR-636",
+        "max_score": "99.80",
+        "target_count": "1500"
+      },
+      {
+        "avg_score": "71.12",
+        "id": "HSA-MIR-548AJ-5P",
+        "max_score": "99.78",
+        "target_count": "3085"
+      },
+      {
+        "avg_score": "71.02",
+        "id": "HSA-MIR-548F-5P",
+        "max_score": "99.78",
+        "target_count": "3093"
+      },
+      {
+        "avg_score": "71.12",
+        "id": "HSA-MIR-548G-5P",
+        "max_score": "99.78",
+        "target_count": "3085"
+      },
+      {
+        "avg_score": "71.12",
+        "id": "HSA-MIR-548X-5P",
+        "max_score": "99.78",
+        "target_count": "3085"
+      },
+      {
+        "avg_score": "68.22",
+        "id": "HSA-MIR-149-3P",
+        "max_score": "99.72",
+        "target_count": "3963"
+      },
+      {
+        "avg_score": "72.42",
+        "id": "HSA-MIR-1283",
+        "max_score": "99.69",
+        "target_count": "3009"
+      },
+      {
+        "avg_score": "68.05",
+        "id": "HSA-MIR-6883-5P",
+        "max_score": "99.69",
+        "target_count": "3785"
+      },
+      {
+        "avg_score": "67.70",
+        "id": "HSA-MIR-6766-5P",
+        "max_score": "99.68",
+        "target_count": "2325"
+      },
+      {
+        "avg_score": "67.32",
+        "id": "HSA-MIR-6752-5P",
+        "max_score": "99.59",
+        "target_count": "1243"
+      },
+      {
+        "avg_score": "67.91",
+        "id": "HSA-MIR-4677-3P",
+        "max_score": "99.49",
+        "target_count": "1246"
+      },
+      {
+        "avg_score": "69.11",
+        "id": "HSA-MIR-1207-5P",
+        "max_score": "99.49",
+        "target_count": "2983"
+      },
+      {
+        "avg_score": "66.57",
+        "id": "HSA-MIR-1324",
+        "max_score": "99.46",
+        "target_count": "1302"
+      },
+      {
+        "avg_score": "69.95",
+        "id": "HSA-MIR-330-3P",
+        "max_score": "99.41",
+        "target_count": "2521"
+      },
+      {
+        "avg_score": "65.25",
+        "id": "HSA-MIR-4284",
+        "max_score": "99.36",
+        "target_count": "1293"
+      },
+      {
+        "avg_score": "67.42",
+        "id": "HSA-MIR-6731-5P",
+        "max_score": "99.28",
+        "target_count": "2375"
       }
     ],
     "section": "09_tf_regulation",

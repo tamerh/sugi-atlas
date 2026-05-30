@@ -60,8 +60,8 @@
 | ENST00000923569 | protein_coding |
 | ENST00000949117 | protein_coding |
 
-**RefSeq mRNA: 46** — MANE Select: `NM_000546`
-`NM_000546`, `NM_001126112`, `NM_001126113`, `NM_001126114`, `NM_001126115`, `NM_001126116`, `NM_001126117`, `NM_001126118`, `NM_001170223`, `NM_001260323`, `NM_001271820`, `NM_001276695`, `NM_001276696`, `NM_001276697`, `NM_001276698`, `NM_001276699`, `NM_001276760`, `NM_001276761`, `NM_001328587`, `NM_001328588`, `NM_001407262`, `NM_001407263`, `NM_001407264`, `NM_001407265`, `NM_001407266`, `NM_001407267`, `NM_001407268`, `NM_001407269`, `NM_001407270`, `NM_001407271`, `NM_030989`, `NM_131327`, `NM_206544`, `NM_206545`, `XM_005165101`, `XM_008767773`, `XM_017597018`, `XM_063268429`, `XM_063268430`, `XM_073949786`, `XM_073949787`, `XM_073949788`, `XM_073949789`, `XM_073949791`, `XM_073949792`, `XM_073949793`
+**RefSeq mRNA: 25** — MANE Select: `NM_000546`
+`NM_000546`, `NM_001126112`, `NM_001126113`, `NM_001126114`, `NM_001126115`, `NM_001126116`, `NM_001126117`, `NM_001126118`, `NM_001276695`, `NM_001276696`, `NM_001276697`, `NM_001276698`, `NM_001276699`, `NM_001276760`, `NM_001276761`, `NM_001407262`, `NM_001407263`, `NM_001407264`, `NM_001407265`, `NM_001407266`, `NM_001407267`, `NM_001407268`, `NM_001407269`, `NM_001407270`, `NM_001407271`
 
 **CCDS:** `CCDS11118`, `CCDS45605`, `CCDS45606`, `CCDS73963`, `CCDS73964`, `CCDS73965`, `CCDS73966`, `CCDS73967`, `CCDS73968`, `CCDS73969`, `CCDS73970`, `CCDS73971`
 
@@ -85,9 +85,9 @@
 
 **Canonical reviewed UniProt:** `P04637` (reviewed: P04637)
 
-**All UniProt accessions (19):** `A0A087WT22`, `A0A087WXZ1`, `A0A087X1Q1`, `A0A0U1RQC9`, `A0A386NBZ1`, `A0AAQ5BHX5`, `A0AAQ5BHY1`, `A0AAQ5BHZ9`, `E7EMR6`, `E7EQX7`, `E7ESS1`, `E9PCY9`, `E9PFT5`, `P04637`, `H2EHT1`, `I3L0W9`, `J3KP33`, `K7PPA8`, `S4R334`
+**All UniProt accessions (19):** `P04637`, `A0A087WT22`, `A0A087WXZ1`, `A0A087X1Q1`, `A0A0U1RQC9`, `A0A386NBZ1`, `A0AAQ5BHX5`, `A0AAQ5BHY1`, `A0AAQ5BHZ9`, `E7EMR6`, `E7EQX7`, `E7ESS1`, `E9PCY9`, `E9PFT5`, `H2EHT1`, `I3L0W9`, `J3KP33`, `K7PPA8`, `S4R334`
 
-**RefSeq proteins (34):** `NP_000537`*, `NP_001119584`, `NP_001119585`, `NP_001119586`, `NP_001119587`, `NP_001119588`, `NP_001119589`, `NP_001119590`, `NP_001163694`, `NP_001247252`, `NP_001258749`, `NP_001263624`, `NP_001263625`, `NP_001263626`, `NP_001263627`, `NP_001263628`, `NP_001263689`, `NP_001263690`, `NP_001315516`, `NP_001315517`, `NP_001394191`, `NP_001394192`, `NP_001394193`, `NP_001394194`, `NP_001394195`, `NP_001394196`, `NP_001394197`, `NP_001394198`, `NP_001394199`, `NP_001394200`, `NP_112251`, `NP_571402`, `NP_996267`, `NP_996268`  (*=MANE)
+**RefSeq proteins (25):** `NP_000537`*, `NP_001119584`, `NP_001119585`, `NP_001119586`, `NP_001119587`, `NP_001119588`, `NP_001119589`, `NP_001119590`, `NP_001263624`, `NP_001263625`, `NP_001263626`, `NP_001263627`, `NP_001263628`, `NP_001263689`, `NP_001263690`, `NP_001394191`, `NP_001394192`, `NP_001394193`, `NP_001394194`, `NP_001394195`, `NP_001394196`, `NP_001394197`, `NP_001394198`, `NP_001394199`, `NP_001394200`  (*=MANE)
 
 **Domains & families (InterPro):**
 
@@ -141,7 +141,7 @@
 
 ## Structure
 
-**Experimental structures (PDB): 297**
+**Experimental structures (PDB): 313**
 
 | PDB | Method | Resolution (Å) |
 | --- | --- | --- |
@@ -441,7 +441,23 @@
 | 9R2M | ELECTRON MICROSCOPY | 3.5 |
 | 9R2P | ELECTRON MICROSCOPY | 4.18 |
 | 9R2Q | ELECTRON MICROSCOPY | 3.2 |
+| 9S9L | X-RAY DIFFRACTION | 1.38 |
+| 9S9M | X-RAY DIFFRACTION | 1.83 |
+| 9S9N | X-RAY DIFFRACTION | 1.72 |
+| 9S9O | X-RAY DIFFRACTION | 1.49 |
+| 9S9P | X-RAY DIFFRACTION | 1.4 |
+| 9S9Q | X-RAY DIFFRACTION | 1.87 |
+| 9S9R | X-RAY DIFFRACTION | 1.7 |
+| 9SPM | X-RAY DIFFRACTION | 1.71 |
+| 9SPN | X-RAY DIFFRACTION | 1.93 |
+| 9SPO | X-RAY DIFFRACTION | 1.48 |
+| 9SPP | X-RAY DIFFRACTION | 1.47 |
+| 9SPQ | X-RAY DIFFRACTION | 2.2 |
 | 2F1X | X-RAY DIFFRACTION | 2.3 |
+| 9SPR | X-RAY DIFFRACTION | 1.66 |
+| 9SPS | X-RAY DIFFRACTION | 1.42 |
+| 9SUK | X-RAY DIFFRACTION | 1.56 |
+| 9SZZ | X-RAY DIFFRACTION | 1.7 |
 
 **Predicted structure (AlphaFold):**
 
@@ -464,15 +480,15 @@
 
 ## Clinical variants & AI predictions
 
-**ClinVar: 3850 variants total.** Per-class counts are floors (≥ shown; pagination cap):
+**ClinVar: 3923 variants total.** Per-class counts are floors (≥ shown; pagination cap):
 
 | Classification | Count (floor) |
 | --- | --- |
-| Pathogenic | 749 |
-| Likely pathogenic | 199 |
-| Uncertain significance | 954 |
-| Likely benign | 743 |
-| Benign | 123 |
+| Pathogenic | 771 |
+| Likely pathogenic | 198 |
+| Uncertain significance | 972 |
+| Likely benign | 767 |
+| Benign | 116 |
 
 **Top pathogenic / likely-pathogenic (30):**
 
@@ -632,7 +648,7 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 
 ## Protein interactions & networks
 
-**STRING (3754), top by confidence (×1000):**
+**STRING (6100), top by confidence (×1000):**
 
 | Partner | Score |
 | --- | --- |
@@ -772,40 +788,40 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 
 **Upstream regulators (CollecTRI, top):** AATF, ABL1, AHR, AP1, AR, ATF3, BACH2, BCL6, BCLAF1, BDP1, BHLHE40, BMAL1, CASZ1, CEBPB, CELF1, CREB1, CREBBP, CTCF, DNMT1, DRAM2
 
-**miRNA regulators (miRDB): 110** targeting TP53, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
+**miRNA regulators (miRDB): 58** targeting TP53, top 30 by miRDB confidence (max_score; target_count = how many genes the miRNA targets in total — lower means more specific):
 
 | miRNA | Max score | Avg score | miRNA target_count |
 | --- | --- | --- | --- |
-| HSA-MIR-3163 | 100.00 | 77.23 | 8605 |
 | HSA-MIR-150-5P | 99.99 | 66.69 | 1976 |
 | HSA-MIR-10401-5P | 99.99 | 65.79 | 948 |
-| HSA-MIR-4500 | 99.99 | 72.72 | 2367 |
-| HSA-MIR-223-3P | 99.99 | 70.14 | 1140 |
-| HSA-LET-7A-5P | 99.98 | 72.29 | 1790 |
-| HSA-LET-7B-5P | 99.98 | 72.31 | 1790 |
-| HSA-LET-7C-5P | 99.98 | 72.29 | 1790 |
-| HSA-LET-7E-5P | 99.98 | 72.29 | 1790 |
-| HSA-LET-7F-5P | 99.98 | 72.56 | 1784 |
-| HSA-LET-7G-5P | 99.98 | 72.37 | 1784 |
-| HSA-LET-7I-5P | 99.98 | 72.37 | 1788 |
-| HSA-MIR-98-5P | 99.98 | 72.33 | 1787 |
-| HSA-MIR-12136 | 99.98 | 72.81 | 5713 |
-| HSA-LET-7D-5P | 99.96 | 71.76 | 1632 |
-| HSA-MIR-4458 | 99.96 | 71.64 | 1650 |
 | HSA-MIR-381-3P | 99.93 | 71.87 | 2854 |
-| HSA-MIR-22-3P | 99.93 | 68.13 | 917 |
 | HSA-MIR-300 | 99.92 | 71.76 | 2856 |
-| HSA-MIR-1305 | 99.91 | 71.43 | 3443 |
-| HSA-MIR-4697-3P | 99.89 | 67.09 | 1123 |
 | HSA-MIR-548D-3P | 99.87 | 70.67 | 4362 |
 | HSA-MIR-548BB-3P | 99.86 | 70.58 | 4354 |
 | HSA-MIR-4728-5P | 99.85 | 69.39 | 4718 |
-| RNO-MIR-3584-5P | 99.85 | 68.75 | 535 |
 | HSA-MIR-548AC | 99.84 | 70.77 | 4351 |
 | HSA-MIR-548H-3P | 99.84 | 70.80 | 4349 |
 | HSA-MIR-548Z | 99.84 | 70.80 | 4349 |
 | HSA-MIR-6785-5P | 99.82 | 68.68 | 4428 |
 | HSA-MIR-6756-5P | 99.82 | 67.97 | 2466 |
+| HSA-MIR-6842-5P | 99.80 | 67.54 | 1587 |
+| HSA-MIR-7110-5P | 99.80 | 67.84 | 1712 |
+| HSA-MIR-636 | 99.80 | 69.58 | 1500 |
+| HSA-MIR-548AJ-5P | 99.78 | 71.12 | 3085 |
+| HSA-MIR-548F-5P | 99.78 | 71.02 | 3093 |
+| HSA-MIR-548G-5P | 99.78 | 71.12 | 3085 |
+| HSA-MIR-548X-5P | 99.78 | 71.12 | 3085 |
+| HSA-MIR-149-3P | 99.72 | 68.22 | 3963 |
+| HSA-MIR-1283 | 99.69 | 72.42 | 3009 |
+| HSA-MIR-6883-5P | 99.69 | 68.05 | 3785 |
+| HSA-MIR-6766-5P | 99.68 | 67.70 | 2325 |
+| HSA-MIR-6752-5P | 99.59 | 67.32 | 1243 |
+| HSA-MIR-4677-3P | 99.49 | 67.91 | 1246 |
+| HSA-MIR-1207-5P | 99.49 | 69.11 | 2983 |
+| HSA-MIR-1324 | 99.46 | 66.57 | 1302 |
+| HSA-MIR-330-3P | 99.41 | 69.95 | 2521 |
+| HSA-MIR-4284 | 99.36 | 65.25 | 1293 |
+| HSA-MIR-6731-5P | 99.28 | 67.42 | 2375 |
 
 ## Drug & pharmacology data
 
@@ -850,7 +866,7 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 
-**Binding affinities (BindingDB, sampled 300):**
+**Binding affinities (BindingDB, sampled 214):**
 
 | Ligand | Ki | IC50 |
 | --- | --- | --- |
@@ -940,40 +956,40 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | [54581619](https://pubchem.ncbi.nlm.nih.gov/compound/54581619) | [594312](https://pubchem.ncbi.nlm.nih.gov/bioassay/594312) | ic50 | 0.4300 | uM |
 | [45483723](https://pubchem.ncbi.nlm.nih.gov/compound/45483723) | [438428](https://pubchem.ncbi.nlm.nih.gov/bioassay/438428) | ic50 | 0.4400 | uM |
 
-**CTD chemical–gene interactions (human, 1242 total), top 30 by PubMed support:**
+**CTD chemical–gene interactions (human, 1249 total), top 30 by PubMed support:**
 
 | Chemical | Actions (CV verbs) | PubMed papers |
 | --- | --- | --- |
-| [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | increases^expression, increases^phosphorylation, affects^expression, increases^export, increases^acetylation, increases^localization, increases^glutathionylation, increases^activity, increases^reaction, affects^binding, affects^phosphorylation, increases^stability, affects^reaction, decreases^phosphorylation, affects^response to substance, decreases^reaction, affects^activity, increases^response to substance, increases^cleavage, affects^cotreatment, affects^localization, decreases^expression, decreases^response to substance, decreases^activity | 85 |
-| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | decreases^acetylation, increases^cleavage, decreases^reaction, increases^abundance, increases^expression, affects^localization, decreases^phosphorylation, increases^degradation, affects^response to substance, increases^reaction, affects^cotreatment, increases^phosphorylation, decreases^expression, affects^activity, affects^binding, increases^stability, affects^reaction, increases^localization, increases^glutathionylation, decreases^response to substance, increases^activity, increases^response to substance, increases^acetylation | 74 |
-| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | increases^activity, increases^response to substance, decreases^phosphorylation, increases^reaction, decreases^activity, decreases^expression, affects^response to substance, affects^localization, affects^binding, increases^expression, affects^cotreatment, increases^localization, affects^reaction, affects^expression, decreases^acetylation, increases^phosphorylation, increases^acetylation, increases^cleavage, decreases^reaction | 70 |
-| [Fluorouracil](http://ctdbase.org/detail.go?type=chem&acc=D005472) | decreases^reaction, increases^acetylation, affects^cotreatment, increases^reaction, increases^stability, increases^phosphorylation, decreases^expression, increases^cleavage, increases^expression, affects^phosphorylation, affects^reaction, affects^activity, affects^expression, affects^response to substance, decreases^response to substance, affects^binding, decreases^degradation, increases^activity, increases^response to substance | 60 |
-| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | decreases^expression, affects^cotreatment, decreases^acetylation, increases^acetylation, increases^response to substance, increases^cleavage, increases^stability, decreases^phosphorylation, affects^localization, increases^activity, increases^expression, increases^ribosylation, decreases^degradation, increases^reaction, decreases^methylation, increases^methylation, affects^response to substance, decreases^response to substance, affects^expression, affects^binding, decreases^reaction, increases^phosphorylation, increases^degradation, affects^reaction, increases^abundance | 54 |
-| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | increases^expression, increases^phosphorylation, affects^cotreatment, affects^activity, affects^expression, increases^response to substance, decreases^reaction, increases^abundance, increases^activity, affects^methylation, decreases^expression, increases^mutagenesis, affects^reaction, affects^chemical synthesis, increases^reaction, affects^localization, affects^phosphorylation, increases^metabolic processing, affects^binding, decreases^abundance, affects^response to substance | 48 |
-| [Arsenic Trioxide](http://ctdbase.org/detail.go?type=chem&acc=D000077237) | increases^reaction, affects^response to substance, increases^cleavage, decreases^reaction, increases^phosphorylation, decreases^expression, increases^abundance, affects^reaction, decreases^response to substance, increases^expression, increases^degradation, increases^stability, affects^cotreatment, affects^expression, increases^activity, affects^binding | 47 |
-| [Acetylcysteine](http://ctdbase.org/detail.go?type=chem&acc=D000111) | affects^cotreatment, decreases^reaction, increases^phosphorylation, increases^expression, increases^activity, increases^reaction, increases^abundance, affects^expression, decreases^expression, increases^glutathionylation, affects^localization, decreases^activity, decreases^localization, affects^reaction | 42 |
-| [Hydrogen Peroxide](http://ctdbase.org/detail.go?type=chem&acc=D006861) | increases^glutathionylation, decreases^activity, increases^acetylation, decreases^reaction, decreases^expression, decreases^acetylation, affects^binding, increases^response to substance, affects^cotreatment, increases^expression, increases^phosphorylation, increases^reaction, affects^reaction, decreases^response to substance, increases^activity | 35 |
-| [pifithrin](http://ctdbase.org/detail.go?type=chem&acc=C121565) | increases^phosphorylation, decreases^expression, decreases^activity, decreases^response to substance, decreases^phosphorylation, affects^cotreatment, increases^expression, decreases^reaction, increases^reaction, increases^response to substance, affects^localization, increases^abundance, increases^activity | 33 |
-| [Etoposide](http://ctdbase.org/detail.go?type=chem&acc=D005047) | decreases^reaction, increases^phosphorylation, increases^chemical synthesis, increases^expression, affects^cotreatment, decreases^expression, affects^reaction, increases^cleavage, increases^reaction, increases^acetylation, affects^activity, affects^binding, affects^response to substance, increases^activity, decreases^response to substance, affects^localization, increases^response to substance, decreases^chemical synthesis | 32 |
-| [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | affects^expression, increases^activity, affects^activity, decreases^expression, increases^reaction, affects^reaction, decreases^degradation, affects^localization, increases^phosphorylation, increases^expression, increases^acetylation, increases^stability, decreases^ubiquitination, affects^cotreatment, decreases^reaction | 28 |
-| [Decitabine](http://ctdbase.org/detail.go?type=chem&acc=D000077209) | affects^cotreatment, increases^reaction, decreases^ubiquitination, decreases^expression, decreases^reaction, affects^localization, increases^phosphorylation, affects^binding, decreases^methylation, increases^acetylation, increases^stability, increases^expression, affects^methylation, increases^activity, increases^localization, affects^expression, affects^reaction | 23 |
-| [Particulate Matter](http://ctdbase.org/detail.go?type=chem&acc=D052638) | increases^methylation, affects^reaction, decreases^phosphorylation, affects^expression, increases^phosphorylation, affects^response to substance, decreases^expression, decreases^reaction, increases^expression, affects^cotreatment, increases^abundance | 19 |
-| [nutlin 3](http://ctdbase.org/detail.go?type=chem&acc=C482205) | increases^response to substance, affects^cotreatment, increases^secretion, affects^reaction, increases^expression, increases^reaction, increases^localization, increases^cleavage, decreases^expression, decreases^reaction, affects^binding, decreases^response to substance, increases^activity, affects^localization, increases^phosphorylation, increases^stability | 17 |
-| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | increases^methylation, increases^response to substance, increases^mutagenesis, affects^expression, increases^expression, increases^abundance, affects^reaction, affects^response to substance, decreases^expression, decreases^methylation, decreases^phosphorylation | 17 |
-| [Curcumin](http://ctdbase.org/detail.go?type=chem&acc=D003474) | increases^acetylation, affects^expression, increases^phosphorylation, decreases^reaction, affects^cotreatment, increases^expression, affects^localization, decreases^expression, increases^activity | 16 |
-| [Tretinoin](http://ctdbase.org/detail.go?type=chem&acc=D014212) | affects^binding, increases^expression, increases^activity, increases^degradation, increases^ubiquitination, increases^uptake, affects^expression, affects^cotreatment, decreases^expression, increases^acetylation, affects^localization, decreases^reaction | 16 |
-| [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | affects^activity, increases^expression, decreases^expression, affects^folding, increases^abundance, affects^localization, affects^binding, decreases^folding, increases^ubiquitination, affects^phosphorylation, decreases^reaction, affects^response to substance, affects^reaction, increases^phosphorylation, increases^activity, decreases^activity | 16 |
+| [Doxorubicin](http://ctdbase.org/detail.go?type=chem&acc=D004317) | affects^activity, affects^localization, affects^binding, decreases^phosphorylation, decreases^expression, increases^expression, increases^activity, increases^acetylation, increases^glutathionylation, increases^response to substance, decreases^response to substance, decreases^activity, affects^phosphorylation, affects^reaction, increases^cleavage, decreases^reaction, increases^reaction, increases^phosphorylation, affects^expression, increases^export, increases^localization, increases^stability, affects^response to substance, affects^cotreatment | 85 |
+| [Cisplatin](http://ctdbase.org/detail.go?type=chem&acc=D002945) | increases^localization, increases^reaction, increases^expression, increases^glutathionylation, increases^cleavage, increases^degradation, increases^abundance, decreases^reaction, affects^activity, affects^binding, decreases^phosphorylation, increases^acetylation, affects^cotreatment, increases^response to substance, affects^localization, affects^reaction, affects^response to substance, increases^phosphorylation, decreases^response to substance, increases^activity, decreases^expression, increases^stability, decreases^acetylation | 74 |
+| [Resveratrol](http://ctdbase.org/detail.go?type=chem&acc=D000077185) | affects^expression, decreases^acetylation, affects^response to substance, increases^cleavage, increases^reaction, affects^cotreatment, decreases^phosphorylation, increases^acetylation, affects^localization, increases^expression, increases^response to substance, increases^localization, affects^reaction, decreases^activity, decreases^reaction, affects^binding, increases^activity, increases^phosphorylation, decreases^expression | 70 |
+| [Fluorouracil](http://ctdbase.org/detail.go?type=chem&acc=D005472) | affects^phosphorylation, affects^response to substance, affects^activity, increases^cleavage, affects^reaction, increases^phosphorylation, increases^reaction, affects^binding, increases^response to substance, decreases^reaction, increases^acetylation, decreases^expression, decreases^response to substance, decreases^degradation, increases^stability, increases^expression, affects^cotreatment, increases^activity, affects^expression | 60 |
+| [sodium arsenite](http://ctdbase.org/detail.go?type=chem&acc=C017947) | decreases^reaction, increases^response to substance, affects^response to substance, decreases^response to substance, increases^reaction, increases^phosphorylation, increases^activity, increases^expression, decreases^methylation, increases^abundance, affects^localization, decreases^expression, increases^stability, affects^expression, decreases^acetylation, increases^methylation, decreases^degradation, increases^cleavage, increases^degradation, affects^reaction, affects^cotreatment, affects^binding, increases^acetylation, increases^ribosylation, decreases^phosphorylation | 54 |
+| [Benzo(a)pyrene](http://ctdbase.org/detail.go?type=chem&acc=D001564) | affects^binding, increases^phosphorylation, increases^activity, affects^activity, affects^phosphorylation, affects^response to substance, increases^reaction, affects^reaction, increases^response to substance, decreases^expression, increases^expression, decreases^reaction, increases^abundance, affects^methylation, increases^mutagenesis, decreases^abundance, affects^chemical synthesis, affects^localization, affects^cotreatment, affects^expression, increases^metabolic processing | 49 |
+| [Arsenic Trioxide](http://ctdbase.org/detail.go?type=chem&acc=D000077237) | increases^activity, affects^response to substance, decreases^reaction, increases^expression, affects^expression, decreases^response to substance, increases^phosphorylation, increases^stability, affects^reaction, affects^cotreatment, decreases^expression, increases^reaction, increases^abundance, increases^degradation, affects^binding, increases^cleavage | 47 |
+| [Acetylcysteine](http://ctdbase.org/detail.go?type=chem&acc=D000111) | decreases^activity, decreases^localization, affects^expression, affects^cotreatment, decreases^expression, decreases^reaction, increases^expression, increases^activity, increases^glutathionylation, affects^localization, affects^reaction, increases^phosphorylation, increases^reaction, increases^abundance | 42 |
+| [Hydrogen Peroxide](http://ctdbase.org/detail.go?type=chem&acc=D006861) | decreases^response to substance, decreases^expression, affects^binding, decreases^activity, increases^expression, decreases^reaction, increases^glutathionylation, affects^cotreatment, increases^phosphorylation, increases^reaction, increases^activity, increases^acetylation, increases^response to substance, affects^reaction, decreases^acetylation | 35 |
+| [pifithrin](http://ctdbase.org/detail.go?type=chem&acc=C121565) | increases^abundance, increases^phosphorylation, increases^response to substance, decreases^activity, decreases^response to substance, increases^expression, increases^activity, increases^reaction, decreases^expression, decreases^phosphorylation, affects^cotreatment, affects^localization, decreases^reaction | 33 |
+| [Etoposide](http://ctdbase.org/detail.go?type=chem&acc=D005047) | affects^binding, decreases^reaction, increases^expression, affects^cotreatment, increases^cleavage, decreases^response to substance, increases^reaction, affects^localization, increases^phosphorylation, affects^activity, increases^response to substance, decreases^chemical synthesis, affects^reaction, decreases^expression, increases^activity, increases^acetylation, increases^chemical synthesis, affects^response to substance | 32 |
+| [Quercetin](http://ctdbase.org/detail.go?type=chem&acc=D011794) | affects^cotreatment, increases^phosphorylation, increases^expression, increases^acetylation, decreases^ubiquitination, increases^activity, affects^activity, affects^reaction, affects^expression, increases^stability, decreases^expression, increases^reaction, decreases^reaction, decreases^degradation, affects^localization | 28 |
+| [Decitabine](http://ctdbase.org/detail.go?type=chem&acc=D000077209) | affects^reaction, affects^binding, decreases^methylation, affects^methylation, decreases^ubiquitination, increases^acetylation, increases^stability, affects^expression, increases^expression, decreases^reaction, affects^localization, increases^phosphorylation, decreases^expression, affects^cotreatment, increases^reaction, increases^activity, increases^localization | 23 |
+| [Particulate Matter](http://ctdbase.org/detail.go?type=chem&acc=D052638) | affects^expression, increases^abundance, increases^methylation, affects^reaction, decreases^expression, decreases^reaction, decreases^phosphorylation, increases^phosphorylation, affects^response to substance, increases^expression, affects^cotreatment | 19 |
+| [nutlin 3](http://ctdbase.org/detail.go?type=chem&acc=C482205) | increases^cleavage, increases^expression, decreases^reaction, increases^secretion, increases^activity, increases^localization, affects^localization, increases^phosphorylation, increases^stability, affects^reaction, affects^cotreatment, affects^binding, increases^reaction, decreases^response to substance, decreases^expression, increases^response to substance | 17 |
+| [Arsenic](http://ctdbase.org/detail.go?type=chem&acc=D001151) | affects^expression, decreases^expression, increases^expression, increases^abundance, increases^response to substance, affects^reaction, affects^response to substance, decreases^methylation, decreases^phosphorylation, increases^methylation, increases^mutagenesis | 17 |
+| [Curcumin](http://ctdbase.org/detail.go?type=chem&acc=D003474) | decreases^reaction, affects^expression, decreases^expression, increases^activity, increases^acetylation, affects^cotreatment, increases^expression, affects^localization, increases^phosphorylation | 16 |
+| [Tretinoin](http://ctdbase.org/detail.go?type=chem&acc=D014212) | increases^ubiquitination, affects^cotreatment, decreases^expression, decreases^reaction, increases^acetylation, increases^expression, increases^activity, increases^uptake, affects^expression, affects^binding, affects^localization, increases^degradation | 16 |
+| [Cadmium Chloride](http://ctdbase.org/detail.go?type=chem&acc=D019256) | affects^activity, affects^localization, decreases^activity, affects^binding, affects^response to substance, affects^phosphorylation, affects^reaction, decreases^expression, decreases^folding, increases^abundance, increases^phosphorylation, decreases^reaction, increases^activity, affects^folding, increases^ubiquitination, increases^expression | 16 |
 | [bisphenol A](http://ctdbase.org/detail.go?type=chem&acc=C006780) | decreases^reaction, increases^phosphorylation, increases^expression, decreases^expression, decreases^methylation | 15 |
-| [Caffeine](http://ctdbase.org/detail.go?type=chem&acc=D002110) | decreases^phosphorylation, increases^reaction, decreases^reaction, increases^phosphorylation, increases^activity, increases^expression | 15 |
-| [Paclitaxel](http://ctdbase.org/detail.go?type=chem&acc=D017239) | decreases^reaction, increases^expression, affects^cotreatment, increases^reaction, decreases^response to substance, decreases^expression | 15 |
-| [Estradiol](http://ctdbase.org/detail.go?type=chem&acc=D004958) | affects^reaction, affects^localization, decreases^activity, affects^cotreatment, affects^expression, increases^expression, decreases^reaction, affects^binding, increases^reaction, decreases^expression, increases^activity | 14 |
-| [Aflatoxin B1](http://ctdbase.org/detail.go?type=chem&acc=D016604) | affects^reaction, affects^expression, increases^expression, increases^reaction, decreases^expression, affects^response to substance, affects^cotreatment, affects^activity, increases^activity, increases^methylation, increases^mutagenesis, increases^phosphorylation | 14 |
-| [Bortezomib](http://ctdbase.org/detail.go?type=chem&acc=D000069286) | increases^activity, increases^expression, increases^localization, increases^stability, affects^cotreatment, increases^ubiquitination, increases^phosphorylation, affects^activity, increases^reaction, affects^reaction, affects^response to substance, decreases^reaction, affects^binding | 13 |
-| [pyrazolanthrone](http://ctdbase.org/detail.go?type=chem&acc=C432165) | increases^expression, increases^activity, increases^stability, decreases^expression, affects^cotreatment, affects^reaction, decreases^reaction, increases^phosphorylation, affects^binding, increases^reaction | 12 |
-| [Cadmium](http://ctdbase.org/detail.go?type=chem&acc=D002104) | increases^ubiquitination, affects^reaction, affects^activity, affects^localization, decreases^reaction, increases^activity, decreases^folding, affects^expression, increases^expression, decreases^activity, increases^abundance, decreases^expression, increases^phosphorylation, affects^response to substance, affects^phosphorylation, affects^folding | 12 |
-| [Capsaicin](http://ctdbase.org/detail.go?type=chem&acc=D002211) | increases^degradation, increases^reaction, affects^response to substance, decreases^reaction, increases^phosphorylation, decreases^degradation, affects^reaction, decreases^expression, increases^activity, increases^expression | 12 |
-| [Methotrexate](http://ctdbase.org/detail.go?type=chem&acc=D008727) | increases^activity, decreases^reaction, increases^expression, increases^reaction, decreases^expression, increases^phosphorylation, increases^stability, affects^reaction, increases^response to substance, increases^acetylation | 12 |
-| [Vinyl Chloride](http://ctdbase.org/detail.go?type=chem&acc=D014752) | affects^mutagenesis, increases^mutagenesis, affects^reaction, affects^response to substance, decreases^expression, increases^reaction, increases^response to substance, increases^expression | 12 |
+| [Caffeine](http://ctdbase.org/detail.go?type=chem&acc=D002110) | decreases^reaction, increases^phosphorylation, increases^activity, increases^expression, decreases^phosphorylation, increases^reaction | 15 |
+| [Paclitaxel](http://ctdbase.org/detail.go?type=chem&acc=D017239) | decreases^expression, decreases^reaction, increases^expression, affects^cotreatment, increases^reaction, decreases^response to substance | 15 |
+| [Estradiol](http://ctdbase.org/detail.go?type=chem&acc=D004958) | decreases^reaction, decreases^expression, increases^activity, affects^reaction, affects^localization, increases^expression, affects^binding, increases^reaction, affects^expression, decreases^activity, affects^cotreatment | 14 |
+| [Aflatoxin B1](http://ctdbase.org/detail.go?type=chem&acc=D016604) | affects^expression, increases^reaction, decreases^expression, increases^activity, increases^mutagenesis, affects^response to substance, affects^activity, increases^expression, increases^methylation, increases^phosphorylation, affects^reaction, affects^cotreatment | 14 |
+| [Bortezomib](http://ctdbase.org/detail.go?type=chem&acc=D000069286) | increases^phosphorylation, affects^binding, increases^localization, affects^reaction, increases^ubiquitination, decreases^reaction, affects^activity, increases^reaction, increases^activity, increases^expression, increases^stability, affects^cotreatment, affects^response to substance | 13 |
+| [chromium hexavalent ion](http://ctdbase.org/detail.go?type=chem&acc=C074702) | increases^mutagenesis, decreases^expression, increases^abundance, increases^expression, increases^stability, increases^reaction, affects^localization, decreases^reaction, affects^reaction, increases^activity, affects^binding, increases^response to substance, increases^phosphorylation | 12 |
+| [pyrazolanthrone](http://ctdbase.org/detail.go?type=chem&acc=C432165) | increases^stability, increases^reaction, affects^reaction, increases^phosphorylation, decreases^expression, affects^binding, affects^cotreatment, increases^expression, decreases^reaction, increases^activity | 12 |
+| [Cadmium](http://ctdbase.org/detail.go?type=chem&acc=D002104) | affects^phosphorylation, increases^abundance, affects^activity, decreases^expression, decreases^reaction, increases^activity, affects^reaction, affects^response to substance, affects^folding, increases^expression, decreases^activity, decreases^folding, increases^phosphorylation, affects^expression, affects^localization, increases^ubiquitination | 12 |
+| [Capsaicin](http://ctdbase.org/detail.go?type=chem&acc=D002211) | increases^reaction, affects^response to substance, increases^activity, increases^phosphorylation, increases^degradation, decreases^degradation, affects^reaction, decreases^expression, decreases^reaction, increases^expression | 12 |
+| [Methotrexate](http://ctdbase.org/detail.go?type=chem&acc=D008727) | decreases^reaction, increases^expression, increases^acetylation, increases^phosphorylation, affects^reaction, increases^reaction, increases^response to substance, decreases^expression, increases^stability, increases^activity | 12 |
 
 **Clinical trials for the gene's associated diseases (419, via MONDO — disease-level, not drug-specific):**
 
@@ -1069,6 +1085,7 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | Li-Fraumeni syndrome 1 | Definitive | Autosomal dominant |
 | adrenocortical carcinoma, hereditary | Strong | Autosomal dominant |
 | bone marrow failure syndrome 5 | Moderate | Autosomal dominant |
+| Li-Fraumeni syndrome | Definitive | Autosomal dominant |
 | sarcoma | Strong | Autosomal dominant |
 | Li-Fraumeni syndrome 1 | Strong | Autosomal dominant |
 | Li-Fraumeni syndrome | Strong | Autosomal dominant |
@@ -1076,9 +1093,9 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | Li-Fraumeni syndrome | Supportive | Autosomal dominant |
 | Li-Fraumeni syndrome | Definitive | Autosomal dominant |
 
-**Mondo (75):** hereditary neoplastic syndrome (MONDO:0015356), Li-Fraumeni syndrome (MONDO:0018875), bone osteosarcoma (MONDO:0002629), colorectal cancer (MONDO:0005575), hepatocellular carcinoma (MONDO:0007256), adrenocortical carcinoma, hereditary (MONDO:0008734), choroid plexus papilloma (MONDO:0009837), basal cell carcinoma, susceptibility to, 7 (MONDO:0013876), familial pancreatic carcinoma (MONDO:0015278), nasopharyngeal carcinoma (MONDO:0015459), hereditary breast carcinoma (MONDO:0016419), glioma susceptibility 1 (MONDO:0024498), bone marrow failure syndrome 5 (MONDO:0032573), ovarian neoplasm (MONDO:0021068), prostate cancer, hereditary, 1 (MONDO:0011098)
+**Mondo (76):** hereditary neoplastic syndrome (MONDO:0015356), Li-Fraumeni syndrome (MONDO:0018875), bone osteosarcoma (MONDO:0002629), colorectal cancer (MONDO:0005575), hepatocellular carcinoma (MONDO:0007256), adrenocortical carcinoma, hereditary (MONDO:0008734), choroid plexus papilloma (MONDO:0009837), basal cell carcinoma, susceptibility to, 7 (MONDO:0013876), familial pancreatic carcinoma (MONDO:0015278), nasopharyngeal carcinoma (MONDO:0015459), hereditary breast carcinoma (MONDO:0016419), glioma susceptibility 1 (MONDO:0024498), bone marrow failure syndrome 5 (MONDO:0032573), ovarian neoplasm (MONDO:0021068), prostate cancer, hereditary, 1 (MONDO:0011098)
 
-**Orphanet (38):** Inherited cancer-predisposing syndrome (Orphanet:140162), Li-Fraumeni syndrome (Orphanet:524), Familial pancreatic carcinoma (Orphanet:1333), Nasopharyngeal carcinoma (Orphanet:150), Adrenocortical carcinoma (Orphanet:1501), Hereditary breast cancer (Orphanet:227535), Choroid plexus carcinoma (Orphanet:251899), Papilloma of choroid plexus (Orphanet:2807), Osteosarcoma (Orphanet:668), Hepatocellular carcinoma (Orphanet:88673), Familial prostate cancer (Orphanet:1331), Classic Hodgkin lymphoma (Orphanet:391), B-cell chronic lymphocytic leukemia (Orphanet:67038), Diffuse large B-cell lymphoma (Orphanet:544), Hereditary breast and/or ovarian cancer syndrome (Orphanet:145)
+**Orphanet (39):** Inherited cancer-predisposing syndrome (Orphanet:140162), Li-Fraumeni syndrome (Orphanet:524), Familial pancreatic carcinoma (Orphanet:1333), Nasopharyngeal carcinoma (Orphanet:150), Adrenocortical carcinoma (Orphanet:1501), Hereditary breast cancer (Orphanet:227535), Choroid plexus carcinoma (Orphanet:251899), Papilloma of choroid plexus (Orphanet:2807), Osteosarcoma (Orphanet:668), Hepatocellular carcinoma (Orphanet:88673), Familial prostate cancer (Orphanet:1331), Classic Hodgkin lymphoma (Orphanet:391), B-cell chronic lymphocytic leukemia (Orphanet:67038), Diffuse large B-cell lymphoma (Orphanet:544), Hereditary breast and/or ovarian cancer syndrome (Orphanet:145)
 
 **HPO phenotypes: 224** (top):
 
@@ -1125,32 +1142,32 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | GCST002842_7 | Basal cell carcinoma | 1.000000e-20 |
 | GCST002925_8 | Sex hormone levels | 1.000000e-15 |
 | GCST003726_18 | Basal cell carcinoma | 2.000000e-10 |
-| GCST004278_22 | Pulse pressure | 2.000000e-10 |
-| GCST004278_40 | Pulse pressure | 2.000000e-07 |
-| GCST004280_49 | Diastolic blood pressure | 1.000000e-13 |
-| GCST004347_18 | Glioma | 9.000000e-38 |
-| GCST004348_4 | Non-glioblastoma glioma | 5.000000e-27 |
+| GCST004278_63 | Pulse pressure | 2.000000e-10 |
+| GCST004278_81 | Pulse pressure | 2.000000e-07 |
+| GCST004280_54 | Diastolic blood pressure | 1.000000e-13 |
+| GCST004347_7 | Glioma | 9.000000e-38 |
+| GCST004348_10 | Non-glioblastoma glioma | 5.000000e-27 |
 | GCST004349_13 | Glioblastoma | 5.000000e-29 |
 | GCST004510_7 | Sporadic neuroblastoma | 1.000000e-08 |
-| GCST004630_260 | Mean corpuscular hemoglobin | 6.000000e-09 |
-| GCST005931_4 | Glioma | 3.000000e-17 |
-| GCST005931_5 | Glioma | 2.000000e-12 |
-| GCST005932_1 | Glioblastoma | 2.000000e-09 |
-| GCST005932_14 | Glioblastoma | 1.000000e-14 |
+| GCST004630_131 | Mean corpuscular hemoglobin | 6.000000e-09 |
+| GCST005931_10 | Glioma | 2.000000e-12 |
+| GCST005931_9 | Glioma | 3.000000e-17 |
+| GCST005932_8 | Glioblastoma | 1.000000e-14 |
+| GCST005932_9 | Glioblastoma | 2.000000e-09 |
 | GCST005933_4 | Non-glioblastoma glioma | 1.000000e-10 |
 | GCST005933_5 | Non-glioblastoma glioma | 4.000000e-08 |
-| GCST006462_47 | Uterine fibroids | 4.000000e-37 |
+| GCST006462_43 | Uterine fibroids | 4.000000e-37 |
 | GCST006480_12 | Glioblastoma (age-stratified) | 9.000000e-16 |
 | GCST006480_19 | Glioblastoma (age-stratified) | 3.000000e-08 |
 | GCST006480_6 | Glioblastoma (age-stratified) | 4.000000e-13 |
-| GCST007094_180 | Diastolic blood pressure | 1.000000e-08 |
-| GCST007096_39 | Pulse pressure | 4.000000e-13 |
-| GCST007268_21 | Diastolic blood pressure | 3.000000e-15 |
-| GCST007269_171 | Pulse pressure | 8.000000e-23 |
-| GCST008362_2 | Birth weight | 2.000000e-11 |
+| GCST007094_229 | Diastolic blood pressure | 1.000000e-08 |
+| GCST007096_133 | Pulse pressure | 4.000000e-13 |
+| GCST007268_36 | Diastolic blood pressure | 3.000000e-15 |
+| GCST007269_187 | Pulse pressure | 8.000000e-23 |
+| GCST008362_127 | Birth weight | 2.000000e-11 |
 | GCST008423_10 | Uterine fibroids | 3.000000e-33 |
 
-**MeSH disease descriptors (35):**
+**MeSH disease descriptors (36):**
 
 | Descriptor | Name | Tree numbers |
 | --- | --- | --- |
@@ -1175,6 +1192,7 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | [D009101](https://www.ncbi.nlm.nih.gov/mesh/?term=D009101) | Multiple Myeloma | C04.557.595.500; C14.907.454.460; C15.378.147.780.650; C15.378.463.515.460; C20.683.515.845; C20.683.780.650 |
 | [D000077274](https://www.ncbi.nlm.nih.gov/mesh/?term=D000077274) | Nasopharyngeal Carcinoma | C04.557.470.200.623; C04.588.443.665.710.650.500; C07.550.350.650.500; C07.550.745.650.500; C09.647.710.650.500; C09.775.350.650.500; C09.775.549.650.500 |
 | [D009386](https://www.ncbi.nlm.nih.gov/mesh/?term=D009386) | Neoplastic Syndromes, Hereditary | C04.700; C16.320.700 |
+| [D010051](https://www.ncbi.nlm.nih.gov/mesh/?term=D010051) | Ovarian Neoplasms | C04.588.322.455; C12.050.351.500.056.630.705; C12.050.351.937.418.685; C12.100.250.056.630.705; C12.900.418.685; C19.344.410; C19.391.630.705 |
 | [D020288](https://www.ncbi.nlm.nih.gov/mesh/?term=D020288) | Papilloma, Choroid Plexus | C04.588.614.250.195.205.200.500; C10.228.140.211.280.300.500; C10.551.240.250.200.200.500 |
 | [D011471](https://www.ncbi.nlm.nih.gov/mesh/?term=D011471) | Prostatic Neoplasms | C04.588.945.440.770; C12.100.500.260.750; C12.100.500.565.625; C12.200.294.260.750; C12.200.294.565.625; C12.200.758.409.750; C12.900.619.750 |
 | [D012208](https://www.ncbi.nlm.nih.gov/mesh/?term=D012208) | Rhabdomyosarcoma | C04.557.450.590.550.660; C04.557.450.795.550.660 |
@@ -1183,4 +1201,3 @@ chromatin (GO:0000785), nucleus (GO:0005634), nucleoplasm (GO:0005654), replicat
 | [D065646](https://www.ncbi.nlm.nih.gov/mesh/?term=D065646) | Thyroid Carcinoma, Anaplastic | C04.557.470.200.725 |
 | [C538339](https://www.ncbi.nlm.nih.gov/mesh/?term=C538339) |  |  |
 | [D00007727](https://www.ncbi.nlm.nih.gov/mesh/?term=D00007727) |  |  |
-| [C535575](https://www.ncbi.nlm.nih.gov/mesh/?term=C535575) |  |  |
