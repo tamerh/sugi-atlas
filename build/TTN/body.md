@@ -441,6 +441,10 @@
 
 **Antibody resources:** 0
 
+**Enzyme classification (BRENDA):**
+
+- [EC 2.7.11.1](https://www.brenda-enzymes.org/enzyme.php?ecno=2.7.11.1) — non-specific serine/threonine protein kinase *(BRENDA: 71 organisms, 682 substrates, 228 inhibitors, 23 Km, 6 kcat entries)*
+
 **UniProt features (1289 total):** strand 353, sequence variant 297, domain 285, sequence conflict 71, compositionally biased region 53, helix 52, disulfide bond 46, repeat 38, region of interest 33, splice variant 24, modified residue 15, turn 12, coiled-coil region 4, binding site 2, mutagenesis site 2, chain 1, active site 1
 
 **Annotated functional features (top 25):**

@@ -28,6 +28,7 @@
       "188840"
     ],
     "name": "titin",
+    "rnacentral": null,
     "section": "01_gene_ids",
     "symbol": "TTN",
     "xref_counts": {
@@ -6632,6 +6633,18 @@
   },
   "3": {
     "antibody_count": 0,
+    "brenda_ec": [
+      {
+        "ec": "2.7.11.1",
+        "inhibitor_count": "228",
+        "kcat_count": "6",
+        "km_count": "23",
+        "name": "non-specific serine/threonine protein kinase",
+        "organism_count": "71",
+        "substrate_count": "682",
+        "uniprot": "Q8WZ42"
+      }
+    ],
     "canonical_uniprot": "Q8WZ42",
     "ensembl_id": "ENSG00000155657",
     "hgnc_id": "HGNC:12403",
