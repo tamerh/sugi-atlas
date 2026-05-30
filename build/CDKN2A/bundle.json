@@ -1431,6 +1431,9 @@
         "vip": "true"
       }
     ],
+    "pubchem_bioassay": [],
+    "pubchem_bioassay_active_count": 0,
+    "pubchem_bioassay_total": 0,
     "section": "10_drugs",
     "symbol": "CDKN2A"
   },
