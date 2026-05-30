@@ -3458,6 +3458,166 @@
       }
     ],
     "hpo_total": 166,
+    "mesh_descriptors": [
+      {
+        "id": "D001943",
+        "is_supplementary": false,
+        "name": "Breast Neoplasms",
+        "tree_numbers": [
+          "C04.588.180",
+          "C17.800.090.500"
+        ]
+      },
+      {
+        "id": "D002051",
+        "is_supplementary": false,
+        "name": "Burkitt Lymphoma",
+        "tree_numbers": [
+          "C01.925.256.466.313.165",
+          "C01.925.928.313.165",
+          "C04.557.386.480.150.165",
+          "C15.604.515.569.480.150.165",
+          "C20.683.515.761.480.150.165"
+        ]
+      },
+      {
+        "id": "D018270",
+        "is_supplementary": false,
+        "name": "Carcinoma, Ductal, Breast",
+        "tree_numbers": [
+          "C04.557.470.200.025.232.500",
+          "C04.557.470.615.132.500",
+          "C04.588.180.390",
+          "C17.800.090.500.390"
+        ]
+      },
+      {
+        "id": "D004407",
+        "is_supplementary": false,
+        "name": "Dysgerminoma",
+        "tree_numbers": [
+          "C04.557.465.330.300"
+        ]
+      },
+      {
+        "id": "D005199",
+        "is_supplementary": false,
+        "name": "Fanconi Anemia",
+        "tree_numbers": [
+          "C15.378.050.085.080.280",
+          "C15.378.190.223.500.500.280",
+          "C16.320.077.280",
+          "C18.452.284.280"
+        ]
+      },
+      {
+        "id": "D061325",
+        "is_supplementary": false,
+        "name": "Hereditary Breast and Ovarian Cancer Syndrome",
+        "tree_numbers": [
+          "C04.588.180.483",
+          "C04.588.322.455.431",
+          "C04.700.517",
+          "C12.050.351.500.056.630.705.431",
+          "C12.050.351.937.418.685.431",
+          "C12.100.250.056.630.705.431",
+          "C12.900.418.685.431",
+          "C16.320.700.517",
+          "C17.800.090.500.483",
+          "C19.344.410.431",
+          "C19.391.630.705.431"
+        ]
+      },
+      {
+        "id": "D009386",
+        "is_supplementary": false,
+        "name": "Neoplastic Syndromes, Hereditary",
+        "tree_numbers": [
+          "C04.700",
+          "C16.320.700"
+        ]
+      },
+      {
+        "id": "D010049",
+        "is_supplementary": false,
+        "name": "Ovarian Diseases",
+        "tree_numbers": [
+          "C12.050.351.500.056.630",
+          "C12.100.250.056.630",
+          "C19.391.630"
+        ]
+      },
+      {
+        "id": "D010051",
+        "is_supplementary": false,
+        "name": "Ovarian Neoplasms",
+        "tree_numbers": [
+          "C04.588.322.455",
+          "C12.050.351.500.056.630.705",
+          "C12.050.351.937.418.685",
+          "C12.100.250.056.630.705",
+          "C12.900.418.685",
+          "C19.344.410",
+          "C19.391.630.705"
+        ]
+      },
+      {
+        "id": "D054091",
+        "is_supplementary": false,
+        "name": "Periventricular Nodular Heterotopia",
+        "tree_numbers": [
+          "C10.500.507.450.750",
+          "C16.131.666.507.450.750"
+        ]
+      },
+      {
+        "id": "D011471",
+        "is_supplementary": false,
+        "name": "Prostatic Neoplasms",
+        "tree_numbers": [
+          "C04.588.945.440.770",
+          "C12.100.500.260.750",
+          "C12.100.500.565.625",
+          "C12.200.294.260.750",
+          "C12.200.294.565.625",
+          "C12.200.758.409.750",
+          "C12.900.619.750"
+        ]
+      },
+      {
+        "id": "D012208",
+        "is_supplementary": false,
+        "name": "Rhabdomyosarcoma",
+        "tree_numbers": [
+          "C04.557.450.590.550.660",
+          "C04.557.450.795.550.660"
+        ]
+      },
+      {
+        "id": "C562840",
+        "is_supplementary": true,
+        "name": "Breast Cancer, Familial",
+        "tree_numbers": []
+      },
+      {
+        "id": "C537261",
+        "is_supplementary": true,
+        "name": "Lynch syndrome I (site-specific colonic cancer)",
+        "tree_numbers": []
+      },
+      {
+        "id": "C535837",
+        "is_supplementary": true,
+        "name": "Pancreatic carcinoma, familial",
+        "tree_numbers": []
+      },
+      {
+        "id": "C537243",
+        "is_supplementary": true,
+        "name": "Prostate cancer, familial",
+        "tree_numbers": []
+      }
+    ],
     "mondo": [
       {
         "id": "MONDO:0003582",

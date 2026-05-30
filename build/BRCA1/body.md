@@ -836,3 +836,24 @@ ubiquitin ligase complex (GO:0000151), nuclear ubiquitin ligase complex (GO:0000
 | GCST009830_31 | Ovarian cancer | 3.000000e-08 |
 | GCST90002394_251 | Monocyte percentage of white cells | 1.000000e-10 |
 | GCST90011899_184 | Aspartate aminotransferase levels | 1.000000e-12 |
+
+**MeSH disease descriptors (16):**
+
+| Descriptor | Name | Tree numbers |
+| --- | --- | --- |
+| [D001943](https://www.ncbi.nlm.nih.gov/mesh/?term=D001943) | Breast Neoplasms | C04.588.180; C17.800.090.500 |
+| [D002051](https://www.ncbi.nlm.nih.gov/mesh/?term=D002051) | Burkitt Lymphoma | C01.925.256.466.313.165; C01.925.928.313.165; C04.557.386.480.150.165; C15.604.515.569.480.150.165; C20.683.515.761.480.150.165 |
+| [D018270](https://www.ncbi.nlm.nih.gov/mesh/?term=D018270) | Carcinoma, Ductal, Breast | C04.557.470.200.025.232.500; C04.557.470.615.132.500; C04.588.180.390; C17.800.090.500.390 |
+| [D004407](https://www.ncbi.nlm.nih.gov/mesh/?term=D004407) | Dysgerminoma | C04.557.465.330.300 |
+| [D005199](https://www.ncbi.nlm.nih.gov/mesh/?term=D005199) | Fanconi Anemia | C15.378.050.085.080.280; C15.378.190.223.500.500.280; C16.320.077.280; C18.452.284.280 |
+| [D061325](https://www.ncbi.nlm.nih.gov/mesh/?term=D061325) | Hereditary Breast and Ovarian Cancer Syndrome | C04.588.180.483; C04.588.322.455.431; C04.700.517; C12.050.351.500.056.630.705.431; C12.050.351.937.418.685.431; C12.100.250.056.630.705.431; C12.900.418.685.431; C16.320.700.517; C17.800.090.500.483; C19.344.410.431; C19.391.630.705.431 |
+| [D009386](https://www.ncbi.nlm.nih.gov/mesh/?term=D009386) | Neoplastic Syndromes, Hereditary | C04.700; C16.320.700 |
+| [D010049](https://www.ncbi.nlm.nih.gov/mesh/?term=D010049) | Ovarian Diseases | C12.050.351.500.056.630; C12.100.250.056.630; C19.391.630 |
+| [D010051](https://www.ncbi.nlm.nih.gov/mesh/?term=D010051) | Ovarian Neoplasms | C04.588.322.455; C12.050.351.500.056.630.705; C12.050.351.937.418.685; C12.100.250.056.630.705; C12.900.418.685; C19.344.410; C19.391.630.705 |
+| [D054091](https://www.ncbi.nlm.nih.gov/mesh/?term=D054091) | Periventricular Nodular Heterotopia | C10.500.507.450.750; C16.131.666.507.450.750 |
+| [D011471](https://www.ncbi.nlm.nih.gov/mesh/?term=D011471) | Prostatic Neoplasms | C04.588.945.440.770; C12.100.500.260.750; C12.100.500.565.625; C12.200.294.260.750; C12.200.294.565.625; C12.200.758.409.750; C12.900.619.750 |
+| [D012208](https://www.ncbi.nlm.nih.gov/mesh/?term=D012208) | Rhabdomyosarcoma | C04.557.450.590.550.660; C04.557.450.795.550.660 |
+| [C562840](https://www.ncbi.nlm.nih.gov/mesh/?term=C562840) | Breast Cancer, Familial *(supp.)* |  |
+| [C537261](https://www.ncbi.nlm.nih.gov/mesh/?term=C537261) | Lynch syndrome I (site-specific colonic cancer) *(supp.)* |  |
+| [C535837](https://www.ncbi.nlm.nih.gov/mesh/?term=C535837) | Pancreatic carcinoma, familial *(supp.)* |  |
+| [C537243](https://www.ncbi.nlm.nih.gov/mesh/?term=C537243) | Prostate cancer, familial *(supp.)* |  |
