@@ -1,13 +1,5 @@
 {
-  "verdict": "drift",
-  "summary": "0 changed, 1 added, 0 removed",
-  "diff": [
-    {
-      "section": "12",
-      "key": "mesh_descriptors",
-      "old": 0,
-      "new": 20,
-      "kind": "added"
-    }
-  ]
+  "verdict": "clean",
+  "summary": "byte-identical to snapshot",
+  "diff": []
 }
