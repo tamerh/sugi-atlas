@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 1043,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "scripts/collect_render.py",
+  "task_id": "3:5:TP53:collect_render",
+  "timestamp": "2026-05-30T10:01:40+02:00"
+}
