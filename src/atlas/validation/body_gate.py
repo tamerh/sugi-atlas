@@ -18,13 +18,12 @@ CLI:
   python -m atlas.validation.body_gate TP53 --dist /path   # override dist root
 """
 import argparse, json, os, sys
-from atlas.gene import collect as C
 
 def default_dist_root():
     return os.environ.get("ATLAS_DIST_ROOT", "/data/sugi-atlas-dist")
 
-def snap_dir_for(dist_root):
-    return os.path.join(dist_root, "snapshots", "gene")
+def snap_dir_for(dist_root, entity="gene"):
+    return os.path.join(dist_root, "snapshots", entity)
 
 def _snap_path(snap_dir, symbol):
     return os.path.join(snap_dir, f"{symbol}.json")
@@ -95,19 +94,33 @@ def check(symbol, bundle, snap_dir=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("symbol")
+    ap.add_argument("--entity", default="gene", choices=["gene", "disease"],
+                    help="entity type (selects which collector + snapshots/<entity>/ dir)")
     ap.add_argument("--update", action="store_true",
                     help="overwrite the snapshot with current bundle")
     ap.add_argument("--dist", default=default_dist_root(),
-                    help="dist repo root (snapshots live at <dist>/snapshots/gene/)")
+                    help="dist repo root (snapshots live at <dist>/snapshots/<entity>/)")
     args = ap.parse_args()
-    snap_dir = snap_dir_for(args.dist)
-    bundle = {s: C.SECTIONS[s](args.symbol) for s in C.SECTIONS}
+    snap_dir = snap_dir_for(args.dist, args.entity)
+    if args.entity == "gene":
+        from atlas.gene import collect as C
+        bundle = {s: C.SECTIONS[s](args.symbol) for s in C.SECTIONS}
+        key = args.symbol
+    else:
+        from atlas.disease import collect as DC
+        from atlas.disease.anchors import resolve as resolve_disease
+        # For disease the snapshot key is the slug (deterministic, filename-safe).
+        # Resolve once to use as collect input AND derive slug.
+        a = resolve_disease(args.symbol)
+        bundle = {sid: DC.REGISTRY[sid].collect_fn(a) for sid in DC.REGISTRY}
+        from atlas.disease.slug import slugify
+        key = slugify(a.canonical_name or args.symbol)
     if args.update:
-        save_snapshot(snap_dir, args.symbol, bundle)
-        print(f"snapshot updated: {_snap_path(snap_dir, args.symbol)}")
+        save_snapshot(snap_dir, key, bundle)
+        print(f"snapshot updated: {_snap_path(snap_dir, key)}")
         return
-    r = check(args.symbol, bundle, snap_dir)
-    print(f"{args.symbol}: {r['verdict']} ({r['summary']})")
+    r = check(key, bundle, snap_dir)
+    print(f"{key}: {r['verdict']} ({r['summary']})")
     for d in r["diff"][:25]:
         if d.get("kind") in {"added", "removed", "changed"}:
             print(f"  §{d['section']:<3} {d['key']:<26} {d['old']} → {d['new']} ({d['kind']})")

@@ -11,14 +11,7 @@ reserved for the synthesis/executive-summary layer, not this.
 """
 import sys, os, html
 from atlas.gene import collect as C
-
-
-def table(headers, rows):
-    out = ["| " + " | ".join(headers) + " |",
-           "| " + " | ".join("---" for _ in headers) + " |"]
-    for r in rows:
-        out.append("| " + " | ".join("" if c is None else html.unescape(str(c)) for c in r) + " |")
-    return "\n".join(out)
+from atlas.render_common import table
 
 
 def _cap(n):

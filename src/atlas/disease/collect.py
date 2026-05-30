@@ -13,6 +13,11 @@ from atlas.biobtree import CALLS
 from atlas.disease.anchors import DiseaseAnchors, resolve as resolve_anchors
 from atlas.disease.sections import REGISTRY
 
+# Re-export for callers (body_gate, pipeline) that want the registry without
+# importing the sections package directly.
+__all__ = ["DiseaseAnchors", "resolve_anchors", "REGISTRY", "SECTIONS",
+           "collect_all"]
+
 def _run(sid, name):
     return REGISTRY[sid].collect_fn(resolve_anchors(name))
 
