@@ -53,43 +53,37 @@ Remaining (all cross-repo, deferred to launch):
       "Molecules" list from "names + phase" into structured records.
       Per-drug fan-out cost grows with phased-drug count — defer until
       asked for.
+- [ ] **PMID per ChEMBL activity row.** The chembl_document enrichment we
+      shipped attaches title+journal to the **assay sample** rows (3 per page).
+      Adding it to every `chembl_activities` row would need the same
+      `chembl_assay>>chembl_document` fetch per activity — bounded by the
+      `chembl_activity_potent_count` cap (≤30 rendered). Acceptable cost,
+      but body-table noise: the same paper recurs across many activities for
+      a target. Defer until we have a use case.
+- [ ] **`literature_mappings` → PMID resolution.** chembl_document entry
+      carries `literature_mappings|1` xref. Route to actual PMID still TBD;
+      probe `>>chembl_document>>literature_mappings` next time it's needed.
+- [ ] **`brenda_kinetics` / `brenda_inhibitor`.** Empty for all reference
+      genes via every probed route. Either genuinely sparse in biobtree or
+      route TBD — revisit on next biobtree refresh.
+- [ ] **`civic_variant` / `civic_evidence` / `civic_assertion`.** Return
+      n=0 via hgnc/uniprot — route TBD. CIViC's gene-level narrative is
+      already wired; variant-level would be the next depth tier.
 
-### From the 2026-05-30 biobtree refresh — new datasets, curl-verified
+### 2026-05-30 biobtree refresh — all wirables SHIPPED
 
-The edge graph grew 117 → 139 nodes; the following carry real data for our
-reference genes and are ready to wire.
+The 117 → 139 dataset-node refresh contributed seven new sections of §-level
+content; all shipped end-to-end (collect → render → provenance → body_gate →
+snapshot → dist) and visible on the six reference-gene pages. Per `git log`:
 
-- [ ] **intOGen — cancer driver classification** via `>>hgnc>>intogen`. One
-      row per gene: `symbol|symbol|role|cancer_types` (e.g. KRAS = Act, 35
-      cancer types). Lands as a single-line driver flag in §12.
-- [ ] **CIViC — gene-level cancer narrative** via `>>hgnc>>civic`. One row:
-      `id|name|feature_type|description`. **Description is a curated
-      paragraph** (TP53's covers mutation hotspots 175/245/248/273/282,
-      dominant negative, Li-Fraumeni). **Partial substitute for UniProt CC**
-      for cancer genes — gets us a real narrative paragraph today, no #9
-      dependency. New "## Cancer significance" subblock candidate (§6 or §12).
-      `civic_variant` / `civic_evidence` / `civic_assertion` return n=0 via
-      hgnc/uniprot — route TBD.
-- [ ] **ChEMBL assay** via `>>uniprot>>chembl_target>>chembl_assay` —
-      100 rows: `id|description|type` (e.g. *"Inhibition of MDM2-p53
-      interaction in human SJSA1 cells…|B"*). Enriches §10's activity
-      table with assay context.
-- [ ] **patent_compound** via
-      `>>uniprot>>chembl_target>>chembl_molecule>>patent_compound` — 100
-      patents per drug. Drug-development context for §10.
-- [ ] **Cellosaurus** via `>>hgnc>>cellosaurus` — 100 cell lines per gene
-      with name/category/sex. §10 (assay context) or §3 (research-tool annotation).
-- [ ] **RNAcentral** via `>>hgnc>>rnacentral` — for ncRNA genes
-      (MALAT1: `URS0002A146E4|lncRNA|7472|1`). **Closes the ncRNA-coverage
-      gap** Atlas inherited from biobtree (lncRNA/miRNA genes previously
-      had thin §1/§3 data). §1 or §11.
-- [ ] **BRENDA EC annotation** via `>>uniprot>>brenda` — one row per enzyme:
-      EC number + name + summary stats (AKT1 = 2.7.11.1 non-specific ser/thr
-      kinase). §3 protein-ID enrichment. `brenda_kinetics` / `brenda_inhibitor`
-      still empty for our test genes — route TBD or genuinely sparse.
-- [ ] **chembl_document** (would carry PMIDs per ChEMBL activity row).
-      Route TBD — `>>chembl_activity>>chembl_document` returns 0. When
-      working, closes the "PMID per ChEMBL row" gap we deferred earlier.
+- intOGen + CIViC cancer-significance overview (cancer-narrative paragraph
+  between page lead and Summary; intOGen driver role + cancer types)
+- RNAcentral (§1 — closes the lncRNA/miRNA gap MALAT1/XIST/HOTAIR/MIR21/NEAT1/H19)
+- BRENDA EC annotation (§3 — BRCA1=2.3.2.27 E3, KRAS=3.6.5.2 GTPase, TTN=2.7.11.1 kinase)
+- ChEMBL assay depth + type breakdown + 3 samples (§10)
+- Cellosaurus cell-line resources with category breakdown (§10)
+- patent_compound per-molecule count (§10 molecules table)
+- chembl_document source paper per assay sample (§10 assay-sample table)
 
 ## Hygiene fixes
 
@@ -166,8 +160,8 @@ UniProt CC question.
 
 ## V1 release-ready page checklist
 
-In-repo items all satisfied for the 5 reference genes
-(TP53/BRCA1/CDKN2A/KRAS/TTN). Remaining are cross-repo Hugo work:
+In-repo items all satisfied for the 6 reference genes
+(TP53/BRCA1/CDKN2A/KRAS/TTN/EGFR). Remaining are cross-repo Hugo work:
 
 - [ ] discoverable in sitemap with `<lastmod>`
 - [ ] `<link rel="alternate" ...>` discovery hints in page head
