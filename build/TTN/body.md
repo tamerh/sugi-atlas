@@ -804,6 +804,15 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 
+**ChEMBL bioactivities (4 potent at pChembl≥5 of 4 total), top 30 by pChembl (potency: 10 = 0.1 nM, 6 = 1 µM):**
+
+| pChembl | Type | Value | Unit | Activity ID |
+| --- | --- | --- | --- | --- |
+| 7.92 | Kd | 11.93 | nM | CHEMBL_ACT_26223026 |
+| 7.90 | ED50 | 12.56 | nM | CHEMBL_ACT_26223027 |
+| 7.30 | Kd | 49.56 | nM | CHEMBL_ACT_26223028 |
+| 7.28 | ED50 | 52.2 | nM | CHEMBL_ACT_26223029 |
+
 **Clinical trials for the gene's associated diseases (203, via MONDO — disease-level, not drug-specific):**
 
 | Trial | Phase | Status | Title |

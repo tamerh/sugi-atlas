@@ -59,6 +59,38 @@
   "10": {
     "bindingdb_sample": [],
     "bindingdb_sampled": 0,
+    "chembl_activities": [
+      {
+        "id": "CHEMBL_ACT_26223026",
+        "pchembl": "7.92",
+        "type": "Kd",
+        "unit": "nM",
+        "value": "11.93"
+      },
+      {
+        "id": "CHEMBL_ACT_26223027",
+        "pchembl": "7.90",
+        "type": "ED50",
+        "unit": "nM",
+        "value": "12.56"
+      },
+      {
+        "id": "CHEMBL_ACT_26223028",
+        "pchembl": "7.30",
+        "type": "Kd",
+        "unit": "nM",
+        "value": "49.56"
+      },
+      {
+        "id": "CHEMBL_ACT_26223029",
+        "pchembl": "7.28",
+        "type": "ED50",
+        "unit": "nM",
+        "value": "52.2"
+      }
+    ],
+    "chembl_activity_potent_count": 4,
+    "chembl_activity_total": 4,
     "chembl_targets": [
       {
         "id": "CHEMBL6067440",
