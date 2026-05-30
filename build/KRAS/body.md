@@ -957,20 +957,20 @@ Golgi membrane (GO:0000139), cytoplasm (GO:0005737), mitochondrial outer membran
 
 **ChEMBL targets (7):** CHEMBL2189121 (SINGLE PROTEIN), CHEMBL4523623 (PROTEIN-PROTEIN INTERACTION), CHEMBL4524006 (PROTEIN FAMILY), CHEMBL5169273 (PROTEIN-PROTEIN INTERACTION), CHEMBL5291977 (PROTEIN-PROTEIN INTERACTION), CHEMBL5465393 (PROTEIN COMPLEX), CHEMBL5483196 (PROTEIN-PROTEIN INTERACTION)
 
-**Molecules with ChEMBL bioactivity (phase ≥1): 10**, by development phase (incl. off-target/promiscuous compounds):
+**Molecules with ChEMBL bioactivity (phase ≥1): 10**, by development phase (incl. off-target/promiscuous compounds). Patent mentions across the top 20 by phase: **46,463** (via chembl_molecule>>patent_compound — counts attach to the compound, not the gene–compound relationship, so off-target/promiscuous molecules can dominate). 
 
-| Molecule | Name | Phase |
-| --- | --- | --- |
-| CHEMBL1229517 | VEMURAFENIB | 4 |
-| CHEMBL2028663 | DABRAFENIB | 4 |
-| CHEMBL298734 | LONAFARNIB | 4 |
-| CHEMBL4535757 | SOTORASIB | 4 |
-| CHEMBL4594350 | ADAGRASIB | 4 |
-| CHEMBL5077861 | OPNURASIB | 3 |
-| CHEMBL5095236 | DIVARASIB | 2 |
-| CHEMBL351706 | BMS-214662 | 1 |
-| CHEMBL3577124 | LY-3009120 | 1 |
-| CHEMBL4858364 | MRTX-1133 | 1 |
+| Molecule | Name | Phase | Patents |
+| --- | --- | --- | --- |
+| CHEMBL1229517 | VEMURAFENIB | 4 | 14,651 |
+| CHEMBL2028663 | DABRAFENIB | 4 | 11,603 |
+| CHEMBL298734 | LONAFARNIB | 4 | 12,497 |
+| CHEMBL4535757 | SOTORASIB | 4 | 3,563 |
+| CHEMBL4594350 | ADAGRASIB | 4 | 2,552 |
+| CHEMBL5077861 | OPNURASIB | 3 | 424 |
+| CHEMBL5095236 | DIVARASIB | 2 | 561 |
+| CHEMBL351706 | BMS-214662 | 1 | 395 |
+| CHEMBL3577124 | LY-3009120 | 1 | 187 |
+| CHEMBL4858364 | MRTX-1133 | 1 | 30 |
 
 **PharmGKB:** 1 entry (VIP=true, CPIC=false)
 

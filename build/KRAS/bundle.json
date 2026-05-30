@@ -3276,64 +3276,122 @@
       {
         "id": "CHEMBL1229517",
         "name": "VEMURAFENIB",
+        "patent_compound_ids": [
+          "29355460",
+          "29356185",
+          "298931"
+        ],
+        "patent_count": 14651,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL2028663",
         "name": "DABRAFENIB",
+        "patent_compound_ids": [
+          "29350038",
+          "29353365",
+          "806377"
+        ],
+        "patent_count": 11603,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL298734",
         "name": "LONAFARNIB",
+        "patent_compound_ids": [
+          "19032",
+          "29517258"
+        ],
+        "patent_count": 12497,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL4535757",
         "name": "SOTORASIB",
+        "patent_compound_ids": [
+          "20560375",
+          "29366594",
+          "29423731"
+        ],
+        "patent_count": 3563,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL4594350",
         "name": "ADAGRASIB",
+        "patent_compound_ids": [
+          "20974691",
+          "29349856",
+          "29423703",
+          "29979738"
+        ],
+        "patent_count": 2552,
         "phase": "4",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL5077861",
         "name": "OPNURASIB",
+        "patent_compound_ids": [
+          "23533580",
+          "29412376"
+        ],
+        "patent_count": 424,
         "phase": "3",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL5095236",
         "name": "DIVARASIB",
+        "patent_compound_ids": [
+          "22028856",
+          "29379596"
+        ],
+        "patent_count": 561,
         "phase": "2",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL351706",
         "name": "BMS-214662",
+        "patent_compound_ids": [
+          "134853",
+          "29454371",
+          "94663"
+        ],
+        "patent_count": 395,
         "phase": "1",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL3577124",
         "name": "LY-3009120",
+        "patent_compound_ids": [
+          "15241297",
+          "29356086",
+          "29479162"
+        ],
+        "patent_count": 187,
         "phase": "1",
         "type": "Small molecule"
       },
       {
         "id": "CHEMBL4858364",
         "name": "MRTX-1133",
+        "patent_compound_ids": [
+          "23053403",
+          "30437753"
+        ],
+        "patent_count": 30,
         "phase": "1",
         "type": "Small molecule"
       }
     ],
+    "patent_total": 46463,
     "pharmgkb": [
       {
         "cpic_guideline": "false",
