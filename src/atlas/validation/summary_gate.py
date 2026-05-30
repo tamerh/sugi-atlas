@@ -28,8 +28,15 @@ Four hardenings vs. the original judge:
 import os, sys, re, json, glob
 from atlas.bench import summary as B
 
-JUDGE  = os.environ.get("OR_JUDGE",  "deepseek/deepseek-chat-v3.1|DeepInfra")
+JUDGE  = os.environ.get("OR_JUDGE",  "claude:claude-sonnet-4-6")
 JUDGE2 = os.environ.get("OR_JUDGE2", "")  # empty = single-judge mode
+
+# Two backends:
+#   "claude:<model>"   → invokes the local `claude -p` CLI (uses the operator's
+#                        Anthropic subscription; strong reasoning, well-suited to
+#                        strict-grounding. Empirically: Sonnet returns {"unsupported": []}
+#                        on the same prompt where DeepSeek-v3.1 flags 11/11 false positives).
+#   "<vendor/slug>[|Provider]" → OpenRouter via B.call (multi-vendor, cost-tunable for scale).
 
 # Atoms grounded in the body — high recall (better to over-include than to let
 # a body-derived id get flagged as a hallucination).
@@ -69,23 +76,51 @@ SUMMARY:
 def normalize(s):
     return re.sub(r"\W+", " ", (s or "").lower()).strip()[:120]
 
+def _parse_unsupported(txt):
+    """Extract {"unsupported": [...]}. Try direct JSON first, then regex-extract
+    a {...} blob, then return (None, 'parse-fail')."""
+    try:
+        return json.loads(txt).get("unsupported", []), None
+    except Exception:
+        pass
+    m = re.search(r"\{.*\}", txt, re.S)
+    if not m:
+        return None, "parse-fail"
+    try:
+        return json.loads(m.group(0)).get("unsupported", []), None
+    except Exception:
+        return None, "parse-fail"
+
 def judge_once(body, atoms, summary, key, model):
+    import subprocess, time
     sample = ", ".join(sorted(atoms)[:300])
-    d, dt = B.call(model, PROMPT % (sample, body, summary), key,
-                   max_tokens=800, response_format={"type": "json_object"})
+    prompt = PROMPT % (sample, body, summary)
+    t0 = time.time()
+
+    if model.startswith("claude:"):
+        # Local `claude -p` CLI — operator's Anthropic subscription, strong judge.
+        # `key` is unused in this branch (Claude auth is via the CLI's own config).
+        clm = model.split(":", 1)[1]
+        try:
+            res = subprocess.run(
+                ["claude", "-p", "--model", clm],
+                input=prompt, capture_output=True, text=True, timeout=180,
+            )
+        except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+            return None, time.time() - t0, f"claude-cli: {e}"
+        if res.returncode != 0:
+            return None, time.time() - t0, f"claude-cli rc={res.returncode}: {res.stderr[:200]}"
+        uns, err = _parse_unsupported(res.stdout)
+        return uns, time.time() - t0, err
+
+    # OpenRouter path (kept for cost-tunable scale + multi-judge diversity).
+    d, dt = B.call(model, prompt, key, max_tokens=800,
+                   response_format={"type": "json_object"})
     if "choices" not in d:
         return None, dt, f"API: {json.dumps(d)[:80]}"
     txt = str(d["choices"][0]["message"].get("content") or "")
-    try:
-        return json.loads(txt).get("unsupported", []), dt, None
-    except Exception:
-        m = re.search(r"\{.*\}", txt, re.S)
-        if not m:
-            return None, dt, "parse-fail"
-        try:
-            return json.loads(m.group(0)).get("unsupported", []), dt, None
-        except Exception:
-            return None, dt, "parse-fail"
+    uns, err = _parse_unsupported(txt)
+    return uns, dt, err
 
 def check_summary(body, summary, key=None):
     """In-process API used by pipeline.py. Runs the configured judges (one or
