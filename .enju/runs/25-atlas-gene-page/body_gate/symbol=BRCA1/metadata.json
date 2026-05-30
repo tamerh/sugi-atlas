@@ -1,0 +1,10 @@
+{
+  "action": "compute",
+  "elapsed_ms": 53,
+  "exit_code": 0,
+  "model": "",
+  "result_type": "text",
+  "script": "src/atlas/gene/tasks/body_gate.py",
+  "task_id": "3:25:BRCA1:body_gate",
+  "timestamp": "2026-05-30T17:39:29+02:00"
+}
