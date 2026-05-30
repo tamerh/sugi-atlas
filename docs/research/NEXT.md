@@ -54,6 +54,43 @@ Remaining (all cross-repo, deferred to launch):
       Per-drug fan-out cost grows with phased-drug count — defer until
       asked for.
 
+### From the 2026-05-30 biobtree refresh — new datasets, curl-verified
+
+The edge graph grew 117 → 139 nodes; the following carry real data for our
+reference genes and are ready to wire.
+
+- [ ] **intOGen — cancer driver classification** via `>>hgnc>>intogen`. One
+      row per gene: `symbol|symbol|role|cancer_types` (e.g. KRAS = Act, 35
+      cancer types). Lands as a single-line driver flag in §12.
+- [ ] **CIViC — gene-level cancer narrative** via `>>hgnc>>civic`. One row:
+      `id|name|feature_type|description`. **Description is a curated
+      paragraph** (TP53's covers mutation hotspots 175/245/248/273/282,
+      dominant negative, Li-Fraumeni). **Partial substitute for UniProt CC**
+      for cancer genes — gets us a real narrative paragraph today, no #9
+      dependency. New "## Cancer significance" subblock candidate (§6 or §12).
+      `civic_variant` / `civic_evidence` / `civic_assertion` return n=0 via
+      hgnc/uniprot — route TBD.
+- [ ] **ChEMBL assay** via `>>uniprot>>chembl_target>>chembl_assay` —
+      100 rows: `id|description|type` (e.g. *"Inhibition of MDM2-p53
+      interaction in human SJSA1 cells…|B"*). Enriches §10's activity
+      table with assay context.
+- [ ] **patent_compound** via
+      `>>uniprot>>chembl_target>>chembl_molecule>>patent_compound` — 100
+      patents per drug. Drug-development context for §10.
+- [ ] **Cellosaurus** via `>>hgnc>>cellosaurus` — 100 cell lines per gene
+      with name/category/sex. §10 (assay context) or §3 (research-tool annotation).
+- [ ] **RNAcentral** via `>>hgnc>>rnacentral` — for ncRNA genes
+      (MALAT1: `URS0002A146E4|lncRNA|7472|1`). **Closes the ncRNA-coverage
+      gap** Atlas inherited from biobtree (lncRNA/miRNA genes previously
+      had thin §1/§3 data). §1 or §11.
+- [ ] **BRENDA EC annotation** via `>>uniprot>>brenda` — one row per enzyme:
+      EC number + name + summary stats (AKT1 = 2.7.11.1 non-specific ser/thr
+      kinase). §3 protein-ID enrichment. `brenda_kinetics` / `brenda_inhibitor`
+      still empty for our test genes — route TBD or genuinely sparse.
+- [ ] **chembl_document** (would carry PMIDs per ChEMBL activity row).
+      Route TBD — `>>chembl_activity>>chembl_document` returns 0. When
+      working, closes the "PMID per ChEMBL row" gap we deferred earlier.
+
 ## Hygiene fixes
 
 - [ ] **Fix `src/atlas/bench/dataset_coverage.py`** — still references the
@@ -74,6 +111,7 @@ Remaining (all cross-repo, deferred to launch):
 | **#9 UniProt CC + reviewed flag + isoforms** | **open — biggest** | Blocks Path C UniProt CC + named isoforms |
 | #10 AlphaFold empty for >2700 aa | 🕓 fix tomorrow | §4 currently constructs `AF-<acc>-F1` heuristically; pLDDT missing for ATM/BRCA2/DMD |
 | #12 pubchem_activity KRAS gap | 🕓 fix tomorrow | Workaround in place via chembl_activity; no functional gap |
+| #13 pharmgkb_guideline / _clinical / _variant empty | open (just filed) | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
 
 ## Pre-launch / cross-repo work (defer to launch day)
 
@@ -109,7 +147,14 @@ Three implementation paths:
 ships the fields. Parser pattern lives in `/data/biobtree` (Go) or use
 Biopython's `Bio.SwissProt`.
 
-Decide before resuming. Becomes the next Path C item by impact.
+**Update 2026-05-30 (biobtree refresh):** Decision became *less acute*.
+Wiring **CIViC's gene-level narrative paragraph** (now live in biobtree —
+see Path C "new datasets" above) gives Atlas a real first-paragraph
+narrative for cancer-relevant genes today, without #9 being fixed. UniProt
+CC remains needed for non-cancer genes (titin, housekeeping, etc.), but
+the path-of-least-resistance v1 release can ship with CIViC paragraphs as
+the headline narrative for the cancer-genome subset and defer the broader
+UniProt CC question.
 
 ## Out of scope for now
 

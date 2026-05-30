@@ -337,3 +337,44 @@ BindingDB routes provide partial coverage; the canonical "G12C-binding"
 narrative would require either PubChem activity ingest to catch up, or
 Atlas to add chembl_activity wiring alongside the existing chembl_molecule
 (separately tracked in NEXT.md).
+
+## Issue #13 — `pharmgkb_guideline` / `pharmgkb_clinical` / `pharmgkb_variant` edges present but empty
+
+These edges exist in `/api/help?topic=edges` (and have existed in the
+2026-05-30 refresh batch alongside the new datasets), but every query route
+returns n=0, including for the canonical pharmacogenes where these
+annotations are well-known to exist in PharmGKB.
+
+**Repro (CYP2C19 = HGNC:2621):**
+```
+map(i="HGNC:2621", m=">>hgnc>>pharmgkb_guideline")  → n=0
+map(i="HGNC:2621", m=">>hgnc>>pharmgkb_clinical")   → n=0
+map(i="HGNC:2621", m=">>hgnc>>pharmgkb_variant")    → n=0
+```
+
+CYP2C19 has at least 18 CPIC dosing guidelines and dozens of clinical
+annotations on pharmgkb.org. Other canonical pharmacogenes (CYP2D6, TPMT,
+DPYD, VKORC1, SLCO1B1) are equally well-represented in the upstream
+PharmGKB data and equally empty in biobtree.
+
+`pharmgkb_gene` is populated and works fine (Atlas's §10 already wires
+`>>hgnc>>pharmgkb_gene`); `pharmgkb_pathway` is also populated. The
+empties cluster on the **clinical / guideline / variant** trio.
+
+**Hypothesis:** these three datasets' edges are declared but the ingest
+either:
+(a) hasn't pulled the actual PharmGKB data files for these record types yet
+    (the "annotated but not loaded" case), or
+(b) is keyed off a join that isn't matching — e.g. variant ↔ rsID where
+    the rsID linkage from gene didn't index the variant side.
+
+**Suggested fix:** confirm whether the PharmGKB annotation/guideline/
+variant tables are in the ingest pipeline at all. If they are, check the
+join key (CYP2C19 should match by `gene_id`, `symbol`, or via its uniprot
+P33261). If they aren't, schedule the ingest.
+
+**Impact for Atlas:** PharmGKB clinical guidelines (CPIC dosing tables)
+are the single most-cited PGx-decision source in clinical pharmacology.
+Without them, Atlas's §10 PharmGKB block can only state "yes there's a
+pharmgkb_gene entry"; the *contents* (the actual dosing rules) are
+unreachable. For drugs-section pages this will be more pronounced.
