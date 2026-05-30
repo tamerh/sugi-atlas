@@ -241,3 +241,62 @@ UniProt) per-accession; for a unique accession query, return only that
 accession's features. If the cluster-level join is intentional, add an
 explicit `?species=` / `?accession=<exact>` filter to scope the result, and
 document the behavior.
+
+## Issue #12 — `pubchem_activity` index has coverage gaps for high-profile targets (e.g. KRAS)
+
+`>>uniprot>>pubchem_activity` is empty (n=0) for several targets where the
+corresponding **PubChem BioAssay corpus does carry binding data** — most
+strikingly **KRAS (P01116)**, where ChEMBL activity (100 rows) and BindingDB
+(100 rows) both show healthy coverage via biobtree, but PubChem activity is
+zero via every route we tried.
+
+**Cross-route confirmation (all 0 for KRAS):**
+```
+>>uniprot>>pubchem_activity                          n=0   (direct)
+>>hgnc>>uniprot>>pubchem_activity                    n=0   (via hgnc)
+>>hgnc>>entrez>>pubchem_activity                     n=0   (via entrez gene_id)
+>>uniprot>>chembl_target>>pubchem_activity           n=0   (via chembl_target)
+```
+
+**Side-by-side counts** (same `>>uniprot>>...` route, top of page 1):
+
+| Gene  | pubchem_activity | bindingdb | chembl_activity |
+|-------|------------------|-----------|-----------------|
+| BRAF  | 100              | 100       | —               |
+| AKT1  | 100              | 100       | —               |
+| EGFR  | 6100             | —         | —               |
+| TP53  | 506              | —         | —               |
+| BRCA1 | 28               | 35        | —               |
+| **KRAS** | **0**         | **100**   | **100**         |
+| CDKN2A| 0                | 0         | —               |
+| TTN   | 0                | 0         | —               |
+
+For CDKN2A/TTN the 0/0 pattern is consistent (not classic drug-binding
+targets). For KRAS, BindingDB-and-ChEMBL-rich-but-PubChem-empty is anomalous.
+
+**Reverse-direction confirmation:** sotorasib (CID 137278711, the canonical
+KRAS-G12C drug) is indexed in biobtree's pubchem dataset — its xrefs
+include `bindingdb|1`, `chembl_molecule|1`, `ctd|1`, `pharmgkb|1`, `chebi|1`,
+`mesh|1`, `cas|3` — but **no `pubchem_activity` xref**. So even the textbook
+KRAS-G12C inhibitor's bioassay records aren't present in biobtree's
+`pubchem_activity` dataset.
+
+**Hypothesis:** biobtree's `pubchem_activity` ingest is a **selective subset
+of PubChem BioAssay** — likely one batch / one snapshot — rather than the
+full corpus. For targets where the relevant assays are mostly post-2020
+(KRAS-G12C work being the obvious case), the records may post-date the
+snapshot or not be in the ingested slice.
+
+**Suggested fix:** re-ingest PubChem BioAssay from a current snapshot and
+verify coverage with a spot check on a few well-characterized but
+recently-developed drug targets (KRAS-G12C, the menin–MLL interface, etc.).
+Alternatively, document explicitly which subset of PubChem BioAssay is
+covered so callers can fall back to ChEMBL+BindingDB for the missing slice
+(Atlas already does this — both routes are wired).
+
+**Impact for Atlas:** KRAS's drug-pharmacology section shows 0 PubChem
+actives despite the well-known sotorasib/adagrasib story. The ChEMBL and
+BindingDB routes provide partial coverage; the canonical "G12C-binding"
+narrative would require either PubChem activity ingest to catch up, or
+Atlas to add chembl_activity wiring alongside the existing chembl_molecule
+(separately tracked in NEXT.md).
