@@ -4,23 +4,23 @@
   "diff": [
     {
       "section": "10",
-      "key": "chembl_assay_samples",
+      "key": "cellosaurus_category_counts",
       "old": 0,
-      "new": 2,
+      "new": 8,
       "kind": "added"
     },
     {
       "section": "10",
-      "key": "chembl_assay_total",
+      "key": "cellosaurus_samples",
+      "old": 0,
+      "new": 10,
+      "kind": "added"
+    },
+    {
+      "section": "10",
+      "key": "cellosaurus_total",
       "old": 0,
       "new": 1,
-      "kind": "added"
-    },
-    {
-      "section": "10",
-      "key": "chembl_assay_type_counts",
-      "old": 0,
-      "new": 2,
       "kind": "added"
     }
   ]
