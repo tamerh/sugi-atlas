@@ -164,6 +164,9 @@
     "chembl_assay_samples": [
       {
         "desc": "Binding affinity to human TTN incubated for 45 mins by Kinobead based pull down assay",
+        "doc_id": "CHEMBL5649169",
+        "doc_journal": "ChemMedChem",
+        "doc_title": "NVP-BHG712: Effects of Regioisomers on the Affinity and Selectivity toward the EPHrin Family.",
         "id": "CHEMBL5652715",
         "type": "Binding"
       }

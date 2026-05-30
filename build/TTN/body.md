@@ -854,11 +854,11 @@ condensed nuclear chromosome (GO:0000794), extracellular region (GO:0005576), cy
 
 **ChEMBL screening assays (1 unique, capped per target):** 1 binding
 
-Representative assays:
+Representative assays (with source publication via chembl_document):
 
-| Assay ID | Type | Description |
-| --- | --- | --- |
-| [CHEMBL5652715](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL5652715/) | Binding | Binding affinity to human TTN incubated for 45 mins by Kinobead based pull down assay |
+| Assay ID | Type | Description | Source paper |
+| --- | --- | --- | --- |
+| [CHEMBL5652715](https://www.ebi.ac.uk/chembl/assay_report_card/CHEMBL5652715/) | Binding | Binding affinity to human TTN incubated for 45 mins by Kinobead based pull down assay | [NVP-BHG712: Effects of Regioisomers on the Affinity and Selectivity toward the EPHrin F…](https://www.ebi.ac.uk/chembl/document_report_card/CHEMBL5649169/) — *ChemMedChem* |
 
 **Cellosaurus cell lines (25):** 17 induced pluripotent stem cell, 7 transformed cell line, 1 finite cell line
 
