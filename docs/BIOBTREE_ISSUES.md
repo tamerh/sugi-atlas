@@ -355,3 +355,41 @@ field is there, it just isn't being filled in gRPC mode.
 (~11% wall-clock win on disease builds). gRPC transport scaffolding is
 in place (regen script + stubs committed) but production gRPC transport
 is parked pending this feature or an explicit decision to port compact.go.
+
+---
+
+## Issue #22 (REVISED based on gRPC adapter findings)
+
+**Original ask:** populate `ResultLite` / `MapFilterResultLite` in gRPC mode.
+
+**After implementing the gRPC transport in Atlas, the actual blocker is narrower:**
+
+biobtree's `grpc.Mapping` handler (src/service/grpc.go:117) ignores the
+request's `mode` field and calls `service.MapFilter(...)` which uses the
+default `maxMappingResult = 30`. The REST lite handler calls
+`MapFilterWithLimit(..., maxMappingResultLite=150)` — 5× larger pages.
+
+The proto already declares `MappingRequest.mode = 5` and the gRPC handler
+parses it but routes everything to the full path with this TODO:
+```go
+// Note: gRPC lite mode currently returns full results
+// TODO: Update protobuf definitions for new lite format if gRPC lite is needed
+```
+
+**Narrow ask:** in `grpc.Mapping` (and `grpc.Search`), when
+`req.Mode == "lite"`, route to `MapFilterWithLimit(..., maxMappingResultLite)`.
+The schema|data pipe-encoding is **not needed over gRPC** — Atlas reconstructs
+that shape locally from the proto via a Python adapter (98 LOC) driven by
+biobtree's own `conf/source*.dataset.json` config. The only thing missing
+is the *page-size* parity.
+
+**Atlas-side proof (committed):**
+- `src/atlas/biobtree/_transports/grpc_transport.py` — gRPC wire + adapter
+- `src/atlas/biobtree/_transports/_grpc_adapter.py` — proto→REST shape, driven by biobtree's own compact_fields config
+- `ATLAS_BIOBTREE_TRANSPORT=grpc` runs a full Breast Cancer disease build end-to-end
+- Wall-clock currently flat with `urllib_pool` (~38s) because the smaller gRPC page size cancels the per-call savings
+- With the requested page-size parity, gRPC would drop to ~10-15s (5× fewer round trips on the dominant map path)
+
+**Optional secondary ask:** add an explicit `page_size` field to
+`MappingRequest` / `SearchRequest` so clients can pick any limit (no need
+to overload the `mode` field). Either approach unblocks Atlas.
