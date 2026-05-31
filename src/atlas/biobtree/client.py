@@ -1,46 +1,60 @@
 #!/usr/bin/env python3
-"""Biobtree REST client — pure data access layer.
+"""Biobtree client — public API + transport dispatcher.
 
-  search(term, source=None)               -> /api/search
-  entry(identifier, source)               -> /api/entry
-  bbmap(ids, chain, page=None)            -> /api/map (one page; cursor param `p`)
-  rows(resp)                              -> search/data rows as dicts keyed by schema
-  map_targets(resp)                       -> all map targets as dicts (escape-aware)
+Public API (stable; never changes regardless of transport):
+  search(term, source=None)               -> /api/search-equivalent dict
+  entry(identifier, source)               -> /api/entry-equivalent dict
+  bbmap(ids, chain, page=None)            -> /api/map-equivalent dict
+  rows(resp)                              -> dicts keyed by REST schema cols
+  map_targets(resp)                       -> flat list of target dicts (escape-aware)
   map_all(ids, chain, cap=60)             -> paginated map, deduped, loop-safe
+  xref_counts(entry_resp)                 -> {dataset: count} from entry's xref table
+  CALLS                                   -> per-call reproducibility log (module-level)
 
-CALLS is a module-level reproducibility log appended on every request. Reset to
-[] before a run if you want clean per-run accounting.
+Transport selection (env var `ATLAS_BIOBTREE_TRANSPORT`, default `urllib`):
+  urllib       — stdlib urllib.request, no connection reuse. Reproducibility baseline.
+  urllib_pool  — urllib3 PoolManager with HTTP keep-alive. ~15-20% faster.
+  grpc         — (reserved, not implemented yet) gRPC over HTTP/2.
+
+The transport only owns search/entry/bbmap (the wire layer). Everything
+else — rows(), map_targets(), map_all(), xref_counts() — is pure parsing
+on the returned dict shape and lives here, transport-agnostic.
+
+A/B comparison:
+  ATLAS_BIOBTREE_TRANSPORT=urllib       python -m atlas.disease.corpus run ...
+  ATLAS_BIOBTREE_TRANSPORT=urllib_pool  python -m atlas.disease.corpus run ...
 """
-import json, urllib.parse, urllib.request
+import os
 
-API = "http://127.0.0.1:8000/api"
-CALLS = []  # reproducibility log
+# Transport selection. Resolved once at import time; flipping the env var
+# at runtime won't re-pick a different transport.
+_TRANSPORT_NAME = (os.environ.get("ATLAS_BIOBTREE_TRANSPORT") or "urllib").lower()
 
-def _get(path, params):
-    qs = urllib.parse.urlencode(params)
-    url = f"{API}/{path}?{qs}"
-    with urllib.request.urlopen(url, timeout=15) as r:
-        body = json.load(r)
-    CALLS.append({"path": path, "params": params})
-    return body
+if _TRANSPORT_NAME == "urllib_pool":
+    from atlas.biobtree._transports import urllib_pool as _t
+elif _TRANSPORT_NAME == "grpc":
+    raise NotImplementedError(
+        "gRPC transport not yet implemented. Stubs land at "
+        "atlas/biobtree/_pb/ (run `python -m atlas.biobtree._pb.regenerate` "
+        "after biobtree's proto changes). Per-dataset field-rename map is "
+        "the remaining work. For now use urllib or urllib_pool.")
+elif _TRANSPORT_NAME == "urllib":
+    from atlas.biobtree._transports import urllib_transport as _t
+else:
+    raise ValueError(
+        f"Unknown ATLAS_BIOBTREE_TRANSPORT={_TRANSPORT_NAME!r}. "
+        f"Pick one of: urllib (default), urllib_pool, grpc (reserved).")
 
-def search(term, source=None):
-    p = {"i": term}
-    if source:
-        p["s"] = source
-    return _get("search", p)
+# Re-export transport-owned primitives + the shared CALLS log.
+API = _t.API
+CALLS = _t.CALLS
 
-def entry(identifier, source):
-    return _get("entry", {"i": identifier, "s": source})
+search = _t.search
+entry = _t.entry
+bbmap = _t.bbmap
 
-def bbmap(ids, chain, page=None):
-    params = {"i": ids, "m": chain}
-    if page:
-        params["p"] = page  # cursor param is `p` (NOT `page`; FastAPI silently
-                            # drops unknown query params so the wrong name fails silently)
-    return _get("map", params)
 
-def rows(resp):
+def rows(resp: dict) -> list:
     """search/data rows -> list of dicts keyed by schema columns.
 
     biobtree returns `"data": null` (literal None, not the missing key) when
@@ -49,7 +63,8 @@ def rows(resp):
     cols = (resp.get("schema") or "").split("|")
     return [dict(zip(cols, r.split("|"))) for r in (resp.get("data") or [])]
 
-def map_targets(resp):
+
+def map_targets(resp: dict) -> list:
     """map response -> flat list of target dicts keyed by schema columns.
 
     Schema-aware split: some target fields embed an escaped pipe (\\|),
@@ -62,6 +77,7 @@ def map_targets(resp):
             parts = [p.replace("\x00", "|") for p in t.replace("\\|", "\x00").split("|")]
             out.append(dict(zip(cols, parts)))
     return out
+
 
 def map_all(ids, chain, cap=60):
     """All target dicts across pages, deduped. Pagination via the `p=` cursor.
@@ -84,6 +100,7 @@ def map_all(ids, chain, cap=60):
             break
         page, n = nxt, n + 1
     return out
+
 
 def xref_counts(entry_resp):
     """hgnc/ensembl/transcript `entry` carries a dataset|count xref table —
