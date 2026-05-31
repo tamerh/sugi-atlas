@@ -24,13 +24,7 @@ def _run(sid, name):
 SECTIONS = {sid: (lambda s, sid=sid: _run(sid, s)) for sid in REGISTRY}
 
 def collect_all(name):
-    """Resolve anchors once, run all sections, return {section_id: bundle}.
-
-    Clears the cohort fan-out memoization cache up front so a batch run
-    (multiple diseases in sequence via atlas.disease.corpus.run) doesn't
-    keep stale entries from earlier diseases."""
-    from atlas.disease import cohort
-    cohort._reset_cache()
+    """Resolve anchors once, run all sections, return {section_id: bundle}."""
     a = resolve_anchors(name)
     return {sid: REGISTRY[sid].collect_fn(a) for sid in REGISTRY}
 
