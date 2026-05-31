@@ -26,12 +26,15 @@ from atlas.biobtree import search, entry, rows, map_all, bbmap, map_targets
 
 @dataclass(frozen=True)
 class TargetAnchor:
-    chembl_target_id: str           # CHEMBL1862
+    chembl_target_id: Optional[str] # CHEMBL1862 (None for gtopdb-only targets)
     target_type: str                # 'SINGLE PROTEIN' | 'PROTEIN COMPLEX' | ...
-    target_name: str                # chembl_target.title
-    uniprot: Optional[str]          # P00519 (via chembl_target>>uniprot)
-    gene_symbol: Optional[str]      # ABL1  (via uniprot>>hgnc>>entry.symbols[0])
+    target_name: str                # target label
+    uniprot: Optional[str]          # P00519
+    gene_symbol: Optional[str]      # ABL1
     hgnc_id: Optional[str]          # HGNC:76
+    source: str = "gtopdb"          # 'gtopdb' (curated mechanism) | 'chembl' (bioactivity)
+    action: Optional[str] = None    # GtoPdb: Inhibition / Agonist / Antibody ...
+    affinity: Optional[str] = None  # GtoPdb pAffinity value (where measured)
 
 
 @dataclass(frozen=True)
@@ -56,7 +59,8 @@ class DrugAnchors:
     alt_names: Tuple[str, ...]      # filtered brand/generic/INN names
     parent_chembl: Optional[str]    # set if this is a salt/anhydrous form
     child_chembls: Tuple[str, ...]  # set if this is the parent form
-    targets: Tuple[TargetAnchor, ...]
+    targets: Tuple[TargetAnchor, ...]            # primary: GtoPdb curated (or chembl fallback)
+    bioactivity_targets: Tuple[dict, ...]        # secondary: raw chembl_target bioactivity set
     indications: Tuple[IndicationRecord, ...]
     xref_counts: Dict[str, int]
     # Chemistry descriptors — from pubchem + chebi entries (small-mol only).
@@ -81,6 +85,17 @@ def _alt_name_ok(n: str) -> bool:
     if not n or len(n) > 40:
         return False
     return not _CHEM_NAME_RX.search(n)
+
+
+_HTML_TAG_RX = re.compile(r"<[^>]+>")
+
+
+def _strip_html(s):
+    """ChEBI definitions/role-names embed markup (<em>, <small><sup>, ...).
+    Strip tags so renders/JSON-LD carry clean text."""
+    if not s:
+        return s
+    return _HTML_TAG_RX.sub("", s).strip()
 
 
 def _mol_attrs(en: dict) -> dict:
@@ -110,58 +125,130 @@ def resolve_chembl(name_or_id: str) -> Tuple[str, dict]:
     return cid, entry(cid, "chembl_molecule")
 
 
-def _resolve_targets(chembl_id: str) -> Tuple[TargetAnchor, ...]:
-    """Full target list → uniprot (batched) → hgnc (batched) → symbol (per
-    unique hgnc entry). The direct chembl_target>>hgnc edge is dead, so we hop
-    through uniprot."""
-    tlist = map_all(chembl_id, ">>chembl_molecule>>chembl_target")
-    if not tlist:
-        return ()
-    tids = [t["id"] for t in tlist if t.get("id")]
-
-    # target -> uniprot (batched single map call, paginated by map_targets)
-    t2uni: Dict[str, str] = {}
-    for m in (bbmap(",".join(tids), ">>chembl_target>>uniprot").get("mappings") or []):
-        inp = (m.get("input") or "").strip()
-        tgts = m.get("targets") or []
-        if tgts:
-            t2uni[inp] = tgts[0].split("|", 1)[0]
-
-    # uniprot -> hgnc (batched)
-    uni2hgnc: Dict[str, str] = {}
-    unis = sorted(set(t2uni.values()))
-    if unis:
-        for m in (bbmap(",".join(unis), ">>uniprot>>hgnc").get("mappings") or []):
+def _batch_map(ids, chain) -> Dict[str, list]:
+    """bbmap over comma-joined ids → {input_id: [target_id, ...]}, paginated.
+    Keeps the per-input keying that map_all/map_targets flatten away."""
+    out: Dict[str, list] = {}
+    page = None
+    for _ in range(10):
+        resp = bbmap(",".join(ids), chain, page)
+        for m in (resp.get("mappings") or []):
             inp = (m.get("input") or "").strip()
-            tgts = m.get("targets") or []
-            if tgts:
-                uni2hgnc[inp] = tgts[0].split("|", 1)[0]
+            for t in (m.get("targets") or []):
+                out.setdefault(inp, []).append(t.split("|", 1)[0])
+        pg = resp.get("pagination", {}) or {}
+        if not pg.get("has_next") or not pg.get("next_token"):
+            break
+        page = pg.get("next_token")
+    return out
 
-    # hgnc -> symbol (one entry per unique hgnc; bounded by target count)
-    hgnc2sym: Dict[str, str] = {}
-    for h in sorted(set(uni2hgnc.values())):
+
+def _symbols_for(hgnc_ids) -> Dict[str, str]:
+    """hgnc id → primary symbol (one entry per unique id; bounded by target count)."""
+    out: Dict[str, str] = {}
+    for h in sorted(set(h for h in hgnc_ids if h)):
         try:
-            he = (entry(h, "hgnc").get("Attributes") or {}).get("Hgnc") or {}
-            syms = he.get("symbols") or []
+            syms = ((entry(h, "hgnc").get("Attributes") or {}).get("Hgnc") or {}).get("symbols") or []
             if syms:
-                hgnc2sym[h] = syms[0]
+                out[h] = syms[0]
         except Exception:
             continue
+    return out
 
+
+def _gtopdb_ligand_id(canonical_name: str) -> Optional[str]:
+    """Resolve a drug's GtoPdb ligand id by name. The chembl_molecule>>gtopdb_ligand
+    forward edge is unwired (BIOBTREE_ISSUES #18 — xref count exists, no
+    traversal), so we name-search instead. Prefer an exact case-insensitive
+    name match, else the highest-xref hit."""
+    res = rows(search(canonical_name, source="gtopdb_ligand"))
+    if not res:
+        return None
+    exact = [r for r in res if (r.get("name") or "").lower() == canonical_name.lower()]
+    pick = (exact or sorted(res, key=lambda r: int(r.get("xref_count") or 0), reverse=True))[0]
+    return pick.get("id")
+
+
+def _gtopdb_targets(canonical_name: str) -> Tuple[TargetAnchor, ...]:
+    """Curated mechanism targets via GtoPdb — works for BOTH small molecules
+    and antibodies (ChEMBL bioactivity edges miss antibodies entirely).
+
+      gtopdb_ligand →gtopdb_interaction→ gtopdb(target) →uniprot→ hgnc
+
+    The interaction row carries target_name + action + affinity; the gtopdb
+    target node cross-walks to the human UniProt (the interaction maps to
+    human + rodent orthologs — we keep the one that resolves to an HGNC id)."""
+    lig = _gtopdb_ligand_id(canonical_name)
+    if not lig:
+        return ()
+    inter = map_all(lig, ">>gtopdb_ligand>>gtopdb_interaction")
+    # group by gtopdb target id (the "{target}_{ligand}" interaction id).
+    # GUARD: biobtree leaks interactions from other ligands whose code contains
+    # this id as a substring (e.g. querying 7519=olaparib pulls in 5662=AT-7519
+    # → BIOBTREE_ISSUES #18). Keep only rows whose trailing ligand id matches.
+    tinfo: Dict[str, dict] = {}
+    for r in inter:
+        parts = (r.get("id") or "").split("_")
+        if len(parts) < 2 or parts[-1] != lig:
+            continue
+        tid = parts[0]
+        if tid and tid not in tinfo:
+            tinfo[tid] = {"name": r.get("target_name") or "",
+                          "type": r.get("type") or "",
+                          "action": r.get("action") or None,
+                          "affinity": r.get("affinity") or None}
+    if not tinfo:
+        return ()
+    gt2uni = _batch_map(list(tinfo), ">>gtopdb>>uniprot")
+    all_uni = sorted({u for us in gt2uni.values() for u in us})
+    uni2hgnc = _batch_map(all_uni, ">>uniprot>>hgnc") if all_uni else {}
+    sym = _symbols_for(h[0] for h in uni2hgnc.values() if h)
     out = []
-    for t in tlist:
-        tid = t.get("id")
-        uni = t2uni.get(tid)
-        hg = uni2hgnc.get(uni) if uni else None
+    for tid, info in tinfo.items():
+        uni = hg = None
+        for u in gt2uni.get(tid, []):     # pick the human ortholog (resolves to hgnc)
+            if uni2hgnc.get(u):
+                uni, hg = u, uni2hgnc[u][0]
+                break
         out.append(TargetAnchor(
-            chembl_target_id=tid,
-            target_type=t.get("type") or "",
-            target_name=t.get("title") or "",
-            uniprot=uni,
-            gene_symbol=hgnc2sym.get(hg) if hg else None,
-            hgnc_id=hg,
-        ))
+            chembl_target_id=None, target_type=info["type"], target_name=info["name"],
+            uniprot=uni, hgnc_id=hg, gene_symbol=sym.get(hg) if hg else None,
+            source="gtopdb", action=info["action"], affinity=info["affinity"]))
     return tuple(out)
+
+
+def _resolve_targets(canonical_name: str, chembl_id: str):
+    """(primary_targets, bioactivity_targets).
+
+    Primary = GtoPdb curated mechanism targets (action + affinity; covers
+    antibodies). Fallback to gene-resolved ChEMBL targets only when GtoPdb has
+    no ligand. Secondary = the raw chembl_target bioactivity set (id/name/type,
+    NOT gene-resolved — cheap; feeds §2 'broader targets' + §3 grouping)."""
+    primary = _gtopdb_targets(canonical_name)
+
+    bio = map_all(chembl_id, ">>chembl_molecule>>chembl_target")
+    bioactivity = tuple({"chembl_target_id": t.get("id"), "name": t.get("title"),
+                         "type": t.get("type")} for t in bio if t.get("id"))
+
+    # Fallback: no GtoPdb curated targets → gene-resolve the top ChEMBL targets.
+    # chembl_target's xref is to UniProt (components.acc), so the gene is reached
+    # via chembl_target>>uniprot>>hgnc — biobtree's documented pattern, not a gap.
+    if not primary and bioactivity:
+        top = [b["chembl_target_id"] for b in bioactivity[:25]]
+        t2uni = _batch_map(top, ">>chembl_target>>uniprot")
+        uni2hgnc = _batch_map(sorted({u for us in t2uni.values() for u in us}),
+                              ">>uniprot>>hgnc")
+        sym = _symbols_for(h[0] for h in uni2hgnc.values() if h)
+        resolved = []
+        for b in bioactivity[:25]:
+            uni = (t2uni.get(b["chembl_target_id"]) or [None])[0]
+            hg = (uni2hgnc.get(uni) or [None])[0] if uni else None
+            resolved.append(TargetAnchor(
+                chembl_target_id=b["chembl_target_id"], target_type=b["type"] or "",
+                target_name=b["name"] or "", uniprot=uni, hgnc_id=hg,
+                gene_symbol=sym.get(hg) if hg else None, source="chembl"))
+        primary = tuple(resolved)
+    return primary, bioactivity
 
 
 def _resolve_indications(mol: dict) -> Tuple[IndicationRecord, ...]:
@@ -231,7 +318,7 @@ def _resolve_chemistry(chembl_id: str):
         chem["chebi_id"] = cb[0].get("id")
         try:
             ca = (entry(chem["chebi_id"], "chebi").get("Attributes") or {}).get("Chebi") or {}
-            chem["chebi_definition"] = ca.get("definition")
+            chem["chebi_definition"] = _strip_html(ca.get("definition"))
             chem.setdefault("inchi_key") or chem.update(inchi_key=chem["inchi_key"] or ca.get("inchi_key"))
             if not chem["smiles"]:
                 chem["smiles"] = ca.get("smiles")
@@ -241,7 +328,7 @@ def _resolve_chemistry(chembl_id: str):
             roles = []
             for rid in (ca.get("roles") or []):
                 try:
-                    rn = ((entry(rid, "chebi").get("Attributes") or {}).get("Chebi") or {}).get("name")
+                    rn = _strip_html(((entry(rid, "chebi").get("Attributes") or {}).get("Chebi") or {}).get("name"))
                     if rn:
                         roles.append(rn)
                 except Exception:
@@ -258,21 +345,24 @@ def resolve(name_or_id: str) -> DrugAnchors:
     mol = _mol_attrs(en)
     xc = {r.split("|")[0]: int(r.split("|")[1])
           for r in (en.get("xrefs", {}).get("data") or [])}
+    canonical = mol.get("name") or chembl_id
 
     chem = _resolve_chemistry(chembl_id)
+    targets, bioactivity_targets = _resolve_targets(canonical, chembl_id)
 
     return DrugAnchors(
         name=name_or_id,
         chembl_id=chembl_id,
         chembl_entry=en,
-        canonical_name=mol.get("name") or chembl_id,
+        canonical_name=canonical,
         molecule_type=mol.get("type") or "",
         max_phase=_phase(mol.get("highestDevelopmentPhase")),
         atc_codes=tuple(mol.get("atcClassification") or ()),
         alt_names=tuple(n for n in (mol.get("altNames") or []) if _alt_name_ok(n)),
         parent_chembl=mol.get("parent"),
         child_chembls=tuple(mol.get("childs") or ()),
-        targets=_resolve_targets(chembl_id),
+        targets=targets,
+        bioactivity_targets=bioactivity_targets,
         indications=_resolve_indications(mol),
         xref_counts=xc,
         pubchem_cid=chem["pubchem_cid"],
@@ -296,7 +386,9 @@ if __name__ == "__main__":
           f"MW={a.molecular_weight} inchikey={a.inchi_key}")
     print(f"  fda_approved={a.is_fda_approved}  alt_names={a.alt_names[:6]}")
     print(f"  parent={a.parent_chembl} childs={a.child_chembls}")
-    print(f"  targets={len(a.targets)}  (sample: "
-          + ", ".join(f"{t.gene_symbol or t.target_name[:12]}" for t in a.targets[:6]) + ")")
+    print(f"  primary targets={len(a.targets)} (src={a.targets[0].source if a.targets else '-'}):")
+    for t in a.targets[:6]:
+        print(f"      {t.gene_symbol or t.target_name[:30]:30} {t.action or ''} aff={t.affinity or '-'} ({t.uniprot or '?'})")
+    print(f"  bioactivity targets (chembl, raw)={len(a.bioactivity_targets)}")
     print(f"  indications={len(a.indications)}  (sample: "
           + ", ".join(f"{i.name or i.efo_id}(p{i.max_phase})" for i in a.indications[:5]) + ")")

@@ -146,12 +146,12 @@ each exports a `SECTION = Section(...)` metadata record.
 | § | Name | NEW or REUSE | Approach |
 |---|---|---|---|
 | 1 | drug_ids | NEW | IDs (chembl_id, pubchem CID, chebi, mesh/efo, ATC, type, max_phase, salt-form chain) + **chemistry block from pubchem/chebi entries** (InChIKey, SMILES, IUPAC name, molecular formula, molecular weight) + ChEBI one-line `definition` + filtered alt_names (brand/generic/INN — drop the IUPAC chemistry strings) |
-| 2 | targets | NEW | render `anchors.targets`; show classification (primary vs off-target by potency); link to gene page per target via `links.py` |
+| 2 | targets | NEW | **primary: GtoPdb curated mechanism targets** (`anchors.targets` — target + action [Inhibition/Agonist] + pAffinity; covers antibodies, which ChEMBL bioactivity misses). **secondary: `anchors.bioactivity_targets`** (raw chembl_target set — broader, bioactivity-derived). Link to gene page per target via `links.py`. Resolved via GtoPdb (`gtopdb_ligand→gtopdb_interaction→gtopdb→uniprot→hgnc`) with the #18 substring-contamination guard; ChEMBL gene-resolution is the fallback when a drug has no GtoPdb ligand (e.g. Metformin) |
 | 3 | bioactivity | NEW | `>>chembl_molecule>>chembl_activity` rows; sort by pchembl ≥ 5; top 30 by potency; group by target |
 | 4 | indications | NEW | render `anchors.indications`; group by max_phase; link to disease page per indication |
 | 5 | clinical_trials | NEW | `>>chembl_molecule>>clinical_trials` direct (~200-1000 per drug); top 20 by phase; full phase distribution; status counts |
 | 6 | pharmacology | NEW | **primary: ChEBI roles** — decoded role names (open-licensed drug-class semantics: "tyrosine kinase inhibitor", "antineoplastic agent"; resolved from `chebi.roles[]`). **secondary: raw ATC code(s) + whocc.no link** — NOT decoded to a hierarchy (biobtree exposes only the code `["L01EA01"]`; the WHO ATC name table is licensing-restricted, so we link out rather than reproduce it). RoA where exposed |
-| 7 | related_molecules | REUSE | for each target uniprot, fan `>>uniprot>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=2]`; aggregate top 30 competitors sharing ≥1 target; link to other drug pages |
+| 7 | related_molecules | REUSE | fan over the **GtoPdb primary targets** (curated, ~1-9 per drug — NOT all 85 bioactivity targets, which would flood the competitor list with off-target overlap): for each primary target uniprot, `>>uniprot>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=2]`; aggregate top 30 competitors sharing ≥1 primary target; link to other drug pages |
 | 8 | target_pathways | REUSE | for each target uniprot's gene, fan gene §7 `s07_pathways.collect(gene_anchors)`; aggregate Reactome + top GO terms across the target set |
 | 9 | pharmacogenomics | NEW (blocked) | `>>chembl_molecule>>pharmgkb_drug` — currently empty (likely BIOBTREE_ISSUES #13 territory); fallback: fan target genes' `>>hgnc>>pharmgkb_gene` |
 | **10** | **clinical_evidence (CIViC)** | NEW | drug-anchored view of the same `civic_evidence` table. **Use the ID-join route `>>chembl_molecule>>civic_evidence`** (probed working — same 7-col schema, properly joined; NOT therapy-name string-matching which would miss brand/salt aliases). Feed straight into `atlas.civic.aggregate_predictive`. Render `(variant, indication, effect, level)` — therapy column kept only to show combinations (e.g. "Imatinib + Dasatinib"). Completes the gene/disease/drug CIViC symmetry. |
@@ -330,7 +330,7 @@ Reuse the parked `entities.yaml` 20-drug list. Recommended smoke order
 |---|---|---|---|
 | 1 | Imatinib | CHEMBL941 | classic kinase inhibitor; rich data on every section |
 | 2 | Trastuzumab | CHEMBL1201585 | antibody (test non-small-mol shape: no SMILES, no patent_compound) |
-| 3 | Sotorasib | CHEMBL4439653 | spec-flagship; tests CIViC §10 + KRAS G12C cross-link to gene+disease |
+| 3 | Sotorasib | (resolve by name) | spec-flagship; tests CIViC §10 + KRAS G12C cross-link. NOTE: don't hardcode the id — `CHEMBL4439653` is empty in this biobtree; resolve-by-name finds the populated `CHEMBL4535757`. General rule: the validation set resolves by name, never pinned ChEMBL ids. |
 | 4 | Osimertinib | CHEMBL3353410 | similar — EGFR T790M cross-links |
 | 5 | Pembrolizumab | CHEMBL3137344 | checkpoint inhibitor antibody; tests many indications |
 | 6 | Olaparib | CHEMBL521686 | PARP inhibitor; BRCAness narrative |
@@ -378,10 +378,17 @@ reciprocal-link mesh.
 
 | # | Issue | Atlas impact |
 |---|---|---|
-| ? | `chembl_target >> hgnc` forward edge returns 0 | §2 targets — must work around via `chembl_target>>uniprot>>hgnc`; one extra hop per target. File if not in current open list. |
-| ? | `chembl_molecule >> pharmgkb_drug` returns 0 | §9 PGx — work around via gene fanout. May be the same root cause as BIOBTREE_ISSUES #13. |
-| ? | `chembl_molecule >> mondo` direct edge | §4 indications need to cross-walk via efo/mesh. Acceptable. |
-| ? | indications field parsing | the entry's `indications` is a JSON array of `{efo, mesh, phase}` dicts; needs careful parsing |
+| **#18** | GtoPdb drug→target: `chembl_molecule>>gtopdb_ligand` forward edge unwired + `gtopdb_interaction` leaks other ligands by id-substring | §2/§7 — **filed in BIOBTREE_ISSUES.md (legit bug, under investigation).** Workaround in `anchors.py`: name-resolve ligand + filter interactions to exact trailing ligand id. Covers antibody targets. |
+| #13 | `chembl_molecule>>pharmgkb_drug` empty | §9 PGx — work around via gene fanout; same root cause as existing BIOBTREE_ISSUES #13 |
+
+**Not gaps (confirmed against biobtree's edges doc, `/data/biobtree/docs`):**
+- `chembl_target>>hgnc` direct returns 0 **by design** — chembl_target's xref is
+  to UniProt; go `chembl_target>>uniprot>>hgnc` (what `anchors.py` does).
+- `chembl_molecule>>mondo` absent — indications cross-walk via efo/mesh
+  (confirmed working; handled in `_resolve_indications`).
+- `opentargets` is a derived/identifier namespace (in `/api/meta` but not one of
+  the 76 edge-bearing datasets) — not traversable, and not meant to be.
+- indications shape confirmed `{highestDevelopmentPhase, efo, mesh}` (no `mondo`).
 
 **Resolved during spec iteration (no biobtree request needed):**
 - ~~`chembl_molecule.smiles` / `inchiKey`~~ — NOT on chembl_molecule, but
