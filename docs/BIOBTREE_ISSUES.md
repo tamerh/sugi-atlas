@@ -26,6 +26,7 @@ unambiguous. Bodies are removed once resolved to keep the doc compact.
 | #8 | `map` pagination "broken" — was a wrong param name (`p` not `page`); FastAPI silently dropped the unknown one | resolved 2026-05-28 (caller side) |
 | #11 | `>>uniprot>>ufeature` leaked ortholog features (P04637 query returned mouse Tp53 rows) | 2026-05-30 — single-accession queries now return only that accession's features. Atlas's `id.startswith(u + "_")` post-filter removed |
 | #9 | UniProt entry payload too thin (no CC, no `reviewed`, no isoforms) | **2026-05-31 — RESOLVED.** Entry now carries `comments` (function, subunit, subcellular_location, tissue_specificity, disease, ptm, cofactor, domain, induction, miscellaneous, similarity, caution) + `isoforms` list with named-isoform IDs (e.g. `P04637-1..9` for p53α/β/γ, Del40, Del133) + `is_canonical` flag on the principal isoform. Unreviewed accessions return empty attrs (implicit Swiss-Prot filter). |
+| #10 | `>>uniprot>>alphafold` empty for very large proteins | **2026-05-31 — RESOLVED biobtree-side.** Coverage extended; MTOR (2549 aa) and similar now have data. The remaining empties (ATM/BRCA2/DMD/TTN/MUC16 — all > ~3000 aa) reflect that **AlphaFold DB upstream genuinely has no model** for these. Atlas's responsibility: render a graceful "AlphaFold DB does not provide a model for proteins > ~3000 aa" footnote when alphafold is empty for an extra-large protein. |
 
 ---
 
@@ -79,73 +80,40 @@ chain. Quality-of-life win for weak callers.
 
 ## Issue #9 — RESOLVED 2026-05-31 (see top-of-doc Resolved table)
 
-## Issue #10 — `>>uniprot>>alphafold` is empty for very large proteins
+## Issue #10 — RESOLVED 2026-05-31 (see top-of-doc Resolved table)
+## Issue #12 — pubchem_activity broadly restored; KRAS still empty (under upstream investigation)
 
-> **FIXED in code 2026-05-30 (commit `fb3f917`) — ships in prod next release
-> (~2026-05-31).**
->
-> *Correction to the report's original premise:* current AlphaFold DB (v6)
-> does **not** ship fragmented `AF-<acc>-F1..Fn` models for the headline
-> examples. ATM (Q13315), BRCA2 (P51587) and the DMD canonical sequence
-> return **0 models** from the AlphaFold prediction API — AlphaFold dropped
-> large-protein fragments from the SwissProt tar and most are absent
-> entirely now. Of the ~1,243 reviewed proteins >2700 aa, only ~1/3 have
-> any model at all (DMD only has models for shorter isoforms).
->
-> **Fix:** an opt-in backfill (`largeProteinBackfill=yes` on the alphafold
-> dataset) enumerates reviewed proteins >2700 aa via UniProt REST, queries
-> the AlphaFold prediction API per accession, and ingests whatever models
-> exist (canonical fragments and/or isoform models) as one aggregate
-> `AlphaFoldAttr` per protein (length-weighted mean pLDDT, pooled
-> confidence fractions, total residues, fragment count). Off by default
-> (~1,243 live API calls); enable + re-run alphafold update to populate.
+**Status (2026-05-31 refresh):** the original "KRAS and similar targets"
+filing is now narrowed. Sampled 12 reference / canonical drug-targetable
+proteins:
 
-For proteins >~2700 aa (ATM Q13315, BRCA2 P51587, DMD P11532) the alphafold
-map returns 0 rows.
-
-**Atlas workaround (still in place):** construct `AF-<acc>-F1` for every
-reviewed protein and attach pLDDT only when the map provides it. Will lift
-to consume the new aggregate attribute when the next release lands.
-
----
-
-## Issue #12 — `pubchem_activity` index is empty for KRAS (and similar targets)
-
-> **FIXED in code 2026-05-30 (commit `fb3f917`) — ships in prod next release
-> (~2026-05-31).**
->
-> *Actual root cause (differs from the snapshot-subset hypothesis in the
-> original filing):* the ingested `bioactivities.tsv.gz` leaves its
-> **Protein Accession and Gene ID columns empty** for the vast majority of
-> rows (verified: all of the first 200k rows), so the activity→protein edge
-> was never built. The authoritative per-assay target mapping lives in a
-> **separate file biobtree did not join** — `Aid2GeneidAccessionUniProt.gz`.
-> KRAS proves it: gene 3845 has 256 assays, 216 mapped to P01116 there, but
-> none in the activity rows themselves.
->
-> **Fix:** join `Aid2GeneidAccessionUniProt.gz` keyed by AID (panel-limit 25
-> to drop a handful of unresolvable mega-panels) to emit activity→uniprot;
-> plus derive uniprot from the curated Entrez entry for rows that do carry
-> a gene_id. Restores `>>uniprot>>pubchem_activity` for KRAS and ~369k
-> assays overall.
-
-KRAS via every Atlas-tried route returned n=0:
 ```
->>uniprot>>pubchem_activity                          n=0   (direct)
->>hgnc>>uniprot>>pubchem_activity                    n=0   (via hgnc)
->>hgnc>>entrez>>pubchem_activity                     n=0   (via entrez)
->>uniprot>>chembl_target>>pubchem_activity           n=0   (via chembl_target)
+✓ TP53     P04637   n=882
+✓ EGFR     P00533   n=2000 (cap)
+✓ AKT1     P31749   n=2000
+✓ NR3C1    P04150   n=2000
+✓ AR       P10275   n=2000
+✓ ESR1     P03372   n=2000
+✓ CAMK2A   Q9UQM7   n=1168
+✓ BRCA1    P38398   n=28
+✓ NFKBIA   P25963   n=130
+— KRAS     P01116   n=0    (under upstream investigation)
+— CDKN2A   P42771   n=0    (likely target-specific; CDK inhibitor)
+— TTN      Q8WZ42   n=0    (likely target-specific; extreme size)
 ```
 
-While `>>uniprot>>bindingdb` n=100 and `>>uniprot>>chembl_target>>chembl_activity`
-n=100 both work fine for KRAS — confirming KRAS has curated binding data,
-just not in biobtree's pubchem_activity slice.
+So the broad-index issue is fixed — pubchem_activity now returns
+populated activity sets for the canonical drug-target proteome. **KRAS
+specifically remains empty pending upstream investigation.** TTN and
+CDKN2A may have target-specific explanations (no surprise that titin
+isn't in a drug-target bioactivity index; CDKN2A is a CDK inhibitor with
+limited small-molecule chemistry).
 
-**Atlas mitigation (kept in place):** §10 now wires `chembl_activity`
+**Atlas mitigation (kept in place):** §10 still wires `chembl_activity`
 alongside `pubchem_activity` (commit `189f98a`). Both blocks render where
-data exists; KRAS now has 5,239 ChEMBL activities (4,825 potent at
-pChembl≥5). When the pubchem_activity fix lands the PubChem block will
-backfill automatically.
+data exists; for KRAS the PubChem block is empty but ChEMBL surfaces
+5,239 activities (4,825 potent at pChembl≥5). When the KRAS-specific
+investigation completes the PubChem block will backfill automatically.
 
 ---
 

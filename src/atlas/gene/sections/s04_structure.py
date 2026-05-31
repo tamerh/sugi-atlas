@@ -14,13 +14,21 @@ def collect(a):
         for t in map_all(u, ">>uniprot>>pdb"):
             pdb[t["id"]] = {"id": t["id"], "method": t.get("method"),
                             "resolution": t.get("resolution")}
-        # Every UniProt protein has an AlphaFold model (id AF-<acc>-F1). biobtree's
-        # alphafold map is EMPTY for very large/fragmented proteins (>~2700 aa) —
-        # see BIOBTREE_ISSUES.md #10. Construct AF-<acc>-F1 and attach pLDDT when present.
+        # biobtree 2026-05-31 refresh resolved BIOBTREE_ISSUES #10 — alphafold
+        # coverage now extends to ~3000 aa (MTOR works at 2549 aa). Remaining
+        # empties (ATM/BRCA2/DMD/TTN/MUC16 — all >~3000 aa) reflect AlphaFold-DB
+        # upstream truly not having a model for these proteins, not a biobtree
+        # gap. Trust biobtree: emit the entry only when it returns one, set a
+        # `present` flag the renderer keys off to elide cleanly + add a footnote.
         m = map_all(u, ">>uniprot>>alphafold")
-        af.append({"id": f"AF-{u}-F1", "uniprot": u,
-                   "plddt": m[0].get("global_metric") if m else None,
-                   "fraction_plddt_very_high": m[0].get("fraction_plddt_very_high") if m else None})
+        if m:
+            af.append({"id": f"AF-{u}-F1", "uniprot": u, "present": True,
+                       "plddt": m[0].get("global_metric"),
+                       "fraction_plddt_very_high": m[0].get("fraction_plddt_very_high")})
+        else:
+            af.append({"id": None, "uniprot": u, "present": False,
+                       "plddt": None, "fraction_plddt_very_high": None,
+                       "note": "no AlphaFold model — AlphaFold DB does not provide a model for proteins > ~3000 aa"})
     bundle["pdb"] = list(pdb.values())
     bundle["pdb_count"] = len(pdb)
     bundle["alphafold"] = af

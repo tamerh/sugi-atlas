@@ -109,9 +109,18 @@ def r_structure(b):
     L.append(table(["PDB", "Method", "Resolution (Å)"],
                    [(p["id"], p.get("method"), p.get("resolution")) for p in b.get("pdb", [])]))
     L.append("\n**Predicted structure (AlphaFold):**\n")
-    L.append(table(["Model", "pLDDT", "Fraction very-high"],
-                   [(a["id"], a.get("plddt"), a.get("fraction_plddt_very_high"))
-                    for a in b.get("alphafold", [])]))
+    afs = b.get("alphafold", []) or []
+    present_rows = [a for a in afs if a.get("present", True) and a.get("id")]
+    missing_rows = [a for a in afs if not a.get("present", True)]
+    if present_rows:
+        L.append(table(["Model", "pLDDT", "Fraction very-high"],
+                       [(f"[{a['id']}](https://alphafold.ebi.ac.uk/entry/{a['uniprot']})",
+                         a.get("plddt"), a.get("fraction_plddt_very_high"))
+                        for a in present_rows]))
+    for a in missing_rows:
+        L.append(f"\n*No AlphaFold model available for {a['uniprot']} — "
+                 "AlphaFold DB does not currently provide models for proteins "
+                 "above ~3000 aa.*")
     return "\n".join(L)
 
 

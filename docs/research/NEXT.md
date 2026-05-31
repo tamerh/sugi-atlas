@@ -114,10 +114,10 @@ snapshot → dist) and visible on the six reference-gene pages. Per `git log`:
 | #4 silent multi-hop failure | open | Largely subsumed by #1/#3 RESOLVED |
 | #6 entry xrefs counts-not-values | open | Not blocking — Atlas uses `map_all` |
 | ~~#9 UniProt CC + reviewed flag + isoforms~~ | **✅ RESOLVED 2026-05-31** | `comments` block + named `isoforms` + `is_canonical` flag now in uniprot entry. Atlas-side wiring pending — see new Path C item below. |
-| #10 AlphaFold empty for >2700 aa | 🕓 fix tomorrow | §4 currently constructs `AF-<acc>-F1` heuristically; pLDDT missing for ATM/BRCA2/DMD |
-| #12 pubchem_activity KRAS gap | 🕓 fix tomorrow | Workaround in place via chembl_activity; no functional gap |
-| #13 pharmgkb_guideline / _clinical / _variant empty | open | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
-| #14 reactome pathway entries with empty `name` | open (just filed) | Disease §14 renders "Unnamed pathway (R-HSA-N…)" for 1-2 pathways per cohort; graceful fallback in place |
+| ~~#10 AlphaFold empty for >2700 aa~~ | **✅ RESOLVED 2026-05-31** (biobtree extended coverage; remaining empties are AlphaFold-DB upstream gaps for very-large proteins >~3000 aa — Atlas adds graceful footnote) |
+| #12 pubchem_activity gap | **🟡 mostly resolved 2026-05-31** — EGFR/AKT1/NR3C1/AR/ESR1/TP53/CAMK2A all populated. KRAS still empty (under upstream investigation); TTN+CDKN2A likely target-specific. Atlas's chembl_activity workaround stays in place. |
+| #13 pharmgkb_guideline / _clinical / _variant empty | 🕓 fix in tomorrow's release | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
+| #14 reactome pathway entries with empty `name` | 🕓 fix in tomorrow's release | Disease §14 renders "Unnamed pathway (R-HSA-N…)" for 1-2 pathways per cohort; graceful fallback in place |
 | #15 chembl_molecule parent/child salt-form linkage | 🟡 partial 2026-05-31 — child entries now expose `parent` field; remaining ask is a forward map edge. Atlas's per-entry workaround acceptable at disease scale, won't at drug-page scale |
 | #16 No `list-ids` endpoint for a dataset (corpus enumeration) | open (just filed) | **Blocks all-diseases / all-genes scale-out.** Today we depend on external Mondo .obo / HGNC TSV dumps for full enumeration; brittle and defeats the "biobtree is single source" model. |
 | #17 No bulk xref-count check (one /entry per id to filter by signal) | open (just filed) | Even with #16 resolved, filtering ~25k Mondo nodes by Atlas-relevant signal (gwas/civic/clinvar/gencc xrefs) needs 25k entry calls. Suggest adding xref counts to search/list response schemas. |
