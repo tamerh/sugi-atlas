@@ -12,11 +12,12 @@ CHAINS = (
     ">>hgnc>>hpo", ">>hgnc>>clinvar>>mondo>>hpo",
     ">>hgnc>>gwas",
     ">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar>>mondo>>gwas_study",
+    ">>hgnc>>gwas>>efo",                          # EFO-canonical GWAS trait names
     ">>hgnc>>clinvar>>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh",   # MeSH disease categories
     ">>hgnc>>intogen",                            # cancer-driver classification (LoF/Act)
     ">>hgnc>>civic",                              # CIViC gene-level curated narrative
 )
-DATASETS = ("mim", "gencc", "mondo", "orphanet", "hpo", "gwas", "gwas_study",
+DATASETS = ("mim", "gencc", "mondo", "orphanet", "hpo", "gwas", "gwas_study", "efo",
             "mesh", "intogen", "civic", "clinvar", "hgnc")
 
 def collect(a):
@@ -83,6 +84,19 @@ def collect(a):
                        "p_value": t.get("p_value")} for t in gwas]
     bundle["gwas_total"] = xc.get("gwas", len(gwas))
 
+    # EFO trait names — canonical vocabulary for the GWAS traits above.
+    # Same disease can appear under multiple GWAS Catalog free-text names
+    # (e.g. "Type 2 diabetes" / "Type 2 diabetes mellitus" / "Diabetes,
+    # type 2"); EFO normalizes them. AI agents prefer EFO's IDs over
+    # GWAS-catalog free text for cross-resource joins.
+    efo_seen = {}
+    for t in map_all(a.hgnc_id, ">>hgnc>>gwas>>efo"):
+        eid = t.get("id")
+        if eid and eid not in efo_seen:
+            efo_seen[eid] = t.get("name") or eid
+    bundle["efo_traits"] = [{"id": eid, "name": name}
+                            for eid, name in efo_seen.items()]
+
     # gwas_study ids: gene-mapped (gwas>>gwas_study) + disease-associated
     # (mondo>>gwas_study). The disease route catches genes whose GWAS aren't
     # gene-mapped directly (e.g. AR: hgnc>>gwas empty) but reach studies via disease.
@@ -121,6 +135,6 @@ SECTION = Section(
                  "MeSH descriptors (NLM disease vocabulary with tree-number category paths)"),
     needs=("hgnc_id", "hgnc_entry"),
     produces=("gene_omim", "disease_omim", "gencc", "mondo", "orphanet", "hpo",
-              "gwas", "gwas_studies", "mesh_descriptors", "intogen", "civic"),
+              "gwas", "gwas_studies", "efo_traits", "mesh_descriptors", "intogen", "civic"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

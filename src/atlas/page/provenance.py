@@ -66,6 +66,7 @@ UPSTREAM = {
     # TF regulation + post-transcriptional regulation
     "collectri":         ("CollecTRI",                             "https://github.com/saezlab/CollecTRI"),
     "jaspar":            ("JASPAR",                                "https://jaspar.genereg.net/"),
+    "pubmed":            ("PubMed (NCBI)",                         "https://pubmed.ncbi.nlm.nih.gov/"),
     "mirdb":             ("miRDB",                                 "https://mirdb.org/"),
     # drugs
     "chembl_target":     ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),

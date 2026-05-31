@@ -8,9 +8,10 @@ CHAINS = (
     '>>hgnc>>collectri[tf_gene=="<symbol>"]',
     '>>hgnc>>collectri[target_gene=="<symbol>"]',
     ">>uniprot>>jaspar",
+    ">>uniprot>>jaspar>>pubmed",
     ">>hgnc>>refseq>>mirdb",
 )
-DATASETS = ("collectri", "jaspar", "mirdb", "hgnc", "uniprot", "refseq")
+DATASETS = ("collectri", "jaspar", "mirdb", "hgnc", "uniprot", "refseq", "pubmed")
 
 def _f(x):
     try: return float(x)
@@ -31,6 +32,12 @@ def collect(a):
                                 "class": t.get("class"), "family": t.get("family")}
                                for t in (map_all(a.canonical_uniprot, ">>uniprot>>jaspar")
                                          if a.canonical_uniprot else [])]
+    # JASPAR PMIDs — evidence trail for the motifs above. One or two PMIDs
+    # per TF gene; light footnote ("see PubMed:NNNN") rather than a table.
+    bundle["jaspar_pmids"] = [t["id"] for t in
+                              (map_all(a.canonical_uniprot, ">>uniprot>>jaspar>>pubmed")
+                               if a.canonical_uniprot else [])
+                              if t.get("id")]
     bundle["is_transcription_factor"] = bool(down or bundle["jaspar_motifs"])
 
     # miRDB — miRNAs that target this gene (post-transcriptional regulators).
@@ -56,6 +63,6 @@ SECTION = Section(
                  "gene is itself a TF."),
     needs=("hgnc_id", "canonical_uniprot", "symbol"),
     produces=("downstream_targets", "upstream_regulators", "jaspar_motifs",
-              "mirna_regulators", "is_transcription_factor"),
+              "jaspar_pmids", "mirna_regulators", "is_transcription_factor"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

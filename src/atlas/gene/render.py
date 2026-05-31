@@ -219,6 +219,19 @@ def r_pathways(b):
         terms = go.get(cat, [])
         L.append(f"\n**GO {cat.replace('_', ' ').title()} ({len(terms)}):**")
         L.append(", ".join(f"{t['name']} ({t['id']})" for t in terms[:20]))
+
+    # Top-level parent rollups — give the page a hierarchical-navigation view.
+    # Reactome's hierarchy is tight (1-2 parents per pathway); GO's is broader.
+    rp = b.get("reactome_parent_rollup") or []
+    if rp:
+        L.append(f"\n**Reactome top-level categories (rollup of top-{len(rp)} pathways):**\n")
+        L.append(table(["Category", "Pathways"],
+                       [(p.get("name") or p["id"], p.get("pathway_count")) for p in rp[:15]]))
+    gp = b.get("go_parent_rollup") or []
+    if gp:
+        L.append(f"\n**GO top-level categories (rollup of top GO terms by namespace):**\n")
+        L.append(table(["Category", "Terms"],
+                       [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:20]]))
     return "\n".join(L)
 
 
@@ -248,6 +261,12 @@ def r_tf_regulation(b):
     L.append("\n**JASPAR motifs:**\n")
     L.append(table(["Motif", "Name", "Family"],
                    [(m["id"], m.get("name"), m.get("family")) for m in b.get("jaspar_motifs", [])]))
+    # JASPAR PMIDs — evidence trail for the motifs above.
+    pmids = b.get("jaspar_pmids") or []
+    if pmids:
+        links = ", ".join(f"[PubMed:{p}](https://pubmed.ncbi.nlm.nih.gov/{p}/)"
+                          for p in pmids[:10])
+        L.append(f"\n*JASPAR matrix evidence (PMIDs):* {links}")
     L.append(f"\n**Upstream regulators (CollecTRI, top):** "
              + ", ".join(r.get("regulator") for r in b.get("upstream_regulators", [])[:20]))
     # miRDB miRNAs targeting this gene — post-transcriptional regulators.
@@ -468,6 +487,17 @@ def r_diseases(b):
     L.append(f"\n**GWAS associations: {b.get('gwas_total', 0)}** (top):\n")
     L.append(table(["Study", "Trait", "p-value"],
                    [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]]))
+
+    # EFO canonical trait names — normalized vocabulary for the free-text
+    # GWAS-catalog traits above. The same disease can appear under multiple
+    # synonymous GWAS-catalog spellings; EFO collapses them. Useful for
+    # AI agents doing cross-resource joins on trait IDs.
+    efo = b.get("efo_traits") or []
+    if efo:
+        L.append(f"\n**EFO canonical traits ({len(efo)}, from GWAS):**\n")
+        L.append(table(["EFO ID", "Trait name"],
+                       [(f"[{e['id']}](https://www.ebi.ac.uk/efo/{e['id'].replace(':','_')})",
+                         e.get("name")) for e in efo[:30]]))
 
     # MeSH disease descriptors — NLM's controlled disease vocabulary.
     # Tree numbers (e.g. C04.700.600) classify into MeSH categories
