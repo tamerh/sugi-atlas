@@ -1,61 +1,67 @@
 #!/usr/bin/env python3
-"""Biobtree client — public API + transport dispatcher.
+"""Biobtree client — REST over HTTP/1.1 with a urllib3 connection pool.
 
-Public API (stable; never changes regardless of transport):
-  search(term, source=None)               -> /api/search-equivalent dict
-  entry(identifier, source)               -> /api/entry-equivalent dict
-  bbmap(ids, chain, page=None)            -> /api/map-equivalent dict
-  rows(resp)                              -> dicts keyed by REST schema cols
-  map_targets(resp)                       -> flat list of target dicts (escape-aware)
-  map_all(ids, chain, cap=60)             -> paginated map, deduped, loop-safe
-  xref_counts(entry_resp)                 -> {dataset: count} from entry's xref table
-  CALLS                                   -> per-call reproducibility log (module-level)
-
-Transport selection (env var `ATLAS_BIOBTREE_TRANSPORT`, default `urllib`):
-  urllib       — stdlib urllib.request, no connection reuse. Reproducibility baseline.
-  urllib_pool  — urllib3 PoolManager with HTTP keep-alive. ~15-20% faster.
-  grpc         — (reserved, not implemented yet) gRPC over HTTP/2.
-
-The transport only owns search/entry/bbmap (the wire layer). Everything
-else — rows(), map_targets(), map_all(), xref_counts() — is pure parsing
-on the returned dict shape and lives here, transport-agnostic.
-
-A/B comparison:
-  ATLAS_BIOBTREE_TRANSPORT=urllib       python -m atlas.disease.corpus run ...
-  ATLAS_BIOBTREE_TRANSPORT=urllib_pool  python -m atlas.disease.corpus run ...
+Three primitives + four pure parsers + a per-call reproducibility log:
+  search(term, source=None)       -> /api/search dict
+  entry(identifier, source)       -> /api/entry dict
+  bbmap(ids, chain, page=None)    -> /api/map dict
+  rows(resp)                      -> dicts keyed by REST schema cols
+  map_targets(resp)               -> flat list of target dicts (escape-aware)
+  map_all(ids, chain, cap=60)     -> paginated map, deduped, loop-safe
+  xref_counts(entry_resp)         -> {dataset: count} from entry's xref table
+  CALLS                           -> per-call reproducibility log
 """
-import os
+import json
 
-# Transport selection. Resolved once at import time; flipping the env var
-# at runtime won't re-pick a different transport.
-_TRANSPORT_NAME = (os.environ.get("ATLAS_BIOBTREE_TRANSPORT") or "urllib").lower()
+import urllib3
 
-if _TRANSPORT_NAME == "urllib_pool":
-    from atlas.biobtree._transports import urllib_pool as _t
-elif _TRANSPORT_NAME == "grpc":
-    from atlas.biobtree._transports import grpc_transport as _t
-elif _TRANSPORT_NAME == "urllib":
-    from atlas.biobtree._transports import urllib_transport as _t
-else:
-    raise ValueError(
-        f"Unknown ATLAS_BIOBTREE_TRANSPORT={_TRANSPORT_NAME!r}. "
-        f"Pick one of: urllib (default), urllib_pool, grpc (reserved).")
+API = "http://127.0.0.1:8000/api"
+CALLS = []
 
-# Re-export transport-owned primitives + the shared CALLS log.
-API = _t.API
-CALLS = _t.CALLS
+# One pool, HTTP keep-alive. Retries off — section collectors handle retry
+# at their own level when needed. maxsize bounds concurrent connections;
+# 16 covers any parallel fan-out we add later.
+_POOL = urllib3.PoolManager(
+    num_pools=2,
+    maxsize=16,
+    retries=False,
+    timeout=urllib3.Timeout(connect=5.0, read=15.0),
+    block=False,
+)
 
-search = _t.search
-entry = _t.entry
-bbmap = _t.bbmap
+
+def _get(path: str, params: dict) -> dict:
+    r = _POOL.request("GET", f"{API}/{path}", fields=params)
+    body = json.loads(r.data)
+    CALLS.append({"path": path, "params": params})
+    return body
+
+
+def search(term: str, source: str = None) -> dict:
+    p = {"i": term}
+    if source:
+        p["s"] = source
+    return _get("search", p)
+
+
+def entry(identifier: str, source: str) -> dict:
+    return _get("entry", {"i": identifier, "s": source})
+
+
+def bbmap(ids: str, chain: str, page: str = None) -> dict:
+    params = {"i": ids, "m": chain}
+    if page:
+        # cursor param is `p` (NOT `page`; FastAPI silently drops unknown
+        # query params so the wrong name fails silently).
+        params["p"] = page
+    return _get("map", params)
 
 
 def rows(resp: dict) -> list:
     """search/data rows -> list of dicts keyed by schema columns.
 
     biobtree returns `"data": null` (literal None, not the missing key) when
-    a search has zero results — `.get(key, [])` would still pick that up
-    as None. Coerce defensively."""
+    a search has zero results — coerce defensively."""
     cols = (resp.get("schema") or "").split("|")
     return [dict(zip(cols, r.split("|"))) for r in (resp.get("data") or [])]
 

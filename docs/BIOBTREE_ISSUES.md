@@ -327,69 +327,12 @@ lands" pattern.
 
 ---
 
-## Issue #22 (proposed) — Honor `mode="lite"` over gRPC
+## Issue #22 — gRPC page-size parity (REST-lite vs gRPC handlers)
 
-**Filed in repo / open question — confirm with biobtree dev team first.**
-
-biobtree's REST handler returns the compact `{schema: "...", data: ["a|b|c", ...]}`
-shape regardless of the proto's `mode` field. gRPC bypasses that encoder
-and returns the full proto messages directly — so a Python client wanting
-the compact shape over gRPC has to reimplement the entire compact.go
-encoder (~2400 LOC, ~80 per-dataset extractors).
-
-**Ask:** when `SearchRequest.mode = "lite"` or `MappingRequest.mode = "lite"`,
-populate `results_lite` / `MapFilterResultLite` in the gRPC response with
-the same pipe-encoded `schema|data` payload the REST handler produces.
-The proto already declares both `Result` and `ResultLite` fields — the
-field is there, it just isn't being filled in gRPC mode.
-
-**Why this matters for Atlas:**
-- gRPC alone gives ~50-80% wire-time wins (binary protobuf + HTTP/2 keep-alive).
-- Without lite-mode parity, those wins are eaten by porting compact.go to
-  Python (estimated 2-4h underestimate; the actual cost is ~1-2 days of
-  careful Go → Python translation + per-dataset validation).
-- With lite-mode parity, the gRPC transport becomes a drop-in upgrade
-  to urllib_pool with the same response shape and ~5× the throughput.
-
-**Atlas current state:** `urllib_pool` transport already shipped
-(~11% wall-clock win on disease builds). gRPC transport scaffolding is
-in place (regen script + stubs committed) but production gRPC transport
-is parked pending this feature or an explicit decision to port compact.go.
-
----
-
-## Issue #22 (REVISED based on gRPC adapter findings)
-
-**Original ask:** populate `ResultLite` / `MapFilterResultLite` in gRPC mode.
-
-**After implementing the gRPC transport in Atlas, the actual blocker is narrower:**
-
-biobtree's `grpc.Mapping` handler (src/service/grpc.go:117) ignores the
-request's `mode` field and calls `service.MapFilter(...)` which uses the
-default `maxMappingResult = 30`. The REST lite handler calls
-`MapFilterWithLimit(..., maxMappingResultLite=150)` — 5× larger pages.
-
-The proto already declares `MappingRequest.mode = 5` and the gRPC handler
-parses it but routes everything to the full path with this TODO:
-```go
-// Note: gRPC lite mode currently returns full results
-// TODO: Update protobuf definitions for new lite format if gRPC lite is needed
-```
-
-**Narrow ask:** in `grpc.Mapping` (and `grpc.Search`), when
-`req.Mode == "lite"`, route to `MapFilterWithLimit(..., maxMappingResultLite)`.
-The schema|data pipe-encoding is **not needed over gRPC** — Atlas reconstructs
-that shape locally from the proto via a Python adapter (98 LOC) driven by
-biobtree's own `conf/source*.dataset.json` config. The only thing missing
-is the *page-size* parity.
-
-**Atlas-side proof (committed):**
-- `src/atlas/biobtree/_transports/grpc_transport.py` — gRPC wire + adapter
-- `src/atlas/biobtree/_transports/_grpc_adapter.py` — proto→REST shape, driven by biobtree's own compact_fields config
-- `ATLAS_BIOBTREE_TRANSPORT=grpc` runs a full Breast Cancer disease build end-to-end
-- Wall-clock currently flat with `urllib_pool` (~38s) because the smaller gRPC page size cancels the per-call savings
-- With the requested page-size parity, gRPC would drop to ~10-15s (5× fewer round trips on the dominant map path)
-
-**Optional secondary ask:** add an explicit `page_size` field to
-`MappingRequest` / `SearchRequest` so clients can pick any limit (no need
-to overload the `mode` field). Either approach unblocks Atlas.
+Standalone writeup at [`docs/biobtree_grpc_pagesize_request.md`](./biobtree_grpc_pagesize_request.md)
+— precise file/line refs and the 4-line server-side change requested. We
+verified empirically that gRPC's per-call wire savings are small at
+localhost (~3% over urllib3 keep-alive); the dominant cost in any
+transport is biobtree's per-call compute, which Issue #21 (batch endpoints)
+attacks at the root. The page-size fix only closes the gRPC handicap;
+it does not move the production REST path.
