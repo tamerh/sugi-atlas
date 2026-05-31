@@ -45,13 +45,11 @@ lead + JSON-LD use FUNCTION CC; disease §5 has cohort_function_summary
 ("CFHR1: complement regulation; CFB: catalytic C3/C5 convertase; ...").
 
 - [ ] **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
-      NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness). No single biobtree
-      edge produces these joins today. Sources needed: ChEMBL molecule →
-      indication (Mondo) — already in biobtree via clinical_trials route;
-      *plus* FDA biomarker list parse (or NCT enrollment-criteria parse) for
-      the variant column; *plus* cross-join to ClinVar variant. Open Targets
-      does this aggregation today by ingesting all three independently.
-      Big lift; no near-term plan to ship.
+      NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness). Full design + 4
+      candidate solutions (Open Targets consumption / direct DIY ingest /
+      hybrid via biobtree dataset / link-out only) are in
+      [`SPEC_drug_indication_biomarker.md`](../../SPEC_drug_indication_biomarker.md)
+      at repo root. Lean: file as biobtree feature request. No work in flight.
 
 ### From the biobtree mining (still open)
 
