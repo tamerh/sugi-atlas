@@ -12,6 +12,7 @@ dict and are called explicitly by render_all().
 """
 from collections import Counter
 from atlas.render_common import table
+from atlas.civic import therapy_label
 
 # Shared formatting helpers --------------------------------------------------
 
@@ -439,6 +440,33 @@ def r_clinical_trials(b):
                       [(d.get("name") or d.get("molecule_id"),
                         d.get("max_phase"), _i(d.get("trial_count")))
                        for d in td[:30]])]
+
+    # CIViC precision-subtype map — the drug × molecular subtype × indication
+    # triple. Predictive associations only, ranked by CIViC evidence level
+    # (A validated → E inferential). The Subtype column is the molecular
+    # profile (EGFR T790M, ALK fusion, KRAS G12C, ...); Effect separates
+    # Sensitivity/Response from Resistance. Elides for non-cancer diseases.
+    ce = b.get("civic_evidence") or []
+    if ce:
+        etc = b.get("civic_evidence_type_counts") or {}
+        extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
+        out += ["",
+                (f"**Precision-medicine subtype map — drug × molecular subtype "
+                 f"(CIViC, {_i(b.get('civic_association_total'))} predictive "
+                 f"associations from {_i(b.get('civic_predictive_total'))} curated "
+                 f"evidence items"
+                 + (f"; also {extra}" if extra else "") + "):**"),
+                "",
+                table(["Molecular subtype", "Therapy", "Effect", "Level", "CIViC"],
+                      [(r["profile"], therapy_label(r["therapy"]), r["significance"],
+                        f"CIViC {r['level']}" if r.get("level") else "",
+                        f"[EID{r['evidence_id']}](https://civicdb.org/links/evidence_items/{r['evidence_id']})"
+                        + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
+                       for r in ce])]
+        more = (b.get("civic_association_total") or 0) - len(ce)
+        if more > 0:
+            out += ["", (f"*+{more} more predictive associations (showing top "
+                         f"{len(ce)} by evidence level).*")]
     return "\n".join(out)
 
 

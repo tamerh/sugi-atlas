@@ -44,12 +44,20 @@ disease/cofactor/domain/...` paragraphs + isoforms table; declarative
 lead + JSON-LD use FUNCTION CC; disease §5 has cohort_function_summary
 ("CFHR1: complement regulation; CFB: catalytic C3/C5 convertase; ...").
 
-- [ ] **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
-      NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness). Full design + 4
-      candidate solutions (Open Targets consumption / direct DIY ingest /
-      hybrid via biobtree dataset / link-out only) are in
-      [`SPEC_drug_indication_biomarker.md`](../../SPEC_drug_indication_biomarker.md)
-      at repo root. Lean: file as biobtree feature request. No work in flight.
+- **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
+      NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness) — **decided: CIViC.**
+      Probe (2026-05-31) found the triple is *already in biobtree*, fully
+      normalized: `civic_evidence` (dataset 754) carries
+      `molecular_profile | disease | therapies | evidence_type | evidence_level
+      | significance` with xrefs to hgnc/mondo/chembl_molecule/pubmed. Reachable
+      today via `>>hgnc>>civic_evidence` (gene §10) and `>>mondo>>civic_evidence`
+      (disease §13). The earlier Open Targets / FDA-label / biobtree-feature-request
+      analysis was a false alarm caused by trying the wrong route
+      (`hgnc>>civic_variant`, n=0) — all rejected (wrong layer; data was in
+      `civic_evidence` all along). Cancer subset ships in the §10 collector
+      (this commit). PGx slice (CYP × dosing — not in CIViC) follows later via
+      PharmGKB once biobtree #13 lands. The deleted `SPEC_drug_indication_biomarker.md`
+      held the superseded 4-option analysis; full probe trail is in git history.
 - [ ] **ClinGen dosage sensitivity verdicts** (audit Top-10 #4) —
       haploinsufficiency / triplosensitivity score per gene. Public REST
       API at `https://search.clinicalgenome.org/`; one call per gene.

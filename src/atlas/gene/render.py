@@ -12,6 +12,7 @@ reserved for the synthesis/executive-summary layer, not this.
 import sys, os, html
 from atlas.gene import collect as C
 from atlas.render_common import table
+from atlas.civic import therapy_label
 
 
 def _cap(n):
@@ -300,6 +301,33 @@ def r_drugs(b):
                    [(m["id"], m.get("name"), m.get("phase"),
                      f"{m['patent_count']:,}" if m.get("patent_count") else "")
                     for m in b.get("molecules", [])[:30]]))
+    # CIViC clinical evidence — drug × variant × indication (the precision-
+    # medicine triple). Predictive associations only, deduped + ranked by CIViC
+    # evidence level (A validated → E inferential). The Effect column separates
+    # Sensitivity/Response from Resistance (opposite clinical meaning, both
+    # actionable). Each row links to a representative CIViC evidence item;
+    # "+N" flags additional supporting items for the same association. Empty
+    # for non-cancer genes so the block elides cleanly.
+    ce = b.get("civic_evidence") or []
+    if ce:
+        etc = b.get("civic_evidence_type_counts") or {}
+        extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
+        L.append(f"\n**Clinical evidence — drug × variant × indication "
+                 f"(CIViC, {b.get('civic_association_total', 0)} predictive "
+                 f"associations from {b.get('civic_predictive_total', 0)} curated "
+                 f"evidence items"
+                 + (f"; also {extra}" if extra else "") + "):**\n")
+        L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
+                       [(r["profile"], therapy_label(r["therapy"]), r["disease"], r["significance"],
+                         f"CIViC {r['level']}" if r.get("level") else "",
+                         f"[EID{r['evidence_id']}](https://civicdb.org/links/evidence_items/{r['evidence_id']})"
+                         + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
+                        for r in ce]))
+        more = b.get("civic_association_total", 0) - len(ce)
+        if more > 0:
+            L.append(f"\n*+{more} more predictive associations (showing top "
+                     f"{len(ce)} by evidence level).*")
+
     pg = b.get("pharmgkb", [])
     L.append(f"\n**PharmGKB:** {len(pg)} entr{'y' if len(pg)==1 else 'ies'}"
              + (f" (VIP={pg[0].get('vip')}, CPIC={pg[0].get('cpic_guideline')})" if pg else ""))

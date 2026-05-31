@@ -2,6 +2,7 @@
 clinical trials via the DISEASE route (gene → MONDO → trials)."""
 from collections import Counter
 from atlas.biobtree import map_all, entry, xref_counts
+from atlas.civic import aggregate_predictive
 from atlas.gene.sections.base import Section
 
 CHAINS = (
@@ -18,12 +19,14 @@ CHAINS = (
     ">>hgnc>>entrez>>ctd_gene_interaction",
     ">>hgnc>>gencc>>mondo>>clinical_trials",
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
+    ">>hgnc>>civic_evidence",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
             "chembl_document", "patent_compound", "cellosaurus",
             "pharmgkb_gene", "bindingdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
-            "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc")
+            "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc",
+            "civic_evidence")
 
 # ChEMBL assay type codes — single-letter classification we surface as a
 # breakdown ("how heavily this target is profiled, and by what experimental
@@ -247,6 +250,27 @@ def collect(a):
         return int(p) if p.isdigit() else 0
     bundle["disease_trials"] = sorted(trials.values(), key=_ph, reverse=True)
     bundle["disease_trial_count"] = len(trials)
+
+    # CIViC clinical evidence — the drug × variant × indication triple, the
+    # precision-medicine narrative ("drug X for variant Y in disease Z"). The
+    # civic_evidence dataset carries curated predictive / prognostic /
+    # diagnostic associations per molecular profile, already normalized
+    # (xrefs to hgnc/mondo/chembl_molecule/pubmed). We surface the PREDICTIVE
+    # subset — the drug-actionable view — deduped to unique (variant, therapy,
+    # indication, effect) and ranked by CIViC evidence level (A validated →
+    # E inferential), keeping a representative evidence id + supporting-item
+    # count per association. The Effect column (significance) distinguishes
+    # Sensitivity/Response from Resistance — opposite clinical meaning, both
+    # actionable. Reached via >>hgnc>>civic_evidence; empty for non-cancer
+    # genes (TTN etc.) so the block cleanly elides on the long tail.
+    civic = map_all(a.hgnc_id, ">>hgnc>>civic_evidence", cap=15)
+    ranked, cstats = aggregate_predictive(civic, top=30)
+    bundle["civic_evidence"] = ranked
+    bundle["civic_evidence_total"] = cstats["evidence_total"]
+    bundle["civic_predictive_total"] = cstats["predictive_total"]
+    bundle["civic_association_total"] = cstats["association_total"]
+    bundle["civic_evidence_type_counts"] = cstats["evidence_type_counts"]
+
     bundle["is_drug_target"] = bool(targets)
     return bundle
 
@@ -254,7 +278,8 @@ SECTION = Section(
     id="10", name="drugs",
     description=("ChEMBL targets + phased targeting molecules, PharmGKB, BindingDB "
                  "affinities, PubChem BioAssay actives (sorted by potency, with "
-                 "clickable CID/AID), clinical trials via disease route"),
+                 "clickable CID/AID), clinical trials via disease route, CIViC "
+                 "clinical evidence (drug × variant × indication precision triple)"),
     needs=("hgnc_id", "canonical_uniprot"),
     produces=("chembl_targets", "molecules", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
@@ -262,6 +287,7 @@ SECTION = Section(
               "cellosaurus_total", "cellosaurus_category_counts",
               "cellosaurus_samples", "pharmgkb",
               "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",
-              "disease_trials", "is_drug_target"),
+              "disease_trials", "civic_evidence", "civic_predictive_total",
+              "civic_evidence_total", "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

@@ -5,13 +5,15 @@ drugs tested across them via clinical_trials → chembl_molecule.
 NEW collector — disease anchors directly to trials, no gene cohort fanout."""
 from collections import Counter
 from atlas.biobtree import map_all, bbmap, map_targets, entry
+from atlas.civic import aggregate_predictive
 from atlas.section import Section
 
 CHAINS   = (">>mondo>>clinical_trials",
             ">>mondo>>clinical_trials>>chembl_molecule",
             ">>mesh>>clinical_trials>>chembl_molecule",
-            ">>chembl_molecule>>clinical_trials")
-DATASETS = ("mondo", "mesh", "clinical_trials", "chembl_molecule")
+            ">>chembl_molecule>>clinical_trials",
+            ">>mondo>>civic_evidence")
+DATASETS = ("mondo", "mesh", "clinical_trials", "chembl_molecule", "civic_evidence")
 
 # Ordering helpers ----------------------------------------------------------
 # Trials: PHASE4 > PHASE3 > PHASE2 > PHASE1 > EARLY_PHASE1 > NA/blank.
@@ -150,21 +152,39 @@ def collect(a):
                                       -(x["trial_count"] or 0),
                                       x["name"] or ""))[:30]
 
+    # ---- 6. CIViC precision-subtype map — the drug × variant × indication
+    # triple at disease level. mondo→civic_evidence yields predictive
+    # associations stratified by molecular subtype (e.g. NSCLC → EGFR T790M →
+    # Osimertinib, ALK fusion → Alectinib, KRAS G12C → Sotorasib). Same
+    # aggregation as gene §10 (dedup + rank by CIViC evidence level); here the
+    # `profile` column reads as the molecular subtype of the disease. Empty
+    # for non-cancer diseases so the block elides cleanly.
+    civic = map_all(a.mondo_id, ">>mondo>>civic_evidence", cap=15)
+    civic_ranked, civic_stats = aggregate_predictive(civic, top=30)
+
     return {"section": "13_clinical_trials",
             "mondo_id": a.mondo_id,
             "trial_count": trial_count,
             "top_trials": top_trials,
             "trial_drugs": top_drugs,
             "phase_counts": phase_counts,
-            "status_counts": status_counts}
+            "status_counts": status_counts,
+            "civic_evidence": civic_ranked,
+            "civic_evidence_total": civic_stats["evidence_total"],
+            "civic_predictive_total": civic_stats["predictive_total"],
+            "civic_association_total": civic_stats["association_total"],
+            "civic_evidence_type_counts": civic_stats["evidence_type_counts"]}
 
 SECTION = Section(
     id="13", name="clinical_trials",
     description=("Disease-level clinical trials from mondo→clinical_trials + "
                  "drugs tested (clinical_trials → chembl_molecule). Phase / "
-                 "status / lead-drug attrs."),
+                 "status / lead-drug attrs. Plus CIViC precision-subtype map "
+                 "(drug × molecular subtype × indication via mondo→civic_evidence)."),
     needs=("mondo_id", "mesh_ids", "xref_counts"),
     produces=("trial_count", "top_trials", "trial_drugs", "phase_counts",
-              "status_counts"),
+              "status_counts", "civic_evidence", "civic_evidence_total",
+              "civic_predictive_total", "civic_association_total",
+              "civic_evidence_type_counts"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
