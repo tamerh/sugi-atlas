@@ -45,8 +45,13 @@ lead + JSON-LD use FUNCTION CC; disease §5 has cohort_function_summary
 ("CFHR1: complement regulation; CFB: catalytic C3/C5 convertase; ...").
 
 - [ ] **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
-      NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness). Complex — needs
-      ChEMBL indication + FDA biomarker list bridging. Defer until V1 corpus.
+      NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness). No single biobtree
+      edge produces these joins today. Sources needed: ChEMBL molecule →
+      indication (Mondo) — already in biobtree via clinical_trials route;
+      *plus* FDA biomarker list parse (or NCT enrollment-criteria parse) for
+      the variant column; *plus* cross-join to ClinVar variant. Open Targets
+      does this aggregation today by ingesting all three independently.
+      Big lift; no near-term plan to ship.
 
 ### From the biobtree mining (still open)
 
