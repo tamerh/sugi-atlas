@@ -131,6 +131,21 @@ def r_target_pathways(b):
     return "\n".join(L)
 
 
+def r_pharmacogenomics(b):
+    L = ["## Pharmacogenomics", ""]
+    rows = b.get("pgx_entries") or []
+    if not rows:
+        L.append("*No PharmGKB coverage for the drug's target genes. "
+                 "(Direct drug-level PGx is pending biobtree #13.)*")
+        return "\n".join(L)
+    L.append(f"**Target-gene PharmGKB coverage ({_i(b.get('pgx_count'))} entries). "
+             f"Direct drug-level PGx guidelines pending biobtree #13:**\n")
+    L.append(table(["Gene", "PharmGKB", "VIP", "CPIC guideline"],
+                   [(r.get("gene"), r.get("pharmgkb_id"), r.get("vip"),
+                     r.get("cpic_guideline")) for r in rows]))
+    return "\n".join(L)
+
+
 def r_clinical_evidence(b):
     L = ["## Clinical evidence (CIViC)", ""]
     ce = b.get("civic_evidence") or []
@@ -228,6 +243,7 @@ RENDER = {
     "6": r_pharmacology,
     "7": r_related_molecules,
     "8": r_target_pathways,
+    "9": r_pharmacogenomics,
     "10": r_clinical_evidence,
     "11": r_patent_literature,
     "12": r_salt_forms,
