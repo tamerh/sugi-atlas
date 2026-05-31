@@ -37,27 +37,17 @@ Remaining (all cross-repo, deferred to launch):
 
 ### From the page audit (biggest user-visible gaps)
 
-UniProt CC narratives + named isoforms — **SHIPPED 2026-05-31** (search
-`git log --grep="BIOBTREE #9"`). Closes the audit's #1 gap: gene §3 now
-carries `function/subunit/subcellular_location/tissue_specificity/ptm/
-disease/cofactor/domain/...` paragraphs + isoforms table; declarative
-lead + JSON-LD use FUNCTION CC; disease §5 has cohort_function_summary
-("CFHR1: complement regulation; CFB: catalytic C3/C5 convertase; ...").
-
-- **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
-      NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness) — **decided: CIViC.**
-      Probe (2026-05-31) found the triple is *already in biobtree*, fully
-      normalized: `civic_evidence` (dataset 754) carries
-      `molecular_profile | disease | therapies | evidence_type | evidence_level
-      | significance` with xrefs to hgnc/mondo/chembl_molecule/pubmed. Reachable
-      today via `>>hgnc>>civic_evidence` (gene §10) and `>>mondo>>civic_evidence`
-      (disease §13). The earlier Open Targets / FDA-label / biobtree-feature-request
-      analysis was a false alarm caused by trying the wrong route
-      (`hgnc>>civic_variant`, n=0) — all rejected (wrong layer; data was in
-      `civic_evidence` all along). Cancer subset ships in the §10 collector
-      (this commit). PGx slice (CYP × dosing — not in CIViC) follows later via
-      PharmGKB once biobtree #13 lands. The deleted `SPEC_drug_indication_biomarker.md`
-      held the superseded 4-option analysis; full probe trail is in git history.
+**SHIPPED 2026-05-31** — top-of-audit content gaps:
+- UniProt CC narratives + named isoforms (`git log --grep="BIOBTREE #9"`) —
+  function / subunit / subcellular_location / tissue_specificity / ptm /
+  disease / cofactor / domain narratives + named isoforms table; declarative
+  lead + JSON-LD use FUNCTION CC; disease §5 cohort_function_summary.
+- Drug × variant × indication precision-medicine triple via CIViC
+  (`git log --grep="audit gap #6"`) — gene §10 + disease §13 carry the
+  clinical-evidence table at CIViC Level A→E, deduped by association,
+  with per-row PubMed/CIViC links. Cancer subset only; PGx slice
+  (CYP × dosing — not in CIViC's scope) follows later via PharmGKB
+  once biobtree #13 lands.
 - [ ] **ClinGen dosage sensitivity verdicts** (audit Top-10 #4) —
       haploinsufficiency / triplosensitivity score per gene. Public REST
       API at `https://search.clinicalgenome.org/`; one call per gene.
