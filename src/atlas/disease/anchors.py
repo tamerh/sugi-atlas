@@ -63,6 +63,14 @@ class DiseaseAnchors:
     # GWAS study count (top-level, from mondo xrefs — cheap signal for §2).
     gwas_study_count: int
 
+def _mondo_attrs(mondo_entry: dict) -> dict:
+    """biobtree's mondo entry now exposes name/synonyms/definition under
+    Attributes.Ontology; older payloads used Attributes.Mondo. Accept either
+    so the resolve survives the schema rename."""
+    attrs = (mondo_entry.get("Attributes") or {})
+    return attrs.get("Ontology") or attrs.get("Mondo") or {}
+
+
 def _is_cancer(mondo_id: str, mondo_entry: dict, canonical_name: Optional[str]) -> bool:
     """Cheap is-cancer heuristic. Mondo's parent ancestry would be more rigorous
     but isn't surfaced via single-call traversal; the name regex catches the
@@ -71,8 +79,7 @@ def _is_cancer(mondo_id: str, mondo_entry: dict, canonical_name: Optional[str]) 
     if canonical_name and _CANCER_RX.search(canonical_name):
         return True
     # Definition string sometimes has 'malignant neoplasm of ...' — check it too.
-    attrs = (mondo_entry.get("Attributes") or {}).get("Mondo") or {}
-    definition = attrs.get("definition") or ""
+    definition = _mondo_attrs(mondo_entry).get("definition") or ""
     if _CANCER_RX.search(definition):
         return True
     return False
@@ -84,7 +91,15 @@ def resolve_mondo(name_or_id: str) -> Tuple[str, dict, Optional[str]]:
     Mondo node beats deprecated/obsolete duplicates on xref count)."""
     if re.match(r"^MONDO:\d+$", name_or_id):
         en = entry(name_or_id, "mondo")
-        canonical = (((en.get("Attributes") or {}).get("Mondo") or {}).get("name"))
+        canonical = _mondo_attrs(en).get("name")
+        if not canonical:
+            # Defensive fallback — biobtree's name-by-id might fail (deprecated
+            # term, schema in flux). Search by the id to recover the canonical
+            # name from the index (search returns name even when entry doesn't).
+            for r in rows(search(name_or_id, source="mondo")):
+                if r.get("id") == name_or_id:
+                    canonical = r.get("name")
+                    break
         return name_or_id, en, canonical
 
     resp = search(name_or_id, source="mondo")
