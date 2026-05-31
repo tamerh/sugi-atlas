@@ -20,6 +20,11 @@ class Anchors:
     reviewed_uniprots: tuple   # all reviewed (Swiss-Prot) products; >1 for dual-product genes
     canonical_uniprot: Optional[str]
     canonical_transcript: Optional[str]  # MANE-Select Ensembl ENST, when present
+    entrez_id: Optional[str]   # NCBI Gene id (str of integer, e.g. "7157" for TP53)
+    # NCBI's curated `Entrezgene_summary` — independent narrative complementary
+    # to UniProt FUNCTION. Empty string when biobtree has no entrez row for
+    # this gene (rare; covers most protein-coding genes).
+    ncbi_summary: str
 
 def resolve_hgnc(symbol):
     """Symbol -> (hgnc_id, hgnc_entry) robustly.
@@ -56,6 +61,20 @@ def _canonical_transcript(ensembl_id):
     tr = map_all(ensembl_id, ">>ensembl>>transcript")
     return tr[0]["id"] if tr else None
 
+def _entrez_summary(hgnc_id):
+    """(entrez_id, ncbi_summary) — picks first entrez row; empty strings on miss."""
+    ez = map_all(hgnc_id, ">>hgnc>>entrez")
+    if not ez:
+        return None, ""
+    eid = ez[0]["id"]
+    try:
+        ee = entry(eid, "entrez")
+        attrs = (ee.get("Attributes") or {}).get("Entrez") or {}
+        return eid, (attrs.get("summary") or "")
+    except Exception:
+        return eid, ""
+
+
 def resolve(symbol):
     """Symbol -> Anchors (all the shared IDs the 12 sections will need)."""
     hgnc_id, he = resolve_hgnc(symbol)
@@ -63,6 +82,7 @@ def resolve(symbol):
     ensembl_id = ens[0]["id"] if ens else None
     reviewed = tuple(t["id"] for t in map_all(hgnc_id, ">>hgnc>>uniprot"))
     canonical_u = reviewed[0] if reviewed else None
+    entrez_id, ncbi_summary = _entrez_summary(hgnc_id)
     return Anchors(
         symbol=symbol,
         hgnc_id=hgnc_id,
@@ -71,4 +91,6 @@ def resolve(symbol):
         reviewed_uniprots=reviewed,
         canonical_uniprot=canonical_u,
         canonical_transcript=_canonical_transcript(ensembl_id),
+        entrez_id=entrez_id,
+        ncbi_summary=ncbi_summary,
     )

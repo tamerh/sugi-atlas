@@ -105,6 +105,17 @@ def r_protein_ids(b):
             L.append(f"**{label}.** {text}")
             L.append("")  # blank between paragraphs
 
+    # NCBI-curated gene summary — independent narrative from RefSeq curators,
+    # complementary to UniProt FUNCTION. Cite via the Entrez gene URL.
+    ncbi = b.get("ncbi_summary") or ""
+    if ncbi:
+        eid = b.get("entrez_id")
+        link = (f"[NCBI Gene {eid}](https://www.ncbi.nlm.nih.gov/gene/{eid})"
+                if eid else "NCBI Gene")
+        L.append(f"\n### {link} summary\n")
+        L.append(ncbi)
+        L.append("")
+
     # Named isoforms — surfaces p53α/β/γ, K-Ras4A/4B, p16INK4a/p14ARF, etc.
     isoforms = b.get("isoforms") or []
     if isoforms:

@@ -90,6 +90,11 @@ def collect(a):
     bundle["isoforms"] = cc_blob.get("isoforms") or []
     bundle["protein_name"] = cc_blob.get("name")  # primary UniProt name
     bundle["alternative_names"] = cc_blob.get("alternative_names") or []
+
+    # NCBI Entrez summary — independent narrative complementary to UniProt CC.
+    # Resolved at anchor time so zero extra cost here; just pass through.
+    bundle["ncbi_summary"] = a.ncbi_summary or ""
+    bundle["entrez_id"] = a.entrez_id
     return bundle
 
 SECTION = Section(
@@ -99,7 +104,7 @@ SECTION = Section(
     produces=("reviewed_uniprot", "uniprot_all", "refseq_protein", "interpro",
               "pfam", "antibody_count", "ufeatures", "ufeature_counts",
               "brenda_ec", "cc", "isoforms", "protein_name",
-              "alternative_names"),
+              "alternative_names", "ncbi_summary", "entrez_id"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
     # refseq_protein follows the same REVIEWED-only fluctuation as
     # refseq_mrna (BIOBTREE_ISSUES.md #11 — see §2 shrinkable note).
