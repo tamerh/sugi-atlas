@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-05-31 (biobtree refresh resolved #9 + #10 fully + #15 partially; #12 mostly resolved; corpus-enumeration asks #16/#17 retracted on reflection — see Retracted section)
+**Last updated:** 2026-05-31 (biobtree refresh resolved #9 + #10 fully + #15 partially; #12 mostly resolved; corpus-enumeration asks #16/#17 retracted on reflection; #18 filed during drug-entity build — GtoPdb drug→target routing)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -214,9 +214,113 @@ map response itself.
 sections/s13_clinical_trials.py) still pays ~30 calls per disease.
 Acceptable at disease scale; will be a hot path on drug pages.
 
+## Issue #18 — GtoPdb drug→target: forward edge unwired + interaction id substring contamination
+
+GtoPdb (Guide to Pharmacology) is the cleanest source of **curated mechanism
+targets** for a drug — and critically the *only* one in biobtree that covers
+**antibodies** (the `chembl_molecule>>chembl_target` edge is bioactivity-based
+and returns 0 for biologics; e.g. Trastuzumab→ERBB2 is absent there). Two
+problems reaching it:
+
+**(a) No forward edge from chembl_molecule.** The `chembl_molecule` entry
+carries a `gtopdb_ligand` xref *count* (e.g. Imatinib `gtopdb_ligand|1`) but
+`>>chembl_molecule>>gtopdb_ligand` returns n=0 — no traversal. Same directional
+gap as #15. Workaround: resolve the ligand by **name search**
+(`search(name, source="gtopdb_ligand")`), which is fragile (see (b)).
+
+**(b) `>>gtopdb_ligand>>gtopdb_interaction` leaks other ligands' interactions
+by id-substring.** Querying ligand `7519` (olaparib) returns interactions
+belonging to ligand `5662` (**AT-7519**, a CDK inhibitor) because the id
+`7519` is a substring of the code "AT-7519":
+```
+map(7519, ">>gtopdb_ligand>>gtopdb_interaction")  →
+  1961_5662 | cyclin dependent kinase 1 | AT-7519 | ...   ← WRONG (ligand 5662)
+  2771_7519 | poly(ADP-ribose) polymerase 1 | olaparib    ← correct (ligand 7519)
+```
+Result: olaparib (a PARP inhibitor) appears to target CDK1–9. The interaction
+id encodes `{target_id}_{ligand_id}`, so the contamination is detectable, but
+the edge should match the ligand id exactly, not by substring.
+
+**Atlas mitigation (in place):** `atlas/drug/anchors.py` (a) name-resolves the
+ligand and (b) filters interaction rows to `id.split("_")[-1] == ligand_id`.
+With the guard, Trastuzumab→ERBB2, Imatinib→ABL1/DDR1/DDR2, Olaparib→PARP1/2/3,
+Sotorasib→KRAS all resolve correctly (with action + pAffinity).
+
+**Suggested fix:** (a) wire `>>chembl_molecule>>gtopdb_ligand` (and/or emit a
+`gtopdb_ligand` column on chembl_molecule-emitting edges) so drugs reach their
+GtoPdb ligand by ID, not name; (b) make `gtopdb_interaction` lookup match the
+ligand id exactly rather than by substring.
+
+> **Not filed (checked against biobtree's edges doc, `/data/biobtree/docs`):**
+> - `opentargets` returning n=0 from every route is **not a bug** — it's a
+>   *derived/identifier* namespace (appears in `/api/meta` but isn't one of the
+>   76 edge-bearing datasets). Routing is defined only over the actual
+>   datasets; refer to the edges doc, not `/meta`, for what's traversable.
+> - `chembl_target>>hgnc` returning 0 is **by design** — `chembl_target`'s
+>   cross-reference is to UniProt (`components.acc`); the gene is reached via
+>   `chembl_target>>uniprot>>hgnc`. That's the documented pattern, not a gap.
+
 ## Retracted
 
 | # | Title | Reason |
 |---|---|---|
 | #16 | No `list-ids` endpoint for a dataset (corpus enumeration) | Retracted 2026-05-31. Corpus enumeration is naturally upstream of biobtree — HGNC ships `hgnc_complete_set.txt` (all human genes), Mondo ships its OBO at obofoundry.org (all disease classes), ChEMBL ships SQLite/flat-file releases. biobtree itself consumes these source files; Atlas can parse the same files for "discover the corpus" without asking biobtree to duplicate that role. Filing was a "biobtree is single source" aesthetic, not a real engineering need. |
 | #17 | No bulk xref-count check | Retracted 2026-05-31. The mondo entry already exposes xref counts; calling `/entry` per id is N round-trips but only once per release, easily cached locally. At ~25k Mondo nodes this is ~30 min serial / a few min parallel — not prohibitive. The motivation was that #16 made enumeration cheap and #17 made filtering cheap; once #16 is retracted, #17 loses its main case. A future "batch entry resolve" endpoint might help at scale, but no current bottleneck justifies filing it now. |
+
+## Issue #21 — Batch-map / batch-entry endpoint to amortize HTTP overhead at scale
+
+Filed 2026-05-31 during the all-diseases scale-out (Atlas's Phase 2 of
+the disease corpus build, ~19.7k pages).
+
+For each disease page, Atlas calls biobtree thousands of times — most of
+the cost is HTTP round-trips, not biobtree compute. Each cohort gene's
+§7 (pathways), §8 (interactions, now capped), §10 (drugs), §11
+(bioactivity) involves N separate `/map` calls with different chains.
+Across the full corpus this is hundreds of millions of HTTP calls.
+
+biobtree's per-call response is fast (~6ms). The waste is HTTP-layer:
+TCP setup, header serialization, JSON parsing per response.
+
+**Proposed shape:**
+
+```
+POST /api/map_batch
+{
+  "ids":   ["HGNC:11998", "HGNC:1100", "HGNC:6407", ...],   // ≤500 ids per request
+  "chains": [">>hgnc>>reactome", ">>hgnc>>uniprot>>interpro"]  // ≤10 chains
+}
+→ {
+  "results": {
+    "HGNC:11998": {
+      ">>hgnc>>reactome":              {schema: "...", targets: [...]},
+      ">>hgnc>>uniprot>>interpro":     {schema: "...", targets: [...]}
+    },
+    "HGNC:1100":   {...},
+    ...
+  },
+  "pagination": {has_next: ..., next_token: ...}
+}
+```
+
+Similar shape for `/api/entry_batch` (one POST with N ids + one source).
+
+**Atlas impact:** the disease pipeline fans gene collectors over a 50-gene
+cohort × ~9 sections × ~5 chains/section = ~2,250 HTTP calls per disease.
+A batched call (50 ids × 1 chain per request) cuts that 50× — same total
+data, ~45 calls instead of 2,250. Estimated per-disease drop from ~48s
+to ~5-10s. Corpus build: ~12h parallel → ~2h.
+
+**Why this is the right shape (vs alternatives):**
+
+- *list-ids endpoint* — was filed as #16, retracted: corpus enumeration
+  belongs upstream of biobtree.
+- *bulk xref-count check* — was filed as #17, retracted: one-time per
+  release is fine.
+- *per-chain HTTP caching headers (ETag/Cache-Control)* — would help repeat
+  callers but doesn't address the first-call HTTP volume.
+- *batch-map/entry* — directly attacks the HTTP-call-count problem the
+  hot path actually has.
+
+**Not blocking — Atlas can ship at the current 48s/page rate** (12h corpus
+build with 8-way parallel). This is a "ship the request, swap when it
+lands" pattern.
