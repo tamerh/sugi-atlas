@@ -238,17 +238,26 @@ _TIER_ORDER = ["T1", "T2", "T3", "T4", "T5"]
 
 def filter_corpus(corpus: dict, tier: Optional[str] = None,
                   limit: int = 0) -> List[Dict]:
-    """Return [{name, slug}] records, optionally filtered to tier-or-above.
+    """Return [{id, name, slug}] records, optionally filtered to tier-or-above.
 
     `tier='T2'` means T1+T2 (stricter tier + everything above it gets included).
-    Returns the Enju-ready record shape that the workflow's `diseases` param expects."""
+    Record shape:
+      id    — MONDO:NNN (the canonical mondo id; pass this to resolve() to
+              avoid name-collision against the broader search index — e.g.
+              biobtree's name-search for 'cardiomyopathy' returns DCM-1G
+              by xref_count rank, but the corpus knows the umbrella's id)
+      name  — canonical_name from Mondo
+      slug  — URL-safe slug derived from canonical_name
+    Compatible with the Enju workflow's `diseases` list<record> (extra
+    fields silently ignored by the workflow)."""
     rows = corpus.get("diseases", [])
     if tier:
         keep = set(_TIER_ORDER[: _TIER_ORDER.index(tier) + 1])
         rows = [r for r in rows if r["tier"] in keep]
     if limit:
         rows = rows[:limit]
-    return [{"name": r["canonical_name"], "slug": r["slug"]} for r in rows]
+    return [{"id": r["id"], "name": r["canonical_name"], "slug": r["slug"]}
+            for r in rows]
 
 
 def cmd_filter(args):
@@ -276,13 +285,18 @@ def cmd_run(args):
     results = {"ok": [], "fail": [], "skipped": []}
     t_start = time.time()
     for i, rec in enumerate(records, 1):
-        name, slug = rec["name"], rec["slug"]
+        # Pass the MONDO id (not the name) to resolve — avoids the
+        # name-collision where biobtree's search picks a high-xref
+        # subtype over an umbrella term ('cardiomyopathy' resolved to
+        # 'dilated cardiomyopathy 1G' before this fix). The corpus has
+        # the authoritative id.
+        mondo_id, name, slug = rec["id"], rec["name"], rec["slug"]
         if slug in existing and not args.force:
             results["skipped"].append(slug)
             continue
         t = time.time()
         try:
-            run_disease(name, args.dist, do_summary=False, accept_first_run=True)
+            run_disease(mondo_id, args.dist, do_summary=False, accept_first_run=True)
             dt = time.time() - t
             print(f"  [{i:>5d}/{len(records)}] {slug} OK ({dt:.1f}s)")
             results["ok"].append({"slug": slug, "seconds": round(dt, 1)})
