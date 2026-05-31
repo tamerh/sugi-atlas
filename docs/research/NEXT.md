@@ -167,7 +167,7 @@ the site too early caches an incomplete corpus.
 - schema.org/MedicalCondition JSON-LD sidecar + provenance.json sidecar
   (per-section dataset + chain + upstream URL trail)
 - 18 disease pages built deterministically (dev backlog; full 61-disease
-  backlog can resume any time via `/tmp/run_disease_backlog.py`)
+  backlog can resume any time via `python -m atlas.disease.corpus run`)
 - 9-item polish pass: §1 empty-row omission + monarchinitiative Mondo URL,
   §4 CIViC link + dual-evidence enrichment, §13 true-set phase distribution
   + parent/child salt-form drug dedupe, §14 unnamed-pathway fallback,
@@ -187,7 +187,7 @@ the site too early caches an incomplete corpus.
 **OPEN — deferred to future iteration:**
 - [ ] **LLM executive summaries** for the 18 disease pages (Task #42 — paused per dev-phase direction)
 - [ ] **Full 61-disease backlog** (43 more diseases to run; use
-      `bin/run_disease_backlog.py` or the Enju workflow at
+      `python -m atlas.disease.corpus` or the Enju workflow at
       `src/atlas/disease/enju.yaml`)
 - [ ] **All-diseases scale-out** beyond the curated 61. Approach:
       Atlas-side discovery script parses Mondo's OBO (from obofoundry.org)
@@ -195,7 +195,7 @@ the site too early caches an incomplete corpus.
       branch (e.g. only `human disease` descendants) to drop irrelevant
       ontology nodes. Same pattern for genes via HGNC's
       `hgnc_complete_set.txt`. Feeds the resulting list into the existing
-      `bin/run_disease_backlog.py` driver. No biobtree changes needed —
+      `python -m atlas.disease.corpus` driver. No biobtree changes needed —
       this is normal downstream-consumer pattern. (Earlier framing as
       "blocked on a biobtree list-ids endpoint" was retracted on
       reflection; see BIOBTREE_ISSUES.md Retracted section.)

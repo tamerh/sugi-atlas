@@ -23,7 +23,8 @@ Enju workflow accept it:
     - {name: "Endometrial Cancer", slug: "endometrial-cancer"}    # pin
     - {name: "Bipolar Disorder"}                                  # derive
 
-  The task scripts (bin/run_disease_backlog.py, src/atlas/disease/tasks/*)
+  The task scripts (src/atlas/disease/tasks/*) and the corpus driver
+  (src/atlas/disease/corpus.py)
   honor an explicit `slug` field when present; fall back to slugify() when
   absent.
 
