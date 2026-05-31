@@ -169,7 +169,21 @@ def _gtopdb_ligand_id(canonical_name: str) -> Optional[str]:
     return pick.get("id")
 
 
-def _gtopdb_targets(canonical_name: str) -> Tuple[TargetAnchor, ...]:
+def _gtopdb_ligand_for(chembl_id: str, canonical_name: str) -> Optional[str]:
+    """Resolve the GtoPdb ligand id for a drug. Prefer the authoritative
+    ID-join `>>chembl_molecule>>gtopdb_ligand` (works for small molecules that
+    carry a gtopdb xref — Imatinib→5687, Olaparib→7519; unambiguous, no
+    name collisions). Fall back to name search for drugs without that xref —
+    notably **antibodies**, whose GtoPdb ligands carry no ChEMBL id, so there's
+    no shared key (BIOBTREE_ISSUES #18(a), a documented biologics-coverage
+    gap, not a bug)."""
+    rows_ = map_all(chembl_id, ">>chembl_molecule>>gtopdb_ligand", cap=1)
+    if rows_ and rows_[0].get("id"):
+        return rows_[0]["id"]
+    return _gtopdb_ligand_id(canonical_name)
+
+
+def _gtopdb_targets(chembl_id: str, canonical_name: str) -> Tuple[TargetAnchor, ...]:
     """Curated mechanism targets via GtoPdb — works for BOTH small molecules
     and antibodies (ChEMBL bioactivity edges miss antibodies entirely).
 
@@ -178,14 +192,16 @@ def _gtopdb_targets(canonical_name: str) -> Tuple[TargetAnchor, ...]:
     The interaction row carries target_name + action + affinity; the gtopdb
     target node cross-walks to the human UniProt (the interaction maps to
     human + rodent orthologs — we keep the one that resolves to an HGNC id)."""
-    lig = _gtopdb_ligand_id(canonical_name)
+    lig = _gtopdb_ligand_for(chembl_id, canonical_name)
     if not lig:
         return ()
     inter = map_all(lig, ">>gtopdb_ligand>>gtopdb_interaction")
     # group by gtopdb target id (the "{target}_{ligand}" interaction id).
-    # GUARD: biobtree leaks interactions from other ligands whose code contains
-    # this id as a substring (e.g. querying 7519=olaparib pulls in 5662=AT-7519
-    # → BIOBTREE_ISSUES #18). Keep only rows whose trailing ligand id matches.
+    # GUARD: until the gtopdb re-update lands (BIOBTREE_ISSUES #18(b), fixed
+    # upstream — bare-numeric synonym tokens like "7519" from "AT-7519" no
+    # longer collide with the ligand-ID namespace), the interaction edge can
+    # leak another ligand's rows by id-substring. Keep only rows whose trailing
+    # ligand id matches. Harmless (no-op) once the re-update ships.
     tinfo: Dict[str, dict] = {}
     for r in inter:
         parts = (r.get("id") or "").split("_")
@@ -224,7 +240,7 @@ def _resolve_targets(canonical_name: str, chembl_id: str):
     antibodies). Fallback to gene-resolved ChEMBL targets only when GtoPdb has
     no ligand. Secondary = the raw chembl_target bioactivity set (id/name/type,
     NOT gene-resolved — cheap; feeds §2 'broader targets' + §3 grouping)."""
-    primary = _gtopdb_targets(canonical_name)
+    primary = _gtopdb_targets(chembl_id, canonical_name)
 
     bio = map_all(chembl_id, ">>chembl_molecule>>chembl_target")
     bioactivity = tuple({"chembl_target_id": t.get("id"), "name": t.get("title"),

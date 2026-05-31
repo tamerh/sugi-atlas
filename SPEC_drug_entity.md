@@ -146,7 +146,7 @@ each exports a `SECTION = Section(...)` metadata record.
 | § | Name | NEW or REUSE | Approach |
 |---|---|---|---|
 | 1 | drug_ids | NEW | IDs (chembl_id, pubchem CID, chebi, mesh/efo, ATC, type, max_phase, salt-form chain) + **chemistry block from pubchem/chebi entries** (InChIKey, SMILES, IUPAC name, molecular formula, molecular weight) + ChEBI one-line `definition` + filtered alt_names (brand/generic/INN — drop the IUPAC chemistry strings) |
-| 2 | targets | NEW | **primary: GtoPdb curated mechanism targets** (`anchors.targets` — target + action [Inhibition/Agonist] + pAffinity; covers antibodies, which ChEMBL bioactivity misses). **secondary: `anchors.bioactivity_targets`** (raw chembl_target set — broader, bioactivity-derived). Link to gene page per target via `links.py`. Resolved via GtoPdb (`gtopdb_ligand→gtopdb_interaction→gtopdb→uniprot→hgnc`) with the #18 substring-contamination guard; ChEMBL gene-resolution is the fallback when a drug has no GtoPdb ligand (e.g. Metformin) |
+| 2 | targets | NEW | **primary: GtoPdb curated mechanism targets** (`anchors.targets` — target + action [Inhibition/Agonist] + pAffinity; covers antibodies, which ChEMBL bioactivity misses). **secondary: `anchors.bioactivity_targets`** (raw chembl_target set — broader, bioactivity-derived). Link to gene page per target via `links.py`. Resolved via GtoPdb (`gtopdb_ligand→gtopdb_interaction→gtopdb→uniprot→hgnc`): ID-join `>>chembl_molecule>>gtopdb_ligand` first, name-search fallback for biologics; #18(b) interaction guard kept as interim. ChEMBL gene-resolution is the final fallback when a drug has no GtoPdb ligand (e.g. Metformin) |
 | 3 | bioactivity | NEW | `>>chembl_molecule>>chembl_activity` rows; sort by pchembl ≥ 5; top 30 by potency; group by target |
 | 4 | indications | NEW | render `anchors.indications`; group by max_phase; link to disease page per indication |
 | 5 | clinical_trials | NEW | `>>chembl_molecule>>clinical_trials` direct (~200-1000 per drug); top 20 by phase; full phase distribution; status counts |
@@ -378,7 +378,7 @@ reciprocal-link mesh.
 
 | # | Issue | Atlas impact |
 |---|---|---|
-| **#18** | GtoPdb drug→target: `chembl_molecule>>gtopdb_ligand` forward edge unwired + `gtopdb_interaction` leaks other ligands by id-substring | §2/§7 — **filed in BIOBTREE_ISSUES.md (legit bug, under investigation).** Workaround in `anchors.py`: name-resolve ligand + filter interactions to exact trailing ligand id. Covers antibody targets. |
+| **#18** | GtoPdb drug→target: (b) `gtopdb_interaction` id-substring contamination — ✅ FIXED upstream (pending gtopdb re-update); (a) antibodies have no chembl→gtopdb key — documented biologics gap, not a bug | §2/§7 — `anchors.py` resolves ligand by ID-join (`>>chembl_molecule>>gtopdb_ligand`) first, name-search fallback for biologics; interaction guard kept as interim for (b), no-op after the re-update. |
 | #13 | `chembl_molecule>>pharmgkb_drug` empty | §9 PGx — work around via gene fanout; same root cause as existing BIOBTREE_ISSUES #13 |
 
 **Not gaps (confirmed against biobtree's edges doc, `/data/biobtree/docs`):**

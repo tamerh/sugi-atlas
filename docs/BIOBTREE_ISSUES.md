@@ -214,42 +214,42 @@ map response itself.
 sections/s13_clinical_trials.py) still pays ~30 calls per disease.
 Acceptable at disease scale; will be a hot path on drug pages.
 
-## Issue #18 — GtoPdb drug→target: forward edge unwired + interaction id substring contamination
+## Issue #18 — GtoPdb drug→target: interaction id substring contamination (FIXED upstream, pending re-update)
 
 GtoPdb (Guide to Pharmacology) is the cleanest source of **curated mechanism
-targets** for a drug — and critically the *only* one in biobtree that covers
-**antibodies** (the `chembl_molecule>>chembl_target` edge is bioactivity-based
-and returns 0 for biologics; e.g. Trastuzumab→ERBB2 is absent there). Two
-problems reaching it:
+targets** for a drug. Two things were investigated:
 
-**(a) No forward edge from chembl_molecule.** The `chembl_molecule` entry
-carries a `gtopdb_ligand` xref *count* (e.g. Imatinib `gtopdb_ligand|1`) but
-`>>chembl_molecule>>gtopdb_ligand` returns n=0 — no traversal. Same directional
-gap as #15. Workaround: resolve the ligand by **name search**
-(`search(name, source="gtopdb_ligand")`), which is fragile (see (b)).
-
-**(b) `>>gtopdb_ligand>>gtopdb_interaction` leaks other ligands' interactions
-by id-substring.** Querying ligand `7519` (olaparib) returns interactions
-belonging to ligand `5662` (**AT-7519**, a CDK inhibitor) because the id
-`7519` is a substring of the code "AT-7519":
+**(b) `>>gtopdb_ligand>>gtopdb_interaction` leaked other ligands' interactions
+by id-substring — ✅ FIXED upstream (2026-05-31), pending a gtopdb re-update to
+take effect (~next release).** Querying ligand `7519` (olaparib) returned
+interactions belonging to ligand `5662` (**AT-7519**, a CDK inhibitor), so
+olaparib (a PARP inhibitor) appeared to target CDK1–9:
 ```
 map(7519, ">>gtopdb_ligand>>gtopdb_interaction")  →
   1961_5662 | cyclin dependent kinase 1 | AT-7519 | ...   ← WRONG (ligand 5662)
   2771_7519 | poly(ADP-ribose) polymerase 1 | olaparib    ← correct (ligand 7519)
 ```
-Result: olaparib (a PARP inhibitor) appears to target CDK1–9. The interaction
-id encodes `{target_id}_{ligand_id}`, so the contamination is detectable, but
-the edge should match the ligand id exactly, not by substring.
+**Root cause (dev):** ligand 5662's "AT-7519" synonym was tokenized into the
+bare number `7519` and indexed as a gtopdb_ligand keyword, colliding with the
+numeric ligand-ID namespace. Fix: `extractSignificantWords` now skips all-digit
+tokens (+ a guard on bare-numeric full synonyms). Builds clean; needs a gtopdb
+re-update, after which `7519` resolves only to olaparib.
 
-**Atlas mitigation (in place):** `atlas/drug/anchors.py` (a) name-resolves the
-ligand and (b) filters interaction rows to `id.split("_")[-1] == ligand_id`.
-With the guard, Trastuzumab→ERBB2, Imatinib→ABL1/DDR1/DDR2, Olaparib→PARP1/2/3,
-Sotorasib→KRAS all resolve correctly (with action + pAffinity).
+**(a) Antibody coverage — NOT a bug; a documented biologics data gap.** Small
+molecules traverse the forward edge fine: `>>chembl_molecule>>gtopdb_ligand`
+gives Imatinib→5687, Olaparib→7519. Trastuzumab returns 0 because gtopdb's
+**antibody** ligands carry no ChEMBL id — there's no shared key to join on, and
+forcing it would need fragile name matching. (Earlier framing of "(a) forward
+edge unwired" was wrong — I'd only tested the antibody; the edge works for
+small molecules.)
 
-**Suggested fix:** (a) wire `>>chembl_molecule>>gtopdb_ligand` (and/or emit a
-`gtopdb_ligand` column on chembl_molecule-emitting edges) so drugs reach their
-GtoPdb ligand by ID, not name; (b) make `gtopdb_interaction` lookup match the
-ligand id exactly rather than by substring.
+**Atlas handling (in place):** `atlas/drug/anchors.py` resolves the ligand by
+the **ID-join first** (`>>chembl_molecule>>gtopdb_ligand`), falling back to
+name search only when there's no xref (antibodies + a few small molecules like
+Sotorasib). It also keeps an interaction-row guard
+(`id.split("_")[-1] == ligand_id`) as the interim fix for (b) — a no-op once
+the re-update ships. Trastuzumab→ERBB2, Imatinib→ABL1/DDR1/DDR2,
+Olaparib→PARP1/2/3, Sotorasib→KRAS all resolve correctly (action + pAffinity).
 
 > **Not filed (checked against biobtree's edges doc, `/data/biobtree/docs`):**
 > - `opentargets` returning n=0 from every route is **not a bug** — it's a
