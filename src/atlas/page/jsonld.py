@@ -95,6 +95,13 @@ def build_jsonld(bundle, base_url=BASE_URL):
         "encodesBioChemEntity": _encodes(bundle),
         "taxonomicRange": "https://www.ncbi.nlm.nih.gov/taxonomy/9606",
     }
+    # Surface UniProt CC FUNCTION as a structured `disambiguatingDescription`
+    # alongside the short declarative `description` — AI agents that want the
+    # curated function paragraph (not just identifier facts) can pick it
+    # without scraping the body. Source: biobtree uniprot.comments.function.
+    function_cc = ((bundle.get("3") or {}).get("cc") or {}).get("function")
+    if function_cc:
+        out["disambiguatingDescription"] = function_cc
     loc = hgnc.get("location")
     if loc:
         out["isPartOfBioChemEntity"] = {"@type": "Chromosome", "name": loc}

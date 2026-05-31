@@ -147,7 +147,9 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
     }
-    page_md = assemble_page(symbol, summary_text, body_md, meta)
+    # Pass bundle so assemble_page emits the declarative lead + JSON-LD
+    # inline script (parity with the Enju publish task).
+    page_md = assemble_page(symbol, summary_text, body_md, meta, bundle=bundle)
 
     with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
     with open(os.path.join(out_dir, "bundle.json"), "w") as f:
@@ -157,6 +159,15 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
     if judge_result is not None:
         with open(os.path.join(out_dir, "judge.json"), "w") as f:
             json.dump(judge_result, f, indent=2)
+
+    # Sidecars — schema.org Gene JSON-LD + provenance Dataset (parity with
+    # the Enju publish task, which also writes these next to page.md).
+    from atlas.page.jsonld import build_jsonld, as_jsonld_string
+    from atlas.page.provenance import build_provenance, as_provenance_string
+    with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
+        f.write(as_jsonld_string(build_jsonld(bundle)))
+    with open(os.path.join(out_dir, "provenance.json"), "w") as f:
+        f.write(as_provenance_string(build_provenance(bundle, meta=meta)))
 
     print(f"\n✓ {symbol} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"

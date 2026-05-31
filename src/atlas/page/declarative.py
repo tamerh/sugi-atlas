@@ -90,6 +90,24 @@ def declarative_sentence(bundle):
     # Append protein clause for protein-coding genes only.
     canon = b3.get("canonical_uniprot")
     if canon and klass == "protein-coding gene":
-        sentence += f", encoding the reviewed UniProt protein {canon}"
+        protein_name = b3.get("protein_name")
+        if protein_name:
+            sentence += f", encoding **{protein_name}** ({canon})"
+        else:
+            sentence += f", encoding the reviewed UniProt protein {canon}"
 
-    return sentence + "."
+    sentence += "."
+
+    # Second sentence: lead with UniProt's curated FUNCTION when available.
+    # This was the audit's #1 content gap — biobtree's 2026-05-31 refresh
+    # finally exposed the CC block on uniprot entries. We surface the lead
+    # sentence here so AI agents extract a real function description, not
+    # just identifier facts.
+    from atlas.page.uniprot_cc import first_sentence
+    function = (b3.get("cc") or {}).get("function")
+    if function:
+        sentence += " " + first_sentence(function)
+        if not sentence.endswith("."):
+            sentence += "."
+
+    return sentence

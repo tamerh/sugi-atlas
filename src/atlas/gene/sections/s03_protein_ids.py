@@ -1,8 +1,14 @@
 """§3 — protein_ids: UniProt + RefSeq proteins, InterPro/Pfam domains,
-antibodies, UniProt sequence features (with per-accession species filter)."""
+antibodies, UniProt sequence features, BRENDA EC + (NEW 2026-05-31)
+UniProt CC narratives + named isoforms.
+
+CC ('comments') is the curated free-text description set: function,
+subunit, subcellular_location, tissue_specificity, disease, ptm, etc.
+Closes the audit's #1 content gap. Per-canonical-uniprot, single entry call."""
 from collections import Counter
 from atlas.biobtree import map_all
 from atlas.gene.sections.base import Section
+from atlas.page.uniprot_cc import fetch_cc, strip_evidence_codes
 
 CHAINS = (
     ">>ensembl>>uniprot",
@@ -70,6 +76,20 @@ def collect(a):
     bundle["ufeature_counts"] = dict(Counter(f["type"] for f in ufeatures))
     bundle["ufeatures"] = ufeatures
     bundle["brenda_ec"] = brenda_ec
+
+    # UniProt CC narratives + named isoforms (one entry call on canonical
+    # accession). Returns {} for non-protein-coding genes (no canonical
+    # uniprot) or unreviewed accessions — bundle keys stay empty + renderer
+    # elides cleanly.
+    cc_blob = fetch_cc(a.canonical_uniprot) if a.canonical_uniprot else {}
+    raw_comments = cc_blob.get("comments") or {}
+    # Strip evidence codes once at the bundle layer so every downstream
+    # consumer (render, declarative-lead, JSON-LD) sees clean text.
+    bundle["cc"] = {k: strip_evidence_codes(v) for k, v in raw_comments.items()
+                    if isinstance(v, str) and v.strip()}
+    bundle["isoforms"] = cc_blob.get("isoforms") or []
+    bundle["protein_name"] = cc_blob.get("name")  # primary UniProt name
+    bundle["alternative_names"] = cc_blob.get("alternative_names") or []
     return bundle
 
 SECTION = Section(
@@ -78,6 +98,7 @@ SECTION = Section(
     needs=("hgnc_id", "ensembl_id", "reviewed_uniprots", "canonical_uniprot"),
     produces=("reviewed_uniprot", "uniprot_all", "refseq_protein", "interpro",
               "pfam", "antibody_count", "ufeatures", "ufeature_counts",
-              "brenda_ec"),
+              "brenda_ec", "cc", "isoforms", "protein_name",
+              "alternative_names"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

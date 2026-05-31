@@ -48,6 +48,7 @@ def collect(a):
                "civic_only": 0, "multi_evidence": 0}
     genes = []
     seen_canonical = set()
+    function_lines = []  # cohort_function_summary: per-gene 1-sentence function
     for b1 in g1_bundles:
         sym = b1.get("symbol")
         b3 = g3_by.get(sym, {})
@@ -56,6 +57,10 @@ def collect(a):
         canonical = b3.get("canonical_uniprot")
         if canonical:
             seen_canonical.add(canonical)
+        # protein_name + function now flow from gene §3 (CC block, post the
+        # 2026-05-31 biobtree refresh).
+        protein_name = b3.get("protein_name")
+        function_text = (b3.get("cc") or {}).get("function") or ""
         genes.append({
             "symbol": sym,
             "hgnc_id": b1.get("hgnc_id"),
@@ -63,9 +68,20 @@ def collect(a):
             "hgnc_name": b1.get("name"),
             "canonical_uniprot": canonical,
             "all_uniprots": b3.get("uniprot_all", []),
-            "protein_name": None,  # not surfaced by §3; would need extra uniprot fetch
+            "protein_name": protein_name,
+            "function": function_text,
             "evidence": ev,
         })
+        if function_text:
+            # First sentence per gene — the cohort summary tabulates these
+            # so a reader sees "what each disease gene actually does" at a
+            # glance, not just HGNC ids.
+            from atlas.page.uniprot_cc import first_sentence
+            function_lines.append({
+                "symbol": sym,
+                "protein_name": protein_name or sym,
+                "function_lead": first_sentence(function_text, max_chars=240),
+            })
         summary[_classify(ev)] += 1
 
     return {
@@ -75,6 +91,7 @@ def collect(a):
         "gene_count": len(genes),
         "protein_count": len(seen_canonical),
         "evidence_summary": summary,
+        "cohort_function_summary": function_lines,
     }
 
 
@@ -84,6 +101,7 @@ SECTION = Section(
                  "protein name + evidence tier + Mendelian overlap flag). "
                  "REUSE wrapper over gene §1/§3."),
     needs=("cohort", "cohort_evidence"),
-    produces=("genes", "protein_count", "gene_count"),
+    produces=("genes", "protein_count", "gene_count", "evidence_summary",
+              "cohort_function_summary"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

@@ -209,9 +209,21 @@ def r_genes_proteins(b):
                 table(["Symbol", "HGNC", "Ensembl", "UniProt", "Name", "Evidence"],
                       [(g.get("symbol"), g.get("hgnc_id"), g.get("ensembl_id"),
                         g.get("canonical_uniprot"),
-                        _trunc(g.get("hgnc_name"), 50),
+                        _trunc(g.get("protein_name") or g.get("hgnc_name"), 50),
                         ",".join(k for k, v in (g.get("evidence") or {}).items() if v))
                        for g in genes[:50]])]
+
+    # Cohort function summary — one-sentence UniProt FUNCTION per gene.
+    # Surfaces "what each cohort gene actually does" at a glance, not just
+    # HGNC ids. New 2026-05-31, post BIOBTREE_ISSUES #9 resolution.
+    fns = b.get("cohort_function_summary") or []
+    if fns:
+        out += ["", "**Cohort function summary (lead sentence per gene, "
+                "UniProt-curated):**", "",
+                table(["Symbol", "Protein name", "Function (lead sentence)"],
+                      [(f["symbol"], _trunc(f.get("protein_name"), 40),
+                        f.get("function_lead", ""))
+                       for f in fns[:50]])]
     return "\n".join(out)
 
 

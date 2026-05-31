@@ -59,12 +59,62 @@ def r_transcripts(b):
     return "\n".join(L)
 
 
+_CC_ORDER = [
+    ("function", "Function"),
+    ("subunit", "Subunit / interactions"),
+    ("subcellular_location", "Subcellular location"),
+    ("tissue_specificity", "Tissue specificity"),
+    ("ptm", "Post-translational modifications"),
+    ("disease", "Disease relevance"),
+    ("activity_regulation", "Activity regulation"),
+    ("cofactor", "Cofactor"),
+    ("domain", "Domain organisation"),
+    ("induction", "Induction"),
+    ("pathway", "Pathway"),
+    ("polymorphism", "Polymorphism"),
+    ("miscellaneous", "Miscellaneous"),
+    ("similarity", "Similarity"),
+]
+
+
 def r_protein_ids(b):
     L = ["## Protein identifiers", ""]
-    L.append(f"**Canonical reviewed UniProt:** `{b.get('canonical_uniprot')}`"
-             f" (reviewed: {', '.join(b.get('reviewed_uniprot', []))})")
+    pn = b.get("protein_name")
+    if pn:
+        L.append(f"**{pn}** — `{b.get('canonical_uniprot')}` "
+                 f"(reviewed: {', '.join(b.get('reviewed_uniprot', []))})")
+    else:
+        L.append(f"**Canonical reviewed UniProt:** `{b.get('canonical_uniprot')}`"
+                 f" (reviewed: {', '.join(b.get('reviewed_uniprot', []))})")
+    alt = b.get("alternative_names") or []
+    if alt:
+        L.append(f"\n**Alternative names:** " + ", ".join(alt))
     L.append(f"\n**All UniProt accessions ({b.get('uniprot_count', 0)}):** "
              + ", ".join(f"`{x}`" for x in b.get("uniprot_all", [])))
+
+    # UniProt CC narratives (curated, evidence-codes stripped at collector layer).
+    # The audit's #1 content gap — biobtree's 2026-05-31 refresh shipped these.
+    cc = b.get("cc") or {}
+    if cc:
+        L.append("\n### UniProt curated annotations\n")
+        for key, label in _CC_ORDER:
+            text = cc.get(key)
+            if not text:
+                continue
+            L.append(f"**{label}.** {text}")
+            L.append("")  # blank between paragraphs
+
+    # Named isoforms — surfaces p53α/β/γ, K-Ras4A/4B, p16INK4a/p14ARF, etc.
+    isoforms = b.get("isoforms") or []
+    if isoforms:
+        L.append(f"\n**Isoforms ({len(isoforms)}):**\n")
+        L.append(table(["UniProt ID", "Names", "Canonical?"],
+                       [(f"[{iso['id']}](https://www.uniprot.org/uniprotkb/"
+                         f"{iso['id'].split('-')[0]}#sequences)" if iso.get("id") else "",
+                         ", ".join(iso.get("names") or []),
+                         "yes" if iso.get("is_canonical") else "")
+                        for iso in isoforms]))
+
     rp = b.get("refseq_protein", [])
     L.append(f"\n**RefSeq proteins ({b.get('refseq_protein_count', 0)}):** "
              + ", ".join(f"`{p['id']}`" + ("*" if p.get("mane") else "") for p in rp) + "  (*=MANE)")
