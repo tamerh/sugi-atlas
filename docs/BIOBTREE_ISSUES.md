@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-05-30 (now includes disease-page findings: #14, #15 + scale-out requests #16, #17)
+**Last updated:** 2026-05-31 (biobtree refresh resolved #9 fully + #15 partially; disease-page findings #14/#15 and scale-out requests #16/#17 still open)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -25,6 +25,7 @@ unambiguous. Bodies are removed once resolved to keep the doc compact.
 | #7 | `map` mixes species, no human filter | 2026-05-30 — `[genome=="homo_sapiens"]` chain filter now supported |
 | #8 | `map` pagination "broken" — was a wrong param name (`p` not `page`); FastAPI silently dropped the unknown one | resolved 2026-05-28 (caller side) |
 | #11 | `>>uniprot>>ufeature` leaked ortholog features (P04637 query returned mouse Tp53 rows) | 2026-05-30 — single-accession queries now return only that accession's features. Atlas's `id.startswith(u + "_")` post-filter removed |
+| #9 | UniProt entry payload too thin (no CC, no `reviewed`, no isoforms) | **2026-05-31 — RESOLVED.** Entry now carries `comments` (function, subunit, subcellular_location, tissue_specificity, disease, ptm, cofactor, domain, induction, miscellaneous, similarity, caution) + `isoforms` list with named-isoform IDs (e.g. `P04637-1..9` for p53α/β/γ, Del40, Del133) + `is_canonical` flag on the principal isoform. Unreviewed accessions return empty attrs (implicit Swiss-Prot filter). |
 
 ---
 
@@ -76,73 +77,7 @@ chain. Quality-of-life win for weak callers.
 
 ---
 
-## Issue #9 — UniProt entry payload is too thin (no CC, no `reviewed`, no isoforms)
-
-Today `GET /api/entry?i=<acc>&s=uniprot` returns only:
-`names / alternative_names / sequence / id / name`.
-
-The full UniProt flat-file (e.g. `https://rest.uniprot.org/uniprotkb/P04637.txt`)
-carries far richer content that's missing here. Three categories of asks,
-in priority order:
-
-**(1) CC ("Comments") narrative blocks** — the curated free-text
-descriptions UniProt is famous for: `FUNCTION`, `SUBUNIT`,
-`SUBCELLULAR LOCATION`, `TISSUE SPECIFICITY`, `DEVELOPMENTAL STAGE`, `PTM`,
-`DISEASE`, `DISRUPTION PHENOTYPE`, `INDUCTION`, `DOMAIN`, `MISCELLANEOUS`,
-etc. This is *the* highest-leverage piece of UniProt for any AI/agent
-consumer — the paragraph an AI quotes when answering "tell me about gene X"
-almost always paraphrases UniProt's `FUNCTION`.
-
-**(2) `reviewed` flag** — whether the accession is reviewed (Swiss-Prot)
-vs unreviewed (TrEMBL). Currently the only way to tell is to use
-`>>hgnc>>uniprot` as a workaround (HGNC xrefs only the curated set).
-
-**(3) Named alternative products** (`ALTERNATIVE PRODUCTS` section) —
-isoform names like p53α/β/γ for TP53, K-Ras4A/K-Ras4B for KRAS, etc.
-
-**Suggested response shape:**
-```json
-{
-  "Attributes": {
-    "Uniprot": {
-      "id": "P04637",
-      "name": "P53_HUMAN",
-      "reviewed": true,
-      "names": [...],
-      "alternative_names": [...],
-      "sequence": "...",
-      "comments": {
-        "FUNCTION": "Multifunctional transcription factor that induces cell cycle arrest, DNA repair or apoptosis...",
-        "SUBUNIT": "Forms homodimers and homotetramers. Interacts with MDM2...",
-        "SUBCELLULAR_LOCATION": "Cytoplasm. Nucleus. Nucleus, PML body.",
-        "TISSUE_SPECIFICITY": "Ubiquitous; isoforms are expressed in a wide range of normal tissues...",
-        "PTM": "Phosphorylated on Ser-15 by ATM, ATR and DNA-PK...",
-        "DISEASE": "Li-Fraumeni syndrome 1 (LFS1) [MIM:151623]: An autosomal dominant familial cancer syndrome..."
-      },
-      "isoforms": [
-        {"id": "P04637-1", "name": "p53alpha", "synonyms": ["p53"], "is_canonical": true},
-        {"id": "P04637-2", "name": "p53beta", "synonyms": [], "is_canonical": false}
-      ]
-    }
-  }
-}
-```
-
-Notes for the implementer:
-- Headers normalized to underscore-snake-case (`SUBCELLULAR_LOCATION`).
-- Evidence codes (`{ECO:0000269|PubMed:9774970}`) — strip on the way out
-  for clean consumer-side JSON.
-- biobtree already parses UniProt for the existing thin payload; surfacing
-  the additional fields is incremental work on the same parser.
-
-**Atlas impact:** **biggest single content gap.** Audit (`docs/research/
-03_page_audit.md`) flagged "no curated narrative" as the #1 reason an AI
-agent picks UniProt/NCBI over Atlas today. Path C item #1 in
-`docs/research/NEXT.md` is paused on this. Partial mitigation now available
-via CIViC gene-level paragraphs (recent biobtree addition), but only for
-cancer-relevant genes — UniProt CC is still required for the long tail.
-
----
+## Issue #9 — RESOLVED 2026-05-31 (see top-of-doc Resolved table)
 
 ## Issue #10 — `>>uniprot>>alphafold` is empty for very large proteins
 
@@ -285,38 +220,31 @@ cohorts (transport-heavy gene sets).
 off a separate file (`ReactomePathways.txt`) that wasn't fully joined for
 these older pathway ids — refresh against the upstream pathway-name table.
 
-## Issue #15 — `chembl_molecule` parent/child salt-form linkage exposed only via `childs` on the parent
+## Issue #15 — `chembl_molecule` parent/child salt-form linkage — partial 2026-05-31
+
+**Partial update 2026-05-31:** child entries now expose a `parent` field
+(e.g. `entry('CHEMBL3545252', 'chembl_molecule').Attributes.Chembl.molecule.parent`
+returns `CHEMBL92`). Atlas can dedupe with one entry call per *child*
+instead of walking every candidate's `childs`. Remaining ask: a forward
+edge / map column would still beat the per-entry pattern at drug-page scale.
 
 ChEMBL treats salt forms and anhydrous forms as separate molecule IDs
 (e.g. CHEMBL92 = "DOCETAXEL ANHYDROUS" parent, CHEMBL3545252 = "DOCETAXEL"
-child; CHEMBL1542 = "AZATHIOPRINE" parent with multiple children). The
-parent's `/entry` exposes the child list:
-```
-entry(CHEMBL92, "chembl_molecule").Attributes.Chembl.childs
-  → ['CHEMBL3545252']
-entry(CHEMBL1542, "chembl_molecule").Attributes.Chembl.childs
-  → ['CHEMBL1200400', 'CHEMBL3785814', 'CHEMBL3785780']
-```
+child; CHEMBL1542 = "AZATHIOPRINE" parent with multiple children). Today's
+options:
+1. ✓ child → parent: 1 entry call per child via the new `parent` field.
+2. parent → children: 1 entry call per parent via `childs` list (unchanged).
+3. ✗ no forward map edge (e.g. `>>chembl_molecule>>parent`) — would
+   collapse the cost to a single map call.
 
-But there is **no forward edge from child → parent**. Building a
-de-duplication index requires either:
-1. Walking every candidate molecule's `/entry` to read `childs`, then
-   inverting to a child→parent map (Atlas's §13 disease collector does
-   this — adds ~30 entry calls per disease just to dedupe drug names), or
-2. A separate `>>chembl_molecule>>chembl_molecule` self-loop map which
-   doesn't currently exist.
+**Suggested next step:** add `parent_chembl_id` to the target schema of
+ChEMBL-molecule-emitting edges (e.g. `>>chembl_target>>chembl_molecule`,
+`>>mondo>>clinical_trials>>chembl_molecule`) so the dedupe key is in the
+map response itself.
 
-**Suggested fix:** surface `parent_molecule_chembl_id` (the field is
-already in ChEMBL's source data) either as a target schema column on
-relevant edges or as a queryable attribute, so a single map call can
-return parent-deduplicated lists.
-
-**Atlas impact:** the same drug shows up as 2-3 rows in §10 / §13 drug
-tables (TAMOXIFEN + TAMOXIFEN CITRATE + TAMOXIFEN HEMICITRATE;
-DOCETAXEL + DOCETAXEL ANHYDROUS) without this. Atlas works around it
-today by paying the per-molecule `/entry` calls — fine at our scale
-(top-30 drugs per disease) but won't scale to drug pages where the entire
-ChEMBL graph is walked.
+**Atlas impact:** §13's per-child `entry()` dedupe path (atlas/disease/
+sections/s13_clinical_trials.py) still pays ~30 calls per disease.
+Acceptable at disease scale; will be a hot path on drug pages.
 
 ## Issue #16 — No `list-ids` endpoint for a dataset (corpus enumeration)
 

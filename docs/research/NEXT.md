@@ -37,11 +37,22 @@ Remaining (all cross-repo, deferred to launch):
 
 ### From the page audit (biggest user-visible gaps)
 
-- ⏸️ **UniProt CC narratives** (FUNCTION / SUBUNIT / SUBCELLULAR LOCATION /
-      TISSUE SPECIFICITY / DISEASE / PTM) — audit's #1 gap. Paused on the
-      design decision below. 🕓 BIOBTREE_ISSUES #9 (v2 expansion forwarded).
-- ⏸️ **Named isoforms** (p53α/β/γ, K-Ras4A/4B, p16γ, titin N2A/N2B/N2BA/novex).
-      Same UniProt dependency. 🕓 BIOBTREE_ISSUES #9.
+- [ ] **UniProt CC narratives** (FUNCTION / SUBUNIT / SUBCELLULAR LOCATION /
+      TISSUE SPECIFICITY / DISEASE / PTM / COFACTOR / DOMAIN / INDUCTION /
+      MISCELLANEOUS / SIMILARITY / CAUTION) — audit's #1 gap.
+      **🟢 NOW UNBLOCKED — biobtree 2026-05-31 refresh resolved #9.**
+      Wiring plan:
+      - extend gene §3 collector to surface `comments` block from the
+        uniprot entry (single extra entry call already paid)
+      - new §3a or dedicated `cc_narratives` subblock in render
+      - feed FUNCTION into declarative-lead sentence (replacing the
+        current sentence which only has identifier facts) and into
+        provenance/JSON-LD `description`
+      - disease side: `cohort_function_summary` aggregated over cohort
+- [ ] **Named isoforms** (p53α/β/γ, K-Ras4A/4B, p16γ, titin N2A/N2B/N2BA/novex).
+      **🟢 NOW UNBLOCKED — same refresh.** uniprot entry now carries
+      `isoforms: [{id, names, is_canonical}]`. Wire into gene §3 as an
+      "Isoforms" table; pick `is_canonical` for the primary product.
 - [ ] **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
       NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness). Complex — needs
       ChEMBL indication + FDA biomarker list bridging. Defer until V1 corpus.
@@ -102,12 +113,12 @@ snapshot → dist) and visible on the six reference-gene pages. Per `git log`:
 |---|---|---|
 | #4 silent multi-hop failure | open | Largely subsumed by #1/#3 RESOLVED |
 | #6 entry xrefs counts-not-values | open | Not blocking — Atlas uses `map_all` |
-| **#9 UniProt CC + reviewed flag + isoforms** | **open — biggest** | Blocks Path C UniProt CC + named isoforms |
+| ~~#9 UniProt CC + reviewed flag + isoforms~~ | **✅ RESOLVED 2026-05-31** | `comments` block + named `isoforms` + `is_canonical` flag now in uniprot entry. Atlas-side wiring pending — see new Path C item below. |
 | #10 AlphaFold empty for >2700 aa | 🕓 fix tomorrow | §4 currently constructs `AF-<acc>-F1` heuristically; pLDDT missing for ATM/BRCA2/DMD |
 | #12 pubchem_activity KRAS gap | 🕓 fix tomorrow | Workaround in place via chembl_activity; no functional gap |
 | #13 pharmgkb_guideline / _clinical / _variant empty | open | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
 | #14 reactome pathway entries with empty `name` | open (just filed) | Disease §14 renders "Unnamed pathway (R-HSA-N…)" for 1-2 pathways per cohort; graceful fallback in place |
-| #15 chembl_molecule parent/child salt-form linkage exposed only via `childs` on parent | open (just filed) | Disease §13 pays ~30 extra entry calls per disease to dedupe salt-form drugs (TAMOXIFEN + TAMOXIFEN CITRATE, DOCETAXEL + DOCETAXEL ANHYDROUS); workaround acceptable now, won't scale to drug pages |
+| #15 chembl_molecule parent/child salt-form linkage | 🟡 partial 2026-05-31 — child entries now expose `parent` field; remaining ask is a forward map edge. Atlas's per-entry workaround acceptable at disease scale, won't at drug-page scale |
 | #16 No `list-ids` endpoint for a dataset (corpus enumeration) | open (just filed) | **Blocks all-diseases / all-genes scale-out.** Today we depend on external Mondo .obo / HGNC TSV dumps for full enumeration; brittle and defeats the "biobtree is single source" model. |
 | #17 No bulk xref-count check (one /entry per id to filter by signal) | open (just filed) | Even with #16 resolved, filtering ~25k Mondo nodes by Atlas-relevant signal (gwas/civic/clinvar/gencc xrefs) needs 25k entry calls. Suggest adding xref counts to search/list response schemas. |
 
@@ -127,32 +138,15 @@ the site too early caches an incomplete corpus.
 
 ## Important — needs design decision
 
-### UniProt CC narratives: how do we source them?
+### ~~UniProt CC narratives: how do we source them?~~ — RESOLVED 2026-05-31
 
-Audit's #1 gap. biobtree's uniprot `entry` exposes only
-`names / alternative_names / sequence / id / name` — no CC narrative. Same
-gap is filed as BIOBTREE_ISSUES #9 (v2 forwarded to dev).
+biobtree's 2026-05-31 refresh shipped the CC block (`comments`) and named
+`isoforms` directly on the uniprot entry. The earlier "three paths"
+discussion (forward to biobtree / direct UniProt REST / bulk flat-file
+parse) is moot — path 1 landed.
 
-Three implementation paths:
-1. **Forward to biobtree** (already filed). Most disciplined; slowest.
-2. **Direct UniProt REST per accession** — *rejected*: per-gene network
-   load + reliability liability in the hot path at full-corpus scale.
-3. **Bulk UniProt flat-file parse locally** — download Swiss-Prot
-   (~80MB compressed), parse CC blocks once, store per-accession locally.
-   No network per gene, rebuilds on UniProt release.
-
-**Lean:** (3) short-term, with (1) as the long-term path once biobtree
-ships the fields. Parser pattern lives in `/data/biobtree` (Go) or use
-Biopython's `Bio.SwissProt`.
-
-**Update 2026-05-30 (biobtree refresh):** Decision became *less acute*.
-Wiring **CIViC's gene-level narrative paragraph** (now live in biobtree —
-see Path C "new datasets" above) gives Atlas a real first-paragraph
-narrative for cancer-relevant genes today, without #9 being fixed. UniProt
-CC remains needed for non-cancer genes (titin, housekeeping, etc.), but
-the path-of-least-resistance v1 release can ship with CIViC paragraphs as
-the headline narrative for the cancer-genome subset and defer the broader
-UniProt CC question.
+Atlas-side wiring is the new actionable item (see Path C: "UniProt CC
+narratives" + "Named isoforms" above).
 
 ## Disease entity — status
 
