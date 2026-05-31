@@ -50,6 +50,31 @@ lead + JSON-LD use FUNCTION CC; disease §5 has cohort_function_summary
       hybrid via biobtree dataset / link-out only) are in
       [`SPEC_drug_indication_biomarker.md`](../../SPEC_drug_indication_biomarker.md)
       at repo root. Lean: file as biobtree feature request. No work in flight.
+- [ ] **ClinGen dosage sensitivity verdicts** (audit Top-10 #4) —
+      haploinsufficiency / triplosensitivity score per gene. Public REST
+      API at `https://search.clinicalgenome.org/`; one call per gene.
+      Network-in-collect concern same as Open Targets; lean: file as a
+      biobtree ingest request.
+- [ ] **NCBI RefSeq summary paragraph** (audit Top-10 #5) — the
+      `Entrezgene_summary` field on NCBI Gene; an independent curated
+      narrative often complementary to UniProt FUNCTION. E-utilities efetch
+      pull, one call per gene. Same network concern + same biobtree-ingest
+      lean as ClinGen above.
+- [ ] **Ensembl Compara gene tree** (audit Top-10 #10) — 200+ species
+      orthologs + paralog tree + duplication/speciation node labels.
+      Atlas's §5 today surfaces ~4 ortholog rows from biobtree; the full
+      gene tree is a ~30 GB Compara source. Cleanest path: biobtree ingest
+      → `>>ensembl>>gene_tree` edge → existing §5 collector renders the
+      summary. User pause direction: hold for now.
+- [ ] **Regulatory build features** (cross-gene weakness #5 in audit) —
+      Ensembl Regulatory Build for promoters / enhancers / CTCF / TFBS
+      *around* the gene region. Atlas has JASPAR motifs (curated
+      transcription-factor binding) but not the per-gene regulatory
+      annotations Ensembl ships. Would need a new biobtree dataset.
+- [ ] **GeneRIFs** (cross-gene weakness #9 in audit) — NCBI's per-gene
+      paper-anchored one-line claims. Thousands per popular gene; high
+      value for RAG / citation-aware LLMs. Big literature corpus; needs
+      a new biobtree dataset (NCBI provides bulk GeneRIF dumps).
 
 ### From the biobtree mining (still open)
 
@@ -92,14 +117,12 @@ snapshot → dist) and visible on the six reference-gene pages. Per `git log`:
 
 ## Hygiene fixes
 
-- [ ] **Fix `src/atlas/bench/dataset_coverage.py`** — still references the
-      pre-refactor `collect.py` shape (broke during the package
-      reorganization).
-- [ ] **Tune `body_gate.verdict()` threshold** — the "count dropped >50% →
-      regression" rule misfired when biobtree's RefSeq REVIEWED-only refresh
-      legitimately dropped TP53 mRNA 46→25. Consider a `schema_changed`
-      signal that demotes count drops to `drift`, or a per-key
-      expected-direction hint in section metadata.
+All hygiene items from this section shipped 2026-05-31. Per `git log`:
+- `dataset_coverage.py` rewrite (walks the REGISTRY for both entity types,
+  no source-text scraping) — commit `155dbf3`
+- `body_gate.verdict()` per-key shrink allow-list via the new
+  `Section.shrinkable` field; real-world hints declared on gene §2/§3 —
+  commit `155dbf3`
 
 ## Open biobtree dependencies
 
@@ -152,8 +175,19 @@ the site too early caches an incomplete corpus.
   + parent/child salt-form drug dedupe, §14 unnamed-pathway fallback,
   §16 "+N more" overflow indicator
 
+**ALSO SHIPPED 2026-05-31** (per `git log`):
+- Disease declarative-lead sentence (`atlas.page.disease_declarative` —
+  Mondo-anchored, with cohort + GWAS + somatic + ClinVar + trials clauses,
+  dominant-pathway clause, top-3 drug names)
+- schema.org/MedicalCondition gained the `drug` property (top-5
+  disease-scoped trial drugs as shallow Drug nodes with ChEMBL URLs)
+- Slug-override pattern documented in `atlas/disease/__init__.py`
+- Disease body_gate now uses the same `shrinkable` mechanism via the
+  shared `Section` dataclass (gene §2/§3 declare hints; disease sections
+  can declare theirs as fluctuations appear)
+
 **OPEN — deferred to future iteration:**
-- [ ] **LLM executive summaries** for the 18 disease pages (Task #42)
+- [ ] **LLM executive summaries** for the 18 disease pages (Task #42 — paused per dev-phase direction)
 - [ ] **Full 61-disease backlog** (43 more diseases to run; use
       `bin/run_disease_backlog.py` or the Enju workflow at
       `src/atlas/disease/enju.yaml`)
@@ -161,15 +195,12 @@ the site too early caches an incomplete corpus.
       BIOBTREE_ISSUES #16 (no `list-ids` endpoint) + #17 (no bulk
       xref-count check). Today's external-dump workaround is brittle;
       proper fix is upstream so biobtree remains the single source.
-- [ ] **Disease body_gate threshold tuning** — first_run vs drift mechanics
-      are gene-tuned; disease may need its own thresholds
-- [ ] **Disease declarative-lead sentence** (gene side has one; disease
-      currently skips it — `assemble_page(bundle=None)` path)
-- [ ] **schema.org/MedicalCondition coverage audit** — check whether more
-      schema.org fields apply (`epidemiology`, `riskFactor`, `signOrSymptom`)
-- [ ] **Slug stability override** — currently slug derives from
-      Mondo's canonical_name (e.g. endometrial cancer → "endometrial-carcinoma").
-      Caller can pass slug explicitly through the workflow record; document.
+- [ ] **Schema.org MedicalCondition additional fields** —
+      `epidemiology` (needs Orphanet prevalence numbers — biobtree exposes
+      Orphanet xref but not prevalence body); `signOrSymptom` (HPO
+      phenotype-disease links); `associatedAnatomy` (UBERON anatomy
+      mapping); `riskFactor`; `cause` (etiology). None blocked on biobtree
+      core — would need new ingest sources.
 
 ## Out of scope for now
 
