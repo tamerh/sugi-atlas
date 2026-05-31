@@ -336,3 +336,55 @@ localhost (~3% over urllib3 keep-alive); the dominant cost in any
 transport is biobtree's per-call compute, which Issue #21 (batch endpoints)
 attacks at the root. The page-size fix only closes the gRPC handicap;
 it does not move the production REST path.
+
+---
+
+## Issue #23 — Expose HPO disease→phenotype `evidence` field in REST
+
+biobtree's HPO ingest (hpo.go parsePhenotypeAnnotations) stores per-edge
+evidence on each disease↔HPO link, including frequency tokens like
+`PCS;freq=3/8` or `PCS;freq=80%`. This is the data point that distinguishes
+"obligate symptom" from "occasional symptom" — clinically critical context.
+
+The evidence sits on the underlying proto edge (XrefEntry.evidence) but is
+not surfaced in any probed REST response:
+
+- `/api/map?i=154700&m=>>mim>>hpo&mode=lite` → schema is `id|name|definition`;
+  no evidence column.
+- `/api/entry?i=154700&s=mim` → `entries: []` (empty), `xrefs.schema` is
+  `dataset|count`.
+- `/api/entry?i=HP:0000098&s=hpo` → same, `entries: []`.
+
+**Ask:** add the edge's `evidence` token as either
+(a) a fourth schema column on `>>mim>>hpo` / `>>orphanet>>hpo` /
+    `>>mondo>>...>>hpo` map responses, or
+(b) a populated `entries` array on `entry?s=mim` / `entry?s=orphanet` so
+    each linked HPO id carries its own evidence string.
+
+Either path unblocks the schema.org `signOrSymptom` build with proper
+frequency annotation. Atlas currently has to choose between rendering
+"Marfan has 70 HPO phenotypes" without distinguishing obligate vs
+occasional, vs blocking the section entirely.
+
+---
+
+## Issue #24 — HPO qualitative frequency terms (HP:0040281, …) dropped during ingest
+
+Flagged by biobtree dev team during the Issue #23 discussion: the parser
+in hpo.go:403 keeps numeric/percentage frequencies (`3/8`, `80%`) but
+skips the HPO frequency-modifier terms — `HP:0040281` "Very frequent",
+`HP:0040280` "Obligate", `HP:0040282` "Frequent", `HP:0040283`
+"Occasional", `HP:0040284` "Very rare", `HP:0040285` "Excluded".
+
+These qualitative tags are how the source `phenotype.hpoa` file expresses
+frequency when no numerator/percentage is published — common for older
+disease annotations. Atlas-side rendering wants "obligate" / "very
+frequent" as readable labels alongside the numeric ones.
+
+**Ask:** keep the qualitative HP:00402xx tags in the evidence string
+(parallel to the numeric tokens), and resolve the term IDs to their
+labels at response time so REST consumers can render them without a
+second lookup.
+
+Cost on biobtree's side: small — extend the parser branch + a 6-entry
+static term→label map.
