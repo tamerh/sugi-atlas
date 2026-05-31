@@ -71,10 +71,21 @@ class DrugAnchors:
     # Pre-resolved indication list (drug's disease label data):
     indications: Tuple[IndicationRecord, ...]
     xref_counts: Dict[str, int]      # from entry.xrefs
-    # PubChem CID + ChEBI ID — the canonical small-mol identifiers.
+    # Chemistry descriptors — NOT on the chembl_molecule entry; sourced from
+    # the pubchem + chebi dataset entries (probed: both carry the full set,
+    # both open-licensed, no network-in-collect). resolve() fetches them.
     pubchem_cid: Optional[str]
     chebi_id: Optional[str]
-    inchi_key: Optional[str]        # if exposed by chembl_molecule entry
+    inchi_key: Optional[str]        # pubchem.inchi_key / chebi.inchi_key
+    smiles: Optional[str]           # pubchem.smiles / chebi.smiles
+    iupac_name: Optional[str]       # pubchem.iupac_name
+    molecular_formula: Optional[str]
+    molecular_weight: Optional[str]
+    chebi_definition: Optional[str] # one-line chemical-class narrative for §1/lead
+    chebi_roles: tuple              # decoded ChEBI role names (open-licensed
+                                    # drug-class semantics — e.g. "tyrosine
+                                    # kinase inhibitor", "antineoplastic agent")
+    is_fda_approved: Optional[bool] # from the >>chembl_molecule>>pubchem row
 
 @dataclass(frozen=True)
 class TargetAnchor:
@@ -109,11 +120,20 @@ class IndicationRecord:
    target, fetch UniProt + resolve to HGNC via fallback chain
    (`>>uniprot>>hgnc` since direct `chembl_target>>hgnc` returns 0 today
    — file as biobtree #18 if not already on the list).
-5. Resolve indications: `entry.indications[]` has `{efo, mesh, phase}`;
-   cross-walk each to MONDO via biobtree's `efo`/`mesh`→`mondo` edges;
+5. Resolve indications: `entry.indications[]` has `{efo, mesh,
+   highestDevelopmentPhase}` (probed: 52 entries for Imatinib, no `mondo` —
+   cross-walk each to MONDO via biobtree's `efo`/`mesh`→`mondo` edges);
    compute Atlas slug for cross-link.
+6. **Chemistry block** — `map_all(chembl_id, ">>chembl_molecule>>pubchem")`
+   → CID (+ `is_fda_approved` flag from the row); `entry(cid, "pubchem")`
+   fills smiles / inchi_key / iupac_name / molecular_formula /
+   molecular_weight. `map_all(..., ">>chembl_molecule>>chebi")` → ChEBI id;
+   `entry(chebi_id, "chebi")` fills `definition` + `roles[]` (resolve each
+   role `CHEBI:NNN` to its `name` — one entry call per role, ~2-4 roles).
+   Biologics have no small-mol CID → block elides.
 
-**Cost:** ~10-20 biobtree calls per drug at resolve time.
+**Cost:** ~15-25 biobtree calls per drug at resolve time (added pubchem +
+chebi entry + per-role name lookups).
 
 ---
 
@@ -125,16 +145,16 @@ each exports a `SECTION = Section(...)` metadata record.
 
 | § | Name | NEW or REUSE | Approach |
 |---|---|---|---|
-| 1 | drug_ids | NEW | from anchors: chembl_id, pubchem CID, chebi, mesh, efo IDs, ATC, InChIKey, alt_names, type, max_phase, parent/child salt-form chain |
+| 1 | drug_ids | NEW | IDs (chembl_id, pubchem CID, chebi, mesh/efo, ATC, type, max_phase, salt-form chain) + **chemistry block from pubchem/chebi entries** (InChIKey, SMILES, IUPAC name, molecular formula, molecular weight) + ChEBI one-line `definition` + filtered alt_names (brand/generic/INN — drop the IUPAC chemistry strings) |
 | 2 | targets | NEW | render `anchors.targets`; show classification (primary vs off-target by potency); link to gene page per target via `links.py` |
 | 3 | bioactivity | NEW | `>>chembl_molecule>>chembl_activity` rows; sort by pchembl ≥ 5; top 30 by potency; group by target |
 | 4 | indications | NEW | render `anchors.indications`; group by max_phase; link to disease page per indication |
 | 5 | clinical_trials | NEW | `>>chembl_molecule>>clinical_trials` direct (~200-1000 per drug); top 20 by phase; full phase distribution; status counts |
-| 6 | pharmacology | NEW | ATC classification decoded to hierarchy (e.g. L01EA01 → "L01 Antineoplastic agents › E Protein kinase inhibitors › A BCR-ABL inhibitors"); RoA where exposed |
+| 6 | pharmacology | NEW | **primary: ChEBI roles** — decoded role names (open-licensed drug-class semantics: "tyrosine kinase inhibitor", "antineoplastic agent"; resolved from `chebi.roles[]`). **secondary: raw ATC code(s) + whocc.no link** — NOT decoded to a hierarchy (biobtree exposes only the code `["L01EA01"]`; the WHO ATC name table is licensing-restricted, so we link out rather than reproduce it). RoA where exposed |
 | 7 | related_molecules | REUSE | for each target uniprot, fan `>>uniprot>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=2]`; aggregate top 30 competitors sharing ≥1 target; link to other drug pages |
 | 8 | target_pathways | REUSE | for each target uniprot's gene, fan gene §7 `s07_pathways.collect(gene_anchors)`; aggregate Reactome + top GO terms across the target set |
 | 9 | pharmacogenomics | NEW (blocked) | `>>chembl_molecule>>pharmgkb_drug` — currently empty (likely BIOBTREE_ISSUES #13 territory); fallback: fan target genes' `>>hgnc>>pharmgkb_gene` |
-| **10** | **clinical_evidence (CIViC)** | NEW | drug-anchored view of the same `civic_evidence` table gene+disease consume. Filter rows where `therapies` includes the drug name (or any alt_name); render as `(variant, indication, level, PMID)` table |
+| **10** | **clinical_evidence (CIViC)** | NEW | drug-anchored view of the same `civic_evidence` table. **Use the ID-join route `>>chembl_molecule>>civic_evidence`** (probed working — same 7-col schema, properly joined; NOT therapy-name string-matching which would miss brand/salt aliases). Feed straight into `atlas.civic.aggregate_predictive`. Render `(variant, indication, effect, level)` — therapy column kept only to show combinations (e.g. "Imatinib + Dasatinib"). Completes the gene/disease/drug CIViC symmetry. |
 | **11** | **patent_literature** | NEW | sum patent counts across linked `patent_compound` records (already wired on gene §10 per-molecule; surface drug-anchored here) |
 | **12** | **salt_forms_and_parent** | NEW | render `parent_chembl` + `child_chembls` as inline navigation; trivial render-only |
 
@@ -363,13 +383,35 @@ reciprocal-link mesh.
 | ? | `chembl_molecule >> mondo` direct edge | §4 indications need to cross-walk via efo/mesh. Acceptable. |
 | ? | indications field parsing | the entry's `indications` is a JSON array of `{efo, mesh, phase}` dicts; needs careful parsing |
 
-Two genuinely new biobtree feature requests likely to surface:
-- `chembl_molecule.smiles` and `inchiKey` attributes — needed for the
-  drug §1 ID table; probe to confirm
-- `chembl_molecule >> route_of_administration` or similar — needed for
-  §6 pharmacology
+**Resolved during spec iteration (no biobtree request needed):**
+- ~~`chembl_molecule.smiles` / `inchiKey`~~ — NOT on chembl_molecule, but
+  fully available on the **pubchem** + **chebi** dataset entries (smiles,
+  inchi_key, iupac_name, formula, MW). Route via `>>chembl_molecule>>pubchem`
+  / `>>chebi`. §1 is richer, not poorer.
+- ~~ATC hierarchy decode~~ — biobtree gives only the raw code; WHO's name
+  table is license-restricted. **Use ChEBI `roles` instead** (open-licensed,
+  decode to "tyrosine kinase inhibitor" etc.); ATC stays a raw code + link.
 
-File only after probing confirms; don't pre-file aspirational requests.
+Possible remaining request (probe before filing):
+- `chembl_molecule >> route_of_administration` or similar — for §6 RoA.
+  File only after probing confirms; don't pre-file aspirational requests.
+
+## Engineering notes (from spec-iteration probes)
+
+- **Corpus-level salt-form dedup.** The D1 (max_phase==4) ChEMBL list will
+  contain parent *and* child salt forms as separate rows. Fold `childs` into
+  the parent at corpus-build so we don't ship "DOCETAXEL" + "DOCETAXEL
+  ANHYDROUS" — reuse disease §13's existing parent/child fold logic.
+- **§7 target fan cap.** Imatinib has 85 chembl_targets; fanning
+  `chembl_molecule` over all 85 (many off-target/promiscuous) is the heaviest
+  + noisiest section. Cap the fan to **primary targets** (by potency/activity
+  count), not the full target list, or the competitor list fills with
+  off-target overlap.
+- **Biologics render conditionally on `molecule_type`.** Antibodies
+  (Trastuzumab, Pembrolizumab, Bevacizumab, Nivolumab — half the smoke set)
+  have no small-mol CID → §1 chemistry block, §3 bioactivity, §11 patents
+  elide. Gate those sections on `molecule_type == "Small molecule"` so an
+  antibody page doesn't render empty small-molecule scaffolding.
 
 ---
 
