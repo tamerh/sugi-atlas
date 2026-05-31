@@ -95,6 +95,42 @@ def r_indications(b):
     return "\n".join(L)
 
 
+def r_related_molecules(b):
+    L = ["## Related molecules", ""]
+    rm = b.get("related_molecules") or []
+    if not rm:
+        L.append("*No phase-≥2 competitor molecules sharing a primary target.*")
+        return "\n".join(L)
+    L.append(f"**{_i(b.get('competitor_count'))} phase-≥2 molecules share ≥1 "
+             f"primary target. Top {len(rm)} by shared-target count:**\n")
+    L.append(table(["Molecule", "ChEMBL", "Max phase", "Shared targets"],
+                   [(r.get("name") or r.get("id"), r.get("id"), r.get("phase"),
+                     ", ".join(r.get("shared_targets") or [])) for r in rm]))
+    return "\n".join(L)
+
+
+def r_target_pathways(b):
+    L = ["## Target pathways", ""]
+    tg = b.get("target_genes") or []
+    L.append(f"**Aggregated over {len(tg)} target gene(s): {', '.join(tg)}.**")
+    tp = b.get("top_pathways") or []
+    if tp:
+        L += ["", f"**Top Reactome pathways ({_i(b.get('pathway_count'))} total), "
+              f"by targets touching each:**", "",
+              table(["Pathway", "Targets", "Genes"],
+                    [(f"[{p.get('name') or p['id']}](https://reactome.org/PathwayBrowser/#/{p['id']})"
+                      if p.get("id") else (p.get("name") or ""),
+                      p.get("gene_count"), ", ".join(p.get("genes") or []))
+                     for p in tp])]
+    go = b.get("top_go_bp") or []
+    if go:
+        L += ["", "**Dominant GO biological processes:**", "",
+              table(["GO term", "Targets"],
+                    [(f"[{g.get('name') or g['id']}](https://amigo.geneontology.org/amigo/term/{g['id']})",
+                      g.get("target_count")) for g in go])]
+    return "\n".join(L)
+
+
 def r_clinical_evidence(b):
     L = ["## Clinical evidence (CIViC)", ""]
     ce = b.get("civic_evidence") or []
@@ -190,6 +226,8 @@ RENDER = {
     "4": r_indications,
     "5": r_clinical_trials,
     "6": r_pharmacology,
+    "7": r_related_molecules,
+    "8": r_target_pathways,
     "10": r_clinical_evidence,
     "11": r_patent_literature,
     "12": r_salt_forms,
