@@ -136,8 +136,8 @@ All hygiene items from this section shipped 2026-05-31. Per `git log`:
 | #13 pharmgkb_guideline / _clinical / _variant empty | 🕓 fix in tomorrow's release | §10 PharmGKB block can only state existence, not contents; deeper PGx narrative blocked |
 | #14 reactome pathway entries with empty `name` | 🕓 fix in tomorrow's release | Disease §14 renders "Unnamed pathway (R-HSA-N…)" for 1-2 pathways per cohort; graceful fallback in place |
 | #15 chembl_molecule parent/child salt-form linkage | 🟡 partial 2026-05-31 — child entries now expose `parent` field; remaining ask is a forward map edge. Atlas's per-entry workaround acceptable at disease scale, won't at drug-page scale |
-| #16 No `list-ids` endpoint for a dataset (corpus enumeration) | open (just filed) | **Blocks all-diseases / all-genes scale-out.** Today we depend on external Mondo .obo / HGNC TSV dumps for full enumeration; brittle and defeats the "biobtree is single source" model. |
-| #17 No bulk xref-count check (one /entry per id to filter by signal) | open (just filed) | Even with #16 resolved, filtering ~25k Mondo nodes by Atlas-relevant signal (gwas/civic/clinvar/gencc xrefs) needs 25k entry calls. Suggest adding xref counts to search/list response schemas. |
+| ~~#16 list-ids endpoint~~ | **retracted 2026-05-31** — corpus enumeration belongs upstream (HGNC TSV, Mondo OBO, ChEMBL releases); biobtree shouldn't duplicate. |
+| ~~#17 bulk xref-count check~~ | **retracted 2026-05-31** — per-entry xref counts work fine, only paid once per release with local cache. No real bottleneck. |
 
 ## Pre-launch / cross-repo work (defer to launch day)
 
@@ -191,10 +191,16 @@ the site too early caches an incomplete corpus.
 - [ ] **Full 61-disease backlog** (43 more diseases to run; use
       `bin/run_disease_backlog.py` or the Enju workflow at
       `src/atlas/disease/enju.yaml`)
-- [ ] **All-diseases scale-out** beyond the curated 61: 🕓 blocked on
-      BIOBTREE_ISSUES #16 (no `list-ids` endpoint) + #17 (no bulk
-      xref-count check). Today's external-dump workaround is brittle;
-      proper fix is upstream so biobtree remains the single source.
+- [ ] **All-diseases scale-out** beyond the curated 61. Approach:
+      Atlas-side discovery script parses Mondo's OBO (from obofoundry.org)
+      to enumerate all MONDO IDs + canonical names; optionally filters by
+      branch (e.g. only `human disease` descendants) to drop irrelevant
+      ontology nodes. Same pattern for genes via HGNC's
+      `hgnc_complete_set.txt`. Feeds the resulting list into the existing
+      `bin/run_disease_backlog.py` driver. No biobtree changes needed —
+      this is normal downstream-consumer pattern. (Earlier framing as
+      "blocked on a biobtree list-ids endpoint" was retracted on
+      reflection; see BIOBTREE_ISSUES.md Retracted section.)
 - [ ] **Schema.org MedicalCondition additional fields** —
       `epidemiology` (needs Orphanet prevalence numbers — biobtree exposes
       Orphanet xref but not prevalence body); `signOrSymptom` (HPO

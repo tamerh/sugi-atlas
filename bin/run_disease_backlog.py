@@ -46,17 +46,26 @@ def load_curated():
 
 
 def load_full_mondo():
-    """Enumerate every Mondo node with material cohort signal. NOT IMPLEMENTED
-    yet — biobtree doesn't expose a 'list all mondo ids' endpoint; we'd need
-    to either page through search('mondo', s='mondo') with no input filter or
-    drive off an external Mondo dump (mondo.obo). Placeholder for the
-    all-diseases scale-out."""
+    """Enumerate every Mondo node with material cohort signal. NOT IMPLEMENTED.
+
+    The intended approach is the normal downstream-consumer pattern:
+      1. Download Mondo's OBO release from
+         https://github.com/monarch-initiative/mondo/releases
+      2. Parse for MONDO:NNN ids + name; optionally filter to the
+         `human disease` (MONDO:0700096) subgraph to drop ontology
+         scaffolding nodes.
+      3. Optionally: walk each id through biobtree's entry endpoint and
+         keep only those with >=1 of {gwas, civic_evidence, clinvar, gencc}
+         xrefs in the mondo xref count table. Bounded once per release;
+         cache the resulting filtered list locally.
+
+    No biobtree change needed for any of this — corpus enumeration is
+    naturally upstream of biobtree (HGNC ships a TSV of all genes;
+    Mondo ships an OBO of all classes; ChEMBL ships SQLite). Wire when
+    the curated 61-disease list is genuinely exhausted."""
     raise NotImplementedError(
-        "Full-Mondo enumeration not yet wired. Needs either:\n"
-        "  - a biobtree 'list ids in dataset N' endpoint (file as upstream req)\n"
-        "  - external Mondo .obo download + parse for MONDO:NNN ids\n"
-        "  - filter to nodes with >=1 of {gwas, civic_evidence, clinvar, gencc}\n"
-        "    xref counts to skip leaf-most ontology nodes with no Atlas signal.")
+        "Full-Mondo enumeration not yet wired. See docstring for the "
+        "OBO-parse + signal-filter approach.")
 
 
 def main():

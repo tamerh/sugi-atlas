@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-05-31 (biobtree refresh resolved #9 fully + #15 partially; disease-page findings #14/#15 and scale-out requests #16/#17 still open)
+**Last updated:** 2026-05-31 (biobtree refresh resolved #9 + #10 fully + #15 partially; #12 mostly resolved; corpus-enumeration asks #16/#17 retracted on reflection — see Retracted section)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -214,73 +214,9 @@ map response itself.
 sections/s13_clinical_trials.py) still pays ~30 calls per disease.
 Acceptable at disease scale; will be a hot path on drug pages.
 
-## Issue #16 — No `list-ids` endpoint for a dataset (corpus enumeration)
+## Retracted
 
-There's no API to enumerate every id in a given dataset (every Mondo node,
-every HGNC gene, every ChEMBL molecule). `/api/search?s=mondo` returns
-relevance-ranked search results for a *query*, not "all ids in dataset
-mondo".
-
-**Repro:**
-```
-search(i="", s="mondo")           → empty (requires a search term)
-search(i=" ", s="mondo")          → empty / no useful matches
-search(i="disease", s="mondo")    → 50 ranked-by-text-match results,
-                                    not a full dataset traversal
-```
-
-**Why Atlas needs it.** Scaling beyond a curated reference list (we're at
-6 genes + 18 diseases, parked-PROD curated 61 diseases) requires:
-- enumerating Mondo to find every disease with material cohort signal
-  (current Atlas estimate ~5–10k of Mondo's ~25k classes carry useful
-  GWAS / CIViC / ClinVar / GenCC xrefs)
-- enumerating HGNC similarly for the full ~43k human-gene corpus.
-
-Today's workaround: drive enumeration off an external Mondo `.obo` /
-HGNC TSV dump, parse, then loop. Brittle (version-skew between biobtree
-and external dump), defeats the "biobtree is the single source" model.
-
-**Suggested fix:** a dataset list endpoint along the lines of:
-```
-GET /api/list?s=mondo&limit=1000&page_token=<cursor>
-  → {schema: "id|name|xref_count", data: ["MONDO:0001|...|N", ...],
-     pagination: {next_token: "..."}}
-```
-Same schema as `search`, same pagination as `map`. Cheap, would unlock
-full-corpus runs across every entity type biobtree indexes.
-
-**Atlas impact:** blocks the "all diseases" / "all genes" scale-out.
-Without it, every batch run depends on a hand-maintained list.
-
-## Issue #17 — No bulk xref-count check (need one /entry per id to filter by signal)
-
-Even with #16 resolved, we'd next want to filter `~25k Mondo nodes` down to
-"only those with non-empty gwas/civic_evidence/clinvar/gencc xref counts".
-Today this requires one `/entry` per node:
-
-**Repro pattern:**
-```
-for mondo_id in [...]:
-    en = entry(mondo_id, "mondo")
-    # parse en['xrefs']['data'] for "gwas|N", "civic_evidence|N", ...
-```
-That's 25k HTTP calls just to skip the 60-80% of Mondo nodes with no
-Atlas-relevant signal (deprecated terms, leaf-level rare-rare classes).
-
-**Suggested fix:** add xref counts (or a subset — at least gwas /
-gwas_study / clinical_trials / civic_evidence / clinvar / gencc /
-intogen) to the search and (proposed) list response schemas. So:
-```
-list(s="mondo") schema: "id|name|xref_count|gwas|gwas_study|civic_evidence|clinvar|gencc|intogen|clinical_trials"
-```
-Then a single paginated walk produces both the corpus AND the filter
-metadata. We'd skip nodes with all-zero columns.
-
-Alternative: a `/api/xref_counts?ids=ID1,ID2,...&s=DS` batch endpoint
-that returns one row per id.
-
-**Atlas impact:** combined with #16, unlocks "rank Mondo nodes by Atlas
-signal density, take top-N, run pipeline" — the actual workflow for
-all-diseases coverage. Without these two, Atlas either ships a curated
-seed-list forever, or pays prohibitive per-node entry-call cost just to
-filter.
+| # | Title | Reason |
+|---|---|---|
+| #16 | No `list-ids` endpoint for a dataset (corpus enumeration) | Retracted 2026-05-31. Corpus enumeration is naturally upstream of biobtree — HGNC ships `hgnc_complete_set.txt` (all human genes), Mondo ships its OBO at obofoundry.org (all disease classes), ChEMBL ships SQLite/flat-file releases. biobtree itself consumes these source files; Atlas can parse the same files for "discover the corpus" without asking biobtree to duplicate that role. Filing was a "biobtree is single source" aesthetic, not a real engineering need. |
+| #17 | No bulk xref-count check | Retracted 2026-05-31. The mondo entry already exposes xref counts; calling `/entry` per id is N round-trips but only once per release, easily cached locally. At ~25k Mondo nodes this is ~30 min serial / a few min parallel — not prohibitive. The motivation was that #16 made enumeration cheap and #17 made filtering cheap; once #16 is retracted, #17 loses its main case. A future "batch entry resolve" endpoint might help at scale, but no current bottleneck justifies filing it now. |
