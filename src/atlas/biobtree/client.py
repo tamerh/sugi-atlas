@@ -34,10 +34,16 @@ if _TRANSPORT_NAME == "urllib_pool":
     from atlas.biobtree._transports import urllib_pool as _t
 elif _TRANSPORT_NAME == "grpc":
     raise NotImplementedError(
-        "gRPC transport not yet implemented. Stubs land at "
-        "atlas/biobtree/_pb/ (run `python -m atlas.biobtree._pb.regenerate` "
-        "after biobtree's proto changes). Per-dataset field-rename map is "
-        "the remaining work. For now use urllib or urllib_pool.")
+        "gRPC transport: stubs are generated (atlas/biobtree/_pb/) and the\n"
+        "server is reachable on 127.0.0.1:7776 — but biobtree's REST shape\n"
+        "(`{schema, data: [pipe|encoded|rows]}`) is produced by service/compact.go,\n"
+        "a ~2400-LOC Go encoder with ~80 per-dataset extractors that runs\n"
+        "ONLY in the REST handler. gRPC returns nested proto messages\n"
+        "(MessageToDict shape) instead.\n\n"
+        "Parked until biobtree honors `SearchRequest.mode='lite'` over gRPC\n"
+        "(filed as docs/BIOBTREE_ISSUES.md #22) OR a deliberate decision\n"
+        "is made to port compact.go to Python (~1-2 days).\n\n"
+        "Use ATLAS_BIOBTREE_TRANSPORT=urllib_pool for the safe ~11% win.")
 elif _TRANSPORT_NAME == "urllib":
     from atlas.biobtree._transports import urllib_transport as _t
 else:

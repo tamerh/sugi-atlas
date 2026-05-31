@@ -324,3 +324,34 @@ to ~5-10s. Corpus build: ~12h parallel → ~2h.
 **Not blocking — Atlas can ship at the current 48s/page rate** (12h corpus
 build with 8-way parallel). This is a "ship the request, swap when it
 lands" pattern.
+
+---
+
+## Issue #22 (proposed) — Honor `mode="lite"` over gRPC
+
+**Filed in repo / open question — confirm with biobtree dev team first.**
+
+biobtree's REST handler returns the compact `{schema: "...", data: ["a|b|c", ...]}`
+shape regardless of the proto's `mode` field. gRPC bypasses that encoder
+and returns the full proto messages directly — so a Python client wanting
+the compact shape over gRPC has to reimplement the entire compact.go
+encoder (~2400 LOC, ~80 per-dataset extractors).
+
+**Ask:** when `SearchRequest.mode = "lite"` or `MappingRequest.mode = "lite"`,
+populate `results_lite` / `MapFilterResultLite` in the gRPC response with
+the same pipe-encoded `schema|data` payload the REST handler produces.
+The proto already declares both `Result` and `ResultLite` fields — the
+field is there, it just isn't being filled in gRPC mode.
+
+**Why this matters for Atlas:**
+- gRPC alone gives ~50-80% wire-time wins (binary protobuf + HTTP/2 keep-alive).
+- Without lite-mode parity, those wins are eaten by porting compact.go to
+  Python (estimated 2-4h underestimate; the actual cost is ~1-2 days of
+  careful Go → Python translation + per-dataset validation).
+- With lite-mode parity, the gRPC transport becomes a drop-in upgrade
+  to urllib_pool with the same response shape and ~5× the throughput.
+
+**Atlas current state:** `urllib_pool` transport already shipped
+(~11% wall-clock win on disease builds). gRPC transport scaffolding is
+in place (regen script + stubs committed) but production gRPC transport
+is parked pending this feature or an explicit decision to port compact.go.
