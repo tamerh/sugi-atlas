@@ -128,7 +128,7 @@ def check(symbol, bundle, snap_dir=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("symbol")
-    ap.add_argument("--entity", default="gene", choices=["gene", "disease"],
+    ap.add_argument("--entity", default="gene", choices=["gene", "disease", "drug"],
                     help="entity type (selects which collector + snapshots/<entity>/ dir)")
     ap.add_argument("--update", action="store_true",
                     help="overwrite the snapshot with current bundle")
@@ -140,6 +140,14 @@ def main():
         from atlas.gene import collect as C
         bundle = {s: C.SECTIONS[s](args.symbol) for s in C.SECTIONS}
         key = args.symbol
+    elif args.entity == "drug":
+        from atlas.drug import collect as DRC
+        from atlas.drug.anchors import resolve as resolve_drug
+        from atlas.drug.slug import slugify
+        # Snapshot key is the slug; resolve once for collect input + slug.
+        a = resolve_drug(args.symbol)
+        bundle = {sid: DRC.REGISTRY[sid].collect_fn(a) for sid in DRC.REGISTRY}
+        key = slugify(a.canonical_name or args.symbol)
     else:
         from atlas.disease import collect as DC
         from atlas.disease.anchors import resolve as resolve_disease

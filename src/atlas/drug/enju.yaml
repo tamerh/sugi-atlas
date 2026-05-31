@@ -1,0 +1,115 @@
+# =============================================================================
+# Atlas drug page — per-drug 4-task DAG (mirrors disease/enju.yaml)
+# =============================================================================
+#
+# DAG per drug (workflow-level for_each, each iteration isolated):
+#
+#   collect_render ──┬── body_gate ─────────────────────┐
+#                    │                                   ├── publish
+#                    └── summary ──── (no summary_gate)──┘
+#
+# Drug iteration var is a `{name, slug}` record:
+#   - `name` drives resolution — a ChEMBL id (unambiguous, preferred from the
+#     corpus) or a drug name (resolved via search)
+#   - `slug` is the stable URL/filename, pre-computed so dist paths + snapshot
+#     keys don't drift if ChEMBL's pref_name changes
+#
+# Run invocation:
+#
+#   enju go src/atlas/drug/enju.yaml \
+#       --base data \
+#       --run-branch "" \
+#       --publish none \
+#       --params '{"drugs":[{"name":"CHEMBL941","slug":"imatinib"}]}'
+#
+# Or feed a tier straight from the corpus:
+#
+#   python -m atlas.drug.corpus filter --tier D1 --limit 10   # → [{id,name,slug}]
+#   (map id→name for the workflow's {name,slug} record shape)
+
+name: "Atlas drug page"
+description: |
+  Per-drug Atlas page generation: deterministic collect + render across
+  §1-§12, body_gate regression check, LLM executive summary, publish to
+  /data/sugi-atlas-dist/atlas/drug/<slug>/.
+
+version: 1
+
+publish:
+  mode: none
+
+params:
+  - name: drugs
+    type: list<record>
+    required: true
+    key: slug
+    fields:
+      name: string
+      slug: string
+    description: "Drugs to analyse, [{name, slug}]; name = ChEMBL id or drug name, slug = URL key."
+
+  - name: dist_root
+    type: string
+    default: "/data/sugi-atlas-dist"
+    description: "Absolute path to the sugi-atlas-dist checkout (publish target)."
+
+  - name: summary_model
+    type: string
+    default: "qwen/qwen3-235b-a22b-2507|Together"
+    description: "OpenRouter model slug for the summary step."
+
+  - name: skip_summary
+    type: string
+    default: "false"
+    description: "Set 'true' to skip the LLM summary (deterministic-only fast path)."
+
+for_each:
+  drug: "{{drugs}}"
+
+defaults:
+  assign_to: tamerh
+
+tasks:
+  - id: collect_render
+    action: compute
+    script: src/atlas/drug/tasks/collect_render.py
+    writes:
+      - "build/{{drug.slug}}/bundle.json"
+      - "build/{{drug.slug}}/body.md"
+      - "build/{{drug.slug}}/anchors_meta.json"
+    prompt: "Collect §1-§12 deterministically and render body for {{drug.name}}"
+
+  - id: body_gate
+    action: compute
+    script: src/atlas/drug/tasks/body_gate.py
+    depends_on: [collect_render]
+    reads:
+      - "build/{{drug.slug}}/bundle.json"
+    writes:
+      - "build/{{drug.slug}}/body_gate.json"
+    prompt: "Body-gate regression check for {{drug.slug}}"
+
+  - id: summary
+    action: compute
+    script: src/atlas/drug/tasks/summary.py
+    depends_on: [collect_render]
+    reads:
+      - "build/{{drug.slug}}/body.md"
+      - "build/{{drug.slug}}/anchors_meta.json"
+    writes:
+      - "build/{{drug.slug}}/summary.md"
+    prompt: "Generate executive summary via OpenRouter for {{drug.name}}"
+
+  - id: publish
+    action: compute
+    script: src/atlas/drug/tasks/publish.py
+    depends_on: [body_gate, summary]
+    reads:
+      - "build/{{drug.slug}}/bundle.json"
+      - "build/{{drug.slug}}/body.md"
+      - "build/{{drug.slug}}/summary.md"
+      - "build/{{drug.slug}}/body_gate.json"
+      - "build/{{drug.slug}}/anchors_meta.json"
+    # publish.py writes the final page.md to $DIST_ROOT/atlas/drug/<slug>/
+    # (absolute path OUTSIDE the project tree, same pattern as gene/disease).
+    prompt: "Assemble final page.md and write to dist for {{drug.slug}}"
