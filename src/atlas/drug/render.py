@@ -3,6 +3,7 @@
 Mirrors gene/render.py + disease/render.py: one r_* fn per section + a RENDER
 dict. Every fact comes verbatim from the bundle."""
 from atlas.render_common import table
+from atlas.civic import therapy_label
 
 
 def _i(n):
@@ -43,6 +44,28 @@ def r_drug_ids(b):
     return "\n".join(L)
 
 
+def r_targets(b):
+    L = ["## Targets", ""]
+    pt = b.get("primary_targets") or []
+    if pt:
+        src = b.get("primary_source") or "gtopdb"
+        label = "GtoPdb curated mechanism" if src == "gtopdb" else "ChEMBL bioactivity"
+        L.append(f"**Primary targets ({label}):**\n")
+        L.append(table(["Gene", "Target", "Action", "pAffinity", "UniProt"],
+                       [(t.get("gene_symbol") or "", t.get("target_name") or "",
+                         t.get("action") or "", t.get("affinity") or "",
+                         t.get("uniprot") or "") for t in pt]))
+    bc = b.get("bioactivity_target_count") or 0
+    if bc:
+        names = ", ".join(t.get("name") or t.get("chembl_target_id")
+                          for t in (b.get("bioactivity_targets") or [])[:10])
+        L.append(f"\n**Broader ChEMBL bioactivity targets: {bc}** "
+                 f"(assay-derived). Sample: {names}.")
+    if not pt and not bc:
+        L.append("*No target linkage available.*")
+    return "\n".join(L)
+
+
 def r_bioactivity(b):
     L = ["## Bioactivity", ""]
     ca = b.get("activities") or []
@@ -56,6 +79,45 @@ def r_bioactivity(b):
     L.append(table(["pChembl", "Type", "Value", "Unit", "Activity ID"],
                    [(r.get("pchembl"), r.get("type"), r.get("value"),
                      r.get("unit"), r.get("id")) for r in ca]))
+    return "\n".join(L)
+
+
+def r_indications(b):
+    L = ["## Indications", "",
+         f"**{_i(b.get('indication_count'))} indications "
+         f"({_i(b.get('approved_count'))} at max phase 4 / approved).**"]
+    inds = b.get("indications") or []
+    if inds:
+        L += ["", table(["Indication", "Max phase", "MONDO", "EFO"],
+                        [(i.get("name") or i.get("efo_id") or i.get("mesh_id") or "",
+                          i.get("max_phase"), i.get("mondo_id") or "",
+                          i.get("efo_id") or "") for i in inds[:40]])]
+    return "\n".join(L)
+
+
+def r_clinical_evidence(b):
+    L = ["## Clinical evidence (CIViC)", ""]
+    ce = b.get("civic_evidence") or []
+    if not ce:
+        L.append("*No CIViC predictive evidence "
+                 "(expected for non-precision-medicine drugs).*")
+        return "\n".join(L)
+    etc = b.get("civic_evidence_type_counts") or {}
+    extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
+    L.append(f"**Variant × indication × effect "
+             f"({_i(b.get('civic_association_total'))} predictive associations from "
+             f"{_i(b.get('civic_predictive_total'))} curated evidence items"
+             + (f"; also {extra}" if extra else "") + "):**\n")
+    L.append(table(["Variant", "Indication", "Effect", "Therapy", "Level", "CIViC"],
+                   [(r["profile"], r["disease"], r["significance"],
+                     therapy_label(r["therapy"]),
+                     f"CIViC {r['level']}" if r.get("level") else "",
+                     f"[EID{r['evidence_id']}](https://civicdb.org/links/evidence_items/{r['evidence_id']})"
+                     + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
+                    for r in ce]))
+    more = (b.get("civic_association_total") or 0) - len(ce)
+    if more > 0:
+        L.append(f"\n*+{more} more predictive associations (showing top {len(ce)} by level).*")
     return "\n".join(L)
 
 
@@ -106,12 +168,31 @@ def r_patent_literature(b):
     return "\n".join(L)
 
 
+def r_salt_forms(b):
+    parent, childs = b.get("parent_chembl"), b.get("child_chembls") or []
+    if not parent and not childs:
+        return ("## Salt forms & parent\n\n*Single canonical ChEMBL molecule "
+                "(no salt/anhydrous forms linked).*")
+    L = ["## Salt forms & parent", ""]
+    if parent:
+        L.append(f"This molecule (`{b.get('chembl_id')}`) is a salt/anhydrous form "
+                 f"of parent `{parent}`.")
+    if childs:
+        L.append(f"Parent form; salt/anhydrous children: "
+                 + ", ".join(f"`{c}`" for c in childs) + ".")
+    return "\n".join(L)
+
+
 RENDER = {
     "1": r_drug_ids,
+    "2": r_targets,
     "3": r_bioactivity,
+    "4": r_indications,
     "5": r_clinical_trials,
     "6": r_pharmacology,
+    "10": r_clinical_evidence,
     "11": r_patent_literature,
+    "12": r_salt_forms,
 }
 
 

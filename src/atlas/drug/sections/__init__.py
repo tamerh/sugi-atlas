@@ -7,23 +7,28 @@ against a single shared atlas.drug.anchors.DrugAnchors record.
 
 Sections land incrementally per the spec's sequencing. Present so far:
   §1  drug_ids            (NEW, anchor read + chemistry)
+  §2  targets             (NEW, GtoPdb curated + chembl bioactivity)
   §3  bioactivity         (NEW, chembl_activity)
+  §4  indications         (NEW, anchor read, efo/mesh→mondo)
   §5  clinical_trials     (NEW, chembl_molecule→clinical_trials)
   §6  pharmacology        (NEW, ChEBI roles + ATC)
+  §10 clinical_evidence   (NEW, CIViC via chembl_molecule→civic_evidence)
   §11 patent_literature   (NEW, patent_compound)
-Still to add: §2 targets, §4 indications, §7 related_molecules,
-§8 target_pathways, §9 pharmacogenomics, §10 clinical_evidence (CIViC),
-§12 salt_forms_and_parent.
+  §12 salt_forms          (NEW, anchor read, parent/child nav)
+Still to add: §7 related_molecules, §8 target_pathways (cohort fan-out),
+§9 pharmacogenomics (partly blocked on biobtree #13).
 """
 from atlas.section import Section
 from atlas.drug.sections import (
-    s01_drug_ids, s03_bioactivity, s05_clinical_trials,
-    s06_pharmacology, s11_patent_literature,
+    s01_drug_ids, s02_targets, s03_bioactivity, s04_indications,
+    s05_clinical_trials, s06_pharmacology, s10_clinical_evidence,
+    s11_patent_literature, s12_salt_forms,
 )
 
 _MODULES = (
-    s01_drug_ids, s03_bioactivity, s05_clinical_trials,
-    s06_pharmacology, s11_patent_literature,
+    s01_drug_ids, s02_targets, s03_bioactivity, s04_indications,
+    s05_clinical_trials, s06_pharmacology, s10_clinical_evidence,
+    s11_patent_literature, s12_salt_forms,
 )
 
 REGISTRY: "dict[str, Section]" = {m.SECTION.id: m.SECTION for m in _MODULES}
