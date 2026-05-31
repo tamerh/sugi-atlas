@@ -21,13 +21,43 @@ MODELS = (os.environ.get("OR_MODELS") or
           "deepseek/deepseek-chat,"
           "google/gemini-2.0-flash-001,"
           "openai/gpt-4o-mini").split(",")
-INSTR = ("Write a concise 3-6 sentence executive summary for the gene {g} using STRICTLY "
-         "AND ONLY the facts in the body below. Rules: (1) every statement must be directly "
-         "supported by the body; (2) do NOT add any biological function, role, mechanism, "
-         "pathway, or significance from your own knowledge -- even if true -- unless it "
-         "appears in the body; (3) do NOT infer or editorialize; (4) prefer restating "
-         "concrete facts (IDs, counts, names, classifications) over interpretation. Output "
-         "only the paragraph, no preamble.")
+# Grounding contract — shared verbatim across gene / disease / drug. This is
+# the faithfulness part: it MUST stay identical so summary quality (and the
+# summary_gate, which checks the same way) doesn't diverge per entity.
+_RULES = ("using STRICTLY AND ONLY the facts in the body below. Rules: (1) every "
+          "statement must be directly supported by the body; (2) do NOT add any "
+          "function, role, mechanism, pathway, indication, or significance from your "
+          "own knowledge -- even if true -- unless it appears in the body; (3) do NOT "
+          "infer or editorialize; (4) prefer restating concrete facts (IDs, counts, "
+          "names, classifications) over interpretation. Output only the paragraph, no "
+          "preamble.")
+
+# Per-entity focus — one sentence on what to LEAD with (ordering/emphasis only;
+# never relaxes the grounding rules). Keeps the registry-identifier dump out of
+# the opening sentence.
+_FOCUS = {
+    "gene": ("Lead with the gene's identity and protein function, then variants / "
+             "disease links, pathways, and drug-targetability"),
+    "disease": ("Lead with the disease and its molecular gene cohort, then genetic "
+                "evidence (GWAS / Mendelian / somatic), subtypes, and the therapeutic "
+                "landscape"),
+    "drug": ("Lead with the drug's class, mechanism, and primary target(s), then its "
+             "main approved indications and clinical evidence; mention identifiers, "
+             "counts, and trials as supporting detail, not the opening"),
+}
+
+
+def instruction(label: str, kind: str = "gene") -> str:
+    """Compose the summary prompt: per-entity focus line + shared grounding rules."""
+    focus = _FOCUS.get(kind, _FOCUS["gene"])
+    return (f"Write a concise 3-6 sentence executive summary for {label} {_RULES} "
+            f"FOCUS: {focus}.")
+
+
+# Backwards-compatible: INSTR.format(g=...) still works (gene framing) for any
+# caller not yet passing `kind`.
+INSTR = (f"Write a concise 3-6 sentence executive summary for {{g}} {_RULES} "
+         f"FOCUS: {_FOCUS['gene']}.")
 
 # atoms we can verify against the body: exact IDs + 3+ digit numbers (counts)
 ATOM = re.compile(r"HGNC:\d+|ENS[A-Z]*\d+|NM_\d+|NP_\d+|NR_\d+|IPR\d+|PF\d{5}|CCDS\d+"

@@ -103,9 +103,9 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
                 + summary_text.strip() + "\n\n" + body_md + "\n")
     return head + lead + cancer_overview + body_md + "\n"
 
-def run_summary(body_md, symbol, model):
+def run_summary(body_md, symbol, model, kind="gene"):
     key = B.api_key()
-    prompt = B.INSTR.format(g=symbol) + "\n\nBODY:\n" + body_md
+    prompt = B.instruction(symbol, kind) + "\n\nBODY:\n" + body_md
     d, dt = B.call(model, prompt, key, max_tokens=600)
     if "choices" not in d:
         raise RuntimeError(f"summary API error: {json.dumps(d)[:200]}")
@@ -230,7 +230,7 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
     if do_summary:
         print(f"[4/5] summary  ({summary_model})")
         # Use the canonical_name as the entity label for the summary prompt.
-        summary_text, dt = run_summary(body_md, a.canonical_name or name, summary_model)
+        summary_text, dt = run_summary(body_md, a.canonical_name or name, summary_model, kind="disease")
         print(f"       {len(summary_text)}c in {dt:.1f}s")
         print(f"[5/5] summary_gate")
         judge_result = summary_gate.check_summary(body_md, summary_text)
@@ -322,7 +322,7 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
     summary_text, judge_result = "", None
     if do_summary:
         print(f"[4/5] summary  ({summary_model})")
-        summary_text, dt = run_summary(body_md, a.canonical_name or name, summary_model)
+        summary_text, dt = run_summary(body_md, a.canonical_name or name, summary_model, kind="drug")
         print(f"       {len(summary_text)}c in {dt:.1f}s")
         print(f"[5/5] summary_gate")
         judge_result = summary_gate.check_summary(body_md, summary_text)

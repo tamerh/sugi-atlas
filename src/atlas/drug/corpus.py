@@ -138,7 +138,8 @@ def cmd_run(args):
     from atlas.pipeline import run_drug
 
     records = filter_corpus(load_corpus(args.corpus), tier=args.tier, limit=args.limit)
-    print(f"Driving {len(records)} drug pages ({args.tier or 'all'}) → {args.dist}")
+    print(f"Driving {len(records)} drug pages ({args.tier or 'all'}) → {args.dist}"
+          + ("  [with LLM summary]" if args.summary else "  [deterministic only]"))
 
     existing = set()
     if not args.force:
@@ -157,7 +158,7 @@ def cmd_run(args):
             continue
         t = time.time()
         try:
-            run_drug(chembl_id, args.dist, do_summary=False, accept_first_run=True)
+            run_drug(chembl_id, args.dist, do_summary=args.summary, accept_first_run=True)
             dt = time.time() - t
             print(f"  [{i:>3d}/{len(records)}] {slug} OK ({dt:.1f}s)")
             results["ok"].append({"slug": slug, "seconds": round(dt, 1)})
@@ -198,6 +199,8 @@ def main():
     r.add_argument("--tier", choices=_TIER_ORDER, default=None)
     r.add_argument("--limit", type=int, default=0)
     r.add_argument("--force", action="store_true")
+    r.add_argument("--summary", action="store_true",
+                   help="run the LLM executive summary step (default: deterministic only)")
     r.set_defaults(func=cmd_run)
 
     args = ap.parse_args()

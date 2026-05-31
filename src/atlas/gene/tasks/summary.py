@@ -15,7 +15,7 @@ if skip:
 
 body = open(f"build/{symbol}/body.md").read()
 key = B.api_key()
-prompt = B.INSTR.format(g=symbol) + "\n\nBODY:\n" + body
+prompt = B.instruction(symbol, "gene") + "\n\nBODY:\n" + body
 d, dt = B.call(model, prompt, key, max_tokens=600)
 if "choices" not in d:
     raise SystemExit("API: " + str(d)[:200])
