@@ -37,22 +37,13 @@ Remaining (all cross-repo, deferred to launch):
 
 ### From the page audit (biggest user-visible gaps)
 
-- [ ] **UniProt CC narratives** (FUNCTION / SUBUNIT / SUBCELLULAR LOCATION /
-      TISSUE SPECIFICITY / DISEASE / PTM / COFACTOR / DOMAIN / INDUCTION /
-      MISCELLANEOUS / SIMILARITY / CAUTION) — audit's #1 gap.
-      **🟢 NOW UNBLOCKED — biobtree 2026-05-31 refresh resolved #9.**
-      Wiring plan:
-      - extend gene §3 collector to surface `comments` block from the
-        uniprot entry (single extra entry call already paid)
-      - new §3a or dedicated `cc_narratives` subblock in render
-      - feed FUNCTION into declarative-lead sentence (replacing the
-        current sentence which only has identifier facts) and into
-        provenance/JSON-LD `description`
-      - disease side: `cohort_function_summary` aggregated over cohort
-- [ ] **Named isoforms** (p53α/β/γ, K-Ras4A/4B, p16γ, titin N2A/N2B/N2BA/novex).
-      **🟢 NOW UNBLOCKED — same refresh.** uniprot entry now carries
-      `isoforms: [{id, names, is_canonical}]`. Wire into gene §3 as an
-      "Isoforms" table; pick `is_canonical` for the primary product.
+UniProt CC narratives + named isoforms — **SHIPPED 2026-05-31** (search
+`git log --grep="BIOBTREE #9"`). Closes the audit's #1 gap: gene §3 now
+carries `function/subunit/subcellular_location/tissue_specificity/ptm/
+disease/cofactor/domain/...` paragraphs + isoforms table; declarative
+lead + JSON-LD use FUNCTION CC; disease §5 has cohort_function_summary
+("CFHR1: complement regulation; CFB: catalytic C3/C5 convertase; ...").
+
 - [ ] **Drug → indication → biomarker triples** in §10 (sotorasib + KRAS-G12C +
       NSCLC; osimertinib + EGFR-T790M; olaparib + BRCAness). Complex — needs
       ChEMBL indication + FDA biomarker list bridging. Defer until V1 corpus.
@@ -135,18 +126,6 @@ the site too early caches an incomplete corpus.
 - [ ] Hugo theme: `Last-Modified` HTTP header from `generated_at`
 - [ ] After deploy: resubmit sitemap to Google Search Console; watch
       `chatgpt_report.py` for new AI-fetch patterns
-
-## Important — needs design decision
-
-### ~~UniProt CC narratives: how do we source them?~~ — RESOLVED 2026-05-31
-
-biobtree's 2026-05-31 refresh shipped the CC block (`comments`) and named
-`isoforms` directly on the uniprot entry. The earlier "three paths"
-discussion (forward to biobtree / direct UniProt REST / bulk flat-file
-parse) is moot — path 1 landed.
-
-Atlas-side wiring is the new actionable item (see Path C: "UniProt CC
-narratives" + "Named isoforms" above).
 
 ## Disease entity — status
 

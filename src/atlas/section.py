@@ -18,3 +18,9 @@ class Section:
     datasets: Tuple[str, ...]   # biobtree datasets touched (for the graph)
     chains: Tuple[str, ...]     # biobtree chain strings used (for the graph)
     collect_fn: Callable        # collect(anchors) -> bundle dict
+    # Bundle keys whose count is allowed to shrink without flagging a
+    # regression in body_gate. Use for fields known to legitimately
+    # fluctuate when biobtree (or its upstream) recurates — e.g. the
+    # 2026-05-30 RefSeq REVIEWED-only filter dropped TP53 mRNA 46→25.
+    # Default empty: every key strictly monitored.
+    shrinkable: Tuple[str, ...] = ()

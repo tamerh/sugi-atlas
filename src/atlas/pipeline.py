@@ -57,28 +57,34 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
 
     lead = ""
     cancer_overview = ""
+    entity_type = (meta or {}).get("entity_type") or "gene"
     if bundle is not None:
-        from atlas.page.declarative import declarative_sentence
-        from atlas.page.jsonld import build_jsonld, as_script_tag
-        from atlas.gene.render import r_cancer_overview
-        sentence = declarative_sentence(bundle)
-        # Pull the YYYY-MM-DD from the ISO `generated_at` for a human-visible
-        # freshness signal (HTTP Last-Modified is set by Hugo from this same field).
         date = (meta.get("generated_at") or "")[:10]
         updated = f"*Updated: {date}*" if date else ""
-        # schema.org Gene JSON-LD — federated-identity signal (sameAs to NCBI/
-        # UniProt/Ensembl/HGNC/OMIM). Lives at the top of the body so AI
-        # crawlers see it on the rendered page; also written as entity.jsonld
-        # sidecar by the publish step for direct machine fetch.
-        jsonld_tag = as_script_tag(build_jsonld(bundle))
+        if entity_type == "disease":
+            from atlas.page.disease_declarative import declarative_sentence
+            from atlas.page.disease_jsonld import build_jsonld, as_script_tag
+            sentence = declarative_sentence(bundle)
+            # `symbol` here is the disease slug (filename-safe key used by the
+            # publish step). disease_jsonld needs it for the page @id URL.
+            jsonld_tag = as_script_tag(build_jsonld(bundle, symbol))
+        else:
+            from atlas.page.declarative import declarative_sentence
+            from atlas.page.jsonld import build_jsonld, as_script_tag
+            from atlas.gene.render import r_cancer_overview
+            sentence = declarative_sentence(bundle)
+            jsonld_tag = as_script_tag(build_jsonld(bundle))
+            # Cancer-overview block is gene-specific (intOGen + CIViC per the
+            # canonical gene). Disease pages have their own §4 somatic-driver
+            # subblock, so we don't double up.
+            co = r_cancer_overview(bundle)
+            if co:
+                cancer_overview = co + "\n\n"
+        # schema.org JSON-LD — federated-identity signal (sameAs to ontology
+        # cross-refs). Lives inline at the top of the body so AI crawlers see
+        # it on the rendered page; also written as entity.jsonld sidecar by
+        # the publish step for direct machine fetch.
         lead = jsonld_tag + "\n\n" + sentence + "\n\n" + (updated + "\n\n" if updated else "")
-        # Cancer-significance overview block (CIViC paragraph + intOGen
-        # driver flag) — placed between the page lead and the LLM Summary
-        # so AI agents extract the curated narrative first. Elides for
-        # non-cancer genes.
-        co = r_cancer_overview(bundle)
-        if co:
-            cancer_overview = co + "\n\n"
 
     if summary_text:
         model = meta.get("summary_model", "Qwen3-235B")
@@ -238,10 +244,11 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
     }
-    # No declarative-lead / cancer-overview shim yet — pass bundle=None so the
-    # assembler skips the gene-specific lead. We can wire a disease-equivalent
-    # lead in a follow-up once we settle on the headline-sentence shape.
-    page_md = assemble_page(slug, summary_text, body_md, meta)
+    # Disease declarative lead + schema.org/MedicalCondition JSON-LD now
+    # flow through assemble_page (entity_type='disease' branch). Same shape
+    # as the gene page lead, just disease-shaped sentence + MedicalCondition
+    # @type instead of Gene.
+    page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
     with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
     with open(os.path.join(out_dir, "bundle.json"), "w") as f:

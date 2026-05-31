@@ -42,13 +42,12 @@ meta = {
     "biobtree_version": biobtree_version(),
     "summary_model": display_model,
 }
-# bundle=None → assemble_page skips the gene-specific lead (jsonld + declarative
-# sentence). Disease-equivalent lead is a follow-up.
-page = assemble_page(slug, summary, body, meta, bundle=None)
-open(f"{out}/page.md", "w").write(page)
-
-# Sidecars
+# Sidecars need the bundle anyway; load it here and pass through so
+# assemble_page picks the disease-shaped declarative lead + JSON-LD
+# (entity_type='disease' branch).
 bundle = json.load(open(f"build/{slug}/bundle.json"))
+page = assemble_page(slug, summary, body, meta, bundle=bundle)
+open(f"{out}/page.md", "w").write(page)
 open(f"{out}/entity.jsonld", "w").write(as_jsonld_string(build_jsonld(bundle, slug)))
 open(f"{out}/provenance.json", "w").write(
     as_provenance_string(build_provenance(bundle, slug, meta=meta)))

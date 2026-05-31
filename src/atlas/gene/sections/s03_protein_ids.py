@@ -101,4 +101,9 @@ SECTION = Section(
               "brenda_ec", "cc", "isoforms", "protein_name",
               "alternative_names"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
+    # refseq_protein follows the same REVIEWED-only fluctuation as
+    # refseq_mrna (BIOBTREE_ISSUES.md #11 — see §2 shrinkable note).
+    # ufeatures shrinks when UniProt re-curates feature annotations
+    # (e.g. demotes "Probable" → "By similarity" and drops them).
+    shrinkable=("refseq_protein", "ufeatures"),
 )

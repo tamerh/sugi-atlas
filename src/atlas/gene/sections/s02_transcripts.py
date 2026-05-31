@@ -46,4 +46,10 @@ SECTION = Section(
     produces=("ensembl_transcripts", "refseq_mrna", "ccds", "mane_select_refseq",
               "canonical_transcript", "canonical_exons"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
+    # refseq_mrna fluctuates with upstream NCBI's REVIEWED-only filter
+    # (2026-05-30 refresh: TP53 mRNA 46→25 because NM_/NR_ kept but XM_/XR_
+    # PREDICTED dropped). Body_gate demotes those shrinks from regression
+    # to drift. ensembl_transcripts can drop similarly when biotypes are
+    # recurated.
+    shrinkable=("refseq_mrna", "ensembl_transcripts"),
 )

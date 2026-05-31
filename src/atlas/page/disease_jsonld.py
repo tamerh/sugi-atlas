@@ -56,6 +56,27 @@ def same_as_urls(bundle: dict) -> list:
     return out
 
 
+def _drugs(bundle: dict) -> list:
+    """schema.org `drug` array — top 5 trial drugs by disease-scoped trial
+    count. Source: §13 trial_drugs (already deduplicated via the chembl
+    parent/child fold). Each entry is a shallow Drug node with name +
+    ChEMBL link. AI agents asking 'drugs used for X' key off this."""
+    b13 = bundle.get("13") or {}
+    drugs = b13.get("trial_drugs") or []
+    out = []
+    for d in drugs[:5]:
+        name = d.get("name")
+        mid = d.get("molecule_id")
+        if not name and not mid:
+            continue
+        rec = {"@type": "Drug", "name": name or mid}
+        if mid:
+            rec["identifier"] = mid
+            rec["url"] = f"https://www.ebi.ac.uk/chembl/compound_report_card/{mid}/"
+        out.append(rec)
+    return out
+
+
 def _associated_genes(bundle: dict) -> list:
     """Compact MedicalCondition.associatedGene list for the cohort. We surface
     the cohort genes' symbols + HGNC id + their canonical UniProt — enough for
@@ -114,6 +135,7 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "description": _summary_description(bundle),
         "sameAs": same_as_urls(bundle) or None,
         "associatedGene": _associated_genes(bundle) or None,
+        "drug": _drugs(bundle) or None,
     }
     # MedicalCode entries for each ontology (more granular than sameAs).
     codes = []

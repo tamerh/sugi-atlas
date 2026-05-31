@@ -65,12 +65,46 @@ def diff(old, new):
         out.append({"section": k[0], "key": k[1], "old": o, "new": n, "kind": kind})
     return out
 
+def _shrinkable_keys_for(section_id):
+    """Look up the per-section `shrinkable` allow-list from whichever entity
+    REGISTRY the section_id belongs to. Returns an empty set if the section
+    isn't found (which conservatively means 'no demotion' — same as before)."""
+    try:
+        from atlas.gene.sections import REGISTRY as G
+        if section_id in G:
+            return set(G[section_id].shrinkable or ())
+    except Exception:
+        pass
+    try:
+        from atlas.disease.sections import REGISTRY as D
+        if section_id in D:
+            return set(D[section_id].shrinkable or ())
+    except Exception:
+        pass
+    return set()
+
+
 def verdict(differences):
+    """Classify a diff list. The rules:
+      - empty           → clean
+      - any first_run   → first_run
+      - any 'removed' key OR 'changed' key with >50% shrink → regression,
+        UNLESS the key is declared shrinkable in the section's metadata
+        (then it's demoted to drift, matching legitimate upstream filters)
+      - otherwise       → drift
+    """
     if not differences: return "clean"
     if any(d.get("kind") == "first_run" for d in differences): return "first_run"
     for d in differences:
-        if d["kind"] == "removed": return "regression"
+        sec_id = d.get("section")
+        shrinkable = _shrinkable_keys_for(sec_id) if sec_id else set()
+        if d["kind"] == "removed":
+            if d["key"] in shrinkable:
+                continue
+            return "regression"
         if d["kind"] == "changed" and d["old"] > 0 and d["new"] < d["old"] * 0.5:
+            if d["key"] in shrinkable:
+                continue
             return "regression"
     return "drift"
 
