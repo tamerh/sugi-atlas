@@ -10,3 +10,6 @@ __pycache__/
 .pytest_cache/
 *.swp
 .venv/
+
+# batch builder bundle cache (intermediate; not published)
+.atlas-build/

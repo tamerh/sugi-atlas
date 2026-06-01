@@ -57,6 +57,24 @@ def biobtree_version():
 GENERATED_BY = "Sugi Atlas"  # attribution stamp; details on the /methods page
 
 
+def build_meta(entity_type, slug, title, datasets, generated_at=None):
+    """The single page-frontmatter meta builder — used by run_gene/disease/drug
+    AND the batch driver, so the shape can't drift between paths (the m4 fix).
+    `slug` is the URL/filename key (gene slug == symbol); `title` is the human
+    label (gene=symbol, disease=canonical name, drug=ChEMBL name)."""
+    return {
+        "title": title,
+        "symbol": slug,
+        "entity_type": entity_type,
+        "generated_at": (generated_at
+                         or datetime.now(timezone.utc).isoformat(timespec="seconds")),
+        "atlas_version": ATLAS_VERSION,
+        "biobtree_version": biobtree_version(),
+        "generated_by": GENERATED_BY,
+        "datasets": datasets,
+    }
+
+
 def datasets_union(registry):
     """Sorted union of every dataset each section DECLARES. Note: undercounts
     for disease/drug, which reach further datasets via cohort fan-out over gene
@@ -281,16 +299,7 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
         print(f"[4/5] summary  SKIPPED")
         print(f"[5/5] summary_gate  SKIPPED")
 
-    meta = {
-        "title": symbol,
-        "symbol": symbol,
-        "entity_type": "gene",
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "atlas_version": ATLAS_VERSION,
-        "biobtree_version": biobtree_version(),
-        "generated_by": GENERATED_BY,
-        "datasets": datasets_from_calls(CALLS),
-    }
+    meta = build_meta("gene", symbol, symbol, datasets_from_calls(CALLS))
     # Pass bundle so assemble_page emits the declarative lead + JSON-LD
     # inline script (parity with the Enju publish task).
     page_md = assemble_page(symbol, summary_text, body_md, meta, bundle=bundle)
@@ -378,16 +387,7 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
         print(f"[4/5] summary  SKIPPED")
         print(f"[5/5] summary_gate  SKIPPED")
 
-    meta = {
-        "title": a.canonical_name or name,
-        "symbol": slug,
-        "entity_type": "disease",
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "atlas_version": ATLAS_VERSION,
-        "biobtree_version": biobtree_version(),
-        "generated_by": GENERATED_BY,
-        "datasets": datasets_from_calls(CALLS),
-    }
+    meta = build_meta("disease", slug, a.canonical_name or name, datasets_from_calls(CALLS))
     # Disease declarative lead + schema.org/MedicalCondition JSON-LD now
     # flow through assemble_page (entity_type='disease' branch). Same shape
     # as the gene page lead, just disease-shaped sentence + MedicalCondition
@@ -474,16 +474,7 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
         print(f"[4/5] summary  SKIPPED")
         print(f"[5/5] summary_gate  SKIPPED")
 
-    meta = {
-        "title": a.canonical_name or name,
-        "symbol": slug,
-        "entity_type": "drug",
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "atlas_version": ATLAS_VERSION,
-        "biobtree_version": biobtree_version(),
-        "generated_by": GENERATED_BY,
-        "datasets": datasets_from_calls(CALLS),
-    }
+    meta = build_meta("drug", slug, a.canonical_name or name, datasets_from_calls(CALLS))
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
     write_text(os.path.join(out_dir, "page.md"), page_md)
