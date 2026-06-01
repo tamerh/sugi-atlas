@@ -536,20 +536,46 @@ def r_pathways(b):
 # Derived render-only sections ---------------------------------------------
 
 def r_drug_repurposing(bundles):
-    """§15 — drugs that hit cohort genes but aren't yet trialled for THIS
-    disease. Source: §10 drugs list ∖ §13 trial_drugs molecule ids."""
+    """§15 — compounds with ChEMBL bioactivity against a cohort gene that aren't
+    yet in disease-level trials (§10 drugs ∖ §13 trial_drugs).
+
+    The framing is gated on disease class. A bioactivity row is only a SCREENING
+    signal — a promiscuous kinase inhibitor assayed against a cohort kinase
+    (e.g. sorafenib vs STK36 in primary ciliary dyskinesia) is an off-target
+    artifact, not a treatment. So:
+      - Cancers (target-inhibition has therapeutic rationale + driver evidence):
+        framed as "repurposing candidates", still caveated as a screening signal.
+      - Non-cancer / Mendelian / structural diseases: framed honestly as
+        "chemical tractability — a research signal, NOT a therapeutic
+        recommendation", since target-inhibition repurposing usually has no
+        disease mechanism there.
+    """
     b10 = bundles.get("10") or {}
     b13 = bundles.get("13") or {}
+    is_cancer = bool((bundles.get("1") or {}).get("is_cancer"))
     drugs10 = {d["id"]: d for d in (b10.get("drugs") or []) if d.get("id")}
     trial_mol_ids = {d.get("molecule_id") for d in (b13.get("trial_drugs") or [])}
     repurposable = [d for mid, d in drugs10.items() if mid not in trial_mol_ids]
     repurposable.sort(key=lambda d: -(d.get("max_phase") or 0))
 
-    out = ["## Drug repurposing opportunities", "",
-           f"**{len(repurposable)} approved/phased drugs hit cohort targets "
-           "but don't yet appear in disease-level clinical trials.**"]
+    if is_cancer:
+        title = "## Drug repurposing candidates"
+        lead = (f"**{len(repurposable)} approved/phased drugs hit cohort targets "
+                "but don't yet appear in disease-level clinical trials.** "
+                "Target-inhibition rationale is strongest for cancer driver genes; "
+                "a bioactivity hit is a screening signal, not a treatment claim.")
+    else:
+        title = "## Chemical tractability of cohort targets"
+        lead = (f"**{len(repurposable)} approved/phased compounds have measured "
+                "bioactivity against a cohort gene** (and aren't yet in "
+                "disease-level trials). This is a *research / tractability signal, "
+                "NOT a therapeutic recommendation* — a bioactivity row often "
+                "reflects off-target or screening binding (e.g. promiscuous kinase "
+                "inhibitors against a cohort kinase), implying no disease mechanism.")
+
+    out = [title, "", lead]
     if repurposable:
-        out += ["", table(["Molecule", "Max phase", "Cohort targets"],
+        out += ["", table(["Compound", "Max phase", "Cohort target (bioactivity)"],
                           [(d.get("name") or d.get("id"),
                             d.get("max_phase"),
                             ", ".join((d.get("gene_targets") or [])[:6]))
