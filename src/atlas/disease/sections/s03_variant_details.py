@@ -1,12 +1,29 @@
 """§3 — variant details: top GWAS variants → dbSNP attributes + tier
 classification (Tier 1 coding / Tier 2 splice-UTR / Tier 3 regulatory /
 Tier 4 intronic-intergenic)."""
-import re
+import re, html
 from atlas.section import Section
 from atlas.biobtree import map_all, entry
 
-CHAINS   = (">>mondo>>gwas>>dbsnp",)
-DATASETS = ("mondo", "gwas", "dbsnp")
+CHAINS   = (">>mondo>>gwas>>dbsnp", ">>mondo>>clinvar")
+DATASETS = ("mondo", "gwas", "dbsnp", "clinvar")
+
+# ClinVar germline-classification ranking — clinically actionable first.
+# Order matters: more-specific phrases first (substring match, first hit wins),
+# so "conflicting … of pathogenicity" doesn't get caught by the "pathogenic" key.
+_CV_RANK = [("conflicting", 4),
+            ("pathogenic/likely pathogenic", 0), ("likely pathogenic", 1),
+            ("pathogenic", 0), ("risk", 2), ("drug response", 2),
+            ("uncertain", 5), ("likely benign", 6), ("benign", 6),
+            ("not provided", 7)]
+
+
+def _cv_rank(classification):
+    c = (classification or "").lower()
+    for key, r in _CV_RANK:
+        if key in c:
+            return r
+    return 5
 
 TIER1 = {"missense_variant", "missense", "frameshift_variant", "frameshift",
          "stop_gained", "nonsense", "stop_lost", "start_lost",
@@ -155,6 +172,29 @@ def collect(a):
             "tier": tier,
         })
 
+    # ── ClinVar germline variants — the rare/coding genetic evidence (the
+    # Mendelian counterpart to the GWAS tiering above). Many diseases have no
+    # GWAS but a rich ClinVar set (e.g. ataxia-telangiectasia → 100+ ATM
+    # variants). Classification distribution + top variants, clinically
+    # actionable (Pathogenic/Likely pathogenic) first.
+    cv_class_counts = {}
+    cv_variants, seen_cv = [], set()
+    for r in map_all(a.mondo_id, ">>mondo>>clinvar", cap=5):
+        cid = r.get("id")
+        if not cid or cid in seen_cv:
+            continue
+        seen_cv.add(cid)
+        cls = (r.get("germline_classification") or "not provided").strip()
+        cv_class_counts[cls] = cv_class_counts.get(cls, 0) + 1
+        cv_variants.append({
+            "id": cid,
+            "hgvs": html.unescape(r.get("name") or ""),   # biobtree HTML-escapes '>'
+            "gene": r.get("gene_symbol"),
+            "classification": cls,
+            "review_status": r.get("review_status"),
+        })
+    cv_variants.sort(key=lambda v: (_cv_rank(v["classification"]), v["gene"] or ""))
+
     return {
         "section": "03_variant_details",
         "mondo_id": a.mondo_id,
@@ -162,6 +202,9 @@ def collect(a):
         "tier_counts": tier_counts,
         "maf_distribution": maf_distribution,
         "consequence_distribution": consequence_distribution,
+        "clinvar_total": len(seen_cv),
+        "clinvar_class_counts": cv_class_counts,
+        "clinvar_variants": cv_variants[:30],
     }
 
 SECTION = Section(
@@ -171,6 +214,7 @@ SECTION = Section(
                  "tier classification."),
     needs=("mondo_id",),
     produces=("top_variants", "tier_counts", "maf_distribution",
-              "consequence_distribution"),
+              "consequence_distribution", "clinvar_total",
+              "clinvar_class_counts", "clinvar_variants"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

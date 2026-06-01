@@ -158,11 +158,33 @@ def r_variant_details(b):
     tc = b.get("tier_counts") or {}
     md = b.get("maf_distribution") or {}
     cd = b.get("consequence_distribution") or {}
-    if not tv and not any((tc or {}).values()):
-        out.append("*No GWAS-derived variants to tier here (this block classifies "
-                    "common-variant GWAS hits). Rare/coding variants for this "
-                    "disease appear under Mendelian overlap and ClinVar.*")
+    cv = b.get("clinvar_variants") or []
+    gwas_present = bool(tv) or any((tc or {}).values())
+    if not gwas_present and not cv:
+        out.append("*No tiered GWAS variants or ClinVar records for this disease.*")
         return "\n".join(out)
+
+    # ClinVar germline variants — the rare/coding genetic evidence (primary for
+    # Mendelian diseases, which have no GWAS). Rendered first when there's no
+    # GWAS signal; otherwise after the GWAS tiers.
+    def _clinvar_block():
+        cc = b.get("clinvar_class_counts") or {}
+        bl = [f"**ClinVar germline variants ({_i(b.get('clinvar_total'))} for the "
+              f"disease cohort):**"]
+        if cc:
+            order = sorted(cc.items(), key=lambda kv: -kv[1])
+            bl.append("\n" + ", ".join(f"{_i(v)} {k.lower()}" for k, v in order))
+        bl += ["", table(["ClinVar", "Variant (HGVS)", "Gene", "Classification", "Review"],
+                         [(f"[{v['id']}](https://www.ncbi.nlm.nih.gov/clinvar/variation/{v['id']}/)"
+                           if v.get("id") else "",
+                           v.get("hgvs"), v.get("gene"), v.get("classification"),
+                           v.get("review_status")) for v in cv])]
+        return bl
+
+    if cv and not gwas_present:
+        out += _clinvar_block()
+        return "\n".join(out)
+
     if any(tc.values()):
         out += ["**Tier distribution (top 50 variants):**", ""]
         rows = sorted(tc.items(), key=lambda kv: kv[0])
@@ -184,6 +206,8 @@ def r_variant_details(b):
                         r.get("maf"), r.get("consequence"),
                         r.get("gene_symbol"), r.get("pvalue"), r.get("tier"))
                        for r in tv[:30]])]
+    if cv:  # both GWAS and ClinVar present → ClinVar after the GWAS tiers
+        out += ["", *_clinvar_block()]
     return "\n".join(out)
 
 
