@@ -46,9 +46,18 @@ def r_gene_ids(b):
 
 def r_transcripts(b):
     L = ["## Transcript identifiers", ""]
-    L.append(f"**Ensembl transcripts: {b.get('ensembl_transcript_count', 0)}**\n")
-    L.append(table(["Transcript", "Biotype"],
-                   [(t["id"], t.get("biotype")) for t in b.get("ensembl_transcripts", [])]))
+    # Inline ID list + biotype breakdown (consistent with the RefSeq lists
+    # below — an ID list with one mostly-uniform attribute doesn't need a table).
+    ts = b.get("ensembl_transcripts", [])
+    bc = {}
+    for t in ts:
+        bt = t.get("biotype") or "?"
+        bc[bt] = bc.get(bt, 0) + 1
+    breakdown = ", ".join(f"{c} {bt}" for bt, c in sorted(bc.items(), key=lambda kv: -kv[1]))
+    L.append(f"**Ensembl transcripts: {b.get('ensembl_transcript_count', 0)}**"
+             + (f" — {breakdown}" if breakdown else ""))
+    if ts:
+        L.append("\n" + ", ".join(f"`{t['id']}`" for t in ts))
     n = b.get("refseq_mrna_count", 0)
     L.append(f"\n**RefSeq mRNA: {n}{_cap(n)}** — MANE Select: `{b.get('mane_select_refseq')}`")
     L.append(", ".join(f"`{x}`" for x in b.get("refseq_mrna", [])))

@@ -30,11 +30,30 @@ from atlas.bench import summary as B
 DEFAULT_SUMMARY_MODEL = os.environ.get("ATLAS_SUMMARY_MODEL", "qwen/qwen3-235b-a22b-2507|Together")
 
 def biobtree_version():
+    """biobtree exposes no version/build field in /api/meta, so we stamp a
+    dataset-count fingerprint instead — a real, verifiable signal that changes
+    when biobtree's integrated data changes. (`generated_at` is the actual
+    reproducibility anchor: replay against biobtree as-of that date.)"""
     try:
         d = json.loads(urllib.request.urlopen("http://127.0.0.1:8000/api/meta", timeout=5).read())
-        return d.get("version") or "unknown"
+        if d.get("version"):
+            return d["version"]
+        n = len(d.get("datasets") or {})
+        return f"{n} datasets" if n else "unknown"
     except Exception:
         return "unknown"
+
+GENERATED_BY = "Sugi Atlas"  # attribution stamp; details on the /methods page
+
+
+def datasets_union(registry):
+    """Sorted union of every dataset each section touches — the page's
+    'Data sources' list (rendered visible by the theme)."""
+    seen = set()
+    for s in registry.values():
+        seen.update(s.datasets or ())
+    return sorted(seen)
+
 
 def collect_all(symbol):
     return {s: C.SECTIONS[s](symbol) for s in C.SECTIONS}
@@ -53,8 +72,18 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     prepended above the LLM summary. Required for the AI-friendly page shape;
     legacy callers that don't pass it get the prior (no-lead) layout."""
     fm = ["---"]
-    for k in ("title", "symbol", "entity_type", "generated_at", "atlas_version", "biobtree_version"):
-        fm.append(f'{k}: "{_yaml_escape(meta[k])}"')
+    for k in ("title", "symbol", "entity_type", "generated_at", "atlas_version",
+              "biobtree_version", "generated_by"):
+        if meta.get(k) is not None:
+            fm.append(f'{k}: "{_yaml_escape(meta[k])}"')
+    # datasets: YAML list → theme renders the visible "Data sources" block.
+    # The api-call/chain trail stays an internal pipeline artifact (not
+    # published) — transparency here is the source list + the generated_by
+    # attribution (see the /methods page), not per-page API links.
+    datasets = meta.get("datasets") or []
+    if datasets:
+        fm.append("datasets:")
+        fm += [f'  - "{_yaml_escape(d)}"' for d in datasets]
     fm.append("---")
     fm.append("")
     head = "\n".join(fm)
@@ -161,28 +190,28 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
+        "generated_by": GENERATED_BY,
+        "datasets": datasets_union(C.REGISTRY),
     }
     # Pass bundle so assemble_page emits the declarative lead + JSON-LD
     # inline script (parity with the Enju publish task).
     page_md = assemble_page(symbol, summary_text, body_md, meta, bundle=bundle)
 
     with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
-    with open(os.path.join(out_dir, "bundle.json"), "w") as f:
-        json.dump(bundle, f, indent=2, sort_keys=True)
     if summary_text:
         with open(os.path.join(out_dir, "summary.md"), "w") as f: f.write(summary_text + "\n")
     if judge_result is not None:
         with open(os.path.join(out_dir, "judge.json"), "w") as f:
             json.dump(judge_result, f, indent=2)
 
-    # Sidecars — schema.org Gene JSON-LD + provenance Dataset (parity with
-    # the Enju publish task, which also writes these next to page.md).
+    # Sidecar — schema.org Gene JSON-LD identity card (the inline <script> in
+    # the page mirrors it). bundle.json (raw data dump) and provenance.json
+    # (api-call trail) are intentionally NOT published — transparency is the
+    # frontmatter `datasets:` list + the `generated_by` attribution; the
+    # call/chain trail stays an internal pipeline artifact.
     from atlas.page.jsonld import build_jsonld, as_jsonld_string
-    from atlas.page.provenance import build_provenance, as_provenance_string
     with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
         f.write(as_jsonld_string(build_jsonld(bundle)))
-    with open(os.path.join(out_dir, "provenance.json"), "w") as f:
-        f.write(as_provenance_string(build_provenance(bundle, meta=meta)))
 
     print(f"\n✓ {symbol} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"
@@ -252,6 +281,8 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
+        "generated_by": GENERATED_BY,
+        "datasets": datasets_union(DC.REGISTRY),
     }
     # Disease declarative lead + schema.org/MedicalCondition JSON-LD now
     # flow through assemble_page (entity_type='disease' branch). Same shape
@@ -260,21 +291,17 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
     with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
-    with open(os.path.join(out_dir, "bundle.json"), "w") as f:
-        json.dump(bundle, f, indent=2, sort_keys=True, default=str)
     if summary_text:
         with open(os.path.join(out_dir, "summary.md"), "w") as f: f.write(summary_text + "\n")
     if judge_result is not None:
         with open(os.path.join(out_dir, "judge.json"), "w") as f:
             json.dump(judge_result, f, indent=2)
 
-    # Sidecars — schema.org MedicalCondition + provenance Dataset.
+    # Sidecar — schema.org MedicalCondition card (bundle.json + provenance.json
+    # intentionally not published; see run_gene note).
     from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
-    from atlas.page.disease_provenance import build_provenance, as_provenance_string
     with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
         f.write(as_jsonld_string(build_jsonld(bundle, slug)))
-    with open(os.path.join(out_dir, "provenance.json"), "w") as f:
-        f.write(as_provenance_string(build_provenance(bundle, slug, meta=meta)))
 
     print(f"\n✓ {slug} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"
@@ -344,25 +371,23 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
+        "generated_by": GENERATED_BY,
+        "datasets": datasets_union(DRC.REGISTRY),
     }
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
     with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
-    with open(os.path.join(out_dir, "bundle.json"), "w") as f:
-        json.dump(bundle, f, indent=2, sort_keys=True, default=str)
     if summary_text:
         with open(os.path.join(out_dir, "summary.md"), "w") as f: f.write(summary_text + "\n")
     if judge_result is not None:
         with open(os.path.join(out_dir, "judge.json"), "w") as f:
             json.dump(judge_result, f, indent=2)
 
-    # Sidecars — schema.org Drug + provenance Dataset.
+    # Sidecar — schema.org Drug card (bundle.json + provenance.json
+    # intentionally not published; see run_gene note).
     from atlas.page.drug_jsonld import build_jsonld, as_jsonld_string
-    from atlas.page.drug_provenance import build_provenance, as_provenance_string
     with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
         f.write(as_jsonld_string(build_jsonld(bundle, slug)))
-    with open(os.path.join(out_dir, "provenance.json"), "w") as f:
-        f.write(as_provenance_string(build_provenance(bundle, slug, meta=meta)))
 
     print(f"\n✓ {slug} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"
@@ -374,13 +399,16 @@ def main():
     ap.add_argument("entity", choices=["gene", "disease", "drug"])
     ap.add_argument("symbol", help="gene symbol OR disease name/Mondo id OR drug name/ChEMBL id")
     ap.add_argument("--dist", required=True, help="dist repo root (writes <dist>/atlas/<entity>/<key>/)")
-    ap.add_argument("--no-summary", action="store_true", help="skip the LLM summary + summary_gate")
+    # Dev stage: LLM summary is OFF by default for all entities; opt in with
+    # --summary. (--no-summary kept as a no-op alias so old invocations don't break.)
+    ap.add_argument("--summary", action="store_true", help="run the LLM summary + summary_gate (off by default)")
+    ap.add_argument("--no-summary", action="store_true", help=argparse.SUPPRESS)
     ap.add_argument("--summary-model", default=DEFAULT_SUMMARY_MODEL)
     ap.add_argument("--first-run", action="store_true", help="proceed despite no body_gate snapshot")
     ap.add_argument("--strict-summary", action="store_true", help="exit non-zero if summary_gate flags claims")
     args = ap.parse_args()
     runner = {"gene": run_gene, "disease": run_disease, "drug": run_drug}[args.entity]
-    runner(args.symbol, args.dist, do_summary=not args.no_summary,
+    runner(args.symbol, args.dist, do_summary=args.summary,
            summary_model=args.summary_model, accept_first_run=args.first_run,
            strict_summary=args.strict_summary)
 

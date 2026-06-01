@@ -10,10 +10,10 @@ Sidecars (parity with gene-side publish):
 import json, os, shutil
 from datetime import datetime, timezone
 from atlas import __version__ as V
-from atlas.pipeline import assemble_page, biobtree_version
+from atlas.pipeline import assemble_page, biobtree_version, GENERATED_BY, datasets_union
+from atlas.disease.collect import REGISTRY
 from atlas.disease.slug import slugify
 from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
-from atlas.page.disease_provenance import build_provenance, as_provenance_string
 
 ctx = json.load(open(os.path.join(os.environ["ENJU_RUN_DIR"], "context.json")))
 disease = ctx["iteration"]["disease"]
@@ -40,20 +40,19 @@ meta = {
     "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "atlas_version": V,
     "biobtree_version": biobtree_version(),
+    "generated_by": GENERATED_BY,
+    "datasets": datasets_union(REGISTRY),
     "summary_model": display_model,
 }
-# Sidecars need the bundle anyway; load it here and pass through so
-# assemble_page picks the disease-shaped declarative lead + JSON-LD
-# (entity_type='disease' branch).
+# Load the bundle to feed assemble_page (disease-shaped lead + JSON-LD). The
+# bundle.json + provenance.json are NOT published (data dump / api trail kept
+# internal); transparency = frontmatter datasets + generated_by.
 bundle = json.load(open(f"build/{slug}/bundle.json"))
 page = assemble_page(slug, summary, body, meta, bundle=bundle)
 open(f"{out}/page.md", "w").write(page)
 open(f"{out}/entity.jsonld", "w").write(as_jsonld_string(build_jsonld(bundle, slug)))
-open(f"{out}/provenance.json", "w").write(
-    as_provenance_string(build_provenance(bundle, slug, meta=meta)))
 
-for f in ("bundle.json", "body.md", "summary.md", "body_gate.json",
-          "anchors_meta.json"):
+for f in ("summary.md",):
     src = f"build/{slug}/{f}"
     if os.path.exists(src):
         shutil.copy(src, f"{out}/{f}")
