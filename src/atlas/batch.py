@@ -24,6 +24,7 @@ import json
 import os
 import sys
 import time
+from collections import Counter
 from datetime import datetime, timezone
 from multiprocessing import Pool
 
@@ -126,6 +127,31 @@ def render_one(spec):
         return {"ok": False, "entity": etype, "slug": slug, "error": repr(e)}
 
 
+def _drain(label, pool, fn, specs):
+    """Run fn over specs via imap_unordered with a live per-type progress line
+    (rate + ETA + per-entity-type tally) — so a multi-hour collect isn't blind
+    and the disease vs gene vs drug throughput is visible as it runs."""
+    total = len(specs)
+    step = max(1, total // 40)
+    out, t, last = [], time.time(), time.time()
+    by_type, skip = Counter(), 0
+    for i, r in enumerate(pool.imap_unordered(fn, specs, chunksize=1), 1):
+        out.append(r)
+        if r.get("ok"):
+            by_type[r["entity"]] += 1
+        else:
+            skip += 1
+        now = time.time()
+        if i % step == 0 or i == total or now - last >= 30:
+            rate = i / max(1e-9, now - t)
+            eta = (total - i) / rate if rate else 0
+            types = " ".join(f"{k}={v}" for k, v in sorted(by_type.items()))
+            print(f"[{label}] {i}/{total}  {rate:.1f}/s  eta {eta/60:.0f}m | "
+                  f"{types} skip={skip}", flush=True)
+            last = now
+    return out
+
+
 def _merge_manifest(collected, dist_dir):
     """PHASE B — one writer builds the whole manifest from every key-set."""
     manifest = {"gene": {}, "disease": {}, "drug": {}}
@@ -162,9 +188,9 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
     print(f"[batch] {total} entities | {workers} workers | dist={dist_dir}")
 
     t0 = time.time()
-    print(f"[A] collect ({total}) …")
+    print(f"[A] collect ({total}) …", flush=True)
     with Pool(workers) as pool:
-        collected = pool.map(collect_one, specs_a)
+        collected = _drain("A", pool, collect_one, specs_a)
     ok = [r for r in collected if r.get("ok")]
     failed = [r for r in collected if not r.get("ok")]
     for r in failed:
@@ -177,10 +203,10 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
 
     gen_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     specs_c = [(r["entity"], r["slug"], dist_dir, cache_dir, gen_at) for r in ok]
-    print(f"[C] render ({len(specs_c)}) …")
+    print(f"[C] render ({len(specs_c)}) …", flush=True)
     t1 = time.time()
     with Pool(workers) as pool:
-        rendered = pool.map(render_one, specs_c)
+        rendered = _drain("C", pool, render_one, specs_c)
     rok = [r for r in rendered if r.get("ok")]
     for r in rendered:
         if not r.get("ok"):

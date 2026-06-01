@@ -16,3 +16,4 @@ __pycache__/
 
 # generated corpus seeds (regenerable via scripts/build_corpus.py)
 corpus/seeds/
+corpus/dense/ (transient test slice)
