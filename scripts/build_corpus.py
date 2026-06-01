@@ -76,9 +76,13 @@ def drugs(out):
 
 def diseases(out):
     print(f"Mondo ranked corpus ({MONDO_CORPUS}) …")
+    # Seed by MONDO id (signal-ranked), NOT canonical_name — resolve_disease()
+    # then does a direct lookup instead of a name search (long subtype names
+    # like "epidermolysis bullosa simplex 5C, with pyloric atresia" don't
+    # round-trip through search). Page slug still derives from canonical_name.
     d = json.load(open(MONDO_CORPUS))["diseases"]  # already signal-ranked
     _write(os.path.join(out, "diseases_mondo_ranked.txt"),
-           [e["canonical_name"] for e in d if e.get("canonical_name")])
+           [e["id"] for e in d if e.get("id")])
 
 
 def main():
