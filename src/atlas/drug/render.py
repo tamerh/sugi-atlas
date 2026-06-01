@@ -50,11 +50,23 @@ def r_targets(b):
     if pt:
         src = b.get("primary_source") or "gtopdb"
         label = "GtoPdb curated mechanism" if src == "gtopdb" else "ChEMBL bioactivity"
-        L.append(f"**Primary targets ({label}):**\n")
-        L.append(table(["Gene", "Target", "Action", "pAffinity", "UniProt"],
+        L.append(f"**Primary targets ({label}):** the *Cancer dependency* column is "
+                 f"the DepMap CRISPR fitness signal (% of screened cell lines "
+                 f"dependent on the target).\n")
+        def _dep(t):
+            pct = t.get("dep_pct")
+            if pct in (None, ""):
+                return ""
+            tags = []
+            if t.get("dep_selective"):
+                tags.append("strongly selective")
+            if t.get("dep_common_essential"):
+                tags.append("common-essential")
+            return f"{pct}%" + (f" ({', '.join(tags)})" if tags else "")
+        L.append(table(["Gene", "Target", "Action", "pAffinity", "Cancer dependency", "UniProt"],
                        [(t.get("gene_symbol") or "", t.get("target_name") or "",
                          t.get("action") or "", t.get("affinity") or "",
-                         t.get("uniprot") or "") for t in pt]))
+                         _dep(t), t.get("uniprot") or "") for t in pt]))
     bc = b.get("bioactivity_target_count") or 0
     if bc:
         names = ", ".join(t.get("name") or t.get("chembl_target_id")
