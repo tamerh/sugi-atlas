@@ -225,6 +225,13 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
     print(f"[1/5] collect §1..12 for {symbol}")
     bundle = collect_all(symbol)
 
+    # Cross-entity link mesh: load the manifest + register this gene (slug ==
+    # symbol), so renderers/JSON-LD can link to already-built Atlas pages.
+    from atlas.page import links
+    links.load(dist_dir)
+    links.upsert(dist_dir, "gene", symbol,
+                 id_keys=[symbol, (bundle.get("1") or {}).get("hgnc_id")])
+
     print(f"[2/5] render body")
     body_md = render_all(bundle)
 
@@ -314,6 +321,13 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
 
     print(f"[2/5] collect §1..14 for {slug}")
     bundle = {sid: DC.REGISTRY[sid].collect_fn(a) for sid in DC.REGISTRY}
+
+    # Cross-entity link mesh: register this disease under its IDs + name/synonyms.
+    from atlas.page import links
+    links.load(dist_dir)
+    links.upsert(dist_dir, "disease", slug,
+                 id_keys=[a.mondo_id, a.efo_id],
+                 name_keys=[a.canonical_name, *(a.synonyms or ())])
 
     print(f"[3/5] render body")
     body_md = DR.render_all(bundle)
@@ -406,6 +420,13 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
 
     print(f"[2/5] collect §1..12 for {slug}")
     bundle = {sid: DRC.REGISTRY[sid].collect_fn(a) for sid in DRC.REGISTRY}
+
+    # Cross-entity link mesh: register this drug under its ChEMBL ids + names.
+    from atlas.page import links
+    links.load(dist_dir)
+    links.upsert(dist_dir, "drug", slug,
+                 id_keys=[a.chembl_id, a.parent_chembl, *(a.child_chembls or ())],
+                 name_keys=[a.canonical_name, *(getattr(a, "alt_names", None) or ())])
 
     print(f"[3/5] render body")
     body_md = DRR.render_all(bundle)

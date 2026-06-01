@@ -4,6 +4,7 @@ Mirrors gene/render.py + disease/render.py: one r_* fn per section + a RENDER
 dict. Every fact comes verbatim from the bundle."""
 from atlas.render_common import table, fnum
 from atlas.civic import therapy_label
+from atlas.page import links
 
 
 def _i(n):
@@ -90,7 +91,8 @@ def r_targets(b):
                 tags.append("common-essential")
             return f"{fnum(pct)}%" + (f" ({', '.join(tags)})" if tags else "")
         L.append(table(["Gene", "Target", "Action", "pAffinity", "Cancer dependency", "UniProt"],
-                       [(t.get("gene_symbol") or "", t.get("target_name") or "",
+                       [(links.maybe_link(t.get("gene_symbol") or "", links.gene_url(symbol=t.get("gene_symbol"), hgnc_id=t.get("hgnc_id"))),
+                         t.get("target_name") or "",
                          t.get("action") or "", fnum(t.get("affinity")) if t.get("affinity") not in (None, "") else "",
                          _dep(t), t.get("uniprot") or "") for t in pt]))
     bc = b.get("bioactivity_target_count") or 0
@@ -127,7 +129,8 @@ def r_indications(b):
     inds = b.get("indications") or []
     if inds:
         L += ["", table(["Indication", "Max phase", "MONDO", "EFO"],
-                        [(i.get("name") or i.get("efo_id") or i.get("mesh_id") or "",
+                        [(links.maybe_link(i.get("name") or i.get("efo_id") or i.get("mesh_id") or "",
+                                           links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
                           i.get("max_phase"), i.get("mondo_id") or "",
                           i.get("efo_id") or "") for i in inds[:40]])]
     return "\n".join(L)
@@ -158,7 +161,7 @@ def r_related_molecules(b):
         return "Approved" if r.get("fda") else "—"
 
     L.append(table(["Molecule", "Source", "Status", "Shared targets"],
-                   [(r.get("name") or "—",
+                   [(links.maybe_link(r.get("name") or "—", links.drug_url(name=r.get("name"))),
                      " + ".join(r.get("sources") or []),
                      _status(r),
                      ", ".join(r.get("shared_targets") or [])) for r in rm]))

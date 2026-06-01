@@ -13,6 +13,7 @@ import sys, os, html
 from atlas.gene import collect as C
 from atlas.render_common import table
 from atlas.civic import therapy_label
+from atlas.page import links
 
 
 def _cap(n):
@@ -434,7 +435,9 @@ def r_drugs(b):
         L.append(f"\n**Molecules with ChEMBL bioactivity (phase ≥1): {mc}**, "
                  f"by development phase (incl. off-target/promiscuous compounds).{patent_note}\n")
         L.append(table(["Molecule", "Name", "Phase", "Patents"],
-                       [(m["id"], m.get("name"), m.get("phase"),
+                       [(m["id"],
+                         links.maybe_link(m.get("name"), links.drug_url(chembl_id=m["id"], name=m.get("name"))),
+                         m.get("phase"),
                          f"{m['patent_count']:,}" if m.get("patent_count") else "")
                         for m in mols[:30]]))
     # CIViC clinical evidence — drug × variant × indication (the precision-
@@ -686,7 +689,8 @@ def r_diseases(b):
                        [(c.get("disease"), c.get("classification"), c.get("moi"))
                         for c in cgv[:40]]))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
-             + ", ".join(f"{m.get('name')} ({m['id']})" for m in b.get("mondo", [])[:15]))
+             + ", ".join(f"{links.maybe_link(m.get('name'), links.disease_url(mondo_id=m['id'], name=m.get('name')))} ({m['id']})"
+                         for m in b.get("mondo", [])[:15]))
     L.append(f"\n**Orphanet ({len(b.get('orphanet', []))}):** "
              + ", ".join(f"{o.get('name') or ''} ({o['id']})" for o in b.get("orphanet", [])[:15]))
     L.append(f"\n**HPO phenotypes: {b.get('hpo_total', 0)}** (top):\n")

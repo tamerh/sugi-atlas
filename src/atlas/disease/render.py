@@ -13,6 +13,7 @@ dict and are called explicitly by render_all().
 from collections import Counter
 from atlas.render_common import table
 from atlas.civic import therapy_label
+from atlas.page import links
 
 # Shared formatting helpers --------------------------------------------------
 
@@ -324,7 +325,8 @@ def r_genes_proteins(b):
     if genes:
         out += ["", "**Cohort genes (full):**", "",
                 table(["Symbol", "HGNC", "Ensembl", "UniProt", "Name", "Evidence"],
-                      [(g.get("symbol"), g.get("hgnc_id"), g.get("ensembl_id"),
+                      [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"), hgnc_id=g.get("hgnc_id"))),
+                        g.get("hgnc_id"), g.get("ensembl_id"),
                         g.get("canonical_uniprot"),
                         _trunc(g.get("protein_name") or g.get("hgnc_name"), 50),
                         ",".join(k for k, v in (g.get("evidence") or {}).items() if v))
@@ -458,7 +460,8 @@ def r_drug_targets(b):
     if ag:
         out += ["", "**Genes with approved drugs:**", "",
                 table(["Symbol", "Lead drug"],
-                      [(g.get("symbol"), g.get("drug") or g.get("top_molecule") or "")
+                      [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"))),
+                        g.get("drug") or g.get("top_molecule") or "")
                        for g in ag])]
     tt = b.get("top_targets") or []
     if tt:
@@ -470,7 +473,8 @@ def r_drug_targets(b):
     if drugs:
         out += ["", "**Drugs targeting cohort genes (top 30):**", "",
                 table(["Molecule", "Max phase", "Targets in cohort"],
-                      [(d.get("name") or d.get("id") or "",
+                      [(links.maybe_link(d.get("name") or d.get("id") or "",
+                                         links.drug_url(chembl_id=d.get("id"), name=d.get("name"))),
                         d.get("max_phase"),
                         ", ".join((d.get("gene_targets") or [])[:6]))
                        for d in drugs[:30]])]
@@ -556,7 +560,8 @@ def r_clinical_trials(b):
     if td:
         out += ["", "**Drugs tested across these trials (top 30):**", "",
                 table(["Molecule", "Max phase", "Trials referencing"],
-                      [(d.get("name") or d.get("molecule_id"),
+                      [(links.maybe_link(d.get("name") or d.get("molecule_id"),
+                                         links.drug_url(chembl_id=d.get("molecule_id"), name=d.get("name"))),
                         d.get("max_phase"), _i(d.get("trial_count")))
                        for d in td[:30]])]
 
