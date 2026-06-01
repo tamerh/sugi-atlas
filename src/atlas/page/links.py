@@ -128,11 +128,32 @@ def maybe_link(text, url):
     return f"[{text}]({url})" if url else str(text)
 
 
+# Trailing salt/hydrate words stripped from a drug *display* name (the link
+# target already resolves via id/normalized-name; this is cosmetic).
+_SALT_SUFFIXES = (" anhydrous", " mesylate", " hydrochloride", " dihydrochloride",
+                  " sulfate", " sulphate", " maleate", " citrate", " calcium",
+                  " sodium", " potassium", " besylate", " hydrobromide", " succinate")
+
+
+def _drug_display(name):
+    n = (name or "").strip()
+    low = n.lower()
+    changed = True
+    while changed:
+        changed = False
+        for suf in _SALT_SUFFIXES:
+            if low.endswith(suf):
+                n, low = n[: -len(suf)].rstrip(), low[: -len(suf)].rstrip()
+                changed = True
+    return n or (name or "")
+
+
 def related_block(entity_type, bundle):
     """A compact "**Related Atlas pages**" intro block surfacing the mesh up
     front (the in-body links are buried mid-table). Only built targets appear;
     elides entirely if nothing resolves. Same resolution as the in-body links,
     so the two stay consistent."""
+    from atlas.civic import therapy_label
     groups = {"Genes": [], "Diseases": [], "Drugs": []}
     seen = set()
 
@@ -145,8 +166,16 @@ def related_block(entity_type, bundle):
         b10, b12 = bundle.get("10") or {}, bundle.get("12") or {}
         for m in (b12.get("mondo") or []):
             add("Diseases", m.get("name"), disease_url(mondo_id=m.get("id"), name=m.get("name")))
+        for g in (b12.get("gencc") or []):                # name-tier
+            add("Diseases", g.get("disease"), disease_url(name=g.get("disease")))
+        for c in (b12.get("clingen_validity") or []):     # name-tier
+            add("Diseases", c.get("disease"), disease_url(name=c.get("disease")))
         for m in (b10.get("molecules") or []):
-            add("Drugs", m.get("name"), drug_url(chembl_id=m.get("id"), name=m.get("name")))
+            add("Drugs", _drug_display(m.get("name")), drug_url(chembl_id=m.get("id"), name=m.get("name")))
+        for r in (b10.get("civic_evidence") or []):        # name-tier
+            th = therapy_label(r.get("therapy"))
+            add("Drugs", _drug_display(th), drug_url(name=th))
+            add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
     elif entity_type == "disease":
         b4, b5, b10, b13 = (bundle.get(k) or {} for k in ("4", "5", "10", "13"))
         for g in (b5.get("genes") or []):
@@ -154,19 +183,24 @@ def related_block(entity_type, bundle):
         for g in (b4.get("somatic_driver_genes") or []):
             add("Genes", g.get("symbol"), gene_url(symbol=g.get("symbol")))
         for d in (b13.get("trial_drugs") or []):
-            add("Drugs", d.get("name") or d.get("molecule_id"),
+            add("Drugs", _drug_display(d.get("name") or d.get("molecule_id")),
                 drug_url(chembl_id=d.get("molecule_id"), name=d.get("name")))
         for d in (b10.get("drugs") or []):
-            add("Drugs", d.get("name") or d.get("id"),
+            add("Drugs", _drug_display(d.get("name") or d.get("id")),
                 drug_url(chembl_id=d.get("id"), name=d.get("name")))
+        for r in (b13.get("civic_evidence") or []):        # name-tier
+            th = therapy_label(r.get("therapy"))
+            add("Drugs", _drug_display(th), drug_url(name=th))
     elif entity_type == "drug":
-        b2, b4, b7 = (bundle.get(k) or {} for k in ("2", "4", "7"))
+        b2, b4, b7, b10 = (bundle.get(k) or {} for k in ("2", "4", "7", "10"))
         for t in (b2.get("primary_targets") or []):
             add("Genes", t.get("gene_symbol"), gene_url(symbol=t.get("gene_symbol"), hgnc_id=t.get("hgnc_id")))
         for i in (b4.get("indications") or []):
             add("Diseases", i.get("name"), disease_url(mondo_id=i.get("mondo_id"), name=i.get("name")))
         for r in (b7.get("related_molecules") or []):
-            add("Drugs", r.get("name"), drug_url(name=r.get("name")))
+            add("Drugs", _drug_display(r.get("name")), drug_url(name=r.get("name")))
+        for r in (b10.get("civic_evidence") or []):        # name-tier
+            add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
 
     lines = []
     for grp in ("Genes", "Diseases", "Drugs"):
@@ -177,4 +211,4 @@ def related_block(entity_type, bundle):
         row = ", ".join(maybe_link(lbl, url) for lbl, url in shown)
         extra = f" (+{len(items) - 12} more)" if len(items) > 12 else ""
         lines.append(f"- **{grp}:** {row}{extra}")
-    return ("**Related Atlas pages**\n\n" + "\n".join(lines)) if lines else ""
+    return ("## Related Atlas pages\n\n" + "\n".join(lines)) if lines else ""

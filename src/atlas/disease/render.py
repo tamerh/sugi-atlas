@@ -582,7 +582,9 @@ def r_clinical_trials(b):
                  + (f"; also {extra}" if extra else "") + "):**"),
                 "",
                 table(["Molecular subtype", "Therapy", "Effect", "Level", "CIViC"],
-                      [(r["profile"], therapy_label(r["therapy"]), r["significance"],
+                      [(r["profile"],
+                        links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
+                        r["significance"],
                         f"CIViC {r['level']}" if r.get("level") else "",
                         f"EID{r['evidence_id']}"
                         + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))

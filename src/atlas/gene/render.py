@@ -457,7 +457,10 @@ def r_drugs(b):
                  f"evidence items"
                  + (f"; also {extra}" if extra else "") + "):**\n")
         L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
-                       [(r["profile"], therapy_label(r["therapy"]), r["disease"], r["significance"],
+                       [(r["profile"],
+                         links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
+                         links.maybe_link(r["disease"], links.disease_url(name=r["disease"])),
+                         r["significance"],
                          f"CIViC {r['level']}" if r.get("level") else "",
                          f"EID{r['evidence_id']}"
                          + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
@@ -675,7 +678,8 @@ def r_diseases(b):
              f"disease phenotypes: {', '.join(b.get('disease_omim', [])[:40])}")
     L.append("\n**GenCC curated gene-disease:**\n")
     L.append(table(["Disease", "Classification", "Inheritance"],
-                   [(g.get("disease"), g.get("classification"), g.get("inheritance")) for g in b.get("gencc", [])[:40]]))
+                   [(links.maybe_link(g.get("disease"), links.disease_url(name=g.get("disease"))),
+                     g.get("classification"), g.get("inheritance")) for g in b.get("gencc", [])[:40]]))
 
     # ClinGen Gene-Disease Validity — expert-panel curated relationship strength.
     # Distinct from GenCC: ClinGen is the canonical authority for gene-disease
@@ -686,7 +690,8 @@ def r_diseases(b):
                  "expert-panel classifications — Definitive > Strong > Moderate > "
                  "Limited > Disputed > Refuted.\n")
         L.append(table(["Disease", "Classification", "Inheritance"],
-                       [(c.get("disease"), c.get("classification"), c.get("moi"))
+                       [(links.maybe_link(c.get("disease"), links.disease_url(name=c.get("disease"))),
+                         c.get("classification"), c.get("moi"))
                         for c in cgv[:40]]))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
              + ", ".join(f"{links.maybe_link(m.get('name'), links.disease_url(mondo_id=m['id'], name=m.get('name')))} ({m['id']})"

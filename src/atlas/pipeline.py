@@ -132,6 +132,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
 
     lead = ""
     cancer_overview = ""
+    related_tail = ""   # "## Related Atlas pages" section, appended at page end
     entity_type = (meta or {}).get("entity_type") or "gene"
     if bundle is not None:
         # No visible "Updated" line — the date lives in frontmatter
@@ -192,13 +193,14 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             co = r_cancer_overview(bundle)
             if co:
                 cancer_overview = co + "\n\n"
-        # "Related Atlas pages" — cross-entity navigation block surfacing the
-        # internal mesh up front (the in-body links are buried mid-table).
-        # Same resolver as the links; elides when nothing is built yet.
+        # "Related Atlas pages" — cross-entity navigation, rendered as the final
+        # section ("see also" convention; keeps the intro focused on the entity).
+        # Machine traversal is handled by the JSON-LD edges in <head>; this is
+        # the human-facing block. Elides when nothing is built yet.
         from atlas.page import links
         rel = links.related_block(entity_type, bundle)
         if rel:
-            sentence += "\n\n" + rel
+            related_tail = "\n\n" + rel
         # schema.org JSON-LD — federated-identity signal (sameAs to ontology
         # cross-refs). Lives inline at the top of the body so AI crawlers see
         # it on the rendered page; also written as entity.jsonld sidecar by
@@ -210,8 +212,8 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         disclosure = (f"*Summary written by {model} from the deterministic data below. "
                       f"Facts in the tables that follow are the authoritative source.*")
         return (head + lead + cancer_overview + "## Summary\n\n" + disclosure + "\n\n"
-                + summary_text.strip() + "\n\n" + body_md + "\n")
-    return head + lead + cancer_overview + body_md + "\n"
+                + summary_text.strip() + "\n\n" + body_md + related_tail + "\n")
+    return head + lead + cancer_overview + body_md + related_tail + "\n"
 
 def run_summary(body_md, symbol, model, kind="gene"):
     key = B.api_key()

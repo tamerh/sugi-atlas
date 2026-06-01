@@ -242,7 +242,9 @@ def r_clinical_evidence(b):
              f"{_i(b.get('civic_predictive_total'))} curated evidence items"
              + (f"; also {extra}" if extra else "") + "):**\n")
     L.append(table(["Variant", "Indication", "Effect", "Therapy", "Level", "CIViC"],
-                   [(r["profile"], r["disease"], r["significance"],
+                   [(r["profile"],
+                     links.maybe_link(r["disease"], links.disease_url(name=r["disease"])),
+                     r["significance"],
                      therapy_label(r["therapy"]),
                      f"CIViC {r['level']}" if r.get("level") else "",
                      f"EID{r['evidence_id']}"
