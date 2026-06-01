@@ -337,26 +337,3 @@ transport is biobtree's per-call compute, which Issue #21 (batch endpoints)
 attacks at the root. The page-size fix only closes the gRPC handicap;
 it does not move the production REST path.
 
----
-
-## ~~Issue #23 — Expose `XrefEntry.evidence` via REST~~ — RETRACTED 2026-06-01
-
-The original framing assumed Atlas needed the HP→disease edge evidence
-exposed over REST. The dev-team round-trip clarified: disease→phenotype
-with frequency (the direction Atlas actually needs) is delivered as a
-full attribute on the Orphanet entry — `OrphanetAttr.phenotypes` carries
-`{hpo_id, hpo_term, frequency_label, frequency_value}` per row. `entryLite`
-returns full attributes, so this works today. Atlas already wires it
-(commit 777c12f).
-
-The HP→disease edge evidence is the redundant reverse path, intentionally
-stripped from `entryLite` to keep hub-term responses bounded
-(HP:0001166 has ~167 disease links). Not a bug, not blocking.
-
-## ~~Issue #24 — HPO qualitative frequency terms~~ — RETRACTED 2026-06-01
-
-Same reason as #23. The qualitative labels ("Very frequent (99-80%)",
-"Obligate", "Frequent") arrive pre-rendered inside `OrphanetAttr.phenotypes`'s
-`frequency` field. No qualitative-tag parsing fix needed at biobtree's
-ingest layer — the values are already in the human-readable strings
-Atlas renders.
