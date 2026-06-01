@@ -80,6 +80,7 @@ UPSTREAM = {
     "pharmgkb_clinical": ("PharmGKB Clinical Annotations",         "https://www.pharmgkb.org/clinicalAnnotations"),
     "pharmgkb_variant":  ("PharmGKB Variant Annotations",          "https://www.pharmgkb.org/variantAnnotations"),
     "pharmgkb_guideline": ("PharmGKB / CPIC dosing guidelines",    "https://www.pharmgkb.org/guidelineAnnotations"),
+    "pharmgkb":          ("PharmGKB",                              "https://www.pharmgkb.org/"),
     "chebi":             ("ChEBI",                                 "https://www.ebi.ac.uk/chebi/"),
     "pubchem":           ("PubChem",                               "https://pubchem.ncbi.nlm.nih.gov/"),
     "gtopdb":            ("Guide to Pharmacology (GtoPdb)",        "https://www.guidetopharmacology.org/"),

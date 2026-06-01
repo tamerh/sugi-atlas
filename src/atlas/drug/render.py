@@ -145,16 +145,19 @@ def r_target_pathways(b):
 
 def r_pharmacogenomics(b):
     L = ["## Pharmacogenomics", ""]
-    rows = b.get("pgx_entries") or []
-    if not rows:
-        L.append("*No PharmGKB coverage for the drug's target genes. "
-                 "(Direct drug-level PGx is pending biobtree #13.)*")
+    g = b.get("guidelines") or []
+    if not g:
+        L.append("*No PharmGKB genotype-guided dosing guideline curated for "
+                 "this drug.*")
         return "\n".join(L)
-    L.append(f"**Target-gene PharmGKB coverage ({_i(b.get('pgx_count'))} entries). "
-             f"Direct drug-level PGx guidelines pending biobtree #13:**\n")
-    L.append(table(["Gene", "PharmGKB", "VIP", "CPIC guideline"],
-                   [(r.get("gene"), r.get("pharmgkb_id"), r.get("vip"),
-                     r.get("cpic_guideline")) for r in rows]))
+    L.append(f"**PharmGKB dosing guidelines ({b.get('guideline_count')}) — CPIC / "
+             f"DPWG genotype-guided dosing for this drug (drug × pharmacogene):**\n")
+    L.append(table(["Guideline", "Source", "Gene(s)", "Dosing", "Recommendation"],
+                   [(f"[{(r.get('name') or r['id'])[:70]}](https://www.pharmgkb.org/guidelineAnnotation/{r['id']})"
+                     if r.get("id") else (r.get("name") or ""),
+                     r.get("source"), r.get("genes"),
+                     "yes" if r.get("has_dosing") else "",
+                     "yes" if r.get("has_recommendation") else "") for r in g]))
     return "\n".join(L)
 
 

@@ -1,39 +1,59 @@
-"""§9 — pharmacogenomics. The direct drug→PGx route
-(>>chembl_molecule>>pharmgkb_drug) is empty in biobtree (same root cause as
-BIOBTREE_ISSUES #13 — pharmgkb clinical/guideline/variant edges declared but
-unpopulated). Fallback: surface PharmGKB *gene-level* coverage for the drug's
-target genes (VIP / CPIC-guideline flags via >>hgnc>>pharmgkb_gene). When #13
-lands, swap to the drug-level guideline/variant content."""
-from atlas.biobtree import map_all
+"""§9 — pharmacogenomics. Drug-level PGx = CPIC / DPWG genotype-guided dosing
+guidelines for THIS drug (drug × metabolizing-gene, e.g. atorvastatin × SLCO1B1
+statin myopathy). NOT the drug's *target* gene — PGx is about the patient's
+pharmacogene genotype.
+
+Route: the drug has a `pharmgkb` chemical node (PA id), reached by name (there's
+no chembl_molecule>>pharmgkb edge); `>>pharmgkb>>pharmgkb_guideline` then yields
+the dosing guidelines. Clinical-annotation + variant tables are gene-keyed (not
+reachable from the chemical node), so they live on the relevant gene page.
+Empty for drugs without a curated guideline (e.g. newer targeted agents)."""
+from atlas.biobtree import search, rows, map_all
 from atlas.section import Section
 
 
+def _pharmgkb_chemical_id(name):
+    """Resolve the drug's PharmGKB chemical id (PA…) by name — prefer exact
+    case-insensitive match, else highest-xref hit. {None} if not in PharmGKB."""
+    res = rows(search(name, source="pharmgkb"))
+    if not res:
+        return None
+    q = name.lower()
+    exact = [r for r in res if (r.get("name") or "").lower() == q]
+    pick = (exact or sorted(res, key=lambda r: int(r.get("xref_count") or 0),
+                            reverse=True))[0]
+    return pick.get("id")
+
+
 def collect(a):
-    rows, seen = [], set()
-    for t in a.targets:
-        if not t.hgnc_id or t.hgnc_id in seen:
-            continue
-        seen.add(t.hgnc_id)
-        for r in map_all(t.hgnc_id, ">>hgnc>>pharmgkb_gene"):
-            rows.append({"gene": t.gene_symbol, "pharmgkb_id": r.get("id"),
-                         "vip": r.get("is_vip"),
-                         "cpic_guideline": r.get("has_cpic_guideline")})
+    pa = _pharmgkb_chemical_id(a.canonical_name)
+    guidelines = []
+    if pa:
+        for r in map_all(pa, ">>pharmgkb>>pharmgkb_guideline"):
+            guidelines.append({
+                "id": r.get("id"),
+                "name": r.get("name"),
+                "source": r.get("source"),          # CPIC / DPWG / ...
+                "genes": r.get("gene_symbols"),
+                "chemicals": r.get("chemical_names"),
+                "has_dosing": r.get("has_dosing_info") == "true",
+                "has_recommendation": r.get("has_recommendation") == "true",
+            })
     return {
         "section": "09_pharmacogenomics",
-        "source": "target_gene_fallback",
-        "pgx_entries": rows,
-        "pgx_count": len(rows),
+        "pharmgkb_chemical_id": pa,
+        "guidelines": guidelines,
+        "guideline_count": len(guidelines),
     }
 
 
 SECTION = Section(
     id="9", name="pharmacogenomics",
-    description=("PharmGKB pharmacogenomics. Direct drug→PGx is blocked (biobtree "
-                 "#13); fallback surfaces target-gene PharmGKB coverage "
-                 "(VIP / CPIC flags)"),
-    needs=("targets",),
-    produces=("pgx_entries", "pgx_count", "source"),
-    datasets=("hgnc", "pharmgkb_gene"),
-    chains=(">>hgnc>>pharmgkb_gene",),
+    description=("Drug-level pharmacogenomics: CPIC / DPWG genotype-guided dosing "
+                 "guidelines (drug × pharmacogene) via pharmgkb→pharmgkb_guideline"),
+    needs=("canonical_name",),
+    produces=("pharmgkb_chemical_id", "guidelines", "guideline_count"),
+    datasets=("pharmgkb", "pharmgkb_guideline"),
+    chains=(">>pharmgkb>>pharmgkb_guideline",),
     collect_fn=collect,
 )
