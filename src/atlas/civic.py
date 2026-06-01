@@ -37,6 +37,38 @@ def therapy_label(t):
     return " + ".join(s.strip() for s in (t or "").split(",") if s.strip())
 
 
+def predictive_verdict(ranked):
+    """One answer-first clause from the top predictive association (already
+    ranked by aggregate_predictive: Level A→E, then Sensitivity before
+    Resistance). Returns '' when there are no predictive associations.
+
+    Example: 'KRAS G12C confers sensitivity to Sotorasib in Lung Non-small
+    Cell Carcinoma (CIViC Level A)'."""
+    if not ranked:
+        return ""
+    r = ranked[0]
+    sig = (r.get("significance") or "").lower()
+    if "reduced" in sig:
+        verb = "shows reduced sensitivity to"
+    elif "sensitivity" in sig or "response" in sig:
+        verb = "confers sensitivity to"
+    elif "resistance" in sig:
+        verb = "is associated with resistance to"
+    else:
+        verb = "is clinically linked to"
+    profile = clean_profile(r.get("profile"))
+    therapy = therapy_label(r.get("therapy"))
+    if not profile or not therapy:
+        return ""
+    s = f"{profile} {verb} {therapy}"
+    disease = (r.get("disease") or "").strip()
+    if disease:
+        s += f" in {disease}"
+    if r.get("level"):
+        s += f" (CIViC Level {r['level']})"
+    return s
+
+
 def aggregate_predictive(rows, top=30):
     """civic_evidence target dicts -> (ranked associations[:top], stats).
 

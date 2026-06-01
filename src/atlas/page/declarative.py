@@ -110,4 +110,43 @@ def declarative_sentence(bundle):
         if not sentence.endswith("."):
             sentence += "."
 
+    # Answer-first precision-oncology verdict — promote the top CIViC predictive
+    # association (§10) into the lead. The most clinically-loaded fact, otherwise
+    # buried ~1000 lines down in the §10 table. Deterministic, CC0 (CIViC).
+    from atlas.civic import predictive_verdict
+    b10 = bundle.get("10") or {}
+    verdict = predictive_verdict(b10.get("civic_evidence") or [])
+    if verdict:
+        total = b10.get("civic_association_total") or 0
+        more = (f"; {total - 1} further curated variant–drug associations are listed below"
+                if total > 1 else "")
+        sentence += f" In precision oncology, {verdict}{more}."
+
+    # Functional-genomics verdict — DepMap cancer-dependency + ClinGen dosage
+    # (§3), surfaced only when notable (a dependency, or sufficient-evidence
+    # haploinsufficiency).
+    dep = _dependency_clause(b3)
+    if dep:
+        sentence += " " + dep
+
     return sentence
+
+
+def _dependency_clause(b3):
+    """Concise DepMap + ClinGen-dosage verdict; '' unless notable."""
+    dm = b3.get("depmap") or {}
+    cd = b3.get("clingen_dosage") or {}
+    bits = []
+    pct = dm.get("pct_dependent")
+    try:
+        p = float(pct)
+    except (TypeError, ValueError):
+        p = None
+    if p is not None:
+        if dm.get("common_essential") == "true":
+            bits.append(f"a common-essential gene (DepMap: required in {pct}% of cancer cell lines)")
+        elif dm.get("strongly_selective") == "true" or p >= 10:
+            bits.append(f"a selective cancer dependency (DepMap: {pct}% of cell lines)")
+    if cd.get("haplo_score") == "3":
+        bits.append("haploinsufficient (ClinGen: sufficient evidence)")
+    return ("It is " + " and ".join(bits) + ".") if bits else ""

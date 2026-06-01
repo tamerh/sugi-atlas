@@ -148,5 +148,21 @@ def declarative_sentence(bundle):
     sentence += _trials_clause(b1, b13)
     sentence += "."
     sentence += _pathway_clause(b14)
+    sentence += _civic_subtype_clause(b13)
     sentence += _drugs_clause(b13)
     return sentence
+
+
+def _civic_subtype_clause(b13):
+    """Answer-first precision-medicine verdict from the top CIViC predictive
+    association on the disease's subtype map (§13). '' for non-cancer diseases
+    or those with no curated evidence."""
+    from atlas.civic import predictive_verdict
+    rows = (b13 or {}).get("civic_evidence") or []
+    verdict = predictive_verdict(rows)
+    if not verdict:
+        return ""
+    total = (b13 or {}).get("civic_association_total") or 0
+    more = (f"; {total - 1} further subtype–drug associations are mapped below"
+            if total > 1 else "")
+    return f" Molecularly, {verdict}{more}."
