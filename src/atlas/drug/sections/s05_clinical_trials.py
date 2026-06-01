@@ -3,6 +3,7 @@ direct). Total count + true phase/status distribution over all retrieved
 trials + top 20 by phase."""
 from collections import Counter
 from atlas.biobtree import map_all
+from atlas.render_common import phase_label
 from atlas.section import Section
 
 _PHASE_RANK = {"PHASE4": 4, "PHASE3": 3, "PHASE2/PHASE3": 3, "PHASE2": 2,
@@ -17,15 +18,12 @@ def _phase_key(t):
 
 def collect(a):
     trials = map_all(a.chembl_id, ">>chembl_molecule>>clinical_trials", cap=15)
-    def _ph(t):  # biobtree emits "NaN" for null phase — normalize to NA
-        p = (t.get("phase") or "NA").upper()
-        return "NA" if p in ("NAN", "") else p
-    phase_counts = dict(Counter(_ph(t) for t in trials))
+    phase_counts = dict(Counter(phase_label(t.get("phase")) for t in trials))
     status_counts = dict(Counter((t.get("overall_status") or "NA").upper() for t in trials))
     top = sorted(trials,
                  key=lambda t: (-_phase_key(t),
                                 0 if (t.get("overall_status") or "").upper() in _ACTIVE else 1,
-                                t.get("id") or ""))[:20]
+                                t.get("id") or ""))[:40]
     return {
         "section": "05_clinical_trials",
         "trial_count": len(trials),

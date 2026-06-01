@@ -10,7 +10,7 @@ CLI:
   python -m atlas.pipeline gene TP53 --dist . --no-summary           # deterministic only
   python -m atlas.pipeline gene TP53 --dist . --first-run            # accept body_gate first_run
 """
-import argparse, json, os, sys, time, urllib.request
+import argparse, json, os, re, sys, time, urllib.request
 from datetime import datetime, timezone
 
 from atlas import __version__ as ATLAS_VERSION
@@ -26,6 +26,7 @@ from atlas.drug.anchors import resolve as resolve_drug
 from atlas.drug.slug import slugify as drug_slugify
 from atlas.validation import body_gate, summary_gate
 from atlas.bench import summary as B
+from atlas.biobtree import CALLS
 
 DEFAULT_SUMMARY_MODEL = os.environ.get("ATLAS_SUMMARY_MODEL", "qwen/qwen3-235b-a22b-2507|Together")
 
@@ -47,11 +48,36 @@ GENERATED_BY = "Sugi Atlas"  # attribution stamp; details on the /methods page
 
 
 def datasets_union(registry):
-    """Sorted union of every dataset each section touches — the page's
-    'Data sources' list (rendered visible by the theme)."""
+    """Sorted union of every dataset each section DECLARES. Note: undercounts
+    for disease/drug, which reach further datasets via cohort fan-out over gene
+    collectors — prefer datasets_from_calls() for the true per-page list."""
     seen = set()
     for s in registry.values():
         seen.update(s.datasets or ())
+    return sorted(seen)
+
+
+_DS_TOK = re.compile(r"[a-z0-9_]+")
+
+
+def datasets_from_calls(calls):
+    """The TRUE per-page 'Data sources' list — distinct datasets actually
+    queried during collection (the `s` param of search/entry + every chain
+    token of map `m`). Captures datasets reached via cohort fan-out that the
+    static registry doesn't declare (e.g. disease pages touch depmap / clingen /
+    generif through the gene collectors)."""
+    seen = set()
+    for c in calls:
+        p = c.get("params") or {}
+        if p.get("s"):
+            seen.add(str(p["s"]).lower())
+        for tok in (p.get("m") or "").split(">>"):
+            tok = tok.strip()
+            if tok:
+                m = _DS_TOK.match(tok)   # stops before '[' chain filters
+                if m:
+                    seen.add(m.group(0))
+    seen.discard("")
     return sorted(seen)
 
 
@@ -146,6 +172,7 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
     out_dir = os.path.join(dist_dir, "atlas", "gene", symbol)
     os.makedirs(out_dir, exist_ok=True)
     t0 = time.time()
+    CALLS.clear()  # track datasets actually queried for this page
 
     print(f"[1/5] collect §1..12 for {symbol}")
     bundle = collect_all(symbol)
@@ -191,7 +218,7 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
         "generated_by": GENERATED_BY,
-        "datasets": datasets_union(C.REGISTRY),
+        "datasets": datasets_from_calls(CALLS),
     }
     # Pass bundle so assemble_page emits the declarative lead + JSON-LD
     # inline script (parity with the Enju publish task).
@@ -227,6 +254,7 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
       - body_gate snapshot dir is <dist>/snapshots/disease/
     """
     t0 = time.time()
+    CALLS.clear()  # track datasets actually queried for this page
 
     print(f"[1/5] resolve anchors for {name!r}")
     a = resolve_disease(name)
@@ -282,7 +310,7 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
         "generated_by": GENERATED_BY,
-        "datasets": datasets_union(DC.REGISTRY),
+        "datasets": datasets_from_calls(CALLS),
     }
     # Disease declarative lead + schema.org/MedicalCondition JSON-LD now
     # flow through assemble_page (entity_type='disease' branch). Same shape
@@ -317,6 +345,7 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
       - body_gate snapshot dir is <dist>/snapshots/drug/
     """
     t0 = time.time()
+    CALLS.clear()  # track datasets actually queried for this page
 
     print(f"[1/5] resolve anchors for {name!r}")
     a = resolve_drug(name)
@@ -372,7 +401,7 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
         "atlas_version": ATLAS_VERSION,
         "biobtree_version": biobtree_version(),
         "generated_by": GENERATED_BY,
-        "datasets": datasets_union(DRC.REGISTRY),
+        "datasets": datasets_from_calls(CALLS),
     }
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 

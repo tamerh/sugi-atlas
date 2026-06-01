@@ -172,6 +172,7 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "name": name,
         "identifier": b1.get("mondo_id"),
         "url": canonical_page,
+        "alternateName": (b1.get("synonyms") or [])[:20] or None,
         "description": _summary_description(bundle),
         "sameAs": same_as_urls(bundle) or None,
         "associatedGene": _associated_genes(bundle) or None,

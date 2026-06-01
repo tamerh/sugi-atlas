@@ -248,7 +248,7 @@ def r_orthologs(b):
     para = b.get("paralogs", [])
     if para:
         L.append(f"\n**Paralogs ({b.get('paralog_count', 0)}):** "
-                 + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:20]))
+                 + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:40]))
     return "\n".join(L)
 
 
@@ -285,7 +285,7 @@ def r_pathways(b):
     for cat in ("biological_process", "molecular_function", "cellular_component"):
         terms = go.get(cat, [])
         L.append(f"\n**GO {cat.replace('_', ' ').title()} ({len(terms)}):**")
-        L.append(", ".join(f"{t['name']} ({t['id']})" for t in terms[:20]))
+        L.append(", ".join(f"{t['name']} ({t['id']})" for t in terms[:40]))
 
     # Top-level parent rollups — give the page a hierarchical-navigation view.
     # Reactome's hierarchy is tight (1-2 parents per pathway); GO's is broader.
@@ -298,21 +298,21 @@ def r_pathways(b):
     if gp:
         L.append(f"\n**GO top-level categories (rollup of top GO terms by namespace):**\n")
         L.append(table(["Category", "Terms"],
-                       [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:20]]))
+                       [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:40]]))
     return "\n".join(L)
 
 
 def r_interactions(b):
     L = ["## Protein interactions & networks", ""]
     L.append(f"**STRING ({b.get('string_count', 0)}), top by confidence (×1000):**\n")
-    L.append(table(["Partner", "Score"], [(s.get("partner"), s.get("score")) for s in b.get("string", [])[:20]]))
+    L.append(table(["Partner", "Score"], [(s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]]))
     L.append(f"\n**IntAct ({b.get('intact_count', 0)}), top by confidence:**\n")
     L.append(table(["A", "B", "Type", "Score"],
-                   [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:20]]))
+                   [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]]))
     L.append(f"\n**BioGRID ({b.get('biogrid_count', 0)}):** "
              + ", ".join(f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15]))
-    L.append(f"\n**ESM2 similar proteins:** " + ", ".join(f"`{p}`" for p in b.get("esm2_similar", [])[:20]))
-    L.append(f"\n**Diamond homologs:** " + ", ".join(f"`{p}`" for p in b.get("diamond_similar", [])[:20]))
+    L.append(f"\n**ESM2 similar proteins:** " + ", ".join(f"`{p}`" for p in b.get("esm2_similar", [])[:40]))
+    L.append(f"\n**Diamond homologs:** " + ", ".join(f"`{p}`" for p in b.get("diamond_similar", [])[:40]))
     L.append(f"\n**SIGNOR signaling ({b.get('signor_count', 0)}):**\n")
     L.append(table(["A", "Effect", "B", "Mechanism"],
                    [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:30]]))
@@ -335,7 +335,7 @@ def r_tf_regulation(b):
                           for p in pmids[:10])
         L.append(f"\n*JASPAR matrix evidence (PMIDs):* {links}")
     L.append(f"\n**Upstream regulators (CollecTRI, top):** "
-             + ", ".join(r.get("regulator") for r in b.get("upstream_regulators", [])[:20]))
+             + ", ".join(r.get("regulator") for r in b.get("upstream_regulators", [])[:40]))
     # miRDB miRNAs targeting this gene — post-transcriptional regulators.
     # Sorted by max_score (miRDB confidence). target_count is the miRNA's
     # promiscuity across all genes (lower = more specific target relationship).
@@ -407,7 +407,7 @@ def r_drugs(b):
             ["Variant", "Type", "Level", "Drugs", "Phenotypes"],
             [(c.get("variant"), c.get("type"), c.get("level_of_evidence"),
               c.get("chemicals"), c.get("phenotypes"))
-             for c in pgc[:20]]))
+             for c in pgc[:40]]))
 
     # PharmGKB variant pages — variant-level aggregations with PharmGKB's
     # composite score + count of clinical annotations.
@@ -419,7 +419,7 @@ def r_drugs(b):
             [(v.get("name"), v.get("gene_symbols"), v.get("level_of_evidence"),
               v.get("score"), v.get("clinical_annotation_count"),
               v.get("associated_drugs"))
-             for v in pgv[:20]]))
+             for v in pgv[:40]]))
 
     # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
     # gene+drug pair. Canonical pharmacogenes have tens of guidelines
@@ -528,7 +528,7 @@ def r_drugs(b):
     L.append(f"\n**Clinical trials for the gene's associated diseases "
              f"({b.get('disease_trial_count', 0)}, via MONDO — disease-level, not drug-specific):**\n")
     L.append(table(["Trial", "Phase", "Status", "Title"],
-                   [(t["id"], t.get("phase"), t.get("status"), (t.get("title") or "")[:55]) for t in ct[:20]]))
+                   [(t["id"], t.get("phase"), t.get("status"), (t.get("title") or "")[:55]) for t in ct[:40]]))
     return "\n".join(L)
 
 
@@ -607,10 +607,10 @@ def r_cancer_overview(bundle):
 def r_diseases(b):
     L = ["## Disease associations", ""]
     L.append(f"**OMIM:** gene `{', '.join(b.get('gene_omim', []))}` | "
-             f"disease phenotypes: {', '.join(b.get('disease_omim', [])[:20])}")
+             f"disease phenotypes: {', '.join(b.get('disease_omim', [])[:40])}")
     L.append("\n**GenCC curated gene-disease:**\n")
     L.append(table(["Disease", "Classification", "Inheritance"],
-                   [(g.get("disease"), g.get("classification"), g.get("inheritance")) for g in b.get("gencc", [])[:20]]))
+                   [(g.get("disease"), g.get("classification"), g.get("inheritance")) for g in b.get("gencc", [])[:40]]))
 
     # ClinGen Gene-Disease Validity — expert-panel curated relationship strength.
     # Distinct from GenCC: ClinGen is the canonical authority for gene-disease
@@ -622,7 +622,7 @@ def r_diseases(b):
                  "Limited > Disputed > Refuted.\n")
         L.append(table(["Disease", "Classification", "Inheritance"],
                        [(c.get("disease"), c.get("classification"), c.get("moi"))
-                        for c in cgv[:20]]))
+                        for c in cgv[:40]]))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
              + ", ".join(f"{m.get('name')} ({m['id']})" for m in b.get("mondo", [])[:15]))
     L.append(f"\n**Orphanet ({len(b.get('orphanet', []))}):** "

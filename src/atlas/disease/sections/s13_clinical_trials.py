@@ -6,6 +6,7 @@ NEW collector — disease anchors directly to trials, no gene cohort fanout."""
 from collections import Counter
 from atlas.biobtree import map_all, bbmap, map_targets, entry
 from atlas.civic import aggregate_predictive
+from atlas.render_common import phase_label
 from atlas.section import Section
 
 CHAINS   = (">>mondo>>clinical_trials",
@@ -45,7 +46,7 @@ def collect(a):
 
     # ---- 2. true phase/status distribution over ALL trials (not the
     # top-20 sample, which is biased toward PHASE4 by sort).
-    phase_counts  = dict(Counter((t.get("phase")  or "NA").upper() for t in trials))
+    phase_counts  = dict(Counter(phase_label(t.get("phase")) for t in trials))
     status_counts = dict(Counter((t.get("overall_status") or "NA").upper() for t in trials))
 
     # ---- 3. top 20 trials by phase/status (no entry call needed) ----------
@@ -56,7 +57,7 @@ def collect(a):
          "phase": t.get("phase"),
          "status": t.get("overall_status"),
          "sponsor": None}                     # not exposed by biobtree
-        for t in trials_sorted[:20]
+        for t in trials_sorted[:40]
     ]
 
     # ---- 3. trial drugs: mondo + (optional) mesh union -------------------

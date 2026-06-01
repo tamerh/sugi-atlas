@@ -41,7 +41,7 @@ meta = {
     "atlas_version": V,
     "biobtree_version": biobtree_version(),
     "generated_by": GENERATED_BY,
-    "datasets": datasets_union(REGISTRY),
+    "datasets": (json.load(open(f"build/{slug}/datasets.json")) if os.path.exists(f"build/{slug}/datasets.json") else datasets_union(REGISTRY)),
     "summary_model": display_model,
 }
 bundle = json.load(open(f"build/{slug}/bundle.json"))

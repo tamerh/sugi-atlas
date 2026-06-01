@@ -6,6 +6,14 @@ belongs in the entity-specific renderer."""
 import html
 
 
+def phase_label(p):
+    """Normalize a clinical-trial phase for display. biobtree emits 'NaN' for
+    trials with no interventional phase (observational / natural-history), which
+    naively uppercases to a confusing 'NAN' — map those to 'Not specified'."""
+    p = (p or "").strip().upper()
+    return "Not specified" if p in ("", "NAN", "NA") else p
+
+
 def table(headers, rows):
     """GitHub-flavored markdown table. Empty cells render as blank; HTML
     entities in cell values are unescaped (UniProt names often contain &alpha;

@@ -24,7 +24,7 @@ meta = {
     "title": symbol, "symbol": symbol, "entity_type": "gene",
     "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "atlas_version": V, "biobtree_version": biobtree_version(),
-    "generated_by": GENERATED_BY, "datasets": datasets_union(REGISTRY),
+    "generated_by": GENERATED_BY, "datasets": (json.load(open(f"build/{symbol}/datasets.json")) if os.path.exists(f"build/{symbol}/datasets.json") else datasets_union(REGISTRY)),
     "summary_model": display_model,
 }
 page = assemble_page(symbol, summary, body, meta, bundle=bundle)

@@ -31,6 +31,35 @@ def _trunc(s, n=80):
     return s if len(s) <= n else s[: n - 1].rstrip() + "…"
 
 
+def _data_availability(xc):
+    """Compact evidence-volume line from the Mondo xref counts — only the
+    datasets that signal *how much data exists* for the disease (true totals).
+    Identity/ontology xrefs are excluded (they're in the identifier table)."""
+    if not xc:
+        return None
+    items = []
+
+    def add(key, singular):
+        n = xc.get(key) or 0
+        if n:
+            items.append(f"{_i(n)} {singular}" + ("s" if n != 1 else ""))
+
+    add("clinvar", "ClinVar variant")
+    add("clinical_trials", "clinical trial")
+    add("clingen_variant", "ClinGen variant curation")
+    g, gs = xc.get("gwas") or 0, xc.get("gwas_study") or 0
+    if g:
+        s = f"{_i(g)} GWAS association" + ("s" if g != 1 else "")
+        if gs:
+            s += f" ({_i(gs)} stud" + ("ies" if gs != 1 else "y") + ")"
+        items.append(s)
+    add("gencc", "GenCC gene-disease record")
+    add("hpo", "HPO phenotype")
+    add("cellosaurus", "cell line")
+    add("intogen", "intOGen driver record")
+    return " · ".join(items) if items else None
+
+
 # §1 disease_ids ------------------------------------------------------------
 
 def r_disease_ids(b):
@@ -67,13 +96,23 @@ def r_disease_ids(b):
     rows = [(k, v) for k, v in candidate_rows if v not in (None, "")]
     out = ["## Disease identifiers", "", table(["Field", "Value"], rows)]
 
-    xc = b.get("xref_counts") or {}
-    if xc:
-        out.append("")
-        out.append("**Cross-database coverage (counts from the Mondo entry):**")
-        out.append("")
-        ordered = sorted(xc.items(), key=lambda kv: -kv[1])
-        out.append(table(["Dataset", "Count"], [(k, _i(v)) for k, v in ordered]))
+    # Synonyms (Mondo) — alternate names people search by ("AT", "Lou Gehrig's
+    # disease", brand/abbreviation/historical names). High search/AI value.
+    syns = b.get("synonyms") or []
+    if syns:
+        # " · " separator (not comma) — Mondo synonyms often contain internal
+        # commas ("AT, complementation group A"), which a comma-join would blur.
+        out += ["", "**Also known as:** " + " · ".join(syns[:20])
+                + (f" (+{len(syns) - 20} more)" if len(syns) > 20 else "")]
+
+    # Data availability — a compact "how much evidence exists" line, filtered to
+    # the evidence-volume datasets (true totals, beyond the capped per-section
+    # displays). The raw Mondo xref-count dump is dropped: its identity-mapping
+    # counts of 1 (doid/efo/mesh/…) just duplicate the identifier table above,
+    # and the ontology plumbing (mondochild/parent) belongs in disease navigation.
+    avail = _data_availability(b.get("xref_counts") or {})
+    if avail:
+        out += ["", "**Data availability:** " + avail + "."]
 
     # Epidemiology — Orphanet curates multi-geography prevalence data per
     # rare disease. Show as a small table when present (validated rows first).
@@ -358,7 +397,7 @@ def r_expression_context(b):
             items = list(tt.items())
         else:
             items = list(tt)
-        items = sorted(items, key=lambda kv: -kv[1])[:20]
+        items = sorted(items, key=lambda kv: -kv[1])[:40]
         out.append(table(["Tissue", "Cohort genes"],
                          [(k, _i(v)) for k, v in items]))
     pge = b.get("per_gene_expression") or []

@@ -47,6 +47,7 @@ class DiseaseAnchors:
     mondo_id: str                   # MONDO:NNNNNNN
     mondo_entry: dict               # full /api/entry for traceability
     canonical_name: Optional[str]   # mondo's preferred name (often more formal)
+    synonyms: Tuple[str, ...]       # Mondo Ontology synonyms (e.g. "AT", "Lou Gehrig's…")
     xref_counts: Dict[str, int]     # one-shot counts from mondo entry xrefs
     efo_id: Optional[str]
     mesh_ids: Tuple[str, ...]
@@ -249,6 +250,7 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
         mondo_id=mondo_id,
         mondo_entry=mondo_entry,
         canonical_name=canonical_name,
+        synonyms=tuple(_mondo_attrs(mondo_entry).get("synonyms") or ()),
         xref_counts=xc,
         efo_id=(efo_rows[0]["id"] if efo_rows else None),
         mesh_ids=tuple(r["id"] for r in mesh_rows),
