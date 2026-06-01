@@ -134,6 +134,7 @@ All hygiene items from this section shipped 2026-05-31. Per `git log`:
 | #13 pharmgkb_guideline / _clinical / _variant empty | 🟡 **partial 2026-06-01** — `pharmgkb_clinical` ✓ and `pharmgkb_variant` ✓ now return data (wired into §10); `pharmgkb_guideline` still empty. |
 | ~~#14 reactome pathway entries with empty `name`~~ | **✅ RESOLVED 2026-06-01** — all probed pathways carry names; Atlas's "Unnamed pathway" fallback removed. |
 | ~~#15 chembl_molecule parent/child salt-form linkage~~ | **✅ RESOLVED 2026-06-01** — both directions work: `>>chembl_molecule>>chembl_moleculeparent` (child→parent) and `>>chembl_molecule>>chembl_moleculechild` (parent→children). Unblocks drug entity at scale. |
+| ~~Mondo OBO cross-ontology xrefs + UBERON anatomy~~ | **✅ RESOLVED 2026-06-01** — `>>mondo>>{doid,sctid,umls,ncit,medgen,icd10cm,icd11,gard,meddra,nord,uberon}` all work. §1 federated identifier table extended; JSON-LD `sameAs` + `code` + `associatedAnatomy` populated. |
 | ~~#16 list-ids endpoint~~ | **retracted 2026-05-31** — corpus enumeration belongs upstream (HGNC TSV, Mondo OBO, ChEMBL releases); biobtree shouldn't duplicate. |
 | ~~#17 bulk xref-count check~~ | **retracted 2026-05-31** — per-entry xref counts work fine, only paid once per release with local cache. No real bottleneck. |
 

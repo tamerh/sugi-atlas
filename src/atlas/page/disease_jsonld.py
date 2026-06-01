@@ -34,6 +34,23 @@ def _orphanet_url(oid: str) -> str:
     # Orphanet ids in biobtree look like "279" — bare number.
     return f"https://www.orpha.net/en/disease/detail/{oid}"
 
+# Mondo OBO cross-ontology URL templates. Selected to land on the canonical
+# entry page for each authority (no redirect chains).
+_OBO_URL = {
+    "doid":     lambda i: f"https://disease-ontology.org/term/DOID:{i}" if not i.startswith("DOID:") else f"https://disease-ontology.org/term/{i}",
+    "ncit":     lambda i: f"https://ncithesaurus.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code={i}",
+    "umls":     lambda i: f"https://uts.nlm.nih.gov/uts/umls/concept/{i}",
+    "medgen":   lambda i: f"https://www.ncbi.nlm.nih.gov/medgen/{i}",
+    "sctid":    lambda i: f"https://browser.ihtsdotools.org/?perspective=full&conceptId1={i}",
+    "icd10cm":  lambda i: f"https://www.icd10data.com/ICD10CM/Codes/{i}",
+    "icd11":    lambda i: f"https://icd.who.int/browse11/l-m/en#/{i}",
+    "gard":     lambda i: f"https://rarediseases.info.nih.gov/diseases/{i}",
+}
+
+def _uberon_url(uid: str) -> str:
+    # uid looks like 'UBERON:0000310'
+    return f"https://www.ebi.ac.uk/ols4/ontologies/uberon/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252F{uid.replace(':', '_')}"
+
 
 def same_as_urls(bundle: dict) -> list:
     """Federated-identity URLs to emit under `sameAs`. Order intentional:
@@ -53,6 +70,29 @@ def same_as_urls(bundle: dict) -> list:
         out.append(_omim_url(mim))
     for orph in (b1.get("orphanet_ids") or []):
         out.append(_orphanet_url(orph))
+    # Mondo OBO cross-ontology xrefs (DOID, NCIT, UMLS, etc.).
+    obo = b1.get("obo_xrefs") or {}
+    for ds in ("doid", "ncit", "umls", "medgen", "sctid", "icd10cm", "icd11", "gard"):
+        builder = _OBO_URL.get(ds)
+        if not builder:
+            continue
+        for ident in (obo.get(ds) or []):
+            out.append(builder(ident))
+    return out
+
+
+def _associated_anatomy(b1: dict) -> list:
+    """schema.org `associatedAnatomy` — AnatomicalStructure nodes from
+    Mondo's `disease_has_location` UBERON axioms. Empty for systemic
+    diseases (no body-site annotation in Mondo)."""
+    uids = b1.get("anatomy_uberon_ids") or []
+    out = []
+    for uid in uids:
+        out.append({
+            "@type": "AnatomicalStructure",
+            "identifier": uid,
+            "url": _uberon_url(uid),
+        })
     return out
 
 
@@ -138,6 +178,7 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "drug": _drugs(bundle) or None,
         "epidemiology": _epidemiology(b1) or None,
         "signOrSymptom": _sign_or_symptom(b1) or None,
+        "associatedAnatomy": _associated_anatomy(b1) or None,
     }
     # MedicalCode entries for each ontology (more granular than sameAs).
     codes = []
@@ -156,6 +197,17 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
     for orph in (b1.get("orphanet_ids") or []):
         codes.append({"@type": "MedicalCode", "codingSystem": "Orphanet",
                       "codeValue": orph})
+    # Mondo OBO cross-ontology xrefs as additional MedicalCode entries.
+    _CODING_SYSTEM = {"doid": "DOID", "ncit": "NCI Thesaurus",
+                      "umls": "UMLS", "medgen": "MedGen",
+                      "sctid": "SNOMED CT", "icd10cm": "ICD-10-CM",
+                      "icd11": "ICD-11", "gard": "GARD",
+                      "meddra": "MedDRA", "nord": "NORD"}
+    for ds, ids in (b1.get("obo_xrefs") or {}).items():
+        sys_name = _CODING_SYSTEM.get(ds, ds)
+        for ident in ids:
+            codes.append({"@type": "MedicalCode", "codingSystem": sys_name,
+                          "codeValue": ident})
     if codes:
         out["code"] = codes if len(codes) > 1 else codes[0]
     return {k: v for k, v in out.items() if v not in (None, [], "")}

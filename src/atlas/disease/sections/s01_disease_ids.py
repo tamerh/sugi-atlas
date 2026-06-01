@@ -6,8 +6,14 @@ record, which already pre-resolved the ID set during resolve(). The work
 here is mostly shaping; no new biobtree calls beyond the anchor."""
 from atlas.section import Section
 
-CHAINS   = (">>mondo>>efo", ">>mondo>>mesh", ">>mondo>>mim", ">>mondo>>orphanet")
-DATASETS = ("mondo", "efo", "mesh", "mim", "orphanet")
+CHAINS   = (">>mondo>>efo", ">>mondo>>mesh", ">>mondo>>mim", ">>mondo>>orphanet",
+            ">>mondo>>doid", ">>mondo>>sctid", ">>mondo>>umls", ">>mondo>>ncit",
+            ">>mondo>>medgen", ">>mondo>>icd10cm", ">>mondo>>icd11",
+            ">>mondo>>gard", ">>mondo>>meddra", ">>mondo>>nord",
+            ">>mondo>>uberon")
+DATASETS = ("mondo", "efo", "mesh", "mim", "orphanet",
+            "doid", "sctid", "umls", "ncit", "medgen",
+            "icd10cm", "icd11", "gard", "meddra", "nord", "uberon")
 
 def collect(a):
     # HPO phenotypes from primary Orphanet entry — frequency-sorted desc so
@@ -25,6 +31,11 @@ def collect(a):
         "mesh_ids": list(a.mesh_ids),
         "omim_ids": list(a.omim_ids),
         "orphanet_ids": list(a.orphanet_ids),
+        # Cross-ontology xrefs from Mondo OBO ingest. {prefix: [ids,...]} —
+        # only keys with data present.
+        "obo_xrefs": {k: list(v) for k, v in (a.obo_xrefs or {}).items()},
+        # UBERON anatomy ids (drives schema.org `associatedAnatomy`).
+        "anatomy_uberon_ids": list(a.anatomy_uberon_ids or ()),
         # Orphanet primary-entry attrs — resolved once at anchor time.
         # prevalences = multi-geography epidemiology rows (drives JSON-LD
         # `epidemiology`). phenotypes = HPO list with both label and
@@ -47,9 +58,11 @@ SECTION = Section(
                  "+ Orphanet epidemiology (prevalences) and clinical features "
                  "(HPO phenotype list with frequencies)."),
     needs=("mondo_id", "canonical_name", "efo_id", "mesh_ids", "omim_ids",
-           "orphanet_ids", "orphanet_attrs", "xref_counts", "is_cancer"),
+           "orphanet_ids", "orphanet_attrs", "obo_xrefs", "anatomy_uberon_ids",
+           "xref_counts", "is_cancer"),
     produces=("mondo_id", "canonical_name", "efo_id", "mesh_ids", "omim_ids",
-              "orphanet_ids", "orphanet_name", "orphanet_disorder_type",
+              "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
+              "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count",
               "xref_counts", "is_cancer"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

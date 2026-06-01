@@ -52,6 +52,15 @@ class DiseaseAnchors:
     mesh_ids: Tuple[str, ...]
     omim_ids: Tuple[str, ...]
     orphanet_ids: Tuple[str, ...]
+    # Additional cross-ontology IDs from Mondo's OBO — exposed by biobtree
+    # 2026-06-01. Keys: doid, sctid, umls, ncit, medgen, icd10cm, icd11,
+    # gard, meddra, nord. Per-disease coverage varies (rare diseases get
+    # the full set; cancers get most; common diseases get less).
+    obo_xrefs: Dict[str, Tuple[str, ...]]
+    # UBERON anatomy from Mondo's `disease_has_location` axiom — surfaces
+    # the affected tissue (e.g. UBERON:0000310 = "breast" for breast cancer).
+    # Drives schema.org `associatedAnatomy`. Empty for systemic diseases.
+    anatomy_uberon_ids: Tuple[str, ...]
     # Primary Orphanet entry's full attrs — used for clinical phenotypes
     # (HPO list with frequencies) and prevalences (epidemiology).
     # Picked as the first orphanet_id whose disorder_type is "Disease"
@@ -175,6 +184,23 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
     mim_rows  = map_all(mondo_id, ">>mondo>>mim")
     orph_rows = map_all(mondo_id, ">>mondo>>orphanet")
 
+    # Cross-ontology xrefs from biobtree's Mondo OBO ingest (2026-06-01).
+    # Each is typically 0-1 row per Mondo term; total <30 calls per disease.
+    # Only fetched when xref_counts says the dataset has at least one row,
+    # avoiding ~half the round-trips for sparser terms.
+    OBO_XREF_DATASETS = ("doid", "sctid", "umls", "ncit", "medgen",
+                          "icd10cm", "icd11", "gard", "meddra", "nord")
+    obo_xrefs = {}
+    for ds in OBO_XREF_DATASETS:
+        if xc.get(ds, 0) > 0:
+            ids = tuple(r["id"] for r in map_all(mondo_id, f">>mondo>>{ds}"))
+            if ids:
+                obo_xrefs[ds] = ids
+
+    # UBERON anatomy — drives schema.org `associatedAnatomy` in the JSON-LD.
+    anatomy_uberon_ids = tuple(r["id"] for r in
+                                map_all(mondo_id, ">>mondo>>uberon")) if xc.get("uberon", 0) > 0 else ()
+
     # Pick the primary Orphanet entry (disorder_type=="Disease"). Pull its
     # full attrs once — carries the per-disease HPO phenotype list with
     # frequencies + multi-region prevalence data. Both drive new content
@@ -228,6 +254,8 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
         mesh_ids=tuple(r["id"] for r in mesh_rows),
         omim_ids=tuple(r["id"] for r in mim_rows),
         orphanet_ids=tuple(r["id"] for r in orph_rows),
+        obo_xrefs=obo_xrefs,
+        anatomy_uberon_ids=anatomy_uberon_ids,
         orphanet_attrs=orphanet_attrs,
         is_cancer=_is_cancer(mondo_id, mondo_entry, canonical_name),
         cohort=tuple(cohort),

@@ -49,6 +49,19 @@ def r_disease_ids(b):
         ("MeSH", ", ".join(b.get("mesh_ids") or []) or None),
         ("OMIM", ", ".join(b.get("omim_ids") or []) or None),
         ("Orphanet", ", ".join(b.get("orphanet_ids") or []) or None),
+        # Mondo-OBO cross-ontology xrefs — keys present only if data exists.
+        ("DOID",     ", ".join((b.get("obo_xrefs") or {}).get("doid")    or []) or None),
+        ("ICD-10-CM", ", ".join((b.get("obo_xrefs") or {}).get("icd10cm") or []) or None),
+        ("ICD-11",   ", ".join((b.get("obo_xrefs") or {}).get("icd11")   or []) or None),
+        ("NCIT",     ", ".join((b.get("obo_xrefs") or {}).get("ncit")    or []) or None),
+        ("SNOMED CT", ", ".join((b.get("obo_xrefs") or {}).get("sctid")  or []) or None),
+        ("UMLS",     ", ".join((b.get("obo_xrefs") or {}).get("umls")    or []) or None),
+        ("MedGen",   ", ".join((b.get("obo_xrefs") or {}).get("medgen")  or []) or None),
+        ("GARD",     ", ".join((b.get("obo_xrefs") or {}).get("gard")    or []) or None),
+        ("MedDRA",   ", ".join((b.get("obo_xrefs") or {}).get("meddra")  or []) or None),
+        ("NORD",     ", ".join((b.get("obo_xrefs") or {}).get("nord")    or []) or None),
+        ("Anatomy (UBERON)",
+         ", ".join(b.get("anatomy_uberon_ids") or []) or None),
         ("Is cancer (heuristic)", "yes" if b.get("is_cancer") else "no"),
     ]
     rows = [(k, v) for k, v in candidate_rows if v not in (None, "")]
