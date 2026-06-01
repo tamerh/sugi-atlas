@@ -84,7 +84,10 @@ def collect(a):
         breadth_distribution[_breadth_bucket(bgee_breadth)] += 1
 
         # Per-gene set so a gene contributes at most once per tissue name.
-        for tissue in set(top_tissues):
+        # sorted() makes Counter insertion order deterministic → most_common()
+        # ties break stably across runs (set() iteration order otherwise varies
+        # by process hash-seed, churning rendered row order).
+        for tissue in sorted(set(top_tissues)):
             cohort_tissue_counts[tissue] += 1
 
         if not bgee and not fantom5 and not scxa_present:
