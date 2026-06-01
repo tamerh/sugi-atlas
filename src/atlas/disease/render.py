@@ -510,19 +510,10 @@ def r_pathways(b):
            f"{_i(b.get('pathway_count'))}.**"]
     tp = b.get("top_pathways") or []
     if tp:
-        def _pname(p):
-            # Some Reactome pathways are indexed without a name in biobtree
-            # (BIOBTREE_ISSUES — file an upstream issue). Fall back to a
-            # graceful "Unnamed pathway" label so the table doesn't lead
-            # with bare R-HSA-NNNN identifiers.
-            n = p.get("name")
-            if n:
-                return n
-            return f"Unnamed pathway ({p.get('id') or '?'})"
         out += ["", "**Top pathways by cohort coverage:**", "",
                 table(["Pathway", "Genes", "Sample cohort genes"],
-                      [(f"[{_pname(p)}](https://reactome.org/PathwayBrowser/#/{p['id']})"
-                        if p.get("id") else _pname(p),
+                      [(f"[{p.get('name') or p['id']}]"
+                        f"(https://reactome.org/PathwayBrowser/#/{p['id']})",
                         _i(p.get("gene_count")),
                         ", ".join((p.get("gene_symbols") or [])[:8]))
                        for p in tp[:30]])]

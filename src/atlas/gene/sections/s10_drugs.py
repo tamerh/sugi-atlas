@@ -14,6 +14,8 @@ CHAINS = (
     ">>chembl_molecule>>patent_compound",
     ">>hgnc>>cellosaurus",
     ">>hgnc>>pharmgkb_gene",
+    ">>hgnc>>pharmgkb_clinical",
+    ">>hgnc>>pharmgkb_variant",
     ">>uniprot>>bindingdb",
     ">>uniprot>>pubchem_activity",
     ">>hgnc>>entrez>>ctd_gene_interaction",
@@ -23,7 +25,8 @@ CHAINS = (
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
             "chembl_document", "patent_compound", "cellosaurus",
-            "pharmgkb_gene", "bindingdb", "pubchem_activity",
+            "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant",
+            "bindingdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc",
             "civic_evidence")
@@ -91,6 +94,28 @@ def collect(a):
     bundle["pharmgkb"] = [{"id": t["id"], "vip": t.get("is_vip"),
                            "cpic_guideline": t.get("has_cpic_guideline")}
                           for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_gene")]
+
+    # PharmGKB clinical annotations + variant pages — biobtree #13 fix
+    # landed for these two (guideline still 0-rows). Clinical annotations
+    # carry the variant + drug + phenotype + level_of_evidence tuple that
+    # makes per-gene PGx context concrete (vs the bare existence flag).
+    bundle["pharmgkb_clinical"] = [{
+        "id": t.get("id"),
+        "variant": t.get("variant"),
+        "type": t.get("type"),
+        "level_of_evidence": t.get("level_of_evidence"),
+        "chemicals": t.get("chemicals"),
+        "phenotypes": t.get("phenotypes"),
+    } for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_clinical")]
+    bundle["pharmgkb_variant"] = [{
+        "id": t.get("id"),
+        "name": t.get("variant_name"),
+        "gene_symbols": t.get("gene_symbols"),
+        "level_of_evidence": t.get("level_of_evidence"),
+        "score": t.get("score"),
+        "clinical_annotation_count": t.get("clinical_annotation_count"),
+        "associated_drugs": t.get("associated_drugs"),
+    } for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_variant")]
 
     bd = map_all(uni, ">>uniprot>>bindingdb", cap=2) if uni else []
     bundle["bindingdb_sample"] = [{"ligand": t.get("ligand_name"), "ki": t.get("ki"),
@@ -285,7 +310,7 @@ SECTION = Section(
               "chembl_assay_total", "chembl_assay_type_counts",
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",
-              "cellosaurus_samples", "pharmgkb",
+              "cellosaurus_samples", "pharmgkb", "pharmgkb_clinical", "pharmgkb_variant",
               "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",
               "disease_trials", "civic_evidence", "civic_predictive_total",
               "civic_evidence_total", "is_drug_target"),

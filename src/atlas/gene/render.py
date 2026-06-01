@@ -388,6 +388,29 @@ def r_drugs(b):
     pg = b.get("pharmgkb", [])
     L.append(f"\n**PharmGKB:** {len(pg)} entr{'y' if len(pg)==1 else 'ies'}"
              + (f" (VIP={pg[0].get('vip')}, CPIC={pg[0].get('cpic_guideline')})" if pg else ""))
+
+    # PharmGKB clinical annotations — variant + drug + phenotype tuples
+    # with PharmGKB's evidence-level rating (1A strongest → 4 weakest).
+    pgc = b.get("pharmgkb_clinical") or []
+    if pgc:
+        L.append(f"\n**PharmGKB clinical annotations ({len(pgc)}):**\n")
+        L.append(table(
+            ["Variant", "Type", "Level", "Drugs", "Phenotypes"],
+            [(c.get("variant"), c.get("type"), c.get("level_of_evidence"),
+              c.get("chemicals"), c.get("phenotypes"))
+             for c in pgc[:20]]))
+
+    # PharmGKB variant pages — variant-level aggregations with PharmGKB's
+    # composite score + count of clinical annotations.
+    pgv = b.get("pharmgkb_variant") or []
+    if pgv:
+        L.append(f"\n**PharmGKB variants ({len(pgv)}):**\n")
+        L.append(table(
+            ["Variant", "Genes", "Level", "Score", "#Clin annots", "Drugs"],
+            [(v.get("name"), v.get("gene_symbols"), v.get("level_of_evidence"),
+              v.get("score"), v.get("clinical_annotation_count"),
+              v.get("associated_drugs"))
+             for v in pgv[:20]]))
     bd = b.get("bindingdb_sample", [])
     if bd:
         L.append(f"\n**Binding affinities (BindingDB, sampled {b.get('bindingdb_sampled', 0)}):**\n")
@@ -395,8 +418,7 @@ def r_drugs(b):
                        [(x.get("ligand"), x.get("ki"), x.get("ic50")) for x in bd[:15]]))
 
     # ChEMBL bioactivities (pchembl-ranked). pchembl is the gold potency
-    # metric — directly comparable across assay types. Renders even when
-    # PubChem activity is empty (e.g. KRAS — see BIOBTREE_ISSUES.md #12).
+    # metric — directly comparable across assay types.
     ca = b.get("chembl_activities") or []
     if ca:
         L.append(f"\n**ChEMBL bioactivities ({b.get('chembl_activity_potent_count', 0)} "

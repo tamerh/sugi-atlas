@@ -77,6 +77,8 @@ UPSTREAM = {
     "cellosaurus":       ("Cellosaurus (SIB cell-line index)",     "https://www.cellosaurus.org/"),
     "patent_compound":   ("PubChem patent-compound index",         "https://pubchem.ncbi.nlm.nih.gov/"),
     "pharmgkb_gene":     ("PharmGKB",                              "https://www.pharmgkb.org/"),
+    "pharmgkb_clinical": ("PharmGKB Clinical Annotations",         "https://www.pharmgkb.org/clinicalAnnotations"),
+    "pharmgkb_variant":  ("PharmGKB Variant Annotations",          "https://www.pharmgkb.org/variantAnnotations"),
     "chebi":             ("ChEBI",                                 "https://www.ebi.ac.uk/chebi/"),
     "pubchem":           ("PubChem",                               "https://pubchem.ncbi.nlm.nih.gov/"),
     "gtopdb":            ("Guide to Pharmacology (GtoPdb)",        "https://www.guidetopharmacology.org/"),
