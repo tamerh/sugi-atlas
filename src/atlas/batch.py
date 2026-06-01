@@ -152,7 +152,9 @@ def _parse_list(val):
     return [x.strip() for x in val.split(",") if x.strip()]
 
 
-def run(genes, diseases, drugs, dist_dir, cache_dir, workers):
+def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
+    if limit:                       # test slice: first N of each category
+        genes, diseases, drugs = genes[:limit], diseases[:limit], drugs[:limit]
     specs_a = ([("gene", g, dist_dir, cache_dir) for g in genes]
                + [("disease", d, dist_dir, cache_dir) for d in diseases]
                + [("drug", x, dist_dir, cache_dir) for x in drugs])
@@ -196,11 +198,13 @@ def main(argv=None):
     ap.add_argument("--genes", default="")
     ap.add_argument("--diseases", default="")
     ap.add_argument("--drugs", default="")
+    ap.add_argument("--limit", type=int, default=None,
+                    help="build only the first N of each category (test slice)")
     a = ap.parse_args(argv)
     genes, diseases, drugs = _parse_list(a.genes), _parse_list(a.diseases), _parse_list(a.drugs)
     if not (genes or diseases or drugs):
         ap.error("give at least one of --genes / --diseases / --drugs")
-    run(genes, diseases, drugs, a.dist, a.cache, a.workers)
+    run(genes, diseases, drugs, a.dist, a.cache, a.workers, limit=a.limit)
 
 
 if __name__ == "__main__":

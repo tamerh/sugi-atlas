@@ -43,10 +43,18 @@ def genes(out):
                  if d.get("locus_group") == "non-coding RNA" and d.get("symbol")})
     _write(os.path.join(out, "genes_hgnc_protein_coding.txt"), pc)
     _write(os.path.join(out, "genes_hgnc_ncrna.txt"), nc)
+    # Combined seed (protein-coding + ncRNA) — the full buildable gene corpus.
+    # ncRNA pages are thinner (no protein §) but supported (RNAcentral + ncRNA
+    # biotypes). Pseudogene/other excluded as too thin.
+    _write(os.path.join(out, "genes_hgnc.txt"), sorted(set(pc) | set(nc)))
 
 
 def drugs(out):
     print(f"ChEMBL molecules ({CHEMBL_JSONL}) …")
+    # Seed by molecule_id (CHEMBLxxx), NOT name — resolve_drug() then does a
+    # direct entry fetch (reliable) instead of a flaky name search (weird
+    # chemical names like "3,3',4',5-TETRACHLOROSALICYLANILIDE" don't round-trip
+    # through search). Require a name so the page has a human label/slug.
     approved, clinical = set(), set()
     with open(CHEMBL_JSONL) as f:
         for ln in f:
@@ -54,14 +62,14 @@ def drugs(out):
                 r = json.loads(ln)
             except ValueError:
                 continue
-            nm = (r.get("name") or "").strip()
-            if not nm:
+            mid = (r.get("molecule_id") or "").strip()
+            if not mid or not (r.get("name") or "").strip():
                 continue
             mp = r.get("max_phase")
             if mp == 4:
-                approved.add(nm)
+                approved.add(mid)
             elif mp in (1, 2, 3):
-                clinical.add(nm)
+                clinical.add(mid)
     _write(os.path.join(out, "drugs_chembl_approved.txt"), sorted(approved))
     _write(os.path.join(out, "drugs_chembl_clinical.txt"), sorted(clinical))
 
