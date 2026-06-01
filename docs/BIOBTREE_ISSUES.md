@@ -339,32 +339,44 @@ it does not move the production REST path.
 
 ---
 
-## Issue #23 — Expose HPO disease→phenotype `evidence` field in REST
+## Issue #23 — Expose `XrefEntry.evidence` via REST (full-mode entry currently disabled)
 
-biobtree's HPO ingest (hpo.go parsePhenotypeAnnotations) stores per-edge
-evidence on each disease↔HPO link, including frequency tokens like
-`PCS;freq=3/8` or `PCS;freq=80%`. This is the data point that distinguishes
-"obligate symptom" from "occasional symptom" — clinically critical context.
+Per-edge evidence (e.g. HPO frequency `PCS;freq=3/8` / qualitative tokens
+like `Frequent (79-30%)`) is stored on `XrefEntry.evidence` proto field and
+computed server-side. The REST endpoint hard-routes everything through
+`entryLite()` which strips it.
 
-The evidence sits on the underlying proto edge (XrefEntry.evidence) but is
-not surfaced in any probed REST response:
+**Precise location:** `src/service/web.go:185-200` — `web.entry()` always
+calls `web.service.entryLite(ids[0], src)`. The full-mode branch is
+commented out at lines 202-222:
 
-- `/api/map?i=154700&m=>>mim>>hpo&mode=lite` → schema is `id|name|definition`;
-  no evidence column.
-- `/api/entry?i=154700&s=mim` → `entries: []` (empty), `xrefs.schema` is
-  `dataset|count`.
-- `/api/entry?i=HP:0000098&s=hpo` → same, `entries: []`.
+```go
+// Full mode commented out - can be re-enabled if needed
+// Full mode returns all xref entries which can be very large
+// r1, err := web.service.LookupByDataset(ids[0], src)
+```
 
-**Ask:** add the edge's `evidence` token as either
-(a) a fourth schema column on `>>mim>>hpo` / `>>orphanet>>hpo` /
-    `>>mondo>>...>>hpo` map responses, or
-(b) a populated `entries` array on `entry?s=mim` / `entry?s=orphanet` so
-    each linked HPO id carries its own evidence string.
+`LookupByDataset` returns the full Xref (with populated `entries: []` carrying
+evidence). The lite path discards it; `xrefs.schema` becomes `dataset|count`
+and `entries[]` is always empty. Same compaction happens in `mapFilter()`,
+which is why map row schemas don't carry evidence either. `mode=full` /
+`detail=true` query params don't change this (verified empirically).
 
-Either path unblocks the schema.org `signOrSymptom` build with proper
-frequency annotation. Atlas currently has to choose between rendering
-"Marfan has 70 HPO phenotypes" without distinguishing obligate vs
-occasional, vs blocking the section entirely.
+**Atlas usage status:** disease→phenotype-with-frequency works today via
+the Orphanet entry's `phenotypes` array (covers ~6000 rare diseases). The
+HP→diseases-with-frequency direction has no REST path.
+
+**Narrow ask:** re-enable the commented full-mode path as an opt-in,
+guarded by `?detail=true` or a `/api/entry-full` route. To address the
+"can be very large" concern in the comment, accept an optional
+`?xref_dataset=orphanet` filter so callers can scope to one xref set
+(HP:0001166 has ~167 disease links across mim+orphanet — fine when filtered).
+
+If neither path is desirable, an alternative narrower change: surface
+`evidence` as an extra column in lite map row schema specifically for
+edges where the parser stored a non-empty evidence token (hpo↔mim,
+hpo↔orphanet, reactome edges with TAS/IEA, etc.). Lower scope, equivalent
+unblock.
 
 ---
 
