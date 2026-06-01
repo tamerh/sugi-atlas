@@ -10,8 +10,10 @@ Two output forms (mirror atlas.page.jsonld / disease_jsonld):
   - as_jsonld_string(jsonld) → pretty-printed JSON for the entity.jsonld sidecar
 """
 import json
+from atlas.page import links
 
 BASE_URL = "https://sugi.bio/atlas"
+_HOST = BASE_URL.rsplit("/atlas", 1)[0]  # "https://sugi.bio" — prefix for internal links
 
 
 def same_as_urls(b1: dict) -> list:
@@ -34,12 +36,20 @@ def _targets(b2: dict) -> list:
         if not sym:
             continue
         rec = {"@type": "Gene", "name": sym}
+        sameas = []
         if t.get("hgnc_id"):
             rec["identifier"] = t["hgnc_id"]
-            rec["url"] = (f"https://www.genenames.org/data/gene-symbol-report/"
+            sameas.append(f"https://www.genenames.org/data/gene-symbol-report/"
                           f"#!/hgnc_id/{t['hgnc_id']}")
         if t.get("uniprot"):
-            rec["sameAs"] = [f"https://www.uniprot.org/uniprotkb/{t['uniprot']}"]
+            sameas.append(f"https://www.uniprot.org/uniprotkb/{t['uniprot']}")
+        internal = links.gene_url(symbol=sym, hgnc_id=t.get("hgnc_id"))
+        if internal:
+            rec["url"] = _HOST + internal
+        elif sameas:
+            rec["url"] = sameas[0]
+        if sameas:
+            rec["sameAs"] = sameas
         out.append(rec)
     return out
 
@@ -54,6 +64,9 @@ def _treats(b4: dict) -> list:
         rec = {"@type": "MedicalCondition", "name": name or mondo}
         if mondo:
             rec["identifier"] = mondo
+        internal = links.disease_url(mondo_id=mondo, name=name)
+        if internal:
+            rec["url"] = _HOST + internal
         out.append(rec)
     return out
 

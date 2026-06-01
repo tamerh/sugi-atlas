@@ -11,8 +11,10 @@ Two output forms (mirroring atlas.page.jsonld for genes):
   - as_jsonld_string(jsonld) → pretty-printed JSON for the entity.jsonld sidecar
 """
 import json
+from atlas.page import links
 
 BASE_URL = "https://sugi.bio/atlas"
+_HOST = BASE_URL.rsplit("/atlas", 1)[0]  # "https://sugi.bio" — prefix for internal links
 
 # Per-ontology URL templates. Mondo's OLS4 entry is the most stable.
 def _mondo_url(mid: str) -> str:
@@ -110,9 +112,19 @@ def _drugs(bundle: dict) -> list:
         if not name and not mid:
             continue
         rec = {"@type": "Drug", "name": name or mid}
+        sameas = []
         if mid:
             rec["identifier"] = mid
-            rec["url"] = f"https://www.ebi.ac.uk/chembl/compound_report_card/{mid}/"
+            sameas.append(f"https://www.ebi.ac.uk/chembl/compound_report_card/{mid}/")
+        # Canonical url = the Atlas drug page when built, else the ChEMBL card;
+        # the authority link is always preserved under sameAs.
+        internal = links.drug_url(chembl_id=mid, name=name)
+        if internal:
+            rec["url"] = _HOST + internal
+        elif sameas:
+            rec["url"] = sameas[0]
+        if sameas:
+            rec["sameAs"] = sameas
         out.append(rec)
     return out
 
@@ -131,11 +143,19 @@ def _associated_genes(bundle: dict) -> list:
         if not sym:
             continue
         rec = {"@type": "Gene", "name": sym}
+        sameas = []
         if hgnc:
             rec["identifier"] = hgnc
-            rec["url"] = f"https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/{hgnc}"
+            sameas.append(f"https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/{hgnc}")
         if uni:
-            rec["sameAs"] = [f"https://www.uniprot.org/uniprotkb/{uni}"]
+            sameas.append(f"https://www.uniprot.org/uniprotkb/{uni}")
+        internal = links.gene_url(symbol=sym, hgnc_id=hgnc)
+        if internal:
+            rec["url"] = _HOST + internal
+        elif sameas:
+            rec["url"] = sameas[0]
+        if sameas:
+            rec["sameAs"] = sameas
         out.append(rec)
     return out
 

@@ -192,6 +192,13 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             co = r_cancer_overview(bundle)
             if co:
                 cancer_overview = co + "\n\n"
+        # "Related Atlas pages" — cross-entity navigation block surfacing the
+        # internal mesh up front (the in-body links are buried mid-table).
+        # Same resolver as the links; elides when nothing is built yet.
+        from atlas.page import links
+        rel = links.related_block(entity_type, bundle)
+        if rel:
+            sentence += "\n\n" + rel
         # schema.org JSON-LD — federated-identity signal (sameAs to ontology
         # cross-refs). Lives inline at the top of the body so AI crawlers see
         # it on the rendered page; also written as entity.jsonld sidecar by
