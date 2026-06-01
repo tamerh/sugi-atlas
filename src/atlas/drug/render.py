@@ -47,13 +47,26 @@ def r_drug_ids(b):
         L.append(f"\n*Parent form; salt/anhydrous children:* "
                  + ", ".join(f"`{c}`" for c in b["child_chembls"]))
     # Patent footprint — SureChEMBL compound mentions (folded in from the
-    # former standalone Patent literature section).
+    # former standalone Patent literature section). The total is a count of
+    # patents *mentioning* the matched structures, not distinct inventions —
+    # and is typically dominated by one promiscuous/reference structure, which
+    # we quantify here. Richer landscape (assignee, CPC/IPC class, distinct
+    # families, jurisdiction/timeline) is gated on biobtree #25/#26/#27.
     pt = b.get("patent_total") or 0
     if pt:
-        n_rec = len(b.get("patent_compound_ids") or [])
+        bd = b.get("patent_compound_breakdown") or []
+        n_rec = len(bd) or len(b.get("patent_compound_ids") or [])
+        dom = ""
+        if bd and bd[0].get("patent_count"):
+            top = bd[0]["patent_count"]
+            pct = round(100 * top / pt) if pt else 0
+            if len(bd) > 1 and pct >= 60:
+                dom = (f" One matched structure accounts for {_i(top)} ({pct}%) "
+                       f"of the total.")
         L.append(f"\n**Patent mentions (SureChEMBL):** {_i(pt)} across {n_rec} "
-                 f"patent_compound record(s) — counts attach to the compound, so "
-                 f"promiscuous molecules score high.")
+                 f"matched compound structure(s).{dom} Counts are patent mentions "
+                 f"of the compound (not distinct inventions), so promiscuous / "
+                 f"reference molecules inflate the total.")
     return "\n".join(L)
 
 
@@ -302,6 +315,7 @@ def render_all(bundles):
     b1["chebi_roles"] = b6.get("chebi_roles")
     b1["patent_total"] = b11.get("patent_total")
     b1["patent_compound_ids"] = b11.get("patent_compound_ids")
+    b1["patent_compound_breakdown"] = b11.get("patent_compound_breakdown")
     merged = dict(bundles)
     merged["1"] = b1
     return "\n\n".join(RENDER[sid](merged[sid]) for sid in RENDER if sid in merged)

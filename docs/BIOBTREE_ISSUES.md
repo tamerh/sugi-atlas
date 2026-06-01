@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #13, #14, #15, #18 + Mondo OBO xrefs; speculative asks #21/#22/#23/#24 removed)
+**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #13, #14, #15, #18 + Mondo OBO xrefs; speculative asks #21/#22/#23/#24 removed; filed patent gaps #25/#26/#27)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -37,6 +37,78 @@ unambiguous. Bodies are removed once resolved to keep the doc compact.
 ---
 
 ## Open
+
+## Issue #25 — Patent attributes documented but not populated (assignee / CPC / IPC)
+
+`docs/datasets/patent.md` lists `asignee`, `cpc`, `ipcr`, `ipc` as stored
+`PatentAttr` fields, and three of the doc's seven headline use cases
+(competitive intelligence via assignee, freedom-to-operate + technology
+landscaping via CPC/IPC) depend on them. In the current build none are
+populated.
+
+**Repro (2026-06-01):**
+```
+entry("EP-2914622-B1", "patent")  # EP, not just CN
+→ Attributes.Patent keys: [title, country, publication_date, family_id, id]
+   (no asignee, no cpc, no ipc, no ipcr — checked across CN/EP/US/WO samples)
+```
+
+**Atlas impact:** blocks the assignee breakdown ("who holds the IP") and the
+technology-classification landscape (CPC/IPC) we'd surface on drug pages.
+Only `title / country / publication_date / family_id` are available, so the
+drug Patent section stays a coarse count + per-compound split.
+
+---
+
+## Issue #26 — `patent_compound` exposes a `patent` xref count but no `patent_family` rollup
+
+The meaningful dedup of a patent footprint is *distinct families* (one
+invention, many jurisdictions), not raw mention count. `patent` entries carry
+`family_id`, and `patent>>patent_family` exists per-patent, but `patent_compound`
+only exposes a `patent` xref — there's no `patent_compound>>patent_family` edge
+or family count.
+
+**Repro (2026-06-01):**
+```
+entry("3827", "patent_compound").xrefs
+→ {pubchem:1, chebi:1, chembl_molecule:1, hmdb:1, patent:107733}   # no patent_family
+```
+
+So a drug's distinct-family count is only reachable by `entry()`-ing all N
+patents for their `family_id` (107k+ for Imatinib's primary compound) —
+infeasible. A `patent_family` xref on `patent_compound` (or a family-count
+attribute) would make "N inventions across M jurisdictions" a one-call signal.
+
+**Atlas impact:** can't show distinct patent families (the honest dedup metric);
+forced to report raw SureChEMBL mention counts, which the doc itself warns are
+inflated by promiscuous compounds.
+
+---
+
+## Issue #27 — `>>patent_compound>>patent` is ID-ordered, no date sort / no aggregate facets
+
+`map(... >>patent_compound>>patent)` returns patents in patent-ID order, not by
+date. A bounded sample is therefore unrepresentative — e.g. the first pages of
+Imatinib's primary compound (107k patents) are all `CN-100…` from 2007–2015,
+while a smaller compound's first pages are EP/US 2022–2025. Country/year/
+"recent patents" computed from any sample is a sampling artifact, not a real
+landscape.
+
+**Repro (2026-06-01):**
+```
+map("3827", ">>patent_compound>>patent", cap=2)   # 300-row sample
+→ 100% CN, years 2007–2015  (id-ordered; not the true jurisdiction/time mix)
+```
+
+**Suggested fix:** a date-sorted option (`order=publication_date desc`) for
+"recent patents", and/or server-side facet counts (by country / year / CPC)
+so a drug-patent landscape can be shown without enumerating 100k+ rows.
+
+**Atlas impact:** can't honestly surface jurisdiction breakdown, filing
+timeline, or "most recent patents" — only the accurate total + per-compound
+split (which need no enumeration).
+
+---
 
 ## Issue #4 — Long multi-hop chains fail silently / intersectively
 
