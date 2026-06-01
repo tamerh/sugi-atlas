@@ -172,4 +172,6 @@ def at_a_glance(bundle) -> str:
 
     if not bullets:
         return ""
-    return "## At a glance\n\n" + "\n".join(f"- {b}" for b in bullets)
+    # Bold label, not a "## " header — this is an intro block, not a peer
+    # data section.
+    return "**At a glance**\n\n" + "\n".join(f"- {b}" for b in bullets)

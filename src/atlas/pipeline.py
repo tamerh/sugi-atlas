@@ -149,9 +149,26 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             from atlas.gene.render import r_cancer_overview
             sentence = declarative_sentence(bundle)
             jsonld_tag = as_script_tag(build_jsonld(bundle))
-            # "At a glance" flag-sheet — scannable binary/verdict facts (drug
-            # target, TF, DepMap, ClinGen dosage, MANE, CIViC/intOGen),
-            # directly under the prose lead. Elides if nothing qualifies.
+            # The opening is one intro region, not a stack of peer ## sections:
+            #   lead sentence → RefSeq narrative → At a glance digest.
+            # Neither the RefSeq summary nor the digest gets a "## " header (they
+            # are part of the beginning, not data sections like Structure etc.).
+            #
+            # NCBI RefSeq curated summary as an intro paragraph. The trailing
+            # "[provided by RefSeq, …]" provenance tag is stripped (our own
+            # *Source* line carries attribution).
+            b3 = bundle.get("3") or {}
+            ncbi = (b3.get("ncbi_summary") or "").strip()
+            if ncbi:
+                import re as _re
+                ncbi = _re.sub(r'\s*\[(?:provided|supplied) by[^\]]*\]\.?\s*$',
+                               '', ncbi, flags=_re.I).strip()
+                eid = b3.get("entrez_id")
+                src = (f"[NCBI Gene {eid}](https://www.ncbi.nlm.nih.gov/gene/{eid})"
+                       if eid else "NCBI Gene")
+                sentence += f"\n\n{ncbi}\n\n*Source: {src} — RefSeq curated summary.*"
+            # "At a glance" itemised digest — intro block (bold label, not a
+            # ## section). Elides if nothing qualifies.
             from atlas.page.at_a_glance import at_a_glance
             glance = at_a_glance(bundle)
             if glance:
@@ -162,16 +179,6 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             co = r_cancer_overview(bundle)
             if co:
                 cancer_overview = co + "\n\n"
-            # NCBI RefSeq curated summary → top-of-page "Overview" (moved up
-            # from §3). A readable, sourced gene narrative right under the lead.
-            b3 = bundle.get("3") or {}
-            ncbi = (b3.get("ncbi_summary") or "").strip()
-            if ncbi:
-                eid = b3.get("entrez_id")
-                src = (f"[NCBI Gene {eid}](https://www.ncbi.nlm.nih.gov/gene/{eid})"
-                       if eid else "NCBI Gene")
-                sentence += (f"\n\n## Overview\n\n{ncbi}\n\n"
-                             f"*Source: {src} — RefSeq curated summary.*")
         # schema.org JSON-LD — federated-identity signal (sameAs to ontology
         # cross-refs). Lives inline at the top of the body so AI crawlers see
         # it on the rendered page; also written as entity.jsonld sidecar by
