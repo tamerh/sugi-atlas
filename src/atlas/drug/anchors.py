@@ -112,15 +112,27 @@ def _phase(v) -> int:
 
 def resolve_chembl(name_or_id: str) -> Tuple[str, dict]:
     """name_or_id -> (chembl_id, entry). Direct fetch for CHEMBL ids; otherwise
-    search the chembl_molecule dataset and take the highest-xref-count hit
-    (the canonical reviewed molecule beats screening duplicates)."""
+    search the chembl_molecule dataset and rank the hits.
+
+    Ranking is NOT raw xref_count — a nameless/phaseless screening entry can
+    outrank the real drug on xref count (e.g. "Vemurafenib" → CHEMBL4209555
+    [name='', 387 xrefs] beat CHEMBL1229517 [VEMURAFENIB, 324]). So prefer:
+    (1) an exact case-insensitive name match, then (2) entries that HAVE a
+    name, then (3) higher xref_count. This keeps the slug + canonical_name
+    correct."""
     if re.match(r"^CHEMBL\d+$", name_or_id):
         return name_or_id, entry(name_or_id, "chembl_molecule")
     cand = [r for r in rows(search(name_or_id, source="chembl_molecule"))
             if (r.get("id") or "").startswith("CHEMBL")]
     if not cand:
         raise LookupError(f"no chembl_molecule row for {name_or_id!r}")
-    cand.sort(key=lambda r: int(r.get("xref_count") or 0), reverse=True)
+    q = name_or_id.lower()
+    def _rank(r):
+        nm = (r.get("name") or "").strip()
+        return (0 if nm.lower() == q else 1,     # exact name match first
+                0 if nm else 1,                   # named before nameless
+                -int(r.get("xref_count") or 0))   # then by xref count
+    cand.sort(key=_rank)
     cid = cand[0]["id"]
     return cid, entry(cid, "chembl_molecule")
 
