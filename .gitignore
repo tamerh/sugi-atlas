@@ -13,3 +13,6 @@ __pycache__/
 
 # batch builder bundle cache (intermediate; not published)
 .atlas-build/
+
+# generated corpus seeds (regenerable via scripts/build_corpus.py)
+corpus/seeds/
