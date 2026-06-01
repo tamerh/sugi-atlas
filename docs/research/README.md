@@ -5,6 +5,16 @@ pages attract AI citations and how Atlas compares to the existing gene-info
 landscape. Each report stands alone; this index summarizes the top finding(s)
 and points at the actionable backlog in [`NEXT.md`](NEXT.md).
 
+> **Start here for the latest, deepest pass:**
+> [`05_unique_ai_attraction.md`](05_unique_ai_attraction.md) (2026-06-01) — a
+> fresh 4-agent pass focused on what makes Atlas *uniquely* attractive to AI/LLMs.
+> It supersedes parts of `01`–`04` (notably it **corrects the "JSON-LD is the #1
+> AI-citation lever" and "llms.txt is a priority" claims** with controlled-study
+> evidence) and adds the headline strategy 01–04 missed: the **biobtree-MCP ↔
+> Atlas grounding flywheel**, plus 12 live-verified computable content moats and a
+> shipped-dist audit with 2 launch blockers. Supporting agent drafts live in
+> [`_drafts/`](_drafts/).
+
 ## [`01_landscape_and_ai.md`](01_landscape_and_ai.md) — Competitive landscape & AI-friendliness
 *Surveyed: NCBI Gene, UniProt, GeneCards, Open Targets (+ Open Targets Genetics),
 Ensembl, MGI, MyGene.info, Human Protein Atlas, MalaCards, DisGeNET, AlphaFold
