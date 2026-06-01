@@ -20,9 +20,38 @@ _DOSAGE_SCALE = {
     "30": "autosomal recessive", "40": "dosage sensitivity unlikely",
 }
 
+# Gene-disease validity classification strength (best first). Shared by
+# ClinGen Gene-Disease Validity and GenCC.
+_GD_RANK = {"definitive": 0, "strong": 1, "moderate": 2, "supportive": 3,
+            "limited": 4, "disputed": 5, "refuted": 6}
+
+# Minimum CollecTRI downstream targets before the TF flag is headline-worthy.
+# Below this the flag is too weak to promote (it still appears in §9 Regulation).
+_TF_MIN_TARGETS = 10
+
 
 def _truthy(v):
     return v in (True, "true", "True", "1", 1, "yes", "Yes")
+
+
+def _gene_disease(b12) -> str:
+    """Top curated gene–disease relationship (ClinGen validity + GenCC),
+    ranked by classification strength, with a count of the rest. APOE's real
+    headline (Alzheimer disease 2, Definitive) lives here, not in the flag set."""
+    cands = []
+    for c in (b12.get("clingen_validity") or []):
+        cands.append((c.get("disease"), c.get("classification"), "ClinGen"))
+    for g in (b12.get("gencc") or []):
+        cands.append((g.get("disease"), g.get("classification"), "GenCC"))
+    cands = [c for c in cands if c[0] and c[1]]
+    if not cands:
+        return ""
+    cands.sort(key=lambda c: _GD_RANK.get((c[1] or "").strip().lower(), 9))
+    disease, classification, source = cands[0]
+    n_more = len(cands) - 1
+    more = (f" — +{n_more} more curated relationship{'s' if n_more != 1 else ''}"
+            if n_more > 0 else "")
+    return f"**Gene–disease (curated):** {disease} ({classification}, {source}){more}"
 
 
 def at_a_glance(bundle) -> str:
@@ -37,6 +66,18 @@ def at_a_glance(bundle) -> str:
     b12 = bundle.get("12") or {}
 
     bullets = []
+
+    # Curated gene–disease relationship — often the real headline (esp. for
+    # Mendelian / complex-disease genes the cancer/drug flags miss).
+    gd = _gene_disease(b12)
+    if gd:
+        bullets.append(gd)
+
+    # GWAS associations — common-disease genetics, complements the Mendelian
+    # gene–disease line above.
+    gwas = b12.get("gwas_total") or 0
+    if gwas:
+        bullets.append(f"**GWAS associations:** {gwas:,}")
 
     # Druggable target — drug-discovery headline flag.
     if _truthy(b10.get("is_drug_target")):
@@ -64,10 +105,18 @@ def at_a_glance(bundle) -> str:
         if role:
             bullets.append(f"**Cancer driver (intOGen):** {role}{scope}")
 
-    # Cancer dependency (DepMap CRISPR fitness).
+    # Cancer dependency (DepMap CRISPR fitness) — only when notable. A low
+    # pct_dependent (e.g. 0.2%) means "not a dependency" — noise as a headline,
+    # so we suppress it unless common-essential, strongly-selective, or ≥10%.
     dm = b3.get("depmap") or {}
     pct = dm.get("pct_dependent")
-    if pct not in (None, ""):
+    try:
+        notable = float(pct) >= 10
+    except (TypeError, ValueError):
+        notable = False
+    notable = (notable or dm.get("common_essential") == "true"
+               or dm.get("strongly_selective") == "true")
+    if pct not in (None, "") and notable:
         tags = []
         if dm.get("common_essential") == "true":
             tags.append("common-essential")
@@ -88,12 +137,14 @@ def at_a_glance(bundle) -> str:
             f"{_DOSAGE_SCALE.get(haplo, 'unscored')}, triplosensitivity "
             f"{_DOSAGE_SCALE.get(triplo, 'unscored')}")
 
-    # Transcription factor flag (CollecTRI).
+    # Transcription factor flag (CollecTRI) — promoted only when it has a
+    # meaningful regulon. A 1–2 target flag (e.g. TTN, APOE) is a source
+    # false-positive and stays in §9 Regulation, not the headline set.
     if _truthy(b9.get("is_transcription_factor")):
         n = b9.get("downstream_count") or 0
-        extra = (f" — {n:,} downstream target{'s' if n != 1 else ''} (CollecTRI)"
-                 if n else "")
-        bullets.append(f"**Transcription factor:** yes{extra}")
+        if n >= _TF_MIN_TARGETS:
+            bullets.append(
+                f"**Transcription factor:** yes — {n:,} downstream targets (CollecTRI)")
 
     # MANE Select transcript — the reference transcript for clinical reporting.
     mane = b2.get("mane_select_refseq")
