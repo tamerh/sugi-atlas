@@ -11,7 +11,7 @@ def _i(n):
 
 
 def r_drug_ids(b):
-    L = ["## Drug identifiers", ""]
+    L = ["## Drug identity & classification", ""]
     rows = [
         ("ChEMBL ID", b.get("chembl_id")),
         ("Name", b.get("canonical_name")),
@@ -32,6 +32,11 @@ def r_drug_ids(b):
         L.append(f"\n**IUPAC name:** {b['iupac_name']}")
     if b.get("chebi_definition"):
         L.append(f"\n**ChEBI definition:** {b['chebi_definition']}")
+    # Drug class — ChEBI functional roles (folded in from the former
+    # standalone Pharmacology section; ATC already lives in the table above).
+    roles = b.get("chebi_roles") or []
+    if roles:
+        L.append(f"\n**Drug class (ChEBI roles):** {', '.join(roles)}.")
     an = b.get("alt_names") or []
     if an:
         L.append(f"\n**Also known as:** {', '.join(an[:12])}")
@@ -41,6 +46,14 @@ def r_drug_ids(b):
     if b.get("child_chembls"):
         L.append(f"\n*Parent form; salt/anhydrous children:* "
                  + ", ".join(f"`{c}`" for c in b["child_chembls"]))
+    # Patent footprint — SureChEMBL compound mentions (folded in from the
+    # former standalone Patent literature section).
+    pt = b.get("patent_total") or 0
+    if pt:
+        n_rec = len(b.get("patent_compound_ids") or [])
+        L.append(f"\n**Patent mentions (SureChEMBL):** {_i(pt)} across {n_rec} "
+                 f"patent_compound record(s) — counts attach to the compound, so "
+                 f"promiscuous molecules score high.")
     return "\n".join(L)
 
 
@@ -262,21 +275,33 @@ def r_salt_forms(b):
     return "\n".join(L)
 
 
+# §6 (ChEBI roles) and §11 (patents) are folded into §1; §12 (salt forms)
+# duplicates §1's salt/parent lines — all three are dropped as standalone
+# sections to avoid 1-line orphans (see render_all). Their collectors still run
+# so the data is available to fold in.
 RENDER = {
     "1": r_drug_ids,
     "2": r_targets,
     "3": r_bioactivity,
     "4": r_indications,
     "5": r_clinical_trials,
-    "6": r_pharmacology,
     "7": r_related_molecules,
     "8": r_target_pathways,
     "9": r_pharmacogenomics,
     "10": r_clinical_evidence,
-    "11": r_patent_literature,
-    "12": r_salt_forms,
 }
 
 
 def render_all(bundles):
-    return "\n\n".join(RENDER[sid](bundles[sid]) for sid in RENDER if sid in bundles)
+    # Fold §6 ChEBI roles + §11 patent metrics into the §1 bundle so the
+    # "Drug identity & classification" section carries them (§12 salt forms is
+    # already covered by §1's own parent/child lines, so it's simply dropped).
+    b1 = dict(bundles.get("1") or {})
+    b6 = bundles.get("6") or {}
+    b11 = bundles.get("11") or {}
+    b1["chebi_roles"] = b6.get("chebi_roles")
+    b1["patent_total"] = b11.get("patent_total")
+    b1["patent_compound_ids"] = b11.get("patent_compound_ids")
+    merged = dict(bundles)
+    merged["1"] = b1
+    return "\n\n".join(RENDER[sid](merged[sid]) for sid in RENDER if sid in merged)
