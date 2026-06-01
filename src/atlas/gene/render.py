@@ -411,6 +411,23 @@ def r_drugs(b):
               v.get("score"), v.get("clinical_annotation_count"),
               v.get("associated_drugs"))
              for v in pgv[:20]]))
+
+    # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
+    # gene+drug pair. Canonical pharmacogenes have tens of guidelines
+    # (CYP2D6: 69, CYP2C19: 37); non-pharmacogenes have none.
+    pgg = b.get("pharmgkb_guideline") or []
+    if pgg:
+        # CPIC > DPWG > others as canonical priority.
+        order = {"CPIC": 0, "DPWG": 1, "CPNDS": 2}
+        pgg_sorted = sorted(pgg, key=lambda g: (order.get(g.get("source"), 99),
+                                                 g.get("chemical_names") or ""))
+        L.append(f"\n**PharmGKB dosing guidelines ({len(pgg)}):**\n")
+        L.append(table(
+            ["Source", "Drug", "Guideline", "Dosing?", "Recommendation?"],
+            [(g.get("source"), g.get("chemical_names"), g.get("name"),
+              "yes" if g.get("has_dosing_info") else "",
+              "yes" if g.get("has_recommendation") else "")
+             for g in pgg_sorted[:30]]))
     bd = b.get("bindingdb_sample", [])
     if bd:
         L.append(f"\n**Binding affinities (BindingDB, sampled {b.get('bindingdb_sampled', 0)}):**\n")

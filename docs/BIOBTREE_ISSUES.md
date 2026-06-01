@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #14, #15, #18 + Mondo OBO xrefs; #13 partially resolved — clinical + variant work, guideline still empty; speculative asks #21/#22/#23/#24 removed)
+**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #13, #14, #15, #18 + Mondo OBO xrefs; speculative asks #21/#22/#23/#24 removed)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -32,6 +32,7 @@ unambiguous. Bodies are removed once resolved to keep the doc compact.
 | #15 | `chembl_molecule` parent/child salt-form linkage | **2026-06-01 — RESOLVED.** Both directions work: `>>chembl_molecule>>chembl_moleculeparent` (child→parent, e.g. CHEMBL1642 Imatinib mesylate → CHEMBL941 Imatinib) and `>>chembl_molecule>>chembl_moleculechild` (parent→children). Unblocks drug entity at scale. |
 | #18 | GtoPdb drug→target: interaction id substring contamination | **2026-06-01 — RESOLVED.** Accessible via `>>chembl_molecule>>gtopdb_ligand>>gtopdb_interaction` (3 hops). |
 | — | Mondo OBO cross-ontology xrefs + UBERON anatomy | **2026-06-01 — RESOLVED.** `>>mondo>>{doid,sctid,umls,ncit,medgen,icd10cm,icd11,gard,meddra,nord,uberon}` all work. §1 federated identifier table extended; JSON-LD `sameAs` + `code` + `associatedAnatomy` populated (commit d911cb9). |
+| #13 | `pharmgkb_guideline` / `_clinical` / `_variant` edges empty | **2026-06-01 — RESOLVED.** All three populated for pharmacogenes; the earlier "still empty" probe was a false negative against a non-pharmacogene (KRAS). CYP2C19 returns 37 guidelines, CYP2D6 69, TPMT/DPYD/VKORC1/SLCO1B1 6-14 each. Atlas §10 now renders all three blocks. |
 
 ---
 
@@ -82,31 +83,6 @@ standard gene IDs in one call.
 chain. Quality-of-life win for weak callers.
 
 ---
-
-## Issue #13 — `pharmgkb_guideline` still empty (clinical + variant resolved)
-
-**Status (2026-06-01):** `pharmgkb_clinical` and `pharmgkb_variant`
-populated and wired into Atlas §10 (commit 66ed71b). Only
-`pharmgkb_guideline` remains empty.
-
-**Repro:**
-```
-map(i="HGNC:6407", m=">>hgnc>>pharmgkb_guideline")  → n=0   (KRAS)
-map(i="HGNC:2621", m=">>hgnc>>pharmgkb_guideline")  → expected to be non-empty (CYP2C19)
-```
-
-CYP2C19 has at least 18 CPIC dosing guidelines on pharmgkb.org. Other
-canonical pharmacogenes (CYP2D6, TPMT, DPYD, VKORC1, SLCO1B1) equally
-empty.
-
-**Suggested fix:** confirm CPIC/PharmGKB clinical guideline tables are
-in the ingest pipeline. Same likely root cause as the original #13
-filing — ingest scheduled but data file not yet loaded.
-
-**Atlas impact:** PharmGKB clinical guidelines (CPIC dosing tables) are
-the single most-cited PGx-decision source. Without them, Atlas's §10
-PharmGKB block can show the clinical-annotation triples but not the
-clinical-grade dosing decisions. More pronounced once drug pages land.
 
 ## Retracted
 

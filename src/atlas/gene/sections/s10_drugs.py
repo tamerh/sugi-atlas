@@ -16,6 +16,7 @@ CHAINS = (
     ">>hgnc>>pharmgkb_gene",
     ">>hgnc>>pharmgkb_clinical",
     ">>hgnc>>pharmgkb_variant",
+    ">>hgnc>>pharmgkb_guideline",
     ">>uniprot>>bindingdb",
     ">>uniprot>>pubchem_activity",
     ">>hgnc>>entrez>>ctd_gene_interaction",
@@ -26,6 +27,7 @@ CHAINS = (
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
             "chembl_document", "patent_compound", "cellosaurus",
             "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant",
+            "pharmgkb_guideline",
             "bindingdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc",
@@ -116,6 +118,18 @@ def collect(a):
         "clinical_annotation_count": t.get("clinical_annotation_count"),
         "associated_drugs": t.get("associated_drugs"),
     } for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_variant")]
+    # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
+    # gene-drug pair. Many for canonical pharmacogenes (CYP2C19 has 37,
+    # CYP2D6 has 69); zero for non-pharmacogenes (most cancer genes).
+    bundle["pharmgkb_guideline"] = [{
+        "id": t.get("id"),
+        "name": t.get("name"),
+        "source": t.get("source"),  # CPIC / DPWG / CPNDS / etc.
+        "gene_symbols": t.get("gene_symbols"),
+        "chemical_names": t.get("chemical_names"),
+        "has_dosing_info": t.get("has_dosing_info") == "true",
+        "has_recommendation": t.get("has_recommendation") == "true",
+    } for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_guideline")]
 
     bd = map_all(uni, ">>uniprot>>bindingdb", cap=2) if uni else []
     bundle["bindingdb_sample"] = [{"ligand": t.get("ligand_name"), "ki": t.get("ki"),
@@ -311,6 +325,7 @@ SECTION = Section(
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",
               "cellosaurus_samples", "pharmgkb", "pharmgkb_clinical", "pharmgkb_variant",
+              "pharmgkb_guideline",
               "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",
               "disease_trials", "civic_evidence", "civic_predictive_total",
               "civic_evidence_total", "is_drug_target"),
