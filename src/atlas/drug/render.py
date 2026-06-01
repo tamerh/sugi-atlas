@@ -137,12 +137,30 @@ def r_related_molecules(b):
     L = ["## Related molecules", ""]
     rm = b.get("related_molecules") or []
     if not rm:
-        L.append("*No phase-≥2 competitor molecules sharing a primary target.*")
+        L.append("*No competitor molecules sharing a primary target "
+                 "(ChEMBL phase ≥2 or PubChem drug-class).*")
         return "\n".join(L)
-    L.append(f"**{_i(b.get('competitor_count'))} phase-≥2 molecules share ≥1 "
-             f"primary target. Top {len(rm)} by shared-target count:**\n")
-    L.append(table(["Molecule", "ChEMBL", "Max phase", "Shared targets"],
-                   [(r.get("name") or r.get("id"), r.get("id"), r.get("phase"),
+    # Brief method/datasets note — this same-mechanism view is distinctive to
+    # Sugi Atlas, so spell out how it's built.
+    L.append("*Molecules sharing ≥1 of this drug's curated primary targets, "
+             "merged from two biobtree sources and ranked by shared-target "
+             "count: **ChEMBL** clinical-stage candidates (development phase ≥2) "
+             "and **PubChem** drug-class bioactivity (approved / known drugs "
+             "acting on the target). Deduplicated by drug name; the drug's own "
+             "salt forms are excluded.*")
+    L.append(f"\n**{_i(b.get('competitor_count'))} molecules share ≥1 primary "
+             f"target. Top {len(rm)} by shared-target count:**\n")
+
+    def _status(r):
+        ph = r.get("phase") or 0
+        if ph:
+            return f"Phase {ph}" + (" (approved)" if ph >= 4 or r.get("fda") else "")
+        return "Approved" if r.get("fda") else "—"
+
+    L.append(table(["Molecule", "Source", "Status", "Shared targets"],
+                   [(r.get("name") or "—",
+                     " + ".join(r.get("sources") or []),
+                     _status(r),
                      ", ".join(r.get("shared_targets") or [])) for r in rm]))
     return "\n".join(L)
 
