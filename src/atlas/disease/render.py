@@ -112,6 +112,14 @@ def r_disease_ids(b):
 # §2 gwas_landscape ---------------------------------------------------------
 
 def r_gwas_landscape(b):
+    # No common-variant signal (e.g. Mendelian / rare diseases) → say so
+    # concisely instead of a "0 across 0 … 0 distinct genes" line that reads
+    # like a bug. The real genetic evidence is in §4 (Mendelian) / §3 (ClinVar).
+    if not (b.get("assoc_total") or 0):
+        return ("## GWAS landscape\n\n*No GWAS associations recorded — common-"
+                "variant (GWAS) studies don't cover this disease (typical for "
+                "Mendelian / rare diseases). See the curated gene cohort and "
+                "Mendelian overlap below.*")
     out = [f"## GWAS landscape", "",
            f"**{_i(b.get('assoc_total'))} GWAS associations across "
            f"{_i(b.get('study_total'))} studies.** "
@@ -142,21 +150,30 @@ def r_gwas_landscape(b):
 
 def r_variant_details(b):
     out = ["## Variant details & genetic-evidence tiers", ""]
+    # This section tiers GWAS-derived variants (>>mondo>>gwas>>dbsnp). For
+    # diseases with no GWAS (Mendelian / rare) it's empty — render a note, not
+    # all-zero tables. Guard each sub-block on real data (non-zero sum), since a
+    # dict of zeros is still truthy.
+    tv = b.get("top_variants") or []
     tc = b.get("tier_counts") or {}
-    if tc:
+    md = b.get("maf_distribution") or {}
+    cd = b.get("consequence_distribution") or {}
+    if not tv and not any((tc or {}).values()):
+        out.append("*No GWAS-derived variants to tier here (this block classifies "
+                    "common-variant GWAS hits). Rare/coding variants for this "
+                    "disease appear under Mendelian overlap and ClinVar.*")
+        return "\n".join(out)
+    if any(tc.values()):
         out += ["**Tier distribution (top 50 variants):**", ""]
         rows = sorted(tc.items(), key=lambda kv: kv[0])
         out.append(table(["Tier", "Variants"], [(k, _i(v)) for k, v in rows]))
-    md = b.get("maf_distribution") or {}
-    if md:
+    if any(md.values()):
         out += ["", "**MAF distribution:**", ""]
         out.append(table(["Bucket", "Variants"], [(k, _i(v)) for k, v in md.items()]))
-    cd = b.get("consequence_distribution") or {}
-    if cd:
+    if any(cd.values()):
         out += ["", "**Functional consequences:**", ""]
         rows = sorted(cd.items(), key=lambda kv: -kv[1])[:15]
         out.append(table(["Consequence", "Count"], [(k, _i(v)) for k, v in rows]))
-    tv = b.get("top_variants") or []
     if tv:
         out += ["", "**Top variants:**", "",
                 table(["rsID", "Chr", "Pos", "Alleles", "MAF",
