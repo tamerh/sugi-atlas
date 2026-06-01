@@ -85,7 +85,18 @@ def collect_all(symbol):
     return {s: C.SECTIONS[s](symbol) for s in C.SECTIONS}
 
 def render_all(bundle):
-    return "\n\n".join(R.RENDER[s](bundle[s]) for s in R.RENDER)
+    parts = []
+    for s in R.RENDER:
+        parts.append(R.RENDER[s](bundle[s]))
+        if s == "3":
+            # Functional genomics (DepMap/ClinGen dosage) + GeneRIFs were carved
+            # out of §3 "Protein identifiers" — they're gene-level, not protein
+            # IDs. Render them as their own sections right after §3, sourced from
+            # the §3 bundle. Each returns "" when it has no data.
+            b3 = bundle["3"]
+            parts.append(R.r_functional_genomics(b3))
+            parts.append(R.r_generifs(b3))
+    return "\n\n".join(p for p in parts if p)
 
 def _yaml_escape(s):
     return str(s).replace('"', '\\"')
@@ -138,6 +149,13 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             from atlas.gene.render import r_cancer_overview
             sentence = declarative_sentence(bundle)
             jsonld_tag = as_script_tag(build_jsonld(bundle))
+            # "At a glance" flag-sheet — scannable binary/verdict facts (drug
+            # target, TF, DepMap, ClinGen dosage, MANE, CIViC/intOGen),
+            # directly under the prose lead. Elides if nothing qualifies.
+            from atlas.page.at_a_glance import at_a_glance
+            glance = at_a_glance(bundle)
+            if glance:
+                sentence += "\n\n" + glance
             # Cancer-overview block is gene-specific (intOGen + CIViC per the
             # canonical gene). Disease pages have their own §4 somatic-driver
             # subblock, so we don't double up.
