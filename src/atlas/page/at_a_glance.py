@@ -61,6 +61,7 @@ def at_a_glance(bundle) -> str:
     §10 (drug-target flag + CIViC predictive total), §12 (intOGen driver)."""
     b2 = bundle.get("2") or {}
     b3 = bundle.get("3") or {}
+    b6 = bundle.get("6") or {}
     b9 = bundle.get("9") or {}
     b10 = bundle.get("10") or {}
     b12 = bundle.get("12") or {}
@@ -78,6 +79,24 @@ def at_a_glance(bundle) -> str:
     gwas = b12.get("gwas_total") or 0
     if gwas:
         bullets.append(f"**GWAS associations:** {gwas:,}")
+
+    # Clinical variant burden (ClinVar) — total + the pathogenic / likely-
+    # pathogenic floor. High clinical signal, populated for most disease genes.
+    cv_total = b6.get("clinvar_total") or 0
+    if cv_total:
+        bd = b6.get("clinvar_breakdown") or {}
+        parts = []
+        if bd.get("Pathogenic"):
+            parts.append(f"{bd['Pathogenic']} pathogenic")
+        if bd.get("Likely pathogenic"):
+            parts.append(f"{bd['Likely pathogenic']} likely-pathogenic")
+        detail = f" — {', '.join(parts)}" if parts else ""
+        bullets.append(f"**Clinical variants (ClinVar):** {cv_total:,} total{detail}")
+
+    # Phenotypes (HPO) — clinical feature count across associated conditions.
+    hpo = b12.get("hpo_total") or 0
+    if hpo:
+        bullets.append(f"**Phenotypes (HPO):** {hpo:,}")
 
     # Druggable target — drug-discovery headline flag.
     if _truthy(b10.get("is_drug_target")):
