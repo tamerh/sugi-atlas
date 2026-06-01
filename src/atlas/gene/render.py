@@ -19,6 +19,21 @@ def _cap(n):
     return ""  # pagination works (p= param) — counts are real, not capped at 100
 
 
+def _cc_trim(text, limit, url):
+    """Trim a long UniProt CC narrative to ~limit chars at a sentence boundary,
+    appending a deep link to the full entry. Short blocks pass through whole."""
+    text = (text or "").strip()
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    i = cut.rfind(". ")
+    if i > limit * 0.5:          # prefer a clean sentence end if one's near
+        cut = cut[:i + 1]
+    cut = cut.rstrip()
+    link = f" … [full annotation on UniProt →]({url})" if url else " …"
+    return cut + link
+
+
 def r_gene_ids(b):
     h = b.get("hgnc", {})
     rows = [("HGNC ID", b.get("hgnc_id")), ("Approved symbol", h.get("symbol")),
@@ -104,26 +119,25 @@ def r_protein_ids(b):
 
     # UniProt CC narratives (curated, evidence-codes stripped at collector layer).
     # The audit's #1 content gap — biobtree's 2026-05-31 refresh shipped these.
+    # UniProt CC narratives — truncated to a few sentences with a deep link
+    # to the full UniProt entry. The full blocks (esp. PTM / subunit / disease)
+    # run to thousands of chars and bloat the page; the lead sentences carry the
+    # high-value gist, and the link covers the rest. Function keeps a longer cap.
     cc = b.get("cc") or {}
     if cc:
+        canon = b.get("canonical_uniprot")
+        uurl = f"https://www.uniprot.org/uniprotkb/{canon}/entry" if canon else None
         L.append("\n### UniProt curated annotations\n")
         for key, label in _CC_ORDER:
             text = cc.get(key)
             if not text:
                 continue
-            L.append(f"**{label}.** {text}")
+            limit = 700 if key == "function" else 320
+            L.append(f"**{label}.** {_cc_trim(text, limit, uurl)}")
             L.append("")  # blank between paragraphs
 
-    # NCBI-curated gene summary — independent narrative from RefSeq curators,
-    # complementary to UniProt FUNCTION. Cite via the Entrez gene URL.
-    ncbi = b.get("ncbi_summary") or ""
-    if ncbi:
-        eid = b.get("entrez_id")
-        link = (f"[NCBI Gene {eid}](https://www.ncbi.nlm.nih.gov/gene/{eid})"
-                if eid else "NCBI Gene")
-        L.append(f"\n### {link} summary\n")
-        L.append(ncbi)
-        L.append("")
+    # (NCBI-curated gene summary moved to the top-of-page Overview — see
+    #  assemble_page's gene branch.)
 
     # ClinGen dosage sensitivity + DepMap CRISPR fitness — gene-level signals
     # for variant interpretation (dosage) and drug-target prioritization (depmap).

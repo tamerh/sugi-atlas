@@ -144,6 +144,16 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             co = r_cancer_overview(bundle)
             if co:
                 cancer_overview = co + "\n\n"
+            # NCBI RefSeq curated summary → top-of-page "Overview" (moved up
+            # from §3). A readable, sourced gene narrative right under the lead.
+            b3 = bundle.get("3") or {}
+            ncbi = (b3.get("ncbi_summary") or "").strip()
+            if ncbi:
+                eid = b3.get("entrez_id")
+                src = (f"[NCBI Gene {eid}](https://www.ncbi.nlm.nih.gov/gene/{eid})"
+                       if eid else "NCBI Gene")
+                sentence += (f"\n\n## Overview\n\n{ncbi}\n\n"
+                             f"*Source: {src} — RefSeq curated summary.*")
         # schema.org JSON-LD — federated-identity signal (sameAs to ontology
         # cross-refs). Lives inline at the top of the body so AI crawlers see
         # it on the rendered page; also written as entity.jsonld sidecar by
