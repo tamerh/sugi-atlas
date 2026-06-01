@@ -53,7 +53,7 @@ def r_gene_ids(b):
         ln = rc.get("length")
         oc = rc.get("organism_count")
         rows.append(("RNAcentral",
-                     f"[{rid}](https://rnacentral.org/rna/{rid}) — {rt}"
+                     f"{rid} — {rt}"
                      + (f", {ln} nt" if ln else "")
                      + (f", {oc} organism(s)" if oc else "")))
     return "## Gene identifiers\n\n" + table(["Field", "Value"], rows)
@@ -150,8 +150,7 @@ def r_protein_ids(b):
     if isoforms:
         L.append(f"\n**Isoforms ({len(isoforms)}):**\n")
         L.append(table(["UniProt ID", "Names", "Canonical?"],
-                       [(f"[{iso['id']}](https://www.uniprot.org/uniprotkb/"
-                         f"{iso['id'].split('-')[0]}#sequences)" if iso.get("id") else "",
+                       [(iso.get("id") or "",
                          ", ".join(iso.get("names") or []),
                          "yes" if iso.get("is_canonical") else "")
                         for iso in isoforms]))
@@ -171,7 +170,7 @@ def r_protein_ids(b):
         L.append(f"\n**Enzyme classification (BRENDA):**\n")
         for e in brenda:
             ec = e.get("ec") or ""
-            L.append(f"- [EC {ec}](https://www.brenda-enzymes.org/enzyme.php?ecno={ec}) — "
+            L.append(f"- EC {ec} — "
                      f"{e.get('name') or ''} *(BRENDA: {e.get('organism_count', 0)} organisms, "
                      f"{e.get('substrate_count', 0)} substrates, {e.get('inhibitor_count', 0)} inhibitors, "
                      f"{e.get('km_count', 0)} Km, {e.get('kcat_count', 0)} kcat entries)*")
@@ -255,8 +254,7 @@ def r_generifs(b):
     for r in rifs:
         text = (r.get("text") or "").strip()
         pmid = r.get("pmid")
-        cite = (f" [PMID:{pmid}](https://pubmed.ncbi.nlm.nih.gov/{pmid}/)"
-                if pmid else "")
+        cite = f" (PMID:{pmid})" if pmid else ""
         L.append(f"- {text}{cite}")
     return "\n".join(L)
 
@@ -273,7 +271,7 @@ def r_structure(b):
     missing_rows = [a for a in afs if not a.get("present", True)]
     if present_rows:
         L.append(table(["Model", "pLDDT", "Fraction very-high"],
-                       [(f"[{a['id']}](https://alphafold.ebi.ac.uk/entry/{a['uniprot']})",
+                       [(a.get("id") or "",
                          a.get("plddt"), a.get("fraction_plddt_very_high"))
                         for a in present_rows]))
     for a in missing_rows:
@@ -377,8 +375,7 @@ def r_tf_regulation(b):
     # JASPAR PMIDs — evidence trail for the motifs above.
     pmids = b.get("jaspar_pmids") or []
     if pmids:
-        links = ", ".join(f"[PubMed:{p}](https://pubmed.ncbi.nlm.nih.gov/{p}/)"
-                          for p in pmids[:10])
+        links = ", ".join(f"PMID:{p}" for p in pmids[:10])
         L.append(f"\n*JASPAR matrix evidence (PMIDs):* {links}")
     L.append(f"\n**Upstream regulators (CollecTRI, top):** "
              + ", ".join(r.get("regulator") for r in b.get("upstream_regulators", [])[:40]))
@@ -440,7 +437,7 @@ def r_drugs(b):
         L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
                        [(r["profile"], therapy_label(r["therapy"]), r["disease"], r["significance"],
                          f"CIViC {r['level']}" if r.get("level") else "",
-                         f"[EID{r['evidence_id']}](https://civicdb.org/links/evidence_items/{r['evidence_id']})"
+                         f"EID{r['evidence_id']}"
                          + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
                         for r in ce]))
         more = b.get("civic_association_total", 0) - len(ce)
@@ -517,8 +514,7 @@ def r_drugs(b):
                  f"Active w/ measured affinity, of {b.get('pubchem_bioassay_total', 0)} total "
                  f"PubChem activities), top 30 by potency:**\n")
         L.append(table(["CID", "AID", "Type", "Value", "Unit"],
-                       [(f"[{p['cid']}](https://pubchem.ncbi.nlm.nih.gov/compound/{p['cid']})" if p.get('cid') else '',
-                         f"[{p['aid']}](https://pubchem.ncbi.nlm.nih.gov/bioassay/{p['aid']})" if p.get('aid') else '',
+                       [(p.get('cid') or '', p.get('aid') or '',
                          p.get("activity_type"), p.get("value"), p.get("unit"))
                         for p in pba]))
 
@@ -553,11 +549,9 @@ def r_drugs(b):
                     title = (s.get("doc_title") or s["doc_id"]).strip()
                     if len(title) > 90:
                         title = title[:87] + "…"
-                    doc = (f"[{title}](https://www.ebi.ac.uk/chembl/document_report_card/{s['doc_id']}/)"
+                    doc = (title
                            + (f" — *{s['doc_journal']}*" if s.get("doc_journal") else ""))
-                rows.append((
-                    f"[{s['id']}](https://www.ebi.ac.uk/chembl/assay_report_card/{s['id']}/)",
-                    s["type"], s["desc"], doc))
+                rows.append((s["id"], s["type"], s["desc"], doc))
             L.append(table(["Assay ID", "Type", "Description", "Source paper"], rows))
 
     # Cellosaurus — cell lines associated with this gene (mutated, deficient,
