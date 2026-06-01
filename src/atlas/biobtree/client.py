@@ -12,15 +12,27 @@ Three primitives + four pure parsers + a per-call reproducibility log:
   CALLS                           -> per-call reproducibility log
 """
 import json
+import os
+import time
 
 import urllib3
 
-API = "http://127.0.0.1:8000/api"
+# Host is overridable (README documents ATLAS_BIOBTREE); defaults to local.
+API = os.environ.get("ATLAS_BIOBTREE", "http://127.0.0.1:8000").rstrip("/") + "/api"
 CALLS = []
 
-# One pool, HTTP keep-alive. Retries off — section collectors handle retry
-# at their own level when needed. maxsize bounds concurrent connections;
-# 16 covers any parallel fan-out we add later.
+
+class BiobtreeError(RuntimeError):
+    """Biobtree REST returned an HTTP error or an unparseable body. A typed
+    error so drivers can skip+log an entity rather than crash on a raw
+    JSONDecodeError / urllib3 exception."""
+
+
+# One pool, HTTP keep-alive. Pool-level retries off — we retry in _get() so we
+# can distinguish retryable (5xx/429/timeout/truncated body) from terminal
+# (4xx) and log. maxsize bounds concurrent connections.
+# NOTE: CALLS is a module global; the client is safe for PROCESS-level
+# parallelism (each process has its own CALLS) but NOT thread-level.
 _POOL = urllib3.PoolManager(
     num_pools=2,
     maxsize=16,
@@ -29,12 +41,38 @@ _POOL = urllib3.PoolManager(
     block=False,
 )
 
+_RETRY_STATUS = {429, 500, 502, 503, 504}
+_MAX_ATTEMPTS = 4
+
 
 def _get(path: str, params: dict) -> dict:
-    r = _POOL.request("GET", f"{API}/{path}", fields=params)
-    body = json.loads(r.data)
-    CALLS.append({"path": path, "params": params})
-    return body
+    """GET with bounded exponential-backoff retry on transient failures.
+    Raises BiobtreeError on a 4xx, or after exhausting retries on 5xx/429/
+    timeout/truncated-body. Guards json.loads so an HTML error page or a
+    short read can't surface as a bare JSONDecodeError mid-collection."""
+    url = f"{API}/{path}"
+    last = None
+    for attempt in range(_MAX_ATTEMPTS):
+        try:
+            r = _POOL.request("GET", url, fields=params)
+        except urllib3.exceptions.HTTPError as e:        # connect/read timeout, reset
+            last = e
+        else:
+            if r.status >= 400 and r.status not in _RETRY_STATUS:
+                raise BiobtreeError(f"{path} → HTTP {r.status}: {bytes(r.data[:200])!r}")
+            if r.status in _RETRY_STATUS:
+                last = BiobtreeError(f"{path} → HTTP {r.status}")
+            else:
+                try:
+                    body = json.loads(r.data)
+                except (json.JSONDecodeError, ValueError) as e:
+                    last = e                              # truncated / non-JSON → retry
+                else:
+                    CALLS.append({"path": path, "params": params})
+                    return body
+        if attempt < _MAX_ATTEMPTS - 1:
+            time.sleep(0.5 * (2 ** attempt))              # 0.5s, 1s, 2s
+    raise BiobtreeError(f"{path} failed after {_MAX_ATTEMPTS} attempts: {last}")
 
 
 def search(term: str, source: str = None) -> dict:
@@ -63,7 +101,15 @@ def rows(resp: dict) -> list:
     biobtree returns `"data": null` (literal None, not the missing key) when
     a search has zero results — coerce defensively."""
     cols = (resp.get("schema") or "").split("|")
-    return [dict(zip(cols, r.split("|"))) for r in (resp.get("data") or [])]
+    out = []
+    for r in (resp.get("data") or []):
+        parts = r.split("|")
+        # Length mismatch = an unescaped pipe shifted the columns; zipping it
+        # would misalign every later value (the MeSH-row bug class). Skip it.
+        if len(parts) != len(cols):
+            continue
+        out.append(dict(zip(cols, parts)))
+    return out
 
 
 def map_targets(resp: dict) -> list:
@@ -77,6 +123,8 @@ def map_targets(resp: dict) -> list:
     for m in (resp.get("mappings") or []):
         for t in (m.get("targets") or []):
             parts = [p.replace("\x00", "|") for p in t.replace("\\|", "\x00").split("|")]
+            if len(parts) != len(cols):     # column-shift guard (see rows())
+                continue
             out.append(dict(zip(cols, parts)))
     return out
 
@@ -107,5 +155,13 @@ def map_all(ids, chain, cap=60):
 def xref_counts(entry_resp):
     """hgnc/ensembl/transcript `entry` carries a dataset|count xref table —
     exact totals for clinvar/spliceai/msigdb/hpo/gwas/collectri/... in 1 call."""
-    return {r.split("|")[0]: int(r.split("|")[1])
-            for r in entry_resp.get("xrefs", {}).get("data", [])}
+    out = {}
+    for r in (entry_resp.get("xrefs", {}) or {}).get("data", []) or []:
+        parts = r.split("|")
+        if len(parts) < 2:
+            continue
+        try:
+            out[parts[0]] = int(parts[1])
+        except ValueError:                  # malformed/empty count → skip, don't crash
+            continue
+    return out

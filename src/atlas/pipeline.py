@@ -14,6 +14,7 @@ import argparse, json, os, re, sys, time, urllib.request
 from datetime import datetime, timezone
 
 from atlas import __version__ as ATLAS_VERSION
+from atlas.atomicio import write_text, write_json
 from atlas.gene import collect as C
 from atlas.gene import render as R
 from atlas.disease import collect as DC
@@ -30,22 +31,28 @@ from atlas.biobtree import CALLS
 
 DEFAULT_SUMMARY_MODEL = os.environ.get("ATLAS_SUMMARY_MODEL", "qwen/qwen3-235b-a22b-2507|Together")
 
+_BIOBTREE_VERSION = None  # cached per process — /api/meta is the same all run
+
+
 def biobtree_version():
     """biobtree exposes no version/build field in /api/meta, so we stamp a
-    dataset-count fingerprint instead — a real, verifiable signal that changes
-    when biobtree's integrated data changes. (`generated_at` is the actual
-    reproducibility anchor: replay against biobtree as-of that date.)"""
+    dataset-integration fingerprint instead — labelled so it doesn't read as a
+    build/version number. (`generated_at` is the actual reproducibility anchor.)
+    Cached per process so a batch doesn't hit /api/meta once per page."""
+    global _BIOBTREE_VERSION
+    if _BIOBTREE_VERSION is not None:
+        return _BIOBTREE_VERSION
+    from atlas.biobtree import API
     try:
-        d = json.loads(urllib.request.urlopen("http://127.0.0.1:8000/api/meta", timeout=5).read())
+        d = json.loads(urllib.request.urlopen(f"{API}/meta", timeout=5).read())
         if d.get("version"):
-            return d["version"]
-        # biobtree exposes no version field, so stamp a dataset-integration
-        # fingerprint — labelled so it doesn't read as a build/version number.
-        # The actual reproducibility anchor is frontmatter `generated_at`.
-        n = len(d.get("datasets") or {})
-        return f"{n}-dataset integration" if n else "unknown"
+            _BIOBTREE_VERSION = d["version"]
+        else:
+            n = len(d.get("datasets") or {})
+            _BIOBTREE_VERSION = f"{n}-dataset integration" if n else "unknown"
     except Exception:
-        return "unknown"
+        _BIOBTREE_VERSION = "unknown"
+    return _BIOBTREE_VERSION
 
 GENERATED_BY = "Sugi Atlas"  # attribution stamp; details on the /methods page
 
@@ -288,12 +295,11 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
     # inline script (parity with the Enju publish task).
     page_md = assemble_page(symbol, summary_text, body_md, meta, bundle=bundle)
 
-    with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
+    write_text(os.path.join(out_dir, "page.md"), page_md)
     if summary_text:
-        with open(os.path.join(out_dir, "summary.md"), "w") as f: f.write(summary_text + "\n")
+        write_text(os.path.join(out_dir, "summary.md"), summary_text + "\n")
     if judge_result is not None:
-        with open(os.path.join(out_dir, "judge.json"), "w") as f:
-            json.dump(judge_result, f, indent=2)
+        write_json(os.path.join(out_dir, "judge.json"), judge_result, indent=2)
 
     # Sidecar — schema.org Gene JSON-LD identity card (the inline <script> in
     # the page mirrors it). bundle.json (raw data dump) and provenance.json
@@ -301,8 +307,7 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
     # frontmatter `datasets:` list + the `generated_by` attribution; the
     # call/chain trail stays an internal pipeline artifact.
     from atlas.page.jsonld import build_jsonld, as_jsonld_string
-    with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
-        f.write(as_jsonld_string(build_jsonld(bundle)))
+    write_text(os.path.join(out_dir, "entity.jsonld"), as_jsonld_string(build_jsonld(bundle)))
 
     print(f"\n✓ {symbol} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"
@@ -389,18 +394,16 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
     # @type instead of Gene.
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
-    with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
+    write_text(os.path.join(out_dir, "page.md"), page_md)
     if summary_text:
-        with open(os.path.join(out_dir, "summary.md"), "w") as f: f.write(summary_text + "\n")
+        write_text(os.path.join(out_dir, "summary.md"), summary_text + "\n")
     if judge_result is not None:
-        with open(os.path.join(out_dir, "judge.json"), "w") as f:
-            json.dump(judge_result, f, indent=2)
+        write_json(os.path.join(out_dir, "judge.json"), judge_result, indent=2)
 
     # Sidecar — schema.org MedicalCondition card (bundle.json + provenance.json
     # intentionally not published; see run_gene note).
     from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
-    with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
-        f.write(as_jsonld_string(build_jsonld(bundle, slug)))
+    write_text(os.path.join(out_dir, "entity.jsonld"), as_jsonld_string(build_jsonld(bundle, slug)))
 
     print(f"\n✓ {slug} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"
@@ -483,18 +486,16 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
     }
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
-    with open(os.path.join(out_dir, "page.md"), "w") as f: f.write(page_md)
+    write_text(os.path.join(out_dir, "page.md"), page_md)
     if summary_text:
-        with open(os.path.join(out_dir, "summary.md"), "w") as f: f.write(summary_text + "\n")
+        write_text(os.path.join(out_dir, "summary.md"), summary_text + "\n")
     if judge_result is not None:
-        with open(os.path.join(out_dir, "judge.json"), "w") as f:
-            json.dump(judge_result, f, indent=2)
+        write_json(os.path.join(out_dir, "judge.json"), judge_result, indent=2)
 
     # Sidecar — schema.org Drug card (bundle.json + provenance.json
     # intentionally not published; see run_gene note).
     from atlas.page.drug_jsonld import build_jsonld, as_jsonld_string
-    with open(os.path.join(out_dir, "entity.jsonld"), "w") as f:
-        f.write(as_jsonld_string(build_jsonld(bundle, slug)))
+    write_text(os.path.join(out_dir, "entity.jsonld"), as_jsonld_string(build_jsonld(bundle, slug)))
 
     print(f"\n✓ {slug} done in {time.time()-t0:.1f}s -> {out_dir}")
     print(f"   page.md {len(page_md)}c  body_gate={bg['verdict']}"

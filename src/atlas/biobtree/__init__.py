@@ -5,9 +5,9 @@ logic lives in this module. Adding a new entity = adding `src/atlas/<entity>/`
 that calls into `atlas.biobtree.client`.
 """
 from atlas.biobtree.client import (
-    API, CALLS,
+    API, CALLS, BiobtreeError,
     search, entry, bbmap, rows, map_targets, map_all, xref_counts,
 )
 
-__all__ = ["API", "CALLS", "search", "entry", "bbmap", "rows", "map_targets",
-           "map_all", "xref_counts"]
+__all__ = ["API", "CALLS", "BiobtreeError", "search", "entry", "bbmap", "rows",
+           "map_targets", "map_all", "xref_counts"]

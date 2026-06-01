@@ -45,7 +45,9 @@ def resolve_hgnc(symbol):
     if not cand:  # fallback: unfiltered
         cand = [r["id"] for r in rows(search(symbol)) if r.get("dataset") == "hgnc"]
     if not cand:
-        sys.exit(f"no HGNC row for {symbol}")
+        # Typed error (not sys.exit) so a batch driver's per-entity try/except
+        # can skip+log this entity instead of SystemExit nuking the whole run.
+        raise ValueError(f"no HGNC row for {symbol}")
     if len(cand) == 1:
         return cand[0], entry(cand[0], "hgnc")
     for cid in cand[:8]:

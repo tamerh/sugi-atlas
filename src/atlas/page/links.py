@@ -85,8 +85,8 @@ def upsert(dist_root, entity, slug, id_keys=(), name_keys=()):
         nk = _norm(k)
         if nk:
             bucket[nk] = slug
-    with open(path, "w") as f:
-        json.dump(data, f, indent=0, sort_keys=True)
+    from atlas.atomicio import write_json
+    write_json(path, data, indent=0, sort_keys=True)   # atomic — see atomicio
     # keep the live mesh current
     _MANIFEST.setdefault(entity, {}).update(bucket)
 
