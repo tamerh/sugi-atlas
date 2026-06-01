@@ -19,6 +19,20 @@ def _cap(n):
     return ""  # pagination works (p= param) — counts are real, not capped at 100
 
 
+def _dedup_sentences(text):
+    """Collapse duplicate period-separated segments (UniProt subcellular-location
+    CC concatenates per-isoform notes, which repeat the same location many times)."""
+    parts = [p.strip().rstrip(".") for p in (text or "").split(". ")]
+    seen, out = set(), []
+    for p in parts:
+        k = p.strip().lower()
+        if not k or k in seen:
+            continue
+        seen.add(k)
+        out.append(p)
+    return (". ".join(out) + ".") if out else (text or "")
+
+
 def _cc_trim(text, limit, url):
     """Trim a long UniProt CC narrative to ~limit chars at a sentence boundary,
     appending a deep link to the full entry. Short blocks pass through whole."""
@@ -136,6 +150,11 @@ def r_protein_ids(b):
             text = cc.get(key)
             if not text:
                 continue
+            # Subcellular-location CC concatenates per-isoform notes, producing
+            # run-ons ("Cytoplasm. Nucleus. Nucleus. … Cytoplasm Nucleus. ×6").
+            # Collapse duplicate period-separated segments.
+            if key == "subcellular_location":
+                text = _dedup_sentences(text)
             limit = 700 if key == "function" else 320
             L.append(f"**{label}.** {_cc_trim(text, limit, None)}")
             L.append("")  # blank between paragraphs
@@ -293,7 +312,7 @@ def r_orthologs(b):
 
 
 def r_variants(b):
-    L = ["## Clinical variants & AI predictions", ""]
+    L = ["## Clinical variants and AI predictions", ""]
     bd = b.get("clinvar_breakdown", {})
     L.append(f"**ClinVar: {b.get('clinvar_total', 0)} variants total.** "
              f"Per-class counts are floors (≥ shown; pagination cap):\n")
@@ -316,7 +335,7 @@ def r_variants(b):
 
 
 def r_pathways(b):
-    L = ["## Pathways & Gene Ontology", "",
+    L = ["## Pathways and Gene Ontology", "",
          f"**Reactome pathways: {b.get('reactome_count', 0)}**\n"]
     L.append(table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:30]]))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
@@ -343,7 +362,7 @@ def r_pathways(b):
 
 
 def r_interactions(b):
-    L = ["## Protein interactions & networks", ""]
+    L = ["## Protein interactions and networks", ""]
     L.append(f"**STRING ({b.get('string_count', 0)}), top by confidence (×1000):**\n")
     L.append(table(["Partner", "Score"], [(s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]]))
     L.append(f"\n**IntAct ({b.get('intact_count', 0)}), top by confidence:**\n")
@@ -395,7 +414,7 @@ def r_tf_regulation(b):
 
 
 def r_drugs(b):
-    L = ["## Drug & pharmacology data", "",
+    L = ["## Drug and pharmacology data", "",
          f"**Is drug target: {b.get('is_drug_target')}**\n"]
     # ChEMBL target/bioactivity blocks only render when populated — non-target
     # genes (e.g. APOE) would otherwise show "(0)" lines + empty tables. CIViC /
@@ -690,7 +709,9 @@ def r_diseases(b):
     # Tree numbers (e.g. C04.700.600) classify into MeSH categories
     # (C04=Neoplasms, C16=Congenital, C18=Nutritional/Metabolic, etc.) —
     # useful for grouping diseases at a coarser level.
-    mesh = b.get("mesh_descriptors") or []
+    # Drop nameless descriptors — biobtree occasionally returns a MeSH id with
+    # no name (e.g. `C538339`); a row with a bare id misleads LLMs.
+    mesh = [m for m in (b.get("mesh_descriptors") or []) if (m.get("name") or "").strip()]
     if mesh:
         L.append(f"\n**MeSH disease descriptors ({len(mesh)}):**\n")
         L.append(table(["Descriptor", "Name", "Tree numbers"],

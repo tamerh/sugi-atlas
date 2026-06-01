@@ -183,7 +183,7 @@ def r_gwas_landscape(b):
 # §3 variant_details --------------------------------------------------------
 
 def r_variant_details(b):
-    out = ["## Variant details & genetic-evidence tiers", ""]
+    out = ["## Variant details and genetic-evidence tiers", ""]
     # This section tiers GWAS-derived variants (>>mondo>>gwas>>dbsnp). For
     # diseases with no GWAS (Mendelian / rare) it's empty — render a note, not
     # all-zero tables. Guard each sub-block on real data (non-zero sum), since a
@@ -249,7 +249,7 @@ def r_variant_details(b):
 # §4 mendelian_overlap ------------------------------------------------------
 
 def r_mendelian_overlap(b):
-    out = ["## Mendelian disease overlap & somatic drivers", "",
+    out = ["## Mendelian disease overlap and somatic drivers", "",
            f"**GenCC: {len(b.get('gencc_genes') or [])} · "
            f"Orphanet: {len(b.get('orphanet_genes') or [])} · "
            f"OMIM-shared: {len(b.get('omim_genes') or [])} · "
@@ -480,7 +480,7 @@ def r_drug_targets(b):
 # §11 bioactivity_enzyme ----------------------------------------------------
 
 def r_bioactivity_enzyme(b):
-    out = ["## Bioactivity & enzyme data", "",
+    out = ["## Bioactivity and enzyme data", "",
            f"**Enzyme cohort genes (≥1 EC): {_i(b.get('enzyme_count'))}.**"]
     # Surface every cohort gene with measurable bioactivity (sorted by
     # assay count). Tighter caps lost the migrated page's long-tail signal.
@@ -514,16 +514,23 @@ def r_bioactivity_enzyme(b):
 # §12 pharmacogenomics ------------------------------------------------------
 
 def r_pharmacogenomics(b):
+    # NB: the upstream PharmGKB `is_vip` flag is degenerate here — it returns
+    # true for every gene record (so vip_count == "has a PharmGKB record", not a
+    # real Very-Important-Pharmacogene designation). Surfacing it as "VIP" said
+    # all 50 cohort genes were VIPs, which is wrong — so we drop it and report
+    # only PharmGKB coverage + CPIC dosing-guideline counts (the real signal).
+    cpic = b.get("cpic_count") or 0
     out = ["## Pharmacogenomics", "",
-           f"**Cohort genes with PharmGKB coverage: {_i(b.get('pgx_gene_count'))} "
-           f"(VIP: {_i(b.get('vip_count'))}, CPIC: {_i(b.get('cpic_count'))}).**"]
-    pg = b.get("pgx_genes") or []
+           f"**Cohort genes with a PharmGKB record: {_i(b.get('pgx_gene_count'))}; "
+           f"with CPIC/DPWG dosing guidelines: {_i(cpic)}.**"]
+    pg = [g for g in (b.get("pgx_genes") or []) if (g.get("cpic_count") or 0)]
     if pg:
-        out += ["", "**PharmGKB coverage by gene:**", "",
-                table(["Symbol", "VIP entries", "CPIC entries"],
-                      [(g.get("symbol"),
-                        _i(g.get("vip_count")), _i(g.get("cpic_count")))
-                       for g in pg[:30]])]
+        out += ["", "**Cohort genes with a CPIC/DPWG dosing guideline:**", "",
+                table(["Symbol", "CPIC guidelines"],
+                      [(g.get("symbol"), _i(g.get("cpic_count"))) for g in pg[:30]])]
+    elif not cpic:
+        out += ["", "*No cohort gene has a CPIC/DPWG genotype-guided dosing "
+                "guideline (PharmGKB).*"]
     return "\n".join(out)
 
 

@@ -20,6 +20,34 @@ biobtree REST (`https://sugi.bio/biobtree/api/map?i=<id>&m=<chain>`). Full draft
 
 ---
 
+## ⚠️ Reconciliation — decisions & fixes since this draft (2026-06-01, later same day)
+
+This draft was written against an earlier dist and an LLM-summary assumption that no
+longer hold. The strategic core (§1–§4, §7–§9) is unaffected and stands; but before
+acting on **§5/§6**, note:
+
+- **No data-dump sidecars, by design.** `bundle.json` and `provenance.json` were
+  *deliberately dropped* — each entity ships only `page.md` + `entity.jsonld`, with dataset
+  provenance in frontmatter (`datasets:`) and a planned `/methods` page. So §5.1 is **not**
+  "ship the missing sidecars" — it's that the draft `llms.txt` over-promises artifacts we
+  chose not to publish. **`claims.jsonld` is a *different* artifact** (atomic citation
+  records, not a raw dump) and remains worth building (M3).
+- **LLM summaries are disabled (dev-stage); `llms.txt` is deprioritized.** There is no
+  `## Summary` block to label — the top-of-page slot is filled deterministically
+  (declarative lead + **At a glance** digest + NCBI Overview). This *inverts* §5.2: the
+  honesty posture is now **stronger** ("zero LLM-authored facts"), not a risk. Per project
+  decision, `llms.txt` stays as cheap infra but **is not a priority** — don't let its stale
+  promises drive page/sidecar decisions, and don't spend time polishing it now.
+- **Shipped since the draft:** deterministic **At a glance** digest (gene/disease/drug — a
+  down-payment on §4's "computed verdict" moats); **Related-molecules** dual-source
+  (ChEMBL + PubChem) enrichment; **decorative per-row link removal** (kept JSON-LD `sameAs`
+  — exactly §1.2's "JSON-LD for the graph, not citation"); thin-section **merges** on drug
+  pages; **patent** dominant-structure quantification + filed biobtree gaps **#25/#26/#27**.
+- **§6 polish pass shipped this session** — see the `[FIXED 06-01]` tags inline. The
+  structural items (cross-entity mesh) remain open and are the next big workstream.
+
+---
+
 ## 0. The one-paragraph thesis
 
 Sugi Atlas's single un-copyable asset is that it lives on the **same host as a live
@@ -76,7 +104,7 @@ no single source can compute, or removes a launch blocker that breaks it.
 | Belief in 01–04 | 2026 evidence | What to do instead |
 |---|---|---|
 | schema.org JSON-LD is the #1 AI-citation lever | Ahrefs controlled test: no lift, AIO −4.6%; engines parse rendered HTML | Keep JSON-LD for the **cross-entity graph + Dataset Search + agent parsing**; stop budgeting it as a citation lever |
-| llms.txt is a Path-A priority for AI-friendliness | ~10% adoption; **408 of 500M** AI-bot hits; Google ignores it; added noise to a citation model | Demote to "infra, like a sitemap." Its *one* real audience is **IDE/MCP/coding agents** — which happens to be Sugi's lane, so still ship it, cheaply |
+| llms.txt is a Path-A priority for AI-friendliness | ~10% adoption; **408 of 500M** AI-bot hits; Google ignores it; added noise to a citation model | **Deprioritized by project decision (2026-06-01).** Demote to "infra, like a sitemap"; keep the cheap draft but don't invest, and don't let its stale promises drive page/sidecar decisions |
 | `ask.md` as FAQPage schema | Google **removed FAQ rich results 7 May 2026** | Keep `ask.md` **as content** (direct-answer pages); do **not** type it `FAQPage` |
 | Classic SEO top-10 ranking ⇒ AI citation | Only ~38% of AI citations are top-10 organic; organic↔AI overlap fell 70%→<20% | Optimize for **extractable answer structure + trust**, not rank |
 | Declarative-lead prose is the differentiator | Everyone now writes "answer-first" leads | The durable edge is the **uncopyable computed fact** + the MCP channel, not prose polish |
@@ -213,27 +241,34 @@ sotorasib → NSCLC → CIViC-A" as a provenance-stamped record no competitor pu
 
 ---
 
-## 5. Launch blockers — the flywheel is built on artifacts that don't exist yet
+## 5. The real Phase-0 — make the published contract match shipped reality
 
-Agent D audited the **actually-shipped** dist (30 entity dirs). Every synthesis and MCP
-proposal above assumes sidecars that **are not deployed**. These gate everything:
+Agent D's audit flagged "missing sidecars" and "unlabeled LLM prose" as launch blockers.
+Both were **resolved by decision, not by building more** — see the Reconciliation note.
+The actual Phase-0 is narrower:
 
-1. **Sidecars are absent (0/30).** Every gene/disease/drug dir ships **only** `page.md` +
-   `entity.jsonld`. `provenance.json`, `bundle.json`, `claims.jsonld`, `summary.md` —
-   **none exist** — yet `llms.txt` instructs agents to "fetch `provenance.json` … look at
-   `upstream_sources`." **The documented citation workflow 404s for every entity.** An MCP
-   tool result (M1) pointing at a `claims.jsonld` that 404s is worse than no pointer.
-   *Fix: ship the sidecars from the pipeline, or rewrite llms.txt to promise only what
-   ships.*
-2. **No `## Summary` header and no LLM-disclosure label, anywhere (0/30).** llms.txt
-   promises "the executive summary block under `## Summary` … written by an LLM and
-   labeled accordingly." The LLM lead *is* present but ships as **unlabeled bold prose** —
-   which reads as deterministic, the opposite of the stated honesty posture and a YMYL
-   trust risk (§1.3, M9). *Fix: add the header + disclosure line.*
+1. **Sidecar contract — the only artifact to *add* is `claims.jsonld`.** Each entity ships
+   `page.md` + `entity.jsonld` *by design*; `bundle.json`/`provenance.json` were dropped
+   (provenance lives in frontmatter `datasets:` + a planned `/methods` page). So there is
+   no "404 workflow" to fix by resurrecting dumps — the fix is to **stop the stale
+   `llms.txt` draft from promising them** (and llms.txt is deprioritized anyway). The one
+   artifact still worth building is **`claims.jsonld`** (M3) — atomic, content-addressed
+   citation records, *not* a raw bundle — because it's the payload M1/M2 hand back and the
+   join target for §4. Until it ships, M1 should point at the page URL + section anchor,
+   not a claims file.
+2. **The honesty story is already won — keep it deterministic.** There is no `## Summary`
+   LLM block to label: LLM summaries are disabled and the top-of-page slot is deterministic
+   (declarative lead + **At a glance** + NCBI Overview). This is *better* than §1.3/M9 asked
+   for — "zero LLM-authored facts on the page" is the strongest YMYL transparency posture.
+   Phase-0 action is only to **state this explicitly** (a one-line "no fact here is
+   LLM-authored" methods note, → M9), not to retrofit a disclosure onto an LLM block that
+   doesn't exist.
+3. **Page polish — mostly shipped this session** (see §6 `[FIXED 06-01]`). Remaining gating
+   item before a bot-facing launch is the **cross-entity mesh** (§6 top two items) — the
+   next big workstream, not a quick fix.
 
-Both contradict the project's own published contract. They are cheap relative to their
-blast radius and must precede any bot-facing launch (NEXT.md already warns against early
-crawl of an incomplete corpus).
+NEXT.md's warning against crawling an incomplete corpus still holds — but "incomplete" now
+means "before the cross-entity graph + `claims.jsonld`," not "before the data dumps."
 
 ---
 
@@ -251,37 +286,37 @@ Severity is "how much it hurts LLM ingestion/citation." Full list + `file:line` 
   sotorasib's `target` KRAS points to genenames.org even though `gene/KRAS/` exists. **There
   is no internal Atlas↔Atlas mesh** in JSON-LD or body links. This is the single biggest
   *unrealized* asset (04's "self-closing graph") and it's still wide open. *(High; medium.)*
-- **`[STILL]` Run-on duplicated subcellular-location string** — TP53/PTEN/MTOR render
-  "Cytoplasm. Nucleus. Nucleus. PML body. … Cytoplasm Nucleus. Cytoplasm Nucleus." This is
-  the exact one-line fact an LLM repeats. *(High; low.)*
-- **`[NEW]` Mangled/truncated MeSH rows** — `| C538339 | | |`, truncated `D00007727`
-  (string-slice bug) in TP53/EGFR/PTEN/KRAS/TTN. LLMs ingest nameless descriptors as real.
-  *(Med-high; low.)*
-- **`[NEW]` Disease readable lead buried under 600+ lines of inline JSON-LD** — cardiomyopathy
-  lead at line 667; the ~50-object `associatedGene` array runs first. Minify/trim inline
-  JSON-LD (move the full array to bundle.json). *(Med-high; low.)*
-- **`[STILL]` "VIP entries: 1" mislabel** — all 50 PCD cohort genes (dyneins, radial-spoke)
-  flagged as PharmGKB Very-Important-Pharmacogenes; a record count rendered under a "VIP"
-  header. Actively misinforms. *(Med; low.)*
-- **`[NEW]` Unrounded float artifacts** — `0.19679999999999997`, pAffinity
-  `6.170000076293945` (float32). Round display values. *(Med; low.)*
-- **`[STILL]` Dangling "PharmGKB curates … for this drug:" → nothing** in 7/10 drug pages
-  (colon promises a list that never renders). *(Med; low.)*
-- **`[NEW]` Ampersand headers mangle anchors** — "Drug & pharmacology data" →
-  `#drug--pharmacology-data`; llms.txt tells agents to cite by header but they'll guess
-  wrong. Avoid `&` or publish an explicit anchor map. *(Med; low.)*
+- **`[FIXED 06-01]` Run-on duplicated subcellular-location string** — `_dedup_sentences`
+  collapses the repeated period-separated segments in the UniProt subcellular-location CC
+  ("Cytoplasm. Nucleus. PML body. …" now once each).
+- **`[FIXED 06-01]` Mangled/empty MeSH rows** — gene §12 now drops nameless descriptors
+  (`| C538339 | | |` gone); MeSH/EFO/etc. IDs also de-linked to plain text in the
+  consistency pass.
+- **`[NEW/STILL]` Disease readable lead buried under inline JSON-LD** — the ~50-object
+  `associatedGene` array still renders before the lead. With `bundle.json` dropped, the fix
+  is to **trim/cap the inline JSON-LD `associatedGene` array** (full set → the future
+  `claims.jsonld`/methods page), not move it to a bundle. *(Med-high; low.)*
+- **`[FIXED 06-01]` "VIP entries" mislabel** — the upstream `is_vip` flag is degenerate
+  (true for every gene record), so it's **dropped**; disease PGx now reports only PharmGKB
+  coverage + CPIC dosing-guideline counts.
+- **`[FIXED 06-01]` Unrounded float artifacts** — shared `fnum()` rounds pAffinity / pChEMBL
+  / value / dependency-% display values (no more `6.170000076293945`).
+- **`[FIXED 06-01]` Dangling "PharmGKB curates …:" → nothing** — the colon only renders when
+  counts follow; the zero case gets a clean "no annotations" note.
+- **`[FIXED 06-01]` Ampersand headers** — section headers now use "and" (`Drug and
+  pharmacology data`), so anchors are clean (`#drug-and-pharmacology-data`).
 - **`[STILL]` 300–504-row inline PDB tables** bloat context and push the citable
-  Disease-associations anchor to line ~1468 on TP53. Cap + `<details>` or move to bundle.
-  *(Med; low.)*
-- **`[NEW]` Drugs lack a Mechanism-of-action prose section** — the liftable ChEBI definition
-  exists; surface a `## Mechanism`. *(Low-med; low.)*
-- **`[STILL]` `biobtree_version: "553 datasets"`** is a dataset *count* masquerading as a
-  build stamp — undercuts the reproducible-provenance moat. Wire a real version+date.
-  *(Low; low.)*
+  Disease-associations anchor far down on TP53. Cap + `<details>` (theme/web-dev lane) or
+  move the long tail to the future `claims.jsonld`. *(Med; low.)*
+- **`[PARTIAL 06-01]` Drug mechanism prose** — ChEBI roles + definition now surface in the
+  merged `## Drug identity and classification` §1; a dedicated `## Mechanism` is still
+  optional. *(Low-med; low.)*
+- **`[FIXED 06-01]` `biobtree_version`** — relabelled `"…-dataset integration"` (a dataset
+  fingerprint, not a fake version); `generated_at` remains the replay anchor. A real version
+  needs a biobtree `/api/meta` version field (small upstream ask, not filed yet).
 
-Genuinely **fixed since 04** (good to bank): disease declarative leads, graceful 0-GWAS
-note, hedged PCD tractability reframing, CIViC verdict promoted into the lead, named
-isoforms present.
+Genuinely **fixed earlier** (banked): disease declarative leads, graceful 0-GWAS note,
+hedged PCD tractability reframing, CIViC verdict in the lead, named isoforms present.
 
 ---
 
@@ -304,12 +339,14 @@ isoforms present.
 
 ## 8. Sequenced plan
 
-**Phase 0 — unblock (days, mostly low effort).** Ship the promised sidecars
-(`provenance.json` + `bundle.json`) or trim llms.txt to match reality (§5.1); add the
-`## Summary` header + LLM-disclosure label on gene/disease/drug (§5.2); wire a real
-`biobtree_version`; fix the run-on subcellular string, MeSH rows, float rounding, dangling
-PharmGKB colon, VIP mislabel, ampersand anchors (§6). **Nothing bot-facing launches until
-Phase 0 is done.**
+**Phase 0 — mostly done (2026-06-01).** The page-polish items (run-on subcellular string,
+MeSH rows, float rounding, dangling PharmGKB colon, VIP mislabel, ampersand anchors,
+`biobtree_version`) **shipped this session** (§6 `[FIXED 06-01]`). The contract items
+resolved by decision (§5): no data dumps to ship; the honesty story is already
+deterministic. **Remaining Phase-0 before any bot-facing launch:** trim/cap the inline
+disease JSON-LD `associatedGene` array (§6), add the one-line "no LLM-authored facts"
+methods note (M9), and — the real gate — the cross-entity mesh + `claims.jsonld` (which is
+Phase 2). llms.txt is deprioritized; don't block on it.
 
 **Phase 1 — the cheap, uncopyable content (days–1 wk).** Build the low-effort Moats #1, #2,
 #3, #4, #8, #10 (§4) — each is a client-side rule over data already on the page. Promote the

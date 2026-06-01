@@ -2,7 +2,7 @@
 """Deterministic markdown renderer for drug-section bundles — NO model.
 Mirrors gene/render.py + disease/render.py: one r_* fn per section + a RENDER
 dict. Every fact comes verbatim from the bundle."""
-from atlas.render_common import table
+from atlas.render_common import table, fnum
 from atlas.civic import therapy_label
 
 
@@ -11,7 +11,7 @@ def _i(n):
 
 
 def r_drug_ids(b):
-    L = ["## Drug identity & classification", ""]
+    L = ["## Drug identity and classification", ""]
     rows = [
         ("ChEMBL ID", b.get("chembl_id")),
         ("Name", b.get("canonical_name")),
@@ -88,10 +88,10 @@ def r_targets(b):
                 tags.append("strongly selective")
             if t.get("dep_common_essential"):
                 tags.append("common-essential")
-            return f"{pct}%" + (f" ({', '.join(tags)})" if tags else "")
+            return f"{fnum(pct)}%" + (f" ({', '.join(tags)})" if tags else "")
         L.append(table(["Gene", "Target", "Action", "pAffinity", "Cancer dependency", "UniProt"],
                        [(t.get("gene_symbol") or "", t.get("target_name") or "",
-                         t.get("action") or "", t.get("affinity") or "",
+                         t.get("action") or "", fnum(t.get("affinity")) if t.get("affinity") not in (None, "") else "",
                          _dep(t), t.get("uniprot") or "") for t in pt]))
     bc = b.get("bioactivity_target_count") or 0
     if bc:
@@ -115,7 +115,7 @@ def r_bioactivity(b):
              f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top 30 by "
              f"potency (10 = 0.1 nM, 6 = 1 µM):**\n")
     L.append(table(["pChembl", "Type", "Value", "Unit", "Activity ID"],
-                   [(r.get("pchembl"), r.get("type"), r.get("value"),
+                   [(fnum(r.get("pchembl")), r.get("type"), fnum(r.get("value")),
                      r.get("unit"), r.get("id")) for r in ca]))
     return "\n".join(L)
 
@@ -206,16 +206,22 @@ def r_pharmacogenomics(b):
                          r.get("source"), r.get("genes"),
                          "yes" if r.get("has_dosing") else "",
                          "yes" if r.get("has_recommendation") else "") for r in g]))
-    elif pa:
-        L.append("*No CPIC/DPWG dosing guideline, but PharmGKB curates "
-                 "pharmacogenomic annotations for this drug:*")
     # Coverage line — gene-keyed clinical/variant annotations live on the gene
-    # pages; surface the counts + a link to the PharmGKB chemical record.
+    # pages; surface the counts + a link to the PharmGKB chemical record. Only
+    # emit the "but PharmGKB curates…:" framing when counts actually follow
+    # (otherwise the colon dangles with nothing after it).
     if pa and (ca or va):
-        L.append(f"\nPharmGKB also curates "
-                 f"{_i(ca) or 0} clinical and {_i(va) or 0} variant annotation(s) "
-                 f"for this drug (gene-keyed; see "
-                 f"[PharmGKB](https://www.pharmgkb.org/chemical/{pa})).")
+        counts = (f"{_i(ca) or 0} clinical and {_i(va) or 0} variant annotation(s) "
+                  f"for this drug (gene-keyed; see "
+                  f"[PharmGKB](https://www.pharmgkb.org/chemical/{pa}))")
+        if g:
+            L.append(f"\nPharmGKB also curates {counts}.")
+        else:
+            L.append(f"*No CPIC/DPWG dosing guideline, but PharmGKB curates "
+                     f"{counts}.*")
+    elif not g and pa:
+        L.append("*No CPIC/DPWG dosing guideline or drug-level clinical/variant "
+                 "annotations in PharmGKB for this molecule.*")
     return "\n".join(L)
 
 

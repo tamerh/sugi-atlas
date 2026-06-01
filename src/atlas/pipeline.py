@@ -39,8 +39,11 @@ def biobtree_version():
         d = json.loads(urllib.request.urlopen("http://127.0.0.1:8000/api/meta", timeout=5).read())
         if d.get("version"):
             return d["version"]
+        # biobtree exposes no version field, so stamp a dataset-integration
+        # fingerprint — labelled so it doesn't read as a build/version number.
+        # The actual reproducibility anchor is frontmatter `generated_at`.
         n = len(d.get("datasets") or {})
-        return f"{n} datasets" if n else "unknown"
+        return f"{n}-dataset integration" if n else "unknown"
     except Exception:
         return "unknown"
 
