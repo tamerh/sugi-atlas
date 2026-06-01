@@ -116,6 +116,52 @@ def r_protein_ids(b):
         L.append(ncbi)
         L.append("")
 
+    # ClinGen dosage sensitivity + DepMap CRISPR fitness — gene-level signals
+    # for variant interpretation (dosage) and drug-target prioritization (depmap).
+    cd = b.get("clingen_dosage") or {}
+    dm = b.get("depmap") or {}
+    if cd or dm:
+        L.append("\n### Gene-level fitness & dosage signals\n")
+        if cd:
+            haplo = cd.get("haplo_score", "")
+            triplo = cd.get("triplo_score", "")
+            # ClinGen scale: 3=sufficient evidence, 2=emerging, 1=little, 0=no evidence,
+            # 30=AR (recessive — loss of one copy doesn't cause disease),
+            # 40=dosage sensitivity unlikely.
+            scale = {"3": "sufficient evidence",
+                     "2": "emerging evidence",
+                     "1": "little evidence",
+                     "0": "no evidence",
+                     "30": "autosomal recessive",
+                     "40": "dosage sensitivity unlikely"}
+            L.append(f"**ClinGen dosage:** haploinsufficiency `{haplo}` "
+                     f"({scale.get(haplo, 'unscored')}), "
+                     f"triplosensitivity `{triplo}` ({scale.get(triplo, 'unscored')}). "
+                     "[ClinGen Gene Dosage Map](https://search.clinicalgenome.org/kb/gene-dosage)")
+        if dm:
+            pct = dm.get("pct_dependent", "")
+            sel = dm.get("strongly_selective", "")
+            ce = dm.get("common_essential", "")
+            L.append(f"**DepMap (CRISPR cell-line fitness):** "
+                     f"dependent in {pct}% of screened cell lines"
+                     + (", strongly selective" if sel == "true" else "")
+                     + (", common-essential" if ce == "true" else "")
+                     + ".")
+        L.append("")
+
+    # GeneRIFs — NCBI per-gene PMID-anchored claims (top 30 of N). Citation-grounded
+    # gene knowledge, dense with disease + mechanism + clinical context.
+    rifs = b.get("generifs") or []
+    if rifs:
+        L.append(f"\n### GeneRIFs — paper-anchored claims (showing {len(rifs)})\n")
+        for r in rifs:
+            text = (r.get("text") or "").strip()
+            pmid = r.get("pmid")
+            cite = (f" [PMID:{pmid}](https://pubmed.ncbi.nlm.nih.gov/{pmid}/)"
+                    if pmid else "")
+            L.append(f"- {text}{cite}")
+        L.append("")
+
     # Named isoforms — surfaces p53α/β/γ, K-Ras4A/4B, p16INK4a/p14ARF, etc.
     isoforms = b.get("isoforms") or []
     if isoforms:
@@ -517,6 +563,18 @@ def r_diseases(b):
     L.append("\n**GenCC curated gene-disease:**\n")
     L.append(table(["Disease", "Classification", "Inheritance"],
                    [(g.get("disease"), g.get("classification"), g.get("inheritance")) for g in b.get("gencc", [])[:20]]))
+
+    # ClinGen Gene-Disease Validity — expert-panel curated relationship strength.
+    # Distinct from GenCC: ClinGen is the canonical authority for gene-disease
+    # validity classifications used by clinical variant labs (ACMG/AMP guidelines).
+    cgv = b.get("clingen_validity") or []
+    if cgv:
+        L.append(f"\n**ClinGen Gene-Disease Validity ({len(cgv)}):** "
+                 "expert-panel classifications — Definitive > Strong > Moderate > "
+                 "Limited > Disputed > Refuted.\n")
+        L.append(table(["Disease", "Classification", "Inheritance"],
+                       [(c.get("disease"), c.get("classification"), c.get("moi"))
+                        for c in cgv[:20]]))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
              + ", ".join(f"{m.get('name')} ({m['id']})" for m in b.get("mondo", [])[:15]))
     L.append(f"\n**Orphanet ({len(b.get('orphanet', []))}):** "

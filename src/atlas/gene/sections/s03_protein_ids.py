@@ -18,9 +18,13 @@ CHAINS = (
     ">>uniprot>>antibody",
     ">>uniprot>>ufeature",
     ">>uniprot>>brenda",
+    ">>hgnc>>entrez",                  # anchor-resolved: NCBI gene id + summary
+    ">>hgnc>>clingen_dosage",          # anchor-resolved: haplo/triplo scores
+    ">>hgnc>>depmap",                  # anchor-resolved: CRISPR fitness
+    ">>entrez>>generif",               # per-gene PMID-anchored claims
 )
 DATASETS = ("uniprot", "ensembl", "refseq", "interpro", "pfam", "antibody",
-            "ufeature", "brenda")
+            "ufeature", "brenda", "entrez", "clingen_dosage", "depmap", "generif")
 
 def collect(a):
     bundle = {
@@ -95,6 +99,27 @@ def collect(a):
     # Resolved at anchor time so zero extra cost here; just pass through.
     bundle["ncbi_summary"] = a.ncbi_summary or ""
     bundle["entrez_id"] = a.entrez_id
+
+    # ClinGen dosage sensitivity (1 row/gene). Empty {} for un-curated genes
+    # (~80% of human protein-coding genome — ClinGen prioritizes clinical relevance).
+    bundle["clingen_dosage"] = a.clingen_dosage or {}
+
+    # DepMap CRISPR fitness summary — drives target-quality reasoning in §10
+    # (we also expose here so the gene page's protein-level block is self-contained).
+    bundle["depmap"] = a.depmap or {}
+
+    # GeneRIFs — NCBI per-gene PMID-anchored claims. ~hundreds per popular gene;
+    # cap at top-30 (insertion order from biobtree ~ chronological). Each entry
+    # carries gene_id + text only; full PMID list comes from entry() but we don't
+    # call it here — the id format `geneid_pmid_idx` already embeds the PMID.
+    generifs = []
+    if a.entrez_id:
+        for r in map_all(a.entrez_id, ">>entrez>>generif", cap=1)[:30]:
+            pmid = (r.get("id") or "").split("_")[1] if "_" in (r.get("id") or "") else None
+            generifs.append({"id": r.get("id"), "pmid": pmid, "text": r.get("text") or ""})
+    bundle["generifs"] = generifs
+    bundle["generif_count_in_page"] = len(generifs)
+
     return bundle
 
 SECTION = Section(
@@ -104,7 +129,8 @@ SECTION = Section(
     produces=("reviewed_uniprot", "uniprot_all", "refseq_protein", "interpro",
               "pfam", "antibody_count", "ufeatures", "ufeature_counts",
               "brenda_ec", "cc", "isoforms", "protein_name",
-              "alternative_names", "ncbi_summary", "entrez_id"),
+              "alternative_names", "ncbi_summary", "entrez_id",
+              "clingen_dosage", "depmap", "generifs"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
     # refseq_protein follows the same REVIEWED-only fluctuation as
     # refseq_mrna (BIOBTREE_ISSUES.md #11 — see §2 shrinkable note).

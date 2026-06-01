@@ -16,9 +16,10 @@ CHAINS = (
     ">>hgnc>>clinvar>>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh",   # MeSH disease categories
     ">>hgnc>>intogen",                            # cancer-driver classification (LoF/Act)
     ">>hgnc>>civic",                              # CIViC gene-level curated narrative
+    ">>hgnc>>clingen_gene_validity",              # ClinGen expert-panel gene-disease validity
 )
 DATASETS = ("mim", "gencc", "mondo", "orphanet", "hpo", "gwas", "gwas_study", "efo",
-            "mesh", "intogen", "civic", "clinvar", "hgnc")
+            "mesh", "intogen", "civic", "clinvar", "hgnc", "clingen_gene_validity")
 
 def collect(a):
     bundle = {"section": "12_diseases", "symbol": a.symbol}
@@ -126,6 +127,16 @@ def collect(a):
         "tree_numbers": [tn for tn in (r.get("tree_numbers") or "").split(";") if tn],
         "is_supplementary": r.get("is_supplementary") == "true",
     } for r in rows]
+
+    # ClinGen gene-disease validity — expert-panel curated relationship strength.
+    # Multiple rows per gene (one per disease). `classification` is the headline:
+    # Definitive > Strong > Moderate > Limited > Disputed > Refuted > No Known.
+    bundle["clingen_validity"] = [{
+        "id": r.get("id"),
+        "disease": r.get("disease_label"),
+        "classification": r.get("classification"),
+        "moi": r.get("moi"),  # AD / AR / XL / etc.
+    } for r in map_all(a.hgnc_id, ">>hgnc>>clingen_gene_validity")]
     return bundle
 
 SECTION = Section(
@@ -135,6 +146,7 @@ SECTION = Section(
                  "MeSH descriptors (NLM disease vocabulary with tree-number category paths)"),
     needs=("hgnc_id", "hgnc_entry"),
     produces=("gene_omim", "disease_omim", "gencc", "mondo", "orphanet", "hpo",
-              "gwas", "gwas_studies", "efo_traits", "mesh_descriptors", "intogen", "civic"),
+              "gwas", "gwas_studies", "efo_traits", "mesh_descriptors", "intogen", "civic",
+              "clingen_validity"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

@@ -25,6 +25,13 @@ class Anchors:
     # to UniProt FUNCTION. Empty string when biobtree has no entrez row for
     # this gene (rare; covers most protein-coding genes).
     ncbi_summary: str
+    # ClinGen dosage sensitivity (gene-level haplo/triplo scores). Empty dict
+    # for genes ClinGen hasn't curated. Atlas surfaces both score + plain-text
+    # interpretation in §3 + cohort enrichment narrative.
+    clingen_dosage: dict
+    # DepMap CRISPR fitness summary (1 row/gene). pct_dependent + strongly_selective
+    # drive §10 target-quality assessment. Empty dict if not screened.
+    depmap: dict
 
 def resolve_hgnc(symbol):
     """Symbol -> (hgnc_id, hgnc_entry) robustly.
@@ -75,6 +82,12 @@ def _entrez_summary(hgnc_id):
         return eid, ""
 
 
+def _first_row(hgnc_id, chain):
+    """First row of a 1-row-per-gene edge; {} on miss."""
+    r = map_all(hgnc_id, chain, cap=1)
+    return r[0] if r else {}
+
+
 def resolve(symbol):
     """Symbol -> Anchors (all the shared IDs the 12 sections will need)."""
     hgnc_id, he = resolve_hgnc(symbol)
@@ -93,4 +106,6 @@ def resolve(symbol):
         canonical_transcript=_canonical_transcript(ensembl_id),
         entrez_id=entrez_id,
         ncbi_summary=ncbi_summary,
+        clingen_dosage=_first_row(hgnc_id, ">>hgnc>>clingen_dosage"),
+        depmap=_first_row(hgnc_id, ">>hgnc>>depmap"),
     )

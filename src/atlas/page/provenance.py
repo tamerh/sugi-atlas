@@ -98,6 +98,12 @@ UPSTREAM = {
     "mesh":              ("MeSH (NLM Medical Subject Headings)",   "https://www.ncbi.nlm.nih.gov/mesh/"),
     "intogen":           ("intOGen (cancer driver catalog)",       "https://www.intogen.org/"),
     "civic":             ("CIViC (Clinical Interpretation of Variants in Cancer)", "https://civicdb.org/"),
+    "clingen_gene_validity": ("ClinGen Gene-Disease Validity",     "https://search.clinicalgenome.org/kb/gene-validity"),
+    "clingen_dosage":    ("ClinGen Gene Dosage Map",               "https://search.clinicalgenome.org/kb/gene-dosage"),
+    "clingen_variant":   ("ClinGen Variant Curation",              "https://erepo.clinicalgenome.org/evrepo/"),
+    "depmap":            ("DepMap (Cancer Dependency Map)",        "https://depmap.org/portal/"),
+    "depmap_dependency": ("DepMap (Cancer Dependency Map)",        "https://depmap.org/portal/"),
+    "generif":           ("NCBI GeneRIFs",                         "https://www.ncbi.nlm.nih.gov/gene/about-generif"),
     # expression
     "bgee":              ("Bgee",                                  "https://www.bgee.org/"),
     "bgee_evidence":     ("Bgee",                                  "https://www.bgee.org/"),
