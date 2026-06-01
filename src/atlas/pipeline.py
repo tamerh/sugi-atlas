@@ -140,11 +140,19 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             # `symbol` here is the disease slug (filename-safe key used by the
             # publish step). disease_jsonld needs it for the page @id URL.
             jsonld_tag = as_script_tag(build_jsonld(bundle, symbol))
+            from atlas.page.disease_at_a_glance import at_a_glance
+            glance = at_a_glance(bundle)
+            if glance:
+                sentence += "\n\n" + glance
         elif entity_type == "drug":
             from atlas.page.drug_declarative import declarative_sentence
             from atlas.page.drug_jsonld import build_jsonld, as_script_tag
             sentence = declarative_sentence(bundle)
             jsonld_tag = as_script_tag(build_jsonld(bundle, symbol))
+            from atlas.page.drug_at_a_glance import at_a_glance
+            glance = at_a_glance(bundle)
+            if glance:
+                sentence += "\n\n" + glance
         else:
             from atlas.page.declarative import declarative_sentence
             from atlas.page.jsonld import build_jsonld, as_script_tag

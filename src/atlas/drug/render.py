@@ -124,21 +124,24 @@ def r_related_molecules(b):
 def r_target_pathways(b):
     L = ["## Target pathways", ""]
     tg = b.get("target_genes") or []
-    L.append(f"**Aggregated over {len(tg)} target gene(s): {', '.join(tg)}.**")
     tp = b.get("top_pathways") or []
+    go = b.get("top_go_bp") or []
+    if not tg and not tp and not go:
+        L.append("*No target-pathway data for this drug "
+                 "(no mapped target genes).*")
+        return "\n".join(L)
+    L.append(f"**Aggregated over {len(tg)} target gene(s): {', '.join(tg)}.**")
     if tp:
         L += ["", f"**Top Reactome pathways ({_i(b.get('pathway_count'))} total), "
               f"by targets touching each:**", "",
               table(["Pathway", "Targets", "Genes"],
-                    [(f"[{p.get('name') or p['id']}](https://reactome.org/PathwayBrowser/#/{p['id']})"
-                      if p.get("id") else (p.get("name") or ""),
+                    [(p.get("name") or p.get("id") or "",
                       p.get("gene_count"), ", ".join(p.get("genes") or []))
                      for p in tp])]
-    go = b.get("top_go_bp") or []
     if go:
         L += ["", "**Dominant GO biological processes:**", "",
               table(["GO term", "Targets"],
-                    [(f"[{g.get('name') or g['id']}](https://amigo.geneontology.org/amigo/term/{g['id']})",
+                    [(g.get("name") or g.get("id") or "",
                       g.get("target_count")) for g in go])]
     return "\n".join(L)
 
@@ -155,8 +158,7 @@ def r_pharmacogenomics(b):
         L.append(f"**PharmGKB dosing guidelines ({b.get('guideline_count')}) — CPIC / "
                  f"DPWG genotype-guided dosing for this drug (drug × pharmacogene):**\n")
         L.append(table(["Guideline", "Source", "Gene(s)", "Dosing", "Recommendation"],
-                       [(f"[{(r.get('name') or r['id'])[:70]}](https://www.pharmgkb.org/guidelineAnnotation/{r['id']})"
-                         if r.get("id") else (r.get("name") or ""),
+                       [((r.get("name") or r.get("id") or "")[:70],
                          r.get("source"), r.get("genes"),
                          "yes" if r.get("has_dosing") else "",
                          "yes" if r.get("has_recommendation") else "") for r in g]))
@@ -190,7 +192,7 @@ def r_clinical_evidence(b):
                    [(r["profile"], r["disease"], r["significance"],
                      therapy_label(r["therapy"]),
                      f"CIViC {r['level']}" if r.get("level") else "",
-                     f"[EID{r['evidence_id']}](https://civicdb.org/links/evidence_items/{r['evidence_id']})"
+                     f"EID{r['evidence_id']}"
                      + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
                     for r in ce]))
     more = (b.get("civic_association_total") or 0) - len(ce)
@@ -211,7 +213,7 @@ def r_clinical_trials(b):
     if tt:
         L += ["", "**Top trials by phase / activity:**", "",
               table(["NCT", "Phase", "Status", "Title"],
-                    [(f"[{t['id']}](https://clinicaltrials.gov/study/{t['id']})" if t.get("id") else "",
+                    [((t.get("id") or ""),
                       t.get("phase"), t.get("status"), (t.get("title") or "")[:65])
                      for t in tt])]
     return "\n".join(L)
@@ -224,10 +226,9 @@ def r_pharmacology(b):
         body.append(f"**Drug class (ChEBI roles):** {', '.join(roles)}.")
     atc = b.get("atc_codes") or []
     if atc:
-        links = ", ".join(
-            f"[{c}](https://www.whocc.no/atc_ddd_index/?code={c})" for c in atc)
-        body.append(f"**ATC classification:** {links} "
-                    f"(WHO ATC level names are licensing-restricted — code links out).")
+        codes = ", ".join(atc)
+        body.append(f"**ATC classification:** {codes} "
+                    f"(WHO ATC level names are licensing-restricted).")
     if not body:
         body.append("*No ChEBI role or ATC classification available.*")
     return "## Pharmacology\n\n" + "\n\n".join(body)

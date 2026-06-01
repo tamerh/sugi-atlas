@@ -69,11 +69,7 @@ def r_disease_ids(b):
     # OMIM / Orphanet).
     candidate_rows = [
         ("Canonical name", b.get("canonical_name")),
-        # Use monarchinitiative.org's stable Mondo redirect — shorter + more
-        # human-readable than the OLS4 percent-encoded URL.
-        ("Mondo ID",
-         f"[{b['mondo_id']}](https://monarchinitiative.org/{b['mondo_id']})"
-         if b.get("mondo_id") else None),
+        ("Mondo ID", b.get("mondo_id") or None),
         ("EFO", b.get("efo_id")),
         ("MeSH", ", ".join(b.get("mesh_ids") or []) or None),
         ("OMIM", ", ".join(b.get("omim_ids") or []) or None),
@@ -141,7 +137,7 @@ def r_disease_ids(b):
                    f"curated; top {min(30, len(phs))} by frequency):**")
         out.append("")
         out.append(table(["HPO ID", "Term", "Frequency"],
-                         [(f"[{p.get('hpo_id')}](https://hpo.jax.org/app/browse/term/{p.get('hpo_id')})",
+                         [(p.get("hpo_id"),
                            p.get("hpo_term"),
                            p.get("frequency"))
                           for p in phs[:30]]))
@@ -175,8 +171,7 @@ def r_gwas_landscape(b):
     if studies:
         out += ["", "**Top studies (by case count):**", "",
                 table(["Study", "Lead author", "Year", "Cases", "Controls", "Title"],
-                      [(f"[{s['id']}](https://www.ebi.ac.uk/gwas/studies/{s['id']})"
-                        if s.get("id") else "",
+                      [(s.get("id") or "",
                         s.get("lead_author"), s.get("year"),
                         _i(s.get("sample_size_cases")),
                         _i(s.get("sample_size_controls")),
@@ -208,14 +203,16 @@ def r_variant_details(b):
     # GWAS signal; otherwise after the GWAS tiers.
     def _clinvar_block():
         cc = b.get("clinvar_class_counts") or {}
-        bl = [f"**ClinVar germline variants ({_i(b.get('clinvar_total'))} for the "
-              f"disease cohort):**"]
+        # clinvar_total here is a paginated fetch count (caps at ~600), not the
+        # disease's full ClinVar set — present it as a retrieved sample / floor
+        # so it doesn't contradict the accurate xref total in "At a glance".
+        bl = [f"**ClinVar germline variants ({_i(b.get('clinvar_total'))} retrieved; "
+              f"paginated sample, class counts are floors):**"]
         if cc:
             order = sorted(cc.items(), key=lambda kv: -kv[1])
             bl.append("\n" + ", ".join(f"{_i(v)} {k.lower()}" for k, v in order))
         bl += ["", table(["ClinVar", "Variant (HGVS)", "Gene", "Classification", "Review"],
-                         [(f"[{v['id']}](https://www.ncbi.nlm.nih.gov/clinvar/variation/{v['id']}/)"
-                           if v.get("id") else "",
+                         [(v.get("id") or "",
                            v.get("hgvs"), v.get("gene"), v.get("classification"),
                            v.get("review_status")) for v in cv])]
         return bl
@@ -239,8 +236,7 @@ def r_variant_details(b):
         out += ["", "**Top variants:**", "",
                 table(["rsID", "Chr", "Pos", "Alleles", "MAF",
                        "Consequence", "Gene", "p-value", "Tier"],
-                      [(f"[{r['rsid']}](https://www.ncbi.nlm.nih.gov/snp/{r['rsid']})"
-                        if r.get("rsid") else "",
+                      [(r.get("rsid") or "",
                         r.get("chrom"), r.get("pos"), r.get("alleles"),
                         r.get("maf"), r.get("consequence"),
                         r.get("gene_symbol"), r.get("pvalue"), r.get("tier"))
@@ -275,21 +271,18 @@ def r_mendelian_overlap(b):
             return ", ".join(r)
         out += ["", "**Dual-evidence genes (GWAS + Mendelian — highest-confidence targets):**", "",
                 table(["Gene", "HGNC", "Evidence routes"],
-                      [(f"[{sym}](https://www.genenames.org/tools/search/#!/?query={sym})",
-                        sym, _routes(sym))
+                      [(sym, sym, _routes(sym))
                        for sym in dual[:50]])]
     sg = b.get("somatic_driver_genes") or []
     if sg:
         # CIViC's `name` field equals the gene symbol — we surface the CIViC
-        # ID as a clickable link to the gene's CIViC summary instead, which
-        # is the actual value-add.
+        # gene ID (plain text) as the actual value-add.
         out += ["", "**Somatic driver evidence (intOGen + CIViC, cohort fanout):**", "",
                 table(["Gene", "intOGen role", "Cancer types", "CIViC"],
                       [(g.get("symbol"),
                         (g.get("intogen") or {}).get("role"),
                         _trunc((g.get("intogen") or {}).get("cancer_types") or "", 50),
-                        (f"[CIViC #{(g.get('civic') or {}).get('id')}]"
-                         f"(https://civicdb.org/genes/{(g.get('civic') or {}).get('id')}/summary)"
+                        (f"CIViC #{(g.get('civic') or {}).get('id')}"
                          if (g.get("civic") or {}).get("id") else ""))
                        for g in sg[:30]])]
     gc = b.get("gencc_genes") or []
@@ -304,9 +297,7 @@ def r_mendelian_overlap(b):
         out += ["", "**Orphanet rare-disease linkage (cohort genes):**", "",
                 table(["Gene", "Orphanet ID", "Rare disease"],
                       [(g.get("symbol"),
-                        f"[{g['orphanet_id']}](https://www.orpha.net/en/disease/detail/"
-                        f"{g['orphanet_id'].split(':')[-1] if g.get('orphanet_id') else ''})"
-                        if g.get("orphanet_id") else "",
+                        g.get("orphanet_id") or "",
                         _trunc(g.get("orphanet_name"), 65))
                        for g in og[:50]])]
     omg = b.get("omim_genes") or []
@@ -443,16 +434,14 @@ def r_structural_data(b):
         out += ["", "**Cohort genes with PDB structures (top 30):**", "",
                 table(["Symbol", "UniProt", "PDB entries"],
                       [(g.get("symbol"),
-                        f"[{g['uniprot']}](https://www.uniprot.org/uniprotkb/{g['uniprot']})"
-                        if g.get("uniprot") else "",
+                        g.get("uniprot") or "",
                         _i(g.get("pdb_count"))) for g in pdb[:30]])]
     af = b.get("alphafold_only_genes") or []
     if af:
         out += ["", "**AlphaFold-only cohort genes (top 30 by pLDDT):**", "",
                 table(["Symbol", "UniProt", "pLDDT"],
                       [(g.get("symbol"),
-                        f"[{g['uniprot']}](https://alphafold.ebi.ac.uk/entry/{g['uniprot']})"
-                        if g.get("uniprot") else "",
+                        g.get("uniprot") or "",
                         g.get("plddt")) for g in af[:30]])]
     return "\n".join(out)
 
@@ -481,8 +470,7 @@ def r_drug_targets(b):
     if drugs:
         out += ["", "**Drugs targeting cohort genes (top 30):**", "",
                 table(["Molecule", "Max phase", "Targets in cohort"],
-                      [(f"[{d['name'] or d['id']}](https://www.ebi.ac.uk/chembl/"
-                        f"target_report_card/{d['id']}/)",
+                      [(d.get("name") or d.get("id") or "",
                         d.get("max_phase"),
                         ", ".join((d.get("gene_targets") or [])[:6]))
                        for d in drugs[:30]])]
@@ -553,8 +541,7 @@ def r_clinical_trials(b):
     if tt:
         out += ["", "**Top trials by phase / activity:**", "",
                 table(["NCT", "Phase", "Status", "Title"],
-                      [(f"[{t['id']}](https://clinicaltrials.gov/study/{t['id']})"
-                        if t.get("id") else "",
+                      [(t.get("id") or "",
                         t.get("phase"), t.get("status"),
                         _trunc(t.get("title"), 65))
                        for t in tt])]
@@ -585,7 +572,7 @@ def r_clinical_trials(b):
                 table(["Molecular subtype", "Therapy", "Effect", "Level", "CIViC"],
                       [(r["profile"], therapy_label(r["therapy"]), r["significance"],
                         f"CIViC {r['level']}" if r.get("level") else "",
-                        f"[EID{r['evidence_id']}](https://civicdb.org/links/evidence_items/{r['evidence_id']})"
+                        f"EID{r['evidence_id']}"
                         + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
                        for r in ce])]
         more = (b.get("civic_association_total") or 0) - len(ce)
@@ -605,8 +592,7 @@ def r_pathways(b):
     if tp:
         out += ["", "**Top pathways by cohort coverage:**", "",
                 table(["Pathway", "Genes", "Sample cohort genes"],
-                      [(f"[{p.get('name') or p['id']}]"
-                        f"(https://reactome.org/PathwayBrowser/#/{p['id']})",
+                      [(p.get("name") or p.get("id") or "",
                         _i(p.get("gene_count")),
                         ", ".join((p.get("gene_symbols") or [])[:8]))
                        for p in tp[:30]])]
