@@ -531,8 +531,7 @@ def r_drugs(b):
         L.append(f"\n**CTD chemical–gene interactions (human, "
                  f"{b.get('ctd_interaction_total', 0)} total), top 30 by PubMed support:**\n")
         L.append(table(["Chemical", "Actions (CV verbs)", "PubMed papers"],
-                       [(f"[{r['chemical']}](http://ctdbase.org/detail.go?type=chem&acc={r['chemical_id']})",
-                         ", ".join(r["actions"]),
+                       [(r["chemical"], ", ".join(r["actions"]),
                          r["pmids"]) for r in ctd]))
 
     # ChEMBL screening-assay depth — how heavily this target has been
@@ -575,8 +574,8 @@ def r_drugs(b):
         if cs:
             L.append("\nFirst 10 cell lines (id-ordered, not curated):\n")
             L.append(table(["Cellosaurus", "Name", "Category", "Sex"],
-                           [(f"[{c['id']}](https://www.cellosaurus.org/{c['id']})",
-                             c.get("name"), c.get("category"), c.get("sex")) for c in cs]))
+                           [(c["id"], c.get("name"), c.get("category"), c.get("sex"))
+                            for c in cs]))
 
     ct = b.get("disease_trials", [])
     L.append(f"\n**Clinical trials for the gene's associated diseases "
@@ -602,16 +601,12 @@ def r_expression(b):
         L.append(f"\n**FANTOM5 promoters ({len(fp)} alternative TSS):**\n")
         L.append(table(["Promoter ID", "TPM avg", "Samples expressed"],
                        [(p["id"], p.get("tpm_average"), p.get("samples_expressed")) for p in fp[:10]]))
-    # Tissue/cell name -> federated link via bioregistry (resolves UBERON or
-    # CL ids to their authority page). Bare names without an anatomy_id
-    # (rare) render unwrapped.
-    def _t_link(t):
-        name = t.get("tissue") or ""
-        aid = t.get("anatomy_id")
-        return f"[{name}](https://bioregistry.io/{aid})" if aid and name else name
+    # Tissue name as plain text — the UBERON/CL id is shown in its own column;
+    # we don't link every id (consistency: links are reserved for primary
+    # targets, not decorative on every row).
     L.append(f"\n**Top tissues by expression ({b.get('tissue_count', 0)} total):**\n")
     L.append(table(["Tissue", "Anatomy ID", "Score", "Rank", "Quality"],
-                   [(_t_link(t), t.get("anatomy_id") or "",
+                   [(t.get("tissue") or "", t.get("anatomy_id") or "",
                      t.get("score"), t.get("rank"), t.get("quality"))
                     for t in b.get("top_tissues", [])[:30]]))
     sc = b.get("single_cell_datasets", [])
@@ -695,8 +690,7 @@ def r_diseases(b):
     if efo:
         L.append(f"\n**EFO canonical traits ({len(efo)}, from GWAS):**\n")
         L.append(table(["EFO ID", "Trait name"],
-                       [(f"[{e['id']}](https://www.ebi.ac.uk/efo/{e['id'].replace(':','_')})",
-                         e.get("name")) for e in efo[:30]]))
+                       [(e["id"], e.get("name")) for e in efo[:30]]))
 
     # MeSH disease descriptors — NLM's controlled disease vocabulary.
     # Tree numbers (e.g. C04.700.600) classify into MeSH categories
@@ -706,7 +700,7 @@ def r_diseases(b):
     if mesh:
         L.append(f"\n**MeSH disease descriptors ({len(mesh)}):**\n")
         L.append(table(["Descriptor", "Name", "Tree numbers"],
-                       [(f"[{m['id']}](https://www.ncbi.nlm.nih.gov/mesh/?term={m['id']})",
+                       [(m["id"],
                          m["name"] + (" *(supp.)*" if m.get("is_supplementary") else ""),
                          "; ".join(m.get("tree_numbers") or []))
                         for m in mesh[:30]]))
