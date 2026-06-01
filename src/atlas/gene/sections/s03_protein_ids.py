@@ -109,12 +109,12 @@ def collect(a):
     bundle["depmap"] = a.depmap or {}
 
     # GeneRIFs — NCBI per-gene PMID-anchored claims. ~hundreds per popular gene;
-    # cap at top-30 (insertion order from biobtree ~ chronological). Each entry
+    # cap at top-40 (insertion order from biobtree ~ chronological). Each entry
     # carries gene_id + text only; full PMID list comes from entry() but we don't
     # call it here — the id format `geneid_pmid_idx` already embeds the PMID.
     generifs = []
     if a.entrez_id:
-        for r in map_all(a.entrez_id, ">>entrez>>generif", cap=1)[:30]:
+        for r in map_all(a.entrez_id, ">>entrez>>generif", cap=1)[:40]:
             pmid = (r.get("id") or "").split("_")[1] if "_" in (r.get("id") or "") else None
             generifs.append({"id": r.get("id"), "pmid": pmid, "text": r.get("text") or ""})
     bundle["generifs"] = generifs

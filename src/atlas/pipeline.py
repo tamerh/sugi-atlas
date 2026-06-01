@@ -85,14 +85,16 @@ def collect_all(symbol):
     return {s: C.SECTIONS[s](symbol) for s in C.SECTIONS}
 
 def render_all(bundle):
+    # Explicit section order. Expression (§11) is hoisted to right after
+    # Transcripts (§2): "where is this expressed" is high-value context that
+    # belongs near the top, not buried near the end. Functional genomics +
+    # GeneRIFs were carved out of §3 (gene-level, not protein IDs) and render
+    # right after it. Each renderer returns "" when it has no data.
+    order = ["1", "2", "11", "3", "4", "5", "6", "7", "8", "9", "10", "12"]
     parts = []
-    for s in R.RENDER:
+    for s in order:
         parts.append(R.RENDER[s](bundle[s]))
         if s == "3":
-            # Functional genomics (DepMap/ClinGen dosage) + GeneRIFs were carved
-            # out of §3 "Protein identifiers" — they're gene-level, not protein
-            # IDs. Render them as their own sections right after §3, sourced from
-            # the §3 bundle. Each returns "" when it has no data.
             b3 = bundle["3"]
             parts.append(R.r_functional_genomics(b3))
             parts.append(R.r_generifs(b3))
@@ -129,8 +131,8 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     cancer_overview = ""
     entity_type = (meta or {}).get("entity_type") or "gene"
     if bundle is not None:
-        date = (meta.get("generated_at") or "")[:10]
-        updated = f"*Updated: {date}*" if date else ""
+        # No visible "Updated" line — the date lives in frontmatter
+        # (generated_at) and the web theme surfaces it in the footer.
         if entity_type == "disease":
             from atlas.page.disease_declarative import declarative_sentence
             from atlas.page.disease_jsonld import build_jsonld, as_script_tag
@@ -183,7 +185,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         # cross-refs). Lives inline at the top of the body so AI crawlers see
         # it on the rendered page; also written as entity.jsonld sidecar by
         # the publish step for direct machine fetch.
-        lead = jsonld_tag + "\n\n" + sentence + "\n\n" + (updated + "\n\n" if updated else "")
+        lead = jsonld_tag + "\n\n" + sentence + "\n\n"
 
     if summary_text:
         model = meta.get("summary_model", "Qwen3-235B")

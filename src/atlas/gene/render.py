@@ -186,10 +186,10 @@ def r_protein_ids(b):
         skip = {"sequence variant", "strand", "helix", "turn"}
         feats = [f for f in b.get("ufeatures", []) if f.get("type") not in skip]
         if feats:
-            L.append("\n**Annotated functional features (top 25):**\n")
+            L.append("\n**Annotated functional features (top 40):**\n")
             L.append(table(["Type", "Location", "Description"],
                            [(f["type"], f"{f.get('begin')}–{f.get('end')}",
-                             (f.get("description") or "")[:80]) for f in feats[:25]]))
+                             (f.get("description") or "")[:80]) for f in feats[:40]]))
     return "\n".join(L)
 
 
@@ -202,7 +202,18 @@ def r_functional_genomics(b):
     neither signal is present."""
     cd = b.get("clingen_dosage") or {}
     dm = b.get("depmap") or {}
-    if not cd and not dm:
+    # DepMap only counts as content when notable — a low pct_dependent (e.g.
+    # 0.2%) just means "not a dependency" and would leave a lone, low-value
+    # one-line section. Show it only if common-essential / strongly-selective
+    # / ≥10% (mirrors the "At a glance" gate).
+    pct = dm.get("pct_dependent", "")
+    try:
+        dm_notable = float(pct) >= 10
+    except (TypeError, ValueError):
+        dm_notable = False
+    dm_notable = (dm_notable or dm.get("strongly_selective") == "true"
+                  or dm.get("common_essential") == "true")
+    if not cd and not dm_notable:
         return ""
     L = ["## Functional genomics", ""]
     if cd:
@@ -221,8 +232,7 @@ def r_functional_genomics(b):
                  f"({scale.get(haplo, 'unscored')}), "
                  f"triplosensitivity `{triplo}` ({scale.get(triplo, 'unscored')}). "
                  "[ClinGen Gene Dosage Map](https://search.clinicalgenome.org/kb/gene-dosage)")
-    if dm:
-        pct = dm.get("pct_dependent", "")
+    if dm_notable:
         sel = dm.get("strongly_selective", "")
         ce = dm.get("common_essential", "")
         L.append(f"**DepMap (CRISPR cell-line fitness):** "
@@ -357,9 +367,13 @@ def r_tf_regulation(b):
     L.append(f"**Downstream targets (CollecTRI): {b.get('downstream_count', 0)}**\n")
     L.append(table(["Target", "Regulation"],
                    [(t.get("target"), t.get("regulation")) for t in b.get("downstream_targets", [])[:30]]))
-    L.append("\n**JASPAR motifs:**\n")
-    L.append(table(["Motif", "Name", "Family"],
-                   [(m["id"], m.get("name"), m.get("family")) for m in b.get("jaspar_motifs", [])]))
+    # JASPAR motifs — only render when present (most non-TF genes have none,
+    # which would otherwise leave an empty header-only table).
+    motifs = b.get("jaspar_motifs") or []
+    if motifs:
+        L.append("\n**JASPAR motifs:**\n")
+        L.append(table(["Motif", "Name", "Family"],
+                       [(m["id"], m.get("name"), m.get("family")) for m in motifs]))
     # JASPAR PMIDs — evidence trail for the motifs above.
     pmids = b.get("jaspar_pmids") or []
     if pmids:
@@ -386,19 +400,27 @@ def r_tf_regulation(b):
 def r_drugs(b):
     L = ["## Drug & pharmacology data", "",
          f"**Is drug target: {b.get('is_drug_target')}**\n"]
-    L.append(f"**ChEMBL targets ({len(b.get('chembl_targets', []))}):** "
-             + ", ".join(f"{t['id']} ({t.get('type')})" for t in b.get("chembl_targets", [])[:10]))
-    pt = b.get("patent_total", 0)
-    patent_note = (f" Patent mentions across the top 20 by phase: **{pt:,}** "
-                   f"(via chembl_molecule>>patent_compound — counts attach to the compound, "
-                   f"not the gene–compound relationship, so off-target/promiscuous "
-                   f"molecules can dominate). " if pt else "")
-    L.append(f"\n**Molecules with ChEMBL bioactivity (phase ≥1): {b.get('molecule_count', 0)}**, "
-             f"by development phase (incl. off-target/promiscuous compounds).{patent_note}\n")
-    L.append(table(["Molecule", "Name", "Phase", "Patents"],
-                   [(m["id"], m.get("name"), m.get("phase"),
-                     f"{m['patent_count']:,}" if m.get("patent_count") else "")
-                    for m in b.get("molecules", [])[:30]]))
+    # ChEMBL target/bioactivity blocks only render when populated — non-target
+    # genes (e.g. APOE) would otherwise show "(0)" lines + empty tables. CIViC /
+    # PharmGKB / CTD blocks below still carry the section for such genes.
+    tgts = b.get("chembl_targets", [])
+    if tgts:
+        L.append(f"**ChEMBL targets ({len(tgts)}):** "
+                 + ", ".join(f"{t['id']} ({t.get('type')})" for t in tgts[:10]))
+    mols = b.get("molecules", [])
+    mc = b.get("molecule_count", 0)
+    if mols or mc:
+        pt = b.get("patent_total", 0)
+        patent_note = (f" Patent mentions across the top 20 by phase: **{pt:,}** "
+                       f"(via chembl_molecule>>patent_compound — counts attach to the compound, "
+                       f"not the gene–compound relationship, so off-target/promiscuous "
+                       f"molecules can dominate). " if pt else "")
+        L.append(f"\n**Molecules with ChEMBL bioactivity (phase ≥1): {mc}**, "
+                 f"by development phase (incl. off-target/promiscuous compounds).{patent_note}\n")
+        L.append(table(["Molecule", "Name", "Phase", "Patents"],
+                       [(m["id"], m.get("name"), m.get("phase"),
+                         f"{m['patent_count']:,}" if m.get("patent_count") else "")
+                        for m in mols[:30]]))
     # CIViC clinical evidence — drug × variant × indication (the precision-
     # medicine triple). Predictive associations only, deduped + ranked by CIViC
     # evidence level (A validated → E inferential). The Effect column separates
