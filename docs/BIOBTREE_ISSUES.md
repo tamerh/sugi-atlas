@@ -339,64 +339,24 @@ it does not move the production REST path.
 
 ---
 
-## Issue #23 — Expose `XrefEntry.evidence` via REST (full-mode entry currently disabled)
+## ~~Issue #23 — Expose `XrefEntry.evidence` via REST~~ — RETRACTED 2026-06-01
 
-Per-edge evidence (e.g. HPO frequency `PCS;freq=3/8` / qualitative tokens
-like `Frequent (79-30%)`) is stored on `XrefEntry.evidence` proto field and
-computed server-side. The REST endpoint hard-routes everything through
-`entryLite()` which strips it.
+The original framing assumed Atlas needed the HP→disease edge evidence
+exposed over REST. The dev-team round-trip clarified: disease→phenotype
+with frequency (the direction Atlas actually needs) is delivered as a
+full attribute on the Orphanet entry — `OrphanetAttr.phenotypes` carries
+`{hpo_id, hpo_term, frequency_label, frequency_value}` per row. `entryLite`
+returns full attributes, so this works today. Atlas already wires it
+(commit 777c12f).
 
-**Precise location:** `src/service/web.go:185-200` — `web.entry()` always
-calls `web.service.entryLite(ids[0], src)`. The full-mode branch is
-commented out at lines 202-222:
+The HP→disease edge evidence is the redundant reverse path, intentionally
+stripped from `entryLite` to keep hub-term responses bounded
+(HP:0001166 has ~167 disease links). Not a bug, not blocking.
 
-```go
-// Full mode commented out - can be re-enabled if needed
-// Full mode returns all xref entries which can be very large
-// r1, err := web.service.LookupByDataset(ids[0], src)
-```
+## ~~Issue #24 — HPO qualitative frequency terms~~ — RETRACTED 2026-06-01
 
-`LookupByDataset` returns the full Xref (with populated `entries: []` carrying
-evidence). The lite path discards it; `xrefs.schema` becomes `dataset|count`
-and `entries[]` is always empty. Same compaction happens in `mapFilter()`,
-which is why map row schemas don't carry evidence either. `mode=full` /
-`detail=true` query params don't change this (verified empirically).
-
-**Atlas usage status:** disease→phenotype-with-frequency works today via
-the Orphanet entry's `phenotypes` array (covers ~6000 rare diseases). The
-HP→diseases-with-frequency direction has no REST path.
-
-**Narrow ask:** re-enable the commented full-mode path as an opt-in,
-guarded by `?detail=true` or a `/api/entry-full` route. To address the
-"can be very large" concern in the comment, accept an optional
-`?xref_dataset=orphanet` filter so callers can scope to one xref set
-(HP:0001166 has ~167 disease links across mim+orphanet — fine when filtered).
-
-If neither path is desirable, an alternative narrower change: surface
-`evidence` as an extra column in lite map row schema specifically for
-edges where the parser stored a non-empty evidence token (hpo↔mim,
-hpo↔orphanet, reactome edges with TAS/IEA, etc.). Lower scope, equivalent
-unblock.
-
----
-
-## Issue #24 — HPO qualitative frequency terms (HP:0040281, …) dropped during ingest
-
-Flagged by biobtree dev team during the Issue #23 discussion: the parser
-in hpo.go:403 keeps numeric/percentage frequencies (`3/8`, `80%`) but
-skips the HPO frequency-modifier terms — `HP:0040281` "Very frequent",
-`HP:0040280` "Obligate", `HP:0040282` "Frequent", `HP:0040283`
-"Occasional", `HP:0040284` "Very rare", `HP:0040285` "Excluded".
-
-These qualitative tags are how the source `phenotype.hpoa` file expresses
-frequency when no numerator/percentage is published — common for older
-disease annotations. Atlas-side rendering wants "obligate" / "very
-frequent" as readable labels alongside the numeric ones.
-
-**Ask:** keep the qualitative HP:00402xx tags in the evidence string
-(parallel to the numeric tokens), and resolve the term IDs to their
-labels at response time so REST consumers can render them without a
-second lookup.
-
-Cost on biobtree's side: small — extend the parser branch + a 6-entry
-static term→label map.
+Same reason as #23. The qualitative labels ("Very frequent (99-80%)",
+"Obligate", "Frequent") arrive pre-rendered inside `OrphanetAttr.phenotypes`'s
+`frequency` field. No qualitative-tag parsing fix needed at biobtree's
+ingest layer — the values are already in the human-readable strings
+Atlas renders.
