@@ -97,6 +97,20 @@ Remaining (all cross-repo, deferred to launch):
 - [ ] **`civic_variant` / `civic_evidence` / `civic_assertion`.** Return
       n=0 via hgnc/uniprot — route TBD. CIViC's gene-level narrative is
       already wired; variant-level would be the next depth tier.
+- [ ] 🕓 **Drug patent landscape** (BIOBTREE #25 / #26 / #27). Today the drug
+      §1 shows the SureChEMBL mention total + the dominant matched-structure
+      share (e.g. Imatinib 109,520; one structure = 98%). A real landscape is
+      blocked on three biobtree gaps: assignee + CPC/IPC technology class
+      (#25 — attributes documented but not populated), distinct patent
+      **families** (#26 — `patent_compound` has no `patent_family` rollup; the
+      honest dedup of mention inflation), and jurisdiction / filing-timeline /
+      recent-patents (#27 — `>>patent_compound>>patent` is id-ordered with no
+      date sort or facets, so any sample is biased). When those land: restore
+      a dedicated **`## Patent landscape`** section — distinct families, top
+      assignees, CPC technology areas, recent filings, jurisdiction mix. The
+      collector already captures `patent_compound_breakdown` (s11); the
+      `chembl_molecule>>patent_compound>>patent` hop is verified working, so
+      this is a render + bounded-fetch task once the data/facets exist.
 
 ### 2026-05-30 biobtree refresh — all wirables SHIPPED
 
@@ -137,6 +151,9 @@ All hygiene items from this section shipped 2026-05-31. Per `git log`:
 | ~~Mondo OBO cross-ontology xrefs + UBERON anatomy~~ | **✅ RESOLVED 2026-06-01** — `>>mondo>>{doid,sctid,umls,ncit,medgen,icd10cm,icd11,gard,meddra,nord,uberon}` all work. §1 federated identifier table extended; JSON-LD `sameAs` + `code` + `associatedAnatomy` populated. |
 | ~~#16 list-ids endpoint~~ | **retracted 2026-05-31** — corpus enumeration belongs upstream (HGNC TSV, Mondo OBO, ChEMBL releases); biobtree shouldn't duplicate. |
 | ~~#17 bulk xref-count check~~ | **retracted 2026-05-31** — per-entry xref counts work fine, only paid once per release with local cache. No real bottleneck. |
+| #25 patent attrs (assignee/CPC/IPC) not populated | open 🕓 | Blocks drug patent **assignee** breakdown + **technology-class** (CPC/IPC) landscape — fields documented in `patent.md` but empty across CN/EP/US/WO. |
+| #26 no `patent_family` rollup on `patent_compound` | open 🕓 | Blocks **distinct-family** count (honest dedup of SureChEMBL mention inflation); only reachable by `entry()`-ing 100k+ patents otherwise. |
+| #27 `>>patent_compound>>patent` id-ordered, no date sort / facets | open 🕓 | Blocks **jurisdiction / timeline / recent-patents** — any bounded sample is a sampling artifact. |
 
 ## Pre-launch / cross-repo work (defer to launch day)
 
