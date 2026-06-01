@@ -177,13 +177,15 @@ def r_target_pathways(b):
         L.append("*No target-pathway data for this drug "
                  "(no mapped target genes).*")
         return "\n".join(L)
-    L.append(f"**Aggregated over {len(tg)} target gene(s): {', '.join(tg)}.**")
+    tg_md = ", ".join(links.maybe_link(g, links.gene_url(symbol=g)) for g in tg)
+    L.append(f"**Aggregated over {len(tg)} target gene(s): {tg_md}.**")
     if tp:
         L += ["", f"**Top Reactome pathways ({_i(b.get('pathway_count'))} total), "
               f"by targets touching each:**", "",
               table(["Pathway", "Targets", "Genes"],
                     [(p.get("name") or p.get("id") or "",
-                      p.get("gene_count"), ", ".join(p.get("genes") or []))
+                      p.get("gene_count"),
+                      ", ".join(links.maybe_link(g, links.gene_url(symbol=g)) for g in (p.get("genes") or [])))
                      for p in tp])]
     if go:
         L += ["", "**Dominant GO biological processes:**", "",
@@ -206,7 +208,8 @@ def r_pharmacogenomics(b):
                  f"DPWG genotype-guided dosing for this drug (drug × pharmacogene):**\n")
         L.append(table(["Guideline", "Source", "Gene(s)", "Dosing", "Recommendation"],
                        [((r.get("name") or r.get("id") or "")[:70],
-                         r.get("source"), r.get("genes"),
+                         r.get("source"),
+                         links.link_csv(r.get("genes"), lambda s: links.gene_url(symbol=s)),
                          "yes" if r.get("has_dosing") else "",
                          "yes" if r.get("has_recommendation") else "") for r in g]))
     # Coverage line — gene-keyed clinical/variant annotations live on the gene

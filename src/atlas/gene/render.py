@@ -482,7 +482,8 @@ def r_drugs(b):
         L.append(table(
             ["Variant", "Type", "Level", "Drugs", "Phenotypes"],
             [(c.get("variant"), c.get("type"), c.get("level_of_evidence"),
-              c.get("chemicals"), c.get("phenotypes"))
+              links.link_csv(c.get("chemicals"), lambda s: links.drug_url(name=s)),
+              c.get("phenotypes"))
              for c in pgc[:40]]))
 
     # PharmGKB variant pages — variant-level aggregations with PharmGKB's
@@ -492,9 +493,11 @@ def r_drugs(b):
         L.append(f"\n**PharmGKB variants ({len(pgv)}):**\n")
         L.append(table(
             ["Variant", "Genes", "Level", "Score", "#Clin annots", "Drugs"],
-            [(v.get("name"), v.get("gene_symbols"), v.get("level_of_evidence"),
+            [(v.get("name"),
+              links.link_csv(v.get("gene_symbols"), lambda s: links.gene_url(symbol=s)),
+              v.get("level_of_evidence"),
               v.get("score"), v.get("clinical_annotation_count"),
-              v.get("associated_drugs"))
+              links.link_csv(v.get("associated_drugs"), lambda s: links.drug_url(name=s)))
              for v in pgv[:40]]))
 
     # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
@@ -509,7 +512,9 @@ def r_drugs(b):
         L.append(f"\n**PharmGKB dosing guidelines ({len(pgg)}):**\n")
         L.append(table(
             ["Source", "Drug", "Guideline", "Dosing?", "Recommendation?"],
-            [(g.get("source"), g.get("chemical_names"), g.get("name"),
+            [(g.get("source"),
+              links.link_csv(g.get("chemical_names"), lambda s: links.drug_url(name=s)),
+              g.get("name"),
               "yes" if g.get("has_dosing_info") else "",
               "yes" if g.get("has_recommendation") else "")
              for g in pgg_sorted[:30]]))

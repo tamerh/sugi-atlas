@@ -105,8 +105,35 @@ def build_jsonld(bundle, base_url=BASE_URL):
     loc = hgnc.get("location")
     if loc:
         out["isPartOfBioChemEntity"] = {"@type": "Chromosome", "name": loc}
+    # Gene → disease / drug edges via JSON-LD @reverse: schema.org has no
+    # forward Gene→MedicalCondition/Drug predicate, but a disease's
+    # `associatedGene` and a drug's `target` both point *to* this gene — so we
+    # emit them under @reverse with those real predicates. Targets are the
+    # built Atlas pages (internal traversal); the block elides if none built.
+    rev = _reverse_edges(bundle, base_url)
+    if rev:
+        out["@reverse"] = rev
     # Drop None/empty values for clean machine-readable output.
     return {k: v for k, v in out.items() if v not in (None, [], "")}
+
+
+def _reverse_edges(bundle, base_url):
+    """{@reverse: {associatedGene: [MedicalCondition…], target: [Drug…]}} —
+    diseases/drugs whose edge points at this gene, limited to built Atlas
+    pages with their internal URL."""
+    from atlas.page import links
+    host = base_url.rsplit("/atlas", 1)[0]
+    groups = links.related_targets("gene", bundle)
+    rev = {}
+    dz = [{"@type": "MedicalCondition", "name": n, "url": host + p}
+          for n, p in groups.get("Diseases", [])[:20]]
+    dr = [{"@type": "Drug", "name": n, "url": host + p}
+          for n, p in groups.get("Drugs", [])[:20]]
+    if dz:
+        rev["associatedGene"] = dz if len(dz) > 1 else dz[0]
+    if dr:
+        rev["target"] = dr if len(dr) > 1 else dr[0]
+    return rev or None
 
 def as_script_tag(jsonld):
     """JSON-LD as an inline <script> block for the page body."""

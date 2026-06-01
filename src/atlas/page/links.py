@@ -148,11 +148,21 @@ def _drug_display(name):
     return n or (name or "")
 
 
-def related_block(entity_type, bundle):
-    """A compact "**Related Atlas pages**" intro block surfacing the mesh up
-    front (the in-body links are buried mid-table). Only built targets appear;
-    elides entirely if nothing resolves. Same resolution as the in-body links,
-    so the two stay consistent."""
+def link_csv(cell, resolver):
+    """Link each token in a comma-joined cell via resolver(token) -> url|None.
+    Unmatched tokens stay plain text. For cells like "ABL1, DDR1, KIT" or a
+    drug-name list — turns the resolvable ones into internal links in place."""
+    if not cell:
+        return cell or ""
+    parts = [p.strip() for p in str(cell).split(",")]
+    return ", ".join(maybe_link(p, resolver(p)) for p in parts if p)
+
+
+def related_targets(entity_type, bundle):
+    """Resolve a page's cross-entity references to BUILT Atlas targets.
+    Returns {"Genes": [(label, path)], "Diseases": [...], "Drugs": [...]},
+    deduped by path (e.g. "/atlas/gene/TP53/"). Single source of truth for both
+    related_block (markdown) and the JSON-LD cross-entity edges."""
     from atlas.civic import therapy_label
     groups = {"Genes": [], "Diseases": [], "Drugs": []}
     seen = set()
@@ -202,6 +212,13 @@ def related_block(entity_type, bundle):
         for r in (b10.get("civic_evidence") or []):        # name-tier
             add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
 
+    return groups
+
+
+def related_block(entity_type, bundle):
+    """The "## Related Atlas pages" markdown section (page end) surfacing the
+    mesh as a scannable block. Elides when nothing is built."""
+    groups = related_targets(entity_type, bundle)
     lines = []
     for grp in ("Genes", "Diseases", "Drugs"):
         items = groups[grp]
