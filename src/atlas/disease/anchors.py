@@ -52,6 +52,11 @@ class DiseaseAnchors:
     mesh_ids: Tuple[str, ...]
     omim_ids: Tuple[str, ...]
     orphanet_ids: Tuple[str, ...]
+    # Primary Orphanet entry's full attrs — used for clinical phenotypes
+    # (HPO list with frequencies) and prevalences (epidemiology).
+    # Picked as the first orphanet_id whose disorder_type is "Disease"
+    # (vs "Clinical subtype" / "Group"). {} for non-rare-disease entries.
+    orphanet_attrs: dict
     is_cancer: bool
     # Gene cohort — top COHORT_CAP genes by evidence-route count.
     cohort: Tuple[GeneAnchors, ...]
@@ -170,6 +175,29 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
     mim_rows  = map_all(mondo_id, ">>mondo>>mim")
     orph_rows = map_all(mondo_id, ">>mondo>>orphanet")
 
+    # Pick the primary Orphanet entry (disorder_type=="Disease"). Pull its
+    # full attrs once — carries the per-disease HPO phenotype list with
+    # frequencies + multi-region prevalence data. Both drive new content
+    # in §1 + JSON-LD (signOrSymptom, epidemiology).
+    orphanet_attrs = {}
+    for r in orph_rows:
+        try:
+            e = entry(r["id"], "orphanet")
+            attrs = (e.get("Attributes") or {}).get("Orphanet") or {}
+            if attrs.get("disorder_type") == "Disease":
+                orphanet_attrs = attrs
+                break
+        except Exception:
+            continue
+    # Fallback: if no "Disease" found but there are entries, take the first
+    # subtype's attrs — better than empty for terms Mondo only links to a subtype.
+    if not orphanet_attrs and orph_rows:
+        try:
+            e = entry(orph_rows[0]["id"], "orphanet")
+            orphanet_attrs = (e.get("Attributes") or {}).get("Orphanet") or {}
+        except Exception:
+            pass
+
     cohort_full, evidence = _build_cohort(mondo_id)
 
     # Pre-resolve the top-N gene anchors so downstream cohort sections don't
@@ -200,6 +228,7 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
         mesh_ids=tuple(r["id"] for r in mesh_rows),
         omim_ids=tuple(r["id"] for r in mim_rows),
         orphanet_ids=tuple(r["id"] for r in orph_rows),
+        orphanet_attrs=orphanet_attrs,
         is_cancer=_is_cancer(mondo_id, mondo_entry, canonical_name),
         cohort=tuple(cohort),
         cohort_evidence=evidence,

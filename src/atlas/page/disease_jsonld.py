@@ -136,6 +136,8 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "sameAs": same_as_urls(bundle) or None,
         "associatedGene": _associated_genes(bundle) or None,
         "drug": _drugs(bundle) or None,
+        "epidemiology": _epidemiology(b1) or None,
+        "signOrSymptom": _sign_or_symptom(b1) or None,
     }
     # MedicalCode entries for each ontology (more granular than sameAs).
     codes = []
@@ -157,6 +159,51 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
     if codes:
         out["code"] = codes if len(codes) > 1 else codes[0]
     return {k: v for k, v in out.items() if v not in (None, [], "")}
+
+
+def _epidemiology(b1: dict) -> str:
+    """schema.org `epidemiology` is a free-text field. Prefer the Validated
+    point-prevalence row with the widest geography (Worldwide > continental >
+    country). Falls back to the first prevalence row, or empty."""
+    prevs = b1.get("prevalences") or []
+    if not prevs:
+        return ""
+    def _rank(p):
+        geo = p.get("geographic") or ""
+        return (0 if p.get("validation_status") == "Validated" else 1,
+                0 if p.get("prevalence_type") == "Point prevalence" else 1,
+                0 if geo == "Worldwide" else (1 if geo in ("Europe", "Americas") else 2))
+    best = sorted(prevs, key=_rank)[0]
+    parts = [best.get("prevalence_type") or "Prevalence",
+             best.get("prevalence_class") or ""]
+    if best.get("geographic"):
+        parts.append(f"({best['geographic']})")
+    if best.get("validation_status") == "Validated":
+        parts.append("[Orphanet-validated]")
+    return " ".join(p for p in parts if p)
+
+
+def _sign_or_symptom(b1: dict) -> list:
+    """schema.org `signOrSymptom` — MedicalSignOrSymptom nodes per HPO
+    phenotype (top 20 by frequency). Each carries the HPO id as identifier
+    and `frequency` as natural-language label so consumers can interpret."""
+    phs = b1.get("phenotypes") or []
+    if not phs:
+        return []
+    out = []
+    for p in phs[:20]:
+        hpo_id = p.get("hpo_id")
+        node = {
+            "@type": "MedicalSignOrSymptom",
+            "name": p.get("hpo_term"),
+            "identifier": hpo_id,
+        }
+        if hpo_id:
+            node["url"] = f"https://hpo.jax.org/app/browse/term/{hpo_id}"
+        if p.get("frequency"):
+            node["frequency"] = p["frequency"]
+        out.append(node)
+    return out
 
 
 def as_script_tag(jsonld: dict) -> str:

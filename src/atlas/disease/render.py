@@ -61,6 +61,38 @@ def r_disease_ids(b):
         out.append("")
         ordered = sorted(xc.items(), key=lambda kv: -kv[1])
         out.append(table(["Dataset", "Count"], [(k, _i(v)) for k, v in ordered]))
+
+    # Epidemiology — Orphanet curates multi-geography prevalence data per
+    # rare disease. Show as a small table when present (validated rows first).
+    prevs = b.get("prevalences") or []
+    if prevs:
+        prevs_sorted = sorted(prevs,
+                              key=lambda p: (0 if p.get("validation_status") == "Validated" else 1,
+                                             p.get("prevalence_type") or ""))
+        out.append("")
+        out.append(f"**Epidemiology ({len(prevs)} prevalence records, "
+                   "Orphanet):**")
+        out.append("")
+        out.append(table(["Type", "Class", "Value", "Geography", "Validation"],
+                         [(p.get("prevalence_type"), p.get("prevalence_class"),
+                           p.get("val_moy"), p.get("geographic"),
+                           p.get("validation_status"))
+                          for p in prevs_sorted]))
+
+    # Clinical features (HPO phenotypes from Orphanet, frequency-sorted).
+    # Show top 30; full list lives in the bundle/sidecar for RAG consumers.
+    phs = b.get("phenotypes") or []
+    if phs:
+        total = b.get("phenotype_count") or len(phs)
+        out.append("")
+        out.append(f"**Clinical features ({total} HPO phenotypes, Orphanet "
+                   f"curated; top {min(30, len(phs))} by frequency):**")
+        out.append("")
+        out.append(table(["HPO ID", "Term", "Frequency"],
+                         [(f"[{p.get('hpo_id')}](https://hpo.jax.org/app/browse/term/{p.get('hpo_id')})",
+                           p.get("hpo_term"),
+                           p.get("frequency"))
+                          for p in phs[:30]]))
     return "\n".join(out)
 
 
