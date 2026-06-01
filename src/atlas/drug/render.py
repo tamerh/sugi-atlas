@@ -146,18 +146,30 @@ def r_target_pathways(b):
 def r_pharmacogenomics(b):
     L = ["## Pharmacogenomics", ""]
     g = b.get("guidelines") or []
-    if not g:
-        L.append("*No PharmGKB genotype-guided dosing guideline curated for "
-                 "this drug.*")
+    pa = b.get("pharmgkb_chemical_id")
+    ca, va = b.get("clinical_annotation_count"), b.get("variant_annotation_count")
+    if not g and not pa:
+        L.append("*No PharmGKB pharmacogenomic data curated for this drug.*")
         return "\n".join(L)
-    L.append(f"**PharmGKB dosing guidelines ({b.get('guideline_count')}) — CPIC / "
-             f"DPWG genotype-guided dosing for this drug (drug × pharmacogene):**\n")
-    L.append(table(["Guideline", "Source", "Gene(s)", "Dosing", "Recommendation"],
-                   [(f"[{(r.get('name') or r['id'])[:70]}](https://www.pharmgkb.org/guidelineAnnotation/{r['id']})"
-                     if r.get("id") else (r.get("name") or ""),
-                     r.get("source"), r.get("genes"),
-                     "yes" if r.get("has_dosing") else "",
-                     "yes" if r.get("has_recommendation") else "") for r in g]))
+    if g:
+        L.append(f"**PharmGKB dosing guidelines ({b.get('guideline_count')}) — CPIC / "
+                 f"DPWG genotype-guided dosing for this drug (drug × pharmacogene):**\n")
+        L.append(table(["Guideline", "Source", "Gene(s)", "Dosing", "Recommendation"],
+                       [(f"[{(r.get('name') or r['id'])[:70]}](https://www.pharmgkb.org/guidelineAnnotation/{r['id']})"
+                         if r.get("id") else (r.get("name") or ""),
+                         r.get("source"), r.get("genes"),
+                         "yes" if r.get("has_dosing") else "",
+                         "yes" if r.get("has_recommendation") else "") for r in g]))
+    elif pa:
+        L.append("*No CPIC/DPWG dosing guideline, but PharmGKB curates "
+                 "pharmacogenomic annotations for this drug:*")
+    # Coverage line — gene-keyed clinical/variant annotations live on the gene
+    # pages; surface the counts + a link to the PharmGKB chemical record.
+    if pa and (ca or va):
+        L.append(f"\nPharmGKB also curates "
+                 f"{_i(ca) or 0} clinical and {_i(va) or 0} variant annotation(s) "
+                 f"for this drug (gene-keyed; see "
+                 f"[PharmGKB](https://www.pharmgkb.org/chemical/{pa})).")
     return "\n".join(L)
 
 
