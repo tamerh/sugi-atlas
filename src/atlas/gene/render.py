@@ -127,13 +127,17 @@ def r_protein_ids(b):
     if cc:
         canon = b.get("canonical_uniprot")
         uurl = f"https://www.uniprot.org/uniprotkb/{canon}/entry" if canon else None
-        L.append("\n### UniProt curated annotations\n")
+        # Single deep link in the subtitle (not one per truncated block).
+        head = "### UniProt curated annotations"
+        if uurl:
+            head += f" — [full annotation on UniProt →]({uurl})"
+        L.append("\n" + head + "\n")
         for key, label in _CC_ORDER:
             text = cc.get(key)
             if not text:
                 continue
             limit = 700 if key == "function" else 320
-            L.append(f"**{label}.** {_cc_trim(text, limit, uurl)}")
+            L.append(f"**{label}.** {_cc_trim(text, limit, None)}")
             L.append("")  # blank between paragraphs
 
     # (NCBI-curated gene summary moved to the top-of-page Overview, and the
