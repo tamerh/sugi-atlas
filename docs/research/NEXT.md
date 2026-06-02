@@ -156,6 +156,62 @@ All hygiene items from this section shipped 2026-05-31. Per `git log`:
 | #27 `>>patent_compound>>patent` id-ordered, no date sort / facets | open 🕓 | Blocks **jurisdiction / timeline / recent-patents** — any bounded sample is a sampling artifact. |
 | #28 `collectOntologyIDs` over-matches common terms → contaminated `mondo→{clinical_trials,intogen,civic}` | open 🕓, dev fixing (exact-match, needs re-index) | **⚠ HAS AN ACTIVE ATLAS MITIGATION TO REVERT.** Now: s13 title-validates trials (commit 43c5736) — too-strict proxy (cardiomyopathy 317→92). **On resolve:** (1) swap s13 title-match → exact condition-match (self-deactivating; needs `conditions` added to the trial map compact_fields — dev offered) or remove it; (2) re-check disease §13 civic / cohort CIViC route for residual contamination. **Blast-radius check done (2026-06-02): intogen blast radius = 0 (Atlas reaches it gene-first via `hgnc→intogen`, never the contaminated `mondo→intogen`); `mondo→civic_evidence` ~0 contamination on the head (294/303 rows match canonical; the 9 others are real glioma evidence) → no interim civic guard, wait for upstream.** Re-check if the corpus expands into the rare-disease tail before #28 lands. |
 
+## Page output contract — web team requests (2026-06-02)
+
+The frontend does passage/chunk indexing (Google, Perplexity, Pagefind), so the
+*output contract* (H2 set, anchor IDs, frontmatter schema) is an SEO/AI lever, not
+just cosmetics. **P0 is a freeze-before-launch decision** — changing the H2 set or
+anchor IDs later 404s every deep link in the wild. Sequenced as the web team
+proposed (P0 contract → P1 lede/links → P2 schema → P3 polish).
+
+- [ ] **P0 · Canonical H2 taxonomy, same set + order on every entity, emit even if
+      empty** (placeholder = informative, e.g. "non-coding RNA — no protein
+      product", not bare "no data"). *Design + freeze jointly before launch.*
+      **Reconcile with layer-B:** the web team's flat 6–7 H2 set (Summary /
+      Identifiers / Gene structure / Protein / Function / Disease & clinical /
+      Drugs) supersedes the current 3-zone nesting (Gene-locus / Protein-product /
+      Clinical) — and it also fixes the "fewer sections but each too dense"
+      feedback. The gene↔protein split survives as sibling H2s (Gene structure /
+      Protein / Function); layer-A typed-Protein JSON-LD (`@id`/encodes) is
+      independent of body nesting and stays. Need parallel frozen sets for
+      disease + drug. **Mostly our work (render order + headers + placeholders).**
+- [ ] **P0 · Stable explicit anchor IDs** via `## Heading {#kebab-id}` (goldmark
+      `parser.attribute.title=true` — web team to enable). Backend-owned IDs
+      decoupled from prose, locked across regens (`#summary #identifiers
+      #transcripts #expression #variants #protein #function #drugs #trials
+      #generif #pathways`). Replaces the current `<a id>` HTML anchors. Freeze
+      with the taxonomy.
+- [ ] **P1 · `## Summary` H2 as the lede** — wrap the existing intro region
+      (lead + RefSeq + At-a-glance) in one `## Summary {#summary}` so it's a
+      passage-indexable chunk. ⚠ Reconcile with the earlier "intro is *not* a
+      section" preference — one Summary section wrapping the whole intro (not
+      peer headers) satisfies both; confirm before doing.
+- [ ] **P2 · `tldr:` frontmatter** — 3–5 structured key-fact bullets from the
+      bundle (same source as At-a-glance) → frontend "Key facts" box + clean
+      snippets.
+- [ ] **P2 · Decouple symbol/title + canonical-case** — `symbol` is the slug for
+      genes but a kebab slug for diseases (`ataxia-telangiectasia`), so templates
+      can't trust `.Params.symbol`. Make a typed identifier field (HGNC / MONDO /
+      ChEMBL id) + `title` = display. Drug titles already de-SHOUTed (#12).
+- [ ] **P2 · Search-alias frontmatter** — prev/alias symbols (genes), xrefs
+      (diseases), synonyms/brands (drugs) for Pagefind ("Her2" → ERBB2).
+      ⚠ **`aliases:` is Hugo-reserved (generates URL redirects)** — use a
+      different field name (`alt_names:` / `synonyms:`), NOT `aliases:`.
+- [ ] **P3 · `section_defaults:` open/collapsed hints** — skippable for v1; the
+      frontend can apply its own rules once the H2 set + IDs are frozen.
+- [ ] **P3 · Emit `index.md` not `page.md`** — one-liner in `batch.render_one`;
+      lets `biobtree-content` mount the dist as a Hugo module (no sync wrapper).
+      Coordinate timing (breaks their current sync script).
+- [ ] 🕓 **DEFERRED — P1 · Per-table source link ("showing 40 of 312 · view all
+      →")**. Filed for separate structural design (per 2026-06-02 decision). Why
+      it's not a quick win: needs a uniform per-table `(total, canonical
+      source-URL)` contract, and **neither is uniform** — totals aren't reliably
+      exposed for every table (ties into biobtree #6 entry-counts) and several
+      sources lack a clean per-entity "view all" deep link (patents #25–27,
+      BindingDB, BRENDA). Also must align with our existing "section-level source
+      link only, no per-row links" convention. Design the per-dataset
+      (total + deep-link) map once, then apply uniformly — don't bolt on ad-hoc.
+
 ## Pre-launch / cross-repo work (defer to launch day)
 
 These live in **`biobtree-content`**, not this repo. Sending AI bots toward
