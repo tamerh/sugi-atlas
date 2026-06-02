@@ -620,12 +620,13 @@ def r_drugs(b):
             L.append(f"\n**Most potent curated ligand interactions "
                      f"({b.get('gtopdb_interaction_count', 0)} total), top {len(gi)}:**\n")
             def _gact(x):
-                # GtoPdb action can be the literal 'None'/'Unknown' — fall back
-                # to the interaction type, else blank (no null-looking cell).
-                a = (x.get("action") or "").strip()
-                if a.lower() in ("none", "unknown"):
-                    a = (x.get("type") or "").strip()
-                return a
+                # GtoPdb action AND type can both be the literal 'None'/'Unknown'
+                # — take the first meaningful one, else blank (no null-looking cell).
+                for v in (x.get("action"), x.get("type")):
+                    v = (v or "").strip()
+                    if v and v.lower() not in ("none", "unknown"):
+                        return v
+                return ""
             L.append(table(["Ligand", "Action", "Affinity", "Parameter"],
                            [(links.maybe_link(x.get("ligand"), links.drug_url(name=x.get("ligand"))),
                              _gact(x), x.get("affinity"), x.get("parameter")) for x in gi]))

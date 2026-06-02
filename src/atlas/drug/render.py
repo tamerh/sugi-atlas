@@ -2,7 +2,7 @@
 """Deterministic markdown renderer for drug-section bundles — NO model.
 Mirrors gene/render.py + disease/render.py: one r_* fn per section + a RENDER
 dict. Every fact comes verbatim from the bundle."""
-from atlas.render_common import table, fnum, is_ontology_id, display_name
+from atlas.render_common import table, fnum, is_ontology_id, display_name, phase_label
 from atlas.civic import therapy_label
 from atlas.page import links
 
@@ -291,7 +291,7 @@ def r_clinical_trials(b):
         L += ["", "**Top trials by phase / activity:**", "",
               table(["NCT", "Phase", "Status", "Title"],
                     [((t.get("id") or ""),
-                      t.get("phase"), t.get("status"), (t.get("title") or "")[:65])
+                      phase_label(t.get("phase")), t.get("status"), (t.get("title") or "")[:65])
                      for t in tt])]
     return "\n".join(L)
 
