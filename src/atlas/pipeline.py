@@ -56,12 +56,20 @@ def biobtree_version():
 
 GENERATED_BY = "Sugi Atlas"  # attribution stamp; details on the /methods page
 
+# Page filename (web-team P3). "page.md" (default — current biobtree-content sync
+# expects it) or "index.md" (Hugo page-bundle → lets biobtree-content mount the
+# dist as a module with no sync wrapper). Flip via env once their module mount is
+# ready; doing it unilaterally would break their current sync script.
+PAGE_FILENAME = os.environ.get("ATLAS_PAGE_FILENAME", "page.md")
 
-def build_meta(entity_type, slug, title, datasets, generated_at=None):
+
+def build_meta(entity_type, slug, title, datasets, generated_at=None, bundle=None):
     """The single page-frontmatter meta builder — used by run_gene/disease/drug
     AND the batch driver, so the shape can't drift between paths (the m4 fix).
     `slug` is the URL/filename key (gene slug == symbol); `title` is the human
-    label (gene=symbol, disease=canonical name, drug=ChEMBL name)."""
+    label (gene=symbol, disease=canonical name, drug=ChEMBL name). When `bundle`
+    is passed, the P2/P3 key-facts (identifier, alt_names, tldr, section_defaults)
+    are derived and merged in."""
     # Title-case a SHOUTING all-caps title for display (audit #12: drug names
     # like 'IMATINIB'). Genes are exempt — symbols (TP53) are upper by
     # convention; diseases in sentence case get their leading letter capitalized
@@ -73,9 +81,9 @@ def build_meta(entity_type, slug, title, datasets, generated_at=None):
             title = display_name(title)
         elif entity_type == "disease" and title == title.lower():
             title = title[0].upper() + title[1:]
-    return {
+    meta = {
         "title": title,
-        "symbol": slug,
+        "symbol": slug,             # URL slug (legacy); templates key on `identifier`
         "entity_type": entity_type,
         "generated_at": (generated_at
                          or datetime.now(timezone.utc).isoformat(timespec="seconds")),
@@ -84,6 +92,10 @@ def build_meta(entity_type, slug, title, datasets, generated_at=None):
         "generated_by": GENERATED_BY,
         "datasets": datasets,
     }
+    if bundle is not None:
+        from atlas.page.meta_facts import entity_facts
+        meta.update(entity_facts(entity_type, bundle))
+    return meta
 
 
 def datasets_union(registry):
@@ -212,10 +224,21 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     prepended above the LLM summary. Required for the AI-friendly page shape;
     legacy callers that don't pass it get the prior (no-lead) layout."""
     fm = ["---"]
-    for k in ("title", "symbol", "entity_type", "generated_at", "atlas_version",
-              "biobtree_version", "generated_by"):
+    for k in ("title", "identifier", "symbol", "entity_type", "generated_at",
+              "atlas_version", "biobtree_version", "generated_by"):
         if meta.get(k) is not None:
             fm.append(f'{k}: "{_yaml_escape(meta[k])}"')
+    # Search aliases (P2) — NOT Hugo-reserved `aliases:` (that emits 301s).
+    for field in ("alt_names", "tldr"):
+        items = [x for x in (meta.get(field) or []) if x]
+        if items:
+            fm.append(f"{field}:")
+            fm += [f'  - "{_yaml_escape(x)}"' for x in items]
+    # Section open/collapsed hints (P3), keyed by canonical anchor id.
+    sd = meta.get("section_defaults") or {}
+    if sd:
+        fm.append("section_defaults:")
+        fm += [f"  {k}: {v}" for k, v in sd.items()]
     # datasets: YAML list → theme renders the visible "Data sources" block.
     # The api-call/chain trail stays an internal pipeline artifact (not
     # published) — transparency here is the source list + the generated_by
@@ -373,12 +396,12 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
         print(f"[4/5] summary  SKIPPED")
         print(f"[5/5] summary_gate  SKIPPED")
 
-    meta = build_meta("gene", symbol, symbol, datasets_from_calls(CALLS))
+    meta = build_meta("gene", symbol, symbol, datasets_from_calls(CALLS), bundle=bundle)
     # Pass bundle so assemble_page emits the declarative lead + JSON-LD
     # inline script (parity with the Enju publish task).
     page_md = assemble_page(symbol, summary_text, body_md, meta, bundle=bundle)
 
-    write_text(os.path.join(out_dir, "page.md"), page_md)
+    write_text(os.path.join(out_dir, PAGE_FILENAME), page_md)
     if summary_text:
         write_text(os.path.join(out_dir, "summary.md"), summary_text + "\n")
     if judge_result is not None:
@@ -462,14 +485,14 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
         print(f"[4/5] summary  SKIPPED")
         print(f"[5/5] summary_gate  SKIPPED")
 
-    meta = build_meta("disease", slug, a.canonical_name or name, datasets_from_calls(CALLS))
+    meta = build_meta("disease", slug, a.canonical_name or name, datasets_from_calls(CALLS), bundle=bundle)
     # Disease declarative lead + schema.org/MedicalCondition JSON-LD now
     # flow through assemble_page (entity_type='disease' branch). Same shape
     # as the gene page lead, just disease-shaped sentence + MedicalCondition
     # @type instead of Gene.
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
-    write_text(os.path.join(out_dir, "page.md"), page_md)
+    write_text(os.path.join(out_dir, PAGE_FILENAME), page_md)
     if summary_text:
         write_text(os.path.join(out_dir, "summary.md"), summary_text + "\n")
     if judge_result is not None:
@@ -551,10 +574,10 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
         print(f"[4/5] summary  SKIPPED")
         print(f"[5/5] summary_gate  SKIPPED")
 
-    meta = build_meta("drug", slug, a.canonical_name or name, datasets_from_calls(CALLS))
+    meta = build_meta("drug", slug, a.canonical_name or name, datasets_from_calls(CALLS), bundle=bundle)
     page_md = assemble_page(slug, summary_text, body_md, meta, bundle=bundle)
 
-    write_text(os.path.join(out_dir, "page.md"), page_md)
+    write_text(os.path.join(out_dir, PAGE_FILENAME), page_md)
     if summary_text:
         write_text(os.path.join(out_dir, "summary.md"), summary_text + "\n")
     if judge_result is not None:

@@ -111,7 +111,7 @@ def render_one(spec):
         bundle, datasets, title = payload["bundle"], payload["datasets"], payload["title"]
         links.load(dist_dir)                       # the COMPLETE manifest
         links.load_reverse(dist_dir)               # incoming cross-entity edges
-        meta = P.build_meta(etype, slug, title, datasets, generated_at)
+        meta = P.build_meta(etype, slug, title, datasets, generated_at, bundle=bundle)
         if etype == "gene":
             body = P.render_all(bundle)
             from atlas.page.jsonld import build_jsonld, as_jsonld_string
@@ -126,7 +126,7 @@ def render_one(spec):
             jsonld = as_jsonld_string(build_jsonld(bundle, slug))
         page_md = P.assemble_page(slug, "", body, meta, bundle=bundle)
         out_dir = os.path.join(dist_dir, "atlas", etype, slug)
-        write_text(os.path.join(out_dir, "page.md"), page_md)
+        write_text(os.path.join(out_dir, P.PAGE_FILENAME), page_md)
         write_text(os.path.join(out_dir, "entity.jsonld"), jsonld)
         return {"ok": True, "entity": etype, "slug": slug}
     except (Exception, SystemExit) as e:

@@ -164,7 +164,7 @@ just cosmetics. **P0 is a freeze-before-launch decision** — changing the H2 se
 anchor IDs later 404s every deep link in the wild. Sequenced as the web team
 proposed (P0 contract → P1 lede/links → P2 schema → P3 polish).
 
-- [ ] **P0 · Canonical H2 taxonomy, same set + order on every entity, emit even if
+- [x] **P0 · Canonical H2 taxonomy ✅, same set + order on every entity, emit even if
       empty** (placeholder = informative, e.g. "non-coding RNA — no protein
       product", not bare "no data"). *Design + freeze jointly before launch.*
       **Reconcile with layer-B:** the web team's flat 6–7 H2 set (Summary /
@@ -175,31 +175,31 @@ proposed (P0 contract → P1 lede/links → P2 schema → P3 polish).
       Protein / Function); layer-A typed-Protein JSON-LD (`@id`/encodes) is
       independent of body nesting and stays. Need parallel frozen sets for
       disease + drug. **Mostly our work (render order + headers + placeholders).**
-- [ ] **P0 · Stable explicit anchor IDs** via `## Heading {#kebab-id}` (goldmark
+- [x] **P0 · Stable explicit anchor IDs ✅** via `## Heading {#kebab-id}` (goldmark
       `parser.attribute.title=true` — web team to enable). Backend-owned IDs
       decoupled from prose, locked across regens (`#summary #identifiers
       #transcripts #expression #variants #protein #function #drugs #trials
       #generif #pathways`). Replaces the current `<a id>` HTML anchors. Freeze
       with the taxonomy.
-- [ ] **P1 · `## Summary` H2 as the lede** — wrap the existing intro region
+- [x] **P1 · `## Summary` H2 as the lede ✅** — wrap the existing intro region
       (lead + RefSeq + At-a-glance) in one `## Summary {#summary}` so it's a
       passage-indexable chunk. ⚠ Reconcile with the earlier "intro is *not* a
       section" preference — one Summary section wrapping the whole intro (not
       peer headers) satisfies both; confirm before doing.
-- [ ] **P2 · `tldr:` frontmatter** — 3–5 structured key-fact bullets from the
+- [x] **P2 · `tldr:` frontmatter ✅** — 3–5 structured key-fact bullets from the
       bundle (same source as At-a-glance) → frontend "Key facts" box + clean
       snippets.
-- [ ] **P2 · Decouple symbol/title + canonical-case** — `symbol` is the slug for
+- [x] **P2 · Decouple symbol/title ✅ (added typed `identifier`; `symbol`=slug kept) + canonical-case** — `symbol` is the slug for
       genes but a kebab slug for diseases (`ataxia-telangiectasia`), so templates
       can't trust `.Params.symbol`. Make a typed identifier field (HGNC / MONDO /
       ChEMBL id) + `title` = display. Drug titles already de-SHOUTed (#12).
-- [ ] **P2 · Search-alias frontmatter** — prev/alias symbols (genes), xrefs
+- [x] **P2 · Search-alias frontmatter ✅ (`alt_names`)** — prev/alias symbols (genes), xrefs
       (diseases), synonyms/brands (drugs) for Pagefind ("Her2" → ERBB2).
       ⚠ **`aliases:` is Hugo-reserved (generates URL redirects)** — use a
       different field name (`alt_names:` / `synonyms:`), NOT `aliases:`.
-- [ ] **P3 · `section_defaults:` open/collapsed hints** — skippable for v1; the
+- [x] **P3 · `section_defaults:` ✅ open/collapsed hints** — skippable for v1; the
       frontend can apply its own rules once the H2 set + IDs are frozen.
-- [ ] **P3 · Emit `index.md` not `page.md`** — one-liner in `batch.render_one`;
+- [x] **P3 · Emit `index.md` not `page.md` ✅ ready via `ATLAS_PAGE_FILENAME` (default page.md; flip on web-team go)** — one-liner in `batch.render_one`;
       lets `biobtree-content` mount the dist as a Hugo module (no sync wrapper).
       Coordinate timing (breaks their current sync script).
 - [ ] 🕓 **DEFERRED — P1 · Per-table source link ("showing 40 of 312 · view all
