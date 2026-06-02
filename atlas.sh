@@ -15,7 +15,7 @@
 #   test all      Pre-production check: build the dense set into ./dist, then
 #                 run unit + integration against it. Run this before `prod`.
 #
-#   prod          Production build, detached via nohup (logs → logs/):
+#   prod          Production build, detached via nohup (logs → dist/logs/):
 #                   1. pre-production check  (== test all: dense build + tests)
 #                   2. full corpus from corpus/seeds/ into ./dist
 #                   3. integration sweep over the full output
@@ -132,16 +132,16 @@ prod_run() {
 
 cmd_prod() {
   if [ "${ATLAS_PROD_WORKER:-}" != "1" ]; then          # launcher: detach + log
-    mkdir -p logs
-    local stamp log pid
-    stamp=$(date +%Y%m%d-%H%M%S); log="logs/prod-$stamp.log"
-    ln -sf "prod-$stamp.log" logs/prod.latest
+    local logdir="$DIST/logs" stamp log pid
+    mkdir -p "$logdir"
+    stamp=$(date +%Y%m%d-%H%M%S); log="$logdir/prod-$stamp.log"
+    ln -sf "prod-$stamp.log" "$logdir/prod.latest"
     ATLAS_PROD_WORKER=1 ATLAS_DIST="$DIST" ATLAS_WORKERS="$WORKERS" ATLAS_LIMIT="$LIMIT" \
       nohup "$0" prod >"$log" 2>&1 &
     pid=$!
     ok "prod started — pid $pid"
     say "log: $log"
-    printf "%s\n" "  ${D}follow:  tail -f $log   (or logs/prod.latest)${N}"
+    printf "%s\n" "  ${D}follow:  tail -f $log   (or $logdir/prod.latest)${N}"
     return 0
   fi
   prod_run                                              # worker: run the pipeline

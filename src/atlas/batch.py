@@ -259,7 +259,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Parallel Atlas corpus builder")
     ap.add_argument("--dist", required=True)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) - 2))
-    ap.add_argument("--cache", default=".atlas-build")
+    ap.add_argument("--cache", default=None,
+                    help="bundle cache dir (default: <dist>/cache)")
     ap.add_argument("--genes", default="")
     ap.add_argument("--diseases", default="")
     ap.add_argument("--drugs", default="")
@@ -269,7 +270,8 @@ def main(argv=None):
     genes, diseases, drugs = _parse_list(a.genes), _parse_list(a.diseases), _parse_list(a.drugs)
     if not (genes or diseases or drugs):
         ap.error("give at least one of --genes / --diseases / --drugs")
-    run(genes, diseases, drugs, a.dist, a.cache, a.workers, limit=a.limit)
+    cache = a.cache or os.path.join(a.dist, "cache")   # keep all build artifacts under <dist>/
+    run(genes, diseases, drugs, a.dist, cache, a.workers, limit=a.limit)
 
 
 if __name__ == "__main__":

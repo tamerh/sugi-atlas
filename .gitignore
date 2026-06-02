@@ -1,6 +1,7 @@
-build/
+# Everything generated lives under dist/ (pages, build/ intermediates,
+# cache/ bundle cache, logs/, release tarballs).
 dist/
-logs/
+
 .DS_Store
 *.egg-info/
 .enju/
@@ -12,9 +13,5 @@ __pycache__/
 *.swp
 .venv/
 
-# batch builder bundle cache (intermediate; not published)
-.atlas-build/
-
-# generated corpus seeds (regenerable via scripts/build_corpus.py)
+# generated corpus seeds (regenerable via `python -m atlas.build_corpus`)
 corpus/seeds/
-corpus/dense/ (transient test slice)

@@ -39,10 +39,10 @@ from atlas.disease.slug import slugify
 # ---------------------------------------------------------------------------
 
 OBO_URL = "http://purl.obolibrary.org/obo/mondo.obo"
-CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "build", "cache")
+CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "dist", "build", "cache")
 OBO_PATH = os.path.join(CACHE_DIR, "mondo.obo")
 DEFAULT_CORPUS_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                   "build", "mondo_corpus.json")
+                                   "dist", "build", "mondo_corpus.json")
 API = "http://127.0.0.1:8000/api"
 
 

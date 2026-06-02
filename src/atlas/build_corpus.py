@@ -12,7 +12,7 @@ biobtree ingests (see /data/biobtree/conf/source1.dataset.json):
   drugs   — ChEMBL molecules (chembl_molecule dataset, id 22) local JSONL,
             filtered by max_phase: approved (4) and clinical (1-3), named only.
   disease — the ranked Mondo corpus already built by atlas.disease.corpus
-            (build/mondo_corpus.json), ordered by signal_score.
+            (dist/build/mondo_corpus.json), ordered by signal_score.
 
 Usage:  python -m atlas.build_corpus [--out corpus/seeds]
 """
@@ -26,7 +26,7 @@ from multiprocessing import Pool
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HGNC_URL = "https://storage.googleapis.com/public-download-files/hgnc/json/json/hgnc_complete_set.json"
 CHEMBL_JSONL = "/data/biobtree/raw_data/chembl/extracted/chembl_molecules.jsonl"
-MONDO_CORPUS = os.path.join(_ROOT, "build", "mondo_corpus.json")
+MONDO_CORPUS = os.path.join(_ROOT, "dist", "build", "mondo_corpus.json")
 
 # Gate 2: ChEBI roles that are NON-therapeutic — a molecule whose ONLY roles are
 # these (and which has no ATC and no curated target) is a reagent/excipient/

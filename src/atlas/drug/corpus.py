@@ -39,7 +39,7 @@ REFERENCE_DRUGS = [
 ]
 
 DEFAULT_CORPUS_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                   "build", "drug_corpus.json")
+                                   "dist", "build", "drug_corpus.json")
 
 _TIERS = [("D1", 4), ("D2", 3), ("D3", 2), ("D4", 1), ("D5", 0)]
 _TIER_ORDER = ["D1", "D2", "D3", "D4", "D5"]

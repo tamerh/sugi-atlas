@@ -29,6 +29,7 @@ biobtree (local REST API)  ──►  collect   ──►  render   ──►  p
 | `validation_data/gene/` | 25-gene reference set for fact-coverage |
 | `tests/unit/`, `tests/integration/` | unit suite + corpus-level integration checks |
 | `docs/` | page contract, biobtree issues, collector notes, research |
+| `dist/` | **everything generated** (gitignored): `atlas/` pages, `build/` corpus intermediates, `cache/` bundle cache, `logs/`, release tarballs |
 
 ## Install & run (dev)
 
@@ -57,12 +58,12 @@ gitignored `./dist`.
 ./atlas.sh test          # unit suite — fast, no build
 ./atlas.sh test int      # integration suite over ./dist (no rebuild)
 ./atlas.sh test all      # dense build + unit + integration (the pre-prod gate)
-./atlas.sh prod          # full corpus, detached (nohup → logs/): pre-prod check
+./atlas.sh prod          # full corpus, detached (nohup → dist/logs/): pre-prod check
                          #   → corpus from seeds → integration sweep → tar.gz
 ```
 
 `prod` refuses to build the corpus unless the pre-production check is green, and
-returns immediately with a PID + log path (`logs/prod-<stamp>.log`). Run
+returns immediately with a PID + log path (`dist/logs/prod-<stamp>.log`). Run
 `./atlas.sh help` for options (`--dist`, `--workers`, `--limit`).
 
 ## Two-stage testing
