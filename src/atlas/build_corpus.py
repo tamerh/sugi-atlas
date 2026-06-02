@@ -14,7 +14,7 @@ biobtree ingests (see /data/biobtree/conf/source1.dataset.json):
   disease — the ranked Mondo corpus already built by atlas.disease.corpus
             (build/mondo_corpus.json), ordered by signal_score.
 
-Usage:  python scripts/build_corpus.py [--out corpus/seeds]
+Usage:  python -m atlas.build_corpus [--out corpus/seeds]
 """
 import argparse
 import json
@@ -22,9 +22,11 @@ import os
 import urllib.request
 from multiprocessing import Pool
 
+# Repo root = two levels up from this module (src/atlas/build_corpus.py).
+_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HGNC_URL = "https://storage.googleapis.com/public-download-files/hgnc/json/json/hgnc_complete_set.json"
 CHEMBL_JSONL = "/data/biobtree/raw_data/chembl/extracted/chembl_molecules.jsonl"
-MONDO_CORPUS = os.path.join(os.path.dirname(__file__), "..", "build", "mondo_corpus.json")
+MONDO_CORPUS = os.path.join(_ROOT, "build", "mondo_corpus.json")
 
 # Gate 2: ChEBI roles that are NON-therapeutic — a molecule whose ONLY roles are
 # these (and which has no ATC and no curated target) is a reagent/excipient/
@@ -172,7 +174,7 @@ def diseases(out):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "corpus", "seeds"))
+    ap.add_argument("--out", default=os.path.join(_ROOT, "corpus", "seeds"))
     ap.add_argument("--only", choices=["genes", "drugs", "diseases"])
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)

@@ -81,7 +81,7 @@ build() {
 build_dense() { build "dense set" "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt"; }
 
 build_full() {
-  [ -f "$SEED_DIR/genes_hgnc.txt" ] || { say "seeds missing → regenerating"; python scripts/build_corpus.py; }
+  [ -f "$SEED_DIR/genes_hgnc.txt" ] || { say "seeds missing → regenerating"; python -m atlas.build_corpus; }
   build "full corpus" "$SEED_DIR/genes_hgnc.txt" "$SEED_DIR/diseases_mondo_ranked.txt" "$SEED_DIR/drugs_chembl_approved.txt"
 }
 
