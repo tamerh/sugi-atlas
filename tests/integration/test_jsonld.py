@@ -48,6 +48,22 @@ def test_gene_protein_nodes_have_id_and_reciprocal_edge(pages):
     assert not bad, report(bad)
 
 
+def test_jsonld_id_matches_page_url(pages):
+    """Sidecar AND inline @id both equal the page's canonical URL (slug) — a
+    mismatch breaks the entity's identity / cross-references."""
+    bad = []
+    for p in pages:
+        want = p.url.rstrip("/")
+        for src, getter in (("sidecar", p.jsonld), ("inline", p.inline_jsonld)):
+            try:
+                j = getter()
+            except (ValueError, KeyError):
+                continue
+            if j and (j.get("@id") or "").rstrip("/") != want:
+                bad.append(f"{p.entity}/{p.slug} {src}: @id={j.get('@id')}")
+    assert not bad, report(bad)
+
+
 def test_inline_script_jsonld_parses(pages):
     """The compacted inline <script type=application/ld+json> in the body
     parses (audit #6 capping must not produce invalid JSON)."""

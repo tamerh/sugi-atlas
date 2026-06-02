@@ -109,12 +109,20 @@ def phase_label(p):
     return "Not specified" if p in ("", "NAN", "NA") else p
 
 
+def _cell(c):
+    """A markdown table cell: unescape HTML entities (UniProt names carry
+    &alpha; etc.) and escape literal pipes — UniProt cleavage notation embeds
+    '|' (e.g. "1838-Glu-|-Ala-1839"), which would otherwise shift the column."""
+    if c is None:
+        return ""
+    return html.unescape(str(c)).replace("|", "\\|")
+
+
 def table(headers, rows):
-    """GitHub-flavored markdown table. Empty cells render as blank; HTML
-    entities in cell values are unescaped (UniProt names often contain &alpha;
-    etc. from the upstream record)."""
+    """GitHub-flavored markdown table. Empty cells blank; HTML entities
+    unescaped; literal pipes in values escaped (no column shift)."""
     out = ["| " + " | ".join(headers) + " |",
            "| " + " | ".join("---" for _ in headers) + " |"]
     for r in rows:
-        out.append("| " + " | ".join("" if c is None else html.unescape(str(c)) for c in r) + " |")
+        out.append("| " + " | ".join(_cell(c) for c in r) + " |")
     return "\n".join(out)

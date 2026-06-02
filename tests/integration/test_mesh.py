@@ -38,6 +38,25 @@ def test_drug_mesh_labels_not_shouting(pages):
     assert not bad, report(bad)
 
 
+def test_manifest_slugs_match_pages(dist_root, pages):
+    """Bijection: every slug the manifest's canon map records has a page, and
+    every page is registered — catches dropped pages / manifest drift."""
+    m = json.load(open(os.path.join(dist_root, "atlas", "manifest.json")))
+    canon = m.get("canon") or {}
+    by_entity = {}
+    for p in pages:
+        by_entity.setdefault(p.entity, set()).add(p.slug)
+    bad = []
+    for et in ("gene", "disease", "drug"):
+        manifest_slugs = set((canon.get(et) or {}).keys())
+        page_slugs = by_entity.get(et, set())
+        if (missing := manifest_slugs - page_slugs):
+            bad.append(f"{et}: {len(missing)} manifest slug(s) with no page e.g. {sorted(missing)[:3]}")
+        if (orphan := page_slugs - manifest_slugs):
+            bad.append(f"{et}: {len(orphan)} page(s) not in canon e.g. {sorted(orphan)[:3]}")
+    assert not bad, report(bad)
+
+
 def test_manifest_and_reverse_index_parse(dist_root):
     for name in ("manifest.json", "reverse_edges.json"):
         path = os.path.join(dist_root, "atlas", name)

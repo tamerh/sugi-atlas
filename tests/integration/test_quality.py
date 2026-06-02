@@ -65,3 +65,36 @@ def test_pages_non_trivial(pages):
     """No empty/truncated pages."""
     bad = [f"{p.entity}/{p.slug}: {len(p.raw)}b" for p in pages if len(p.raw) < 2000]
     assert not bad, report(bad)
+
+
+def test_tables_have_consistent_columns(pages):
+    """Every table row has the header's column count — guards the unescaped-pipe
+    column-shift corruption class (the MeSH-row bug)."""
+    bad = []
+    for p in pages:
+        for ti, tbl in enumerate(p.tables()):
+            if len(tbl) < 2:
+                continue
+            ncol = len(tbl[0])
+            for ri, row in enumerate(tbl[1:], 1):
+                if len(row) != ncol:
+                    bad.append(f"{p.entity}/{p.slug} table#{ti} row{ri}: "
+                               f"{len(row)}≠{ncol} cols {row}")
+                    break
+    assert not bad, report(bad)
+
+
+_ONTOLOGY_LABEL = re.compile(
+    r"\[((?:MONDO|EFO|MESH|MP|HP|HPO|DOID|ORPHANET|ORPHA|NCIT|GO|CHEBI|OMIM)[:_]\d+)\]\(",
+    re.I)
+
+
+def test_no_ontology_id_as_link_label(pages):
+    """A linked name must be a label, never a raw ontology accession
+    (the #11 'MP:0001914 as a disease name' class)."""
+    bad = []
+    for p in pages:
+        m = _ONTOLOGY_LABEL.search(p.body)
+        if m:
+            bad.append(f"{p.entity}/{p.slug}: [{m.group(1)}](…)")
+    assert not bad, report(bad)

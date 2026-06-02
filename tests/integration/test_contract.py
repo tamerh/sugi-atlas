@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from ._harness import H2_IDS, report
+from ._harness import H2_IDS, H3_IDS, report
 
 pytestmark = pytest.mark.integration
 
@@ -45,6 +45,18 @@ def test_section_h3_have_explicit_ids(pages):
         for line in p.body.splitlines():
             if line.startswith("### ") and "{#" not in line:
                 bad.append(f"{p.entity}/{p.slug}: '{line.strip()[:55]}'")
+    assert not bad, report(bad)
+
+
+def test_section_h3_ids_match_contract(pages):
+    """Section H3 ids stay within the frozen contract set — a new/renamed id
+    (anchor-API drift) fails here, not silently in the wild."""
+    bad = []
+    for p in pages:
+        ids = {i for _l, i in p.h3 if i}
+        extra = ids - H3_IDS[p.entity]
+        if extra:
+            bad.append(f"{p.entity}/{p.slug}: not in contract → {sorted(extra)}")
     assert not bad, report(bad)
 
 

@@ -43,8 +43,29 @@ ID_RE = {
     "drug":    re.compile(r"^CHEMBL\d+$"),
 }
 
+# Frozen section-H3 id allow-list per entity (the ids render_all assigns). A
+# page's H3 ids must be a SUBSET of these — a new/renamed id that drifts from
+# the contract fails the gate.
+H3_IDS = {
+    "gene": {"gene-ids", "transcripts", "expression", "regulation",
+             "functional-genomics", "generif", "orthologs", "protein-ids",
+             "structure", "residue-map", "pathways", "interactions", "cancer",
+             "variants", "disease-assoc", "drug-data"},
+    "disease": {"disease-ids", "gwas", "variant-tiers", "mendelian",
+                "cohort-genes", "protein-families", "expression", "interactions",
+                "structural", "pathways", "drug-targets", "bioactivity",
+                "pharmacogenomics", "tractability", "druggability", "undrugged",
+                "clinical-trials"},
+    "drug": {"drug-ids", "primary-targets", "bioactivity", "target-pathways",
+             "indication-list", "clinical-trials", "civic", "pharmacogenomics",
+             "related-mol"},
+}
+
 _H2_LINE = re.compile(r"^## (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
+_H3_LINE = re.compile(r"^### (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
 _ANY_HEADING = re.compile(r"^(#{2,6}) (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
+_TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
+_CELL_SPLIT = re.compile(r"(?<!\\)\|")     # unescaped pipe = real column divider
 _INTERNAL_LINK = re.compile(r"\]\((/atlas/(gene|disease|drug)/([^/)#]+)/[^)]*)\)")
 
 
@@ -77,8 +98,54 @@ class Page:
                 for line in self.body.splitlines()
                 if (m := _H2_LINE.match(line))]
 
+    @property
+    def h3(self):
+        return [(m.group(1).strip(), m.group(2))
+                for line in self.body.splitlines()
+                if (m := _H3_LINE.match(line))]
+
+    @property
+    def url(self):
+        return f"https://sugi.bio/atlas/{self.entity}/{self.slug}/"
+
+    def h2_blocks(self):
+        """{h2_id: block_text} — content from each '## …{#id}' to the next '## '."""
+        blocks, cur_id, buf = {}, None, []
+        for line in self.body.splitlines():
+            m = _H2_LINE.match(line)
+            if m:
+                if cur_id is not None:
+                    blocks[cur_id] = "\n".join(buf)
+                cur_id, buf = m.group(2), []
+            else:
+                buf.append(line)
+        if cur_id is not None:
+            blocks[cur_id] = "\n".join(buf)
+        return blocks
+
+    def tables(self):
+        """List of tables; each a list of rows, each row a list of cells. Splits
+        on UNESCAPED '|' only (a cell may legitimately contain '\\|')."""
+        out, cur = [], []
+        for line in self.body.splitlines():
+            if _TABLE_ROW.match(line):
+                cells = _CELL_SPLIT.split(line.strip().strip("|"))
+                cur.append(cells)
+            elif cur:
+                out.append(cur)
+                cur = []
+        if cur:
+            out.append(cur)
+        return out
+
     def jsonld(self):
         return json.loads(self.jsonld_raw) if self.jsonld_raw else None
+
+    def inline_jsonld(self):
+        tag = '<script type="application/ld+json">'
+        if tag not in self.body:
+            return None
+        return json.loads(self.body.split(tag, 1)[1].split("</script>", 1)[0].strip())
 
 
 def _load():
