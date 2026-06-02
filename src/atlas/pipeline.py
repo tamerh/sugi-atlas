@@ -158,33 +158,7 @@ def _scrub_noncoding(bundle):
                 sec.pop(k, None)
     bundle["_noncoding"] = biotype
 
-_HEADING = re.compile(r'^(#{2,5}) ', re.M)
-
-
-def _demote(md):
-    """Bump every ATX heading one level deeper (## → ###) so a section nests
-    under its zone H2 (MOLECULAR_ENRICHMENT layer B). Non-heading lines pass
-    through unchanged."""
-    return _HEADING.sub(lambda m: "#" + m.group(0), md) if md else md
-
-
-def emit_canonical(spec, anchors=None):
-    """Emit a list of (label, id, body, placeholder) as the frozen canonical H2
-    sequence (docs/PAGE_CONTRACT.md): `## label {#id}` in the given order, body
-    or an informative `*placeholder*` when empty — every section always emitted
-    so the TOC is identical across every page of a type. `anchors` optionally
-    maps an id → raw HTML to prepend (e.g. the JSON-LD `@id` <a> for #protein).
-    Sub-section headings are expected pre-demoted to H3 by the caller."""
-    anchors = anchors or {}
-    out = []
-    for label, anchor, body, placeholder in spec:
-        body = (body or "").strip()
-        content = body or (f"*{placeholder}*" if placeholder else "")
-        if not content:
-            continue
-        pre = anchors.get(anchor, "")
-        out.append(f"{pre}## {label} {{#{anchor}}}\n\n{content}")
-    return "\n\n".join(out)
+from atlas.render_common import demote as _demote, emit_canonical
 
 
 def render_all(bundle):

@@ -58,6 +58,38 @@ def test_ncrna_emits_all_sections_with_placeholders(monkeypatch):
     assert "protein-" not in md                    # no JSON-LD @id anchor for ncRNA
 
 
+DISEASE_H2 = [
+    "## Identifiers {#identifiers}",
+    "## Genetics & variants {#genetics}",
+    "## Genes & proteins {#genes}",
+    "## Function {#function}",
+    "## Therapeutics {#drugs}",
+    "## Clinical trials & evidence {#trials}",
+]
+DRUG_H2 = [
+    "## Identifiers {#identifiers}",
+    "## Targets {#targets}",
+    "## Indications & clinical {#indications}",
+    "## Pharmacology {#pharmacology}",
+    "## Related molecules {#related-molecules}",
+]
+
+
+def test_disease_canonical_h2_set_and_order():
+    """Every canonical section always emits, in the frozen order
+    (docs/PAGE_CONTRACT.md) — sub-renderers carry their own empty-state text, so
+    the H2 set is identical across every disease page even with no data."""
+    from atlas.disease import render as DR
+    md = DR.render_all({str(i): {} for i in range(1, 15)})
+    assert _h2(md) == DISEASE_H2
+
+
+def test_drug_canonical_h2_set_and_order():
+    from atlas.drug import render as DRR
+    md = DRR.render_all({str(i): {} for i in range(1, 13)})
+    assert _h2(md) == DRUG_H2
+
+
 def test_demote_bumps_headings():
     assert P._demote("## A\ntext\n### B") == "### A\ntext\n#### B"
     assert P._demote("no heading") == "no heading"

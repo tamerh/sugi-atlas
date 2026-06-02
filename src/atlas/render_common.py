@@ -6,6 +6,32 @@ belongs in the entity-specific renderer."""
 import html
 import re
 
+_HEADING = re.compile(r'^(#{2,5}) ', re.M)
+
+
+def demote(md):
+    """Bump every ATX heading one level deeper (## → ###) so a sub-section nests
+    under its canonical H2. Non-heading lines pass through unchanged."""
+    return _HEADING.sub(lambda m: "#" + m.group(0), md) if md else md
+
+
+def emit_canonical(spec, anchors=None):
+    """Emit the FROZEN canonical H2 sequence (docs/PAGE_CONTRACT.md) from a list
+    of (label, id, body, placeholder): `## label {#id}` in the given order, body
+    or an informative `*placeholder*` when empty — every section always emitted
+    so the TOC is identical across every page of a type. `anchors` optionally
+    maps an id → raw HTML prepended before its heading (e.g. the JSON-LD `@id`
+    <a> for #protein). Sub-section headings are expected pre-demoted to H3."""
+    anchors = anchors or {}
+    out = []
+    for label, anchor, body, placeholder in spec:
+        body = (body or "").strip()
+        content = body or (f"*{placeholder}*" if placeholder else "")
+        if not content:
+            continue
+        out.append(f"{anchors.get(anchor, '')}## {label} {{#{anchor}}}\n\n{content}")
+    return "\n\n".join(out)
+
 # A raw ontology accession (MONDO:0004992, EFO:0010282, MP:0001914) leaking
 # where a human-readable label belongs (audit #11). MP is a mouse-phenotype id,
 # not even a human disease — such rows are unmapped noise, not data.

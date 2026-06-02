@@ -352,9 +352,13 @@ RENDER = {
 
 
 def render_all(bundles):
+    """Drug page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
+    Identifiers → Targets → Indications & clinical → Pharmacology → Related
+    molecules. (Summary wrapped by assemble_page; Related appended after.)"""
+    from atlas.render_common import demote, emit_canonical
     # Fold §6 ChEBI roles + §11 patent metrics into the §1 bundle so the
-    # "Drug identity & classification" section carries them (§12 salt forms is
-    # already covered by §1's own parent/child lines, so it's simply dropped).
+    # "Identifiers" section carries them (§12 salt forms already covered by §1's
+    # own parent/child lines).
     b1 = dict(bundles.get("1") or {})
     b6 = bundles.get("6") or {}
     b11 = bundles.get("11") or {}
@@ -364,4 +368,23 @@ def render_all(bundles):
     b1["patent_compound_breakdown"] = b11.get("patent_compound_breakdown")
     merged = dict(bundles)
     merged["1"] = b1
-    return "\n\n".join(RENDER[sid](merged[sid]) for sid in RENDER if sid in merged)
+
+    def sec(s):
+        return demote(RENDER[s](merged[s])) if s in merged else ""
+
+    def join(*parts):
+        return "\n\n".join(p for p in parts if p and p.strip())
+
+    spec = [
+        ("Identifiers", "identifiers", sec("1"), None),
+        ("Targets", "targets", join(sec("2"), sec("3"), sec("8")),
+         "No curated protein targets or measured bioactivity."),
+        ("Indications & clinical", "indications",
+         join(sec("4"), sec("5"), sec("10")),
+         "No labelled indications, trials, or CIViC evidence."),
+        ("Pharmacology", "pharmacology", sec("9"),
+         "No pharmacogenomic data."),
+        ("Related molecules", "related-molecules", sec("7"),
+         "No competitor molecules sharing a primary target."),
+    ]
+    return emit_canonical(spec)

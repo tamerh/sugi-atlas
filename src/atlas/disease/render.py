@@ -834,13 +834,37 @@ RENDER = {
 
 
 def render_all(bundles):
-    """Full body = §1..§14 (RENDER dict) + §15..§17 (derived). bundles is
-    the full {section_id: section_bundle} dict produced by atlas.disease.collect.collect_all."""
-    parts = [RENDER[sid](bundles[sid]) for sid in sorted(RENDER, key=int)]
-    parts.append(r_drug_repurposing(bundles))
-    parts.append(r_druggability_pyramid(bundles))
-    parts.append(r_undrugged_target_profiles(bundles))
-    return "\n\n".join(parts)
+    """Disease page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
+    Identifiers → Genetics & variants → Genes & proteins → Function → Therapeutics
+    → Clinical trials & evidence. (Summary wrapped by assemble_page; Related
+    appended after.) The current 18 section-renderers fold into these as H3."""
+    from atlas.render_common import demote, emit_canonical
+
+    def sec(s):
+        return demote(RENDER[s](bundles[s]))
+
+    def join(*parts):
+        return "\n\n".join(p for p in parts if p and p.strip())
+
+    spec = [
+        ("Identifiers", "identifiers", sec("1"), None),
+        ("Genetics & variants", "genetics", join(sec("2"), sec("3")),
+         "No common-variant (GWAS) or curated variant data for this disease."),
+        ("Genes & proteins", "genes",
+         join(sec("4"), sec("5"), sec("6"), sec("7"), sec("8"), sec("9")),
+         "No associated genes curated for this disease."),
+        ("Function", "function", sec("14"),
+         "No pathway enrichment — requires an associated-gene cohort."),
+        ("Therapeutics", "drugs",
+         join(sec("10"), sec("11"), sec("12"),
+              demote(r_drug_repurposing(bundles)),
+              demote(r_druggability_pyramid(bundles)),
+              demote(r_undrugged_target_profiles(bundles))),
+         "No druggable-target or therapeutic data for this disease's cohort."),
+        ("Clinical trials & evidence", "trials", sec("13"),
+         "No clinical trials or CIViC evidence naming this disease."),
+    ]
+    return emit_canonical(spec)
 
 
 if __name__ == "__main__":
