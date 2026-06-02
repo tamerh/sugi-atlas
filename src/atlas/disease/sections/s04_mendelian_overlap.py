@@ -14,7 +14,11 @@ DATASETS = ("mondo", "orphanet", "mim", "gencc", "hgnc", "intogen", "civic")
 
 
 def collect(a):
-    bundle = {"section": "04_mendelian_overlap", "mondo_id": a.mondo_id}
+    # disease_name lets the render prefer each cohort gene's GenCC record FOR
+    # THIS disease over a stronger off-disease one (audit follow-up: BRCA2's
+    # Fanconi-D1 record was winning on the medulloblastoma page).
+    bundle = {"section": "04_mendelian_overlap", "mondo_id": a.mondo_id,
+              "disease_name": a.canonical_name}
 
     # GenCC: only fan over genes already flagged gencc=True in cohort_evidence.
     # Typical subset is small (<=10 genes); avoids 50-gene fanout.
@@ -108,7 +112,7 @@ SECTION = Section(
                  "for cancers: cohort genes with somatic-driver evidence "
                  "(intOGen, CIViC). High-confidence target subset."),
     needs=("mondo_id", "cohort", "cohort_evidence", "is_cancer", "orphanet_ids", "omim_ids"),
-    produces=("gencc_genes", "orphanet_genes", "omim_genes",
+    produces=("disease_name", "gencc_genes", "orphanet_genes", "omim_genes",
               "somatic_driver_genes", "dual_evidence_genes"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

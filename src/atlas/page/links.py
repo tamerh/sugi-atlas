@@ -170,7 +170,11 @@ def _drug_display(name):
             if low.endswith(suf):
                 n, low = n[: -len(suf)].rstrip(), low[: -len(suf)].rstrip()
                 changed = True
-    return n or (name or "")
+    # De-SHOUT (audit #12): ChEMBL names are all-caps ("CISPLATIN"); the mesh
+    # label must match the de-SHOUTed drug-page title, not shout in the
+    # cross-entity block.
+    from atlas.render_common import display_name
+    return display_name(n or (name or ""))
 
 
 def link_csv(cell, resolver):

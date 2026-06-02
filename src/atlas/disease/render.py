@@ -10,6 +10,7 @@ summary, not section bodies.
 are derived views that join multiple §1–§14 bundles, so they live below the
 dict and are called explicitly by render_all().
 """
+import re
 from collections import Counter
 from atlas.render_common import table, fnum, gencc_rank
 from atlas.civic import therapy_label
@@ -32,17 +33,39 @@ def _trunc(s, n=80):
     return s if len(s) <= n else s[: n - 1].rstrip() + "…"
 
 
-def _dedup_gencc(rows):
-    """Collapse GenCC rows to one per gene, keeping the strongest-classification
-    record. Returns [(best_row, record_count)] sorted by strength then symbol."""
+_GENCC_STOP = {"disease", "diseases", "syndrome", "cancer", "carcinoma", "tumor",
+               "tumour", "neoplasm", "disorder", "disorders", "type", "familial",
+               "hereditary", "susceptibility", "predisposition", "complementation",
+               "group", "deficiency", "autosomal", "dominant", "recessive",
+               "with", "without"}
+
+
+def _disease_tokens(s):
+    """Substantive tokens of a disease name for on-disease matching (drops the
+    generic descriptors that would over-match)."""
+    return {t for t in re.findall(r"[a-z0-9]+", (s or "").lower())
+            if len(t) >= 4 and t not in _GENCC_STOP}
+
+
+def _dedup_gencc(rows, disease_name=None):
+    """Collapse GenCC rows to one per gene. Prefer the record FOR the page's
+    disease (so an off-disease but stronger record — BRCA2's Fanconi-D1 on a
+    medulloblastoma page — doesn't outrank the on-disease one); among the chosen
+    pool keep the strongest classification. Returns
+    [(best_row, record_count, on_disease)] with on-disease genes sorted first."""
+    dn = _disease_tokens(disease_name)
     by = {}
     for r in rows:
         sym = r.get("symbol")
         if sym:
             by.setdefault(sym, []).append(r)
-    out = [(max(rs, key=lambda r: gencc_rank(r.get("gencc_classification"))), len(rs))
-           for rs in by.values()]
-    out.sort(key=lambda bn: (-gencc_rank(bn[0].get("gencc_classification")),
+    out = []
+    for rs in by.values():
+        on = [r for r in rs if dn and (_disease_tokens(r.get("mondo_disease")) & dn)]
+        best = max(on or rs, key=lambda r: gencc_rank(r.get("gencc_classification")))
+        out.append((best, len(rs), bool(on)))
+    out.sort(key=lambda bn: (not bn[2],
+                             -gencc_rank(bn[0].get("gencc_classification")),
                              bn[0].get("symbol") or ""))
     return out
 
@@ -308,15 +331,17 @@ def r_mendelian_overlap(b):
     gc = b.get("gencc_genes") or []
     if gc:
         # Collapse to one row per gene (audit #13: cohort fan-out pulls every
-        # GenCC submission — Lynch syndrome had MLH1 ×19); keep the strongest
-        # classification and show how many records back it.
-        ded = _dedup_gencc(gc)
-        out += ["", "**GenCC Mendelian classification:**", "",
+        # GenCC submission — Lynch syndrome had MLH1 ×19); prefer each gene's
+        # record FOR this disease, else its strongest, and surface the count.
+        ded = _dedup_gencc(gc, b.get("disease_name"))
+        out += ["", "**GenCC gene–disease validity (cohort genes):** *the Disease "
+                "column is the GenCC-asserted condition — a cohort gene's "
+                "strongest validity may be for a related predisposition syndrome.*", "",
                 table(["Gene", "Classification", "Inheritance", "Disease", "Records"],
                       [(g.get("symbol"), g.get("gencc_classification"),
                         g.get("mode_of_inheritance"),
                         _trunc(g.get("mondo_disease"), 50),
-                        str(n) if n > 1 else "") for g, n in ded[:30]])]
+                        str(n) if n > 1 else "") for g, n, _on in ded[:30]])]
     og = b.get("orphanet_genes") or []
     if og:
         out += ["", "**Orphanet rare-disease linkage (cohort genes):**", "",

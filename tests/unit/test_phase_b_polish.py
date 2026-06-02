@@ -71,6 +71,31 @@ def test_gencc_rank_order():
     assert gencc_rank(None) == 0
 
 
+def test_drug_mesh_label_de_shouts_and_salt_strips():
+    from atlas.page.links import _drug_display
+    assert _drug_display("CISPLATIN") == "Cisplatin"
+    assert _drug_display("IMATINIB MESYLATE") == "Imatinib"       # de-SHOUT + salt-strip
+    assert _drug_display("CANDESARTAN CILEXETIL") == "Candesartan Cilexetil"
+
+
+def test_gencc_dedup_prefers_on_disease_record():
+    from atlas.disease.render import _dedup_gencc
+    rows = [
+        # off-disease but stronger classification — must NOT outrank the on-disease one
+        {"symbol": "SUFU", "gencc_classification": "Definitive", "mondo_disease": "Joubert syndrome"},
+        {"symbol": "SUFU", "gencc_classification": "Moderate", "mondo_disease": "medulloblastoma"},
+        # gene with only an off-disease record — kept, sorted after on-disease genes
+        {"symbol": "BRCA2", "gencc_classification": "Definitive",
+         "mondo_disease": "Fanconi anemia complementation group D1"},
+    ]
+    ded = _dedup_gencc(rows, "medulloblastoma")
+    by = {best["symbol"]: (best, on) for best, _n, on in ded}
+    assert by["SUFU"][0]["mondo_disease"] == "medulloblastoma"     # on-disease preferred
+    assert by["SUFU"][1] is True
+    assert by["BRCA2"][1] is False
+    assert [best["symbol"] for best, _n, _on in ded][0] == "SUFU"  # on-disease sorted first
+
+
 def test_canonical_label_resolves_destination(monkeypatch):
     links.reset()
     links._MANIFEST = {"gene": {}, "drug": {},
