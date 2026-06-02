@@ -68,6 +68,16 @@ def at_a_glance(bundle) -> str:
 
     bullets = []
 
+    # Affirmative non-coding line — the positional variant/disease/trial blocks
+    # are scrubbed for non-coding genes (see pipeline._scrub_noncoding), so say
+    # so explicitly rather than leaving a suspiciously empty page.
+    noncoding = bundle.get("_noncoding")
+    if noncoding:
+        bullets.append(f"**Gene type:** non-coding ({noncoding}) — no protein "
+                       f"product; not a drug target. Variant/disease associations "
+                       f"are omitted (they would be positional, from an overlapping "
+                       f"protein-coding gene).")
+
     # Curated gene–disease relationship — often the real headline (esp. for
     # Mendelian / complex-disease genes the cancer/drug flags miss).
     gd = _gene_disease(b12)

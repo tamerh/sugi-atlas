@@ -56,7 +56,7 @@ def collect_one(spec):
         CALLS.clear()
         if etype == "gene":
             slug = ident
-            bundle = {s: C.SECTIONS[s](ident) for s in C.SECTIONS}
+            bundle = P.collect_all(ident)   # includes the non-coding scrub
             b1 = bundle.get("1") or {}
             id_keys = [ident, b1.get("hgnc_id")]
             name_keys, title = [], ident

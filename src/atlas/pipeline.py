@@ -110,7 +110,42 @@ def datasets_from_calls(calls):
 
 
 def collect_all(symbol):
-    return {s: C.SECTIONS[s](symbol) for s in C.SECTIONS}
+    bundle = {s: C.SECTIONS[s](symbol) for s in C.SECTIONS}
+    _scrub_noncoding(bundle)
+    return bundle
+
+
+# Variant/disease/trial fields that biobtree links POSITIONALLY (by genomic
+# overlap), so a non-coding gene inherits the overlapping protein-coding
+# neighbor's biology (TTN-AS1 → TTN's 6,528 ClinVar variants + disease set).
+# Confidently-wrong, worse than empty — so we clear them for non-coding genes
+# and the lead / At a glance / mesh / render all reflect "no protein, no
+# variant/disease data". (Curated HGNC-keyed links — GenCC/ClinGen/CIViC — are
+# cleared defensively too; they're empty for ncRNA anyway.)
+_NONCODING_SCRUB = {
+    "6":  ("clinvar_total", "clinvar_breakdown", "top_pathogenic", "spliceai_total",
+           "top_spliceai", "alphamissense_total", "top_alphamissense", "dbsnp_sample"),
+    "10": ("disease_trials", "disease_trial_count"),
+    "12": ("gene_omim", "disease_omim", "gencc", "clingen_validity", "mondo",
+           "orphanet", "hpo", "hpo_total", "gwas", "gwas_total", "gwas_studies",
+           "efo_traits", "mesh_descriptors", "civic", "intogen"),
+}
+
+
+def _scrub_noncoding(bundle):
+    """Clear positionally-inherited variant/disease/trial blocks for non-coding
+    genes (biotype != protein_coding). Sets bundle['_noncoding'] = biotype so
+    the renderer/At-a-glance can state it affirmatively."""
+    b1 = bundle.get("1") or {}
+    biotype = ((b1.get("ensembl") or {}).get("biotype") or "").strip()
+    if not biotype or biotype == "protein_coding":
+        return
+    for sid, keys in _NONCODING_SCRUB.items():
+        sec = bundle.get(sid)
+        if sec:
+            for k in keys:
+                sec.pop(k, None)
+    bundle["_noncoding"] = biotype
 
 def render_all(bundle):
     # Explicit section order. Expression (§11) is hoisted to right after
@@ -119,6 +154,11 @@ def render_all(bundle):
     # GeneRIFs were carved out of §3 (gene-level, not protein IDs) and render
     # right after it. Each renderer returns "" when it has no data.
     order = ["1", "2", "11", "3", "4", "5", "6", "7", "8", "9", "10", "12"]
+    # Non-coding genes: §6 (variants) + §12 (disease associations) were scrubbed
+    # (positional inheritance), so skip the empty scaffolding — the At-a-glance
+    # affirmative line states the non-coding status instead.
+    if bundle.get("_noncoding"):
+        order = [s for s in order if s not in ("6", "12")]
     parts = []
     for s in order:
         parts.append(R.RENDER[s](bundle[s]))
