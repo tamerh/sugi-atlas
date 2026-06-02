@@ -85,11 +85,13 @@ build_full() {
   build "full corpus" "$SEED_DIR/genes_hgnc.txt" "$SEED_DIR/diseases_mondo_ranked.txt" "$SEED_DIR/drugs_chembl_approved.txt"
 }
 
-unit()        { say "unit tests"; python -m pytest -m "not integration"; }
+# Scope each pass to its own directory so neither reports the other as
+# "deselected" — what runs is exactly what's collected.
+unit()        { say "unit tests"; python -m pytest tests/unit; }
 integration() {
   [ -d "$DIST/atlas" ] || die "no built dist at $DIST/atlas — run './atlas.sh test all' first"
   say "integration tests over $DIST"
-  ATLAS_INTEGRATION_DIST="$DIST" python -m pytest -m integration
+  ATLAS_INTEGRATION_DIST="$DIST" python -m pytest tests/integration
 }
 
 archive() {
