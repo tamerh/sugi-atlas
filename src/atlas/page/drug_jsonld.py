@@ -34,7 +34,9 @@ def _targets(b2: dict) -> list:
     out = []
     for t in (b2.get("primary_targets") or []):
         sym = t.get("gene_symbol")
-        if not sym:
+        # Curated (GtoPdb) targets only — don't assert ChEMBL-bioactivity assay
+        # hits as schema:target (#3 extension; Salmeterol does NOT target TP53).
+        if not sym or (t.get("source") or "").lower() != "gtopdb":
             continue
         rec = {"@type": "Gene", "name": sym}
         sameas = []

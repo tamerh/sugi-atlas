@@ -118,10 +118,37 @@ def test_reverse_mesh_dedups_against_forward_edges():
         ["BCL2", "/atlas/gene/bcl2/", "gene", "Drugs"],   # same url as the forward target
         ["TP53", "/atlas/gene/TP53/", "gene", "Drugs"],
     ]}
-    bundle = {"2": {"primary_targets": [{"gene_symbol": "BCL2"}]}, "4": {}, "7": {}, "10": {}}
+    bundle = {"2": {"primary_targets": [{"gene_symbol": "BCL2", "source": "gtopdb"}]},
+              "4": {}, "7": {}, "10": {}}
     blk = links.related_block("drug", bundle, slug="venetoclax")
     bio = [l for l in blk.splitlines() if l.startswith("- **Biomarker genes:**")]
     assert bio and "TP53" in bio[0] and "bcl2" not in bio[0].lower()  # BCL2 deduped
+    links.reset()
+
+
+def test_drug_gene_mesh_is_gtopdb_curated_only():
+    """#3 extension: only GtoPdb-curated drug targets become gene links — ChEMBL
+    bioactivity assay hits (Salmeterol 'targets' KDM4E/TP53) are dropped."""
+    links.reset()
+    links._MANIFEST = {"gene": {"ABL1": "abl1", "KDM4E": "kdm4e"}, "disease": {}, "drug": {}}
+    bundle = {"2": {"primary_targets": [
+        {"gene_symbol": "ABL1", "source": "gtopdb"},
+        {"gene_symbol": "KDM4E", "source": "chembl"}]}, "4": {}, "7": {}, "10": {}}
+    genes = [g for g, _u in links.related_targets("drug", bundle)["Genes"]]
+    assert genes == ["ABL1"]                       # chembl bioactivity dropped
+    links.reset()
+
+
+def test_disease_drug_mesh_excludes_bioactivity():
+    """#3 extension: disease→drug = title-validated trials + CIViC; NOT
+    b10.drugs (bioactivity hits on cohort targets → off-target junk)."""
+    links.reset()
+    links._MANIFEST = {"gene": {}, "drug": {"Cisplatin": "cisplatin",
+                                            "Clotrimazole": "clotrimazole"}, "disease": {}}
+    bundle = {"4": {}, "5": {}, "13": {"trial_drugs": [{"name": "Cisplatin"}]},
+              "10": {"drugs": [{"name": "Clotrimazole"}]}}   # bioactivity junk
+    drugs = [d for d, _u in links.related_targets("disease", bundle)["Drugs"]]
+    assert "Cisplatin" in drugs and "Clotrimazole" not in drugs
     links.reset()
 
 

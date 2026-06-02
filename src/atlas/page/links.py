@@ -265,18 +265,25 @@ def related_targets(entity_type, bundle):
             add("Genes", g.get("symbol"), gene_url(symbol=g.get("symbol")))
         for g in sorted(b5.get("genes") or [], key=_gene_evidence_score, reverse=True):
             add("Genes", g.get("symbol"), gene_url(symbol=g.get("symbol"), hgnc_id=g.get("hgnc_id")))
+        # Curated/real disease→drug only (#3 extension): title-validated trial
+        # drugs + CIViC therapies. Deliberately NOT b10.drugs (bioactivity hits
+        # on cohort targets → off-target junk: medulloblastoma "treated by"
+        # Clotrimazole/Candesartan).
         for d in (b13.get("trial_drugs") or []):
             add("Drugs", _drug_display(d.get("name") or d.get("molecule_id")),
                 drug_url(chembl_id=d.get("molecule_id"), name=d.get("name")))
-        for d in (b10.get("drugs") or []):
-            add("Drugs", _drug_display(d.get("name") or d.get("id")),
-                drug_url(chembl_id=d.get("id"), name=d.get("name")))
         for r in (b13.get("civic_evidence") or []):        # name-tier
             th = therapy_label(r.get("therapy"))
             add("Drugs", _drug_display(th), drug_url(name=th))
     elif entity_type == "drug":
         b2, b4, b7, b10 = (bundle.get(k) or {} for k in ("2", "4", "7", "10"))
+        # Curated targets only (#3 extension): GtoPdb-sourced. The ChEMBL-
+        # bioactivity "primary" targets are assay hits, not real targets
+        # (Salmeterol "targets" KDM4E/SMN1/TP53) — they'd poison the gene mesh
+        # and the "Targeted by drugs" reverse.
         for t in (b2.get("primary_targets") or []):
+            if (t.get("source") or "").lower() != "gtopdb":
+                continue
             add("Genes", t.get("gene_symbol"), gene_url(symbol=t.get("gene_symbol"), hgnc_id=t.get("hgnc_id")))
         for i in (b4.get("indications") or []):
             add("Diseases", i.get("name"), disease_url(mondo_id=i.get("mondo_id"), name=i.get("name")))
@@ -297,19 +304,17 @@ def related_targets(entity_type, bundle):
 # Reverse-edge labels: a forward edge from a source of type `src_type` in its
 # `group` becomes, on the TARGET page, a group of the SOURCE entities under this
 # label. ONLY directions whose SOURCE edge is curated are inverted — a biomarker
-# is not a target (the #3 lesson). Deliberately NOT inverted:
-#   - drug→gene "Targeted by drugs": the drug's primary_targets include raw
-#     ChEMBL bioactivity hits (Salmeterol "targets" TP53), so inverting it
-#     resurfaces exactly the off-target garbage #3 removed. Re-enable once drug
-#     targets are curated (GtoPdb-only) — see the drug-target curation follow-up.
-#   - disease-as-source: redundant with the target's own cohort/indication edges
-#     + trial-contamination risk.
+# is not a target (the #3 lesson). drug→gene is now GtoPdb-curated (the ChEMBL-
+# bioactivity targets are filtered out in related_targets), so "Targeted by
+# drugs" is safe to invert. Disease-as-source reverses stay omitted (redundant
+# with the target's own cohort/indication edges).
 REVERSE_LABEL = {
     ("gene", "Drugs"):    "Biomarker genes",     # genes whose variants associate this drug (CIViC) → on drug pages
+    ("drug", "Genes"):    "Targeted by drugs",   # drugs that curatedly target this gene (GtoPdb) → on gene pages
     ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease (GenCC/ClinGen/CIViC) → on disease pages
     ("drug", "Diseases"): "Drugs indicated",     # drugs whose labelled indication is this disease → on disease pages
 }
-_REVERSE_ORDER = ["Biomarker genes", "Associated genes", "Drugs indicated"]
+_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes", "Drugs indicated"]
 
 
 def _reverse_groups(my_url, forward_urls):
