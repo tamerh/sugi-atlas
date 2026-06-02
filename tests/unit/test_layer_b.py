@@ -1,7 +1,18 @@
-"""Layer B — Gene/Protein/Clinical body zoning + the functional-residue map
-(docs/MOLECULAR_ENRICHMENT.md)."""
+"""Gene page canonical H2 taxonomy + the functional-residue map
+(docs/PAGE_CONTRACT.md, docs/MOLECULAR_ENRICHMENT.md)."""
 import atlas.pipeline as P
 from atlas.gene import render as R
+
+# The FROZEN gene H2 set (order matters) — Summary/#related are added by
+# assemble_page/related_block, so render_all emits these six.
+GENE_H2 = [
+    "## Identifiers {#identifiers}",
+    "## Gene structure {#gene-structure}",
+    "## Protein {#protein}",
+    "## Function {#function}",
+    "## Disease & clinical {#disease}",
+    "## Drugs & pharmacology {#drugs}",
+]
 
 
 # ── zoning ──────────────────────────────────────────────────────────────────
@@ -18,34 +29,33 @@ def _h2(md):
     return [l for l in md.splitlines() if l.startswith("## ")]
 
 
-def test_three_zones_for_coding_gene(monkeypatch):
+def test_canonical_h2_set_and_order_coding(monkeypatch):
     _stub_renderers(monkeypatch)
     bundle = {s: {} for s in (str(i) for i in range(1, 13))}
     bundle["3"] = {"reviewed_uniprot": ["P1"], "canonical_uniprot": "P1"}
     md = P.render_all(bundle)
-    assert _h2(md) == ["## Gene — the locus", "## Protein product(s)",
-                       "## Clinical & disease"]
-    assert '<a id="protein-P1"></a>' in md
-    # sections demoted under their zone
-    assert "### Section 1" in md
-    assert "\n## Section 1" not in md
-    # protein-layer content lands in the protein zone
-    prot = md.split("## Protein product(s)")[1].split("## Clinical")[0]
+    assert _h2(md) == GENE_H2                      # exact set + frozen order
+    assert '<a id="protein-P1"></a>' in md         # JSON-LD @id linkage kept
+    # sub-sections demoted to H3 under their canonical H2
+    assert "### Section 1" in md and "\n## Section 1" not in md
+    prot = md.split("{#protein}")[1].split("{#function}")[0]
     assert "### Functional residue map" in prot
-    assert "### Section 10" in prot          # drugs
-    # locus content in the gene zone
-    gene = md.split("## Gene — the locus")[1].split("## Protein")[0]
-    assert "### Functional genomics" in gene
+    gs = md.split("{#gene-structure}")[1].split("{#protein}")[0]
+    assert "### Functional genomics" in gs
+    assert "### Section 10" in md.split("{#drugs}")[1]   # drugs
 
 
-def test_ncrna_collapses_to_gene_zone(monkeypatch):
+def test_ncrna_emits_all_sections_with_placeholders(monkeypatch):
+    """Emit-even-if-empty: the TOC is identical across genes; ncRNA shows the
+    same H2 set, with informative placeholders for the protein-layer sections."""
     _stub_renderers(monkeypatch)
     bundle = {s: {} for s in (str(i) for i in range(1, 13))}
     bundle["3"] = {"reviewed_uniprot": [], "canonical_uniprot": None}
     bundle["_noncoding"] = "lncRNA"
     md = P.render_all(bundle)
-    assert _h2(md) == ["## Gene — the locus"]
-    assert "protein-" not in md
+    assert _h2(md) == GENE_H2                      # same set, not collapsed
+    assert "*Non-coding RNA — no protein product" in md.split("{#protein}")[1]
+    assert "protein-" not in md                    # no JSON-LD @id anchor for ncRNA
 
 
 def test_demote_bumps_headings():

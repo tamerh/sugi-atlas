@@ -355,4 +355,4 @@ def related_block(entity_type, bundle, slug=None):
     if slug:
         for rlabel, items in _reverse_groups(_url(entity_type, slug), forward_urls):
             _row(rlabel, items)
-    return ("## Related Atlas pages\n\n" + "\n".join(lines)) if lines else ""
+    return ("## Related Atlas pages {#related}\n\n" + "\n".join(lines)) if lines else ""

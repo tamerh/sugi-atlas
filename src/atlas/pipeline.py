@@ -168,49 +168,64 @@ def _demote(md):
     return _HEADING.sub(lambda m: "#" + m.group(0), md) if md else md
 
 
+def emit_canonical(spec, anchors=None):
+    """Emit a list of (label, id, body, placeholder) as the frozen canonical H2
+    sequence (docs/PAGE_CONTRACT.md): `## label {#id}` in the given order, body
+    or an informative `*placeholder*` when empty — every section always emitted
+    so the TOC is identical across every page of a type. `anchors` optionally
+    maps an id → raw HTML to prepend (e.g. the JSON-LD `@id` <a> for #protein).
+    Sub-section headings are expected pre-demoted to H3 by the caller."""
+    anchors = anchors or {}
+    out = []
+    for label, anchor, body, placeholder in spec:
+        body = (body or "").strip()
+        content = body or (f"*{placeholder}*" if placeholder else "")
+        if not content:
+            continue
+        pre = anchors.get(anchor, "")
+        out.append(f"{pre}## {label} {{#{anchor}}}\n\n{content}")
+    return "\n\n".join(out)
+
+
 def render_all(bundle):
-    # Gene/Protein/Clinical zoning (docs/MOLECULAR_ENRICHMENT.md). The page is a
-    # gene AND its protein product(s): locus-level sections, protein-level
-    # sections, and the clinical bridge are grouped under three H2 zones, with
-    # the section H2s demoted to H3. Within a zone the prior ordering is kept
-    # (Expression hoisted near the top; functional-genomics + GeneRIFs are
-    # gene-level, carved out of §3). Each renderer returns "" when it has no data.
+    """Gene page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
+    Identifiers → Gene structure → Protein → Function → Disease & clinical →
+    Drugs & pharmacology. (Summary is wrapped by assemble_page; Related appended
+    after.) Sub-section H2s are demoted to H3."""
     b3 = bundle.get("3") or {}
     noncoding = bundle.get("_noncoding")
 
     def sec(s):
         return _demote(R.RENDER[s](bundle[s]))
 
-    # Gene — the locus
-    gene_parts = [sec("1"), sec("2"), sec("11"), sec("9"), sec("5"),
-                  _demote(R.r_functional_genomics(b3)), _demote(R.r_generifs(b3))]
-    zones = [("Gene — the locus", None, gene_parts)]
+    def join(*parts):
+        return "\n\n".join(p for p in parts if p and p.strip())
 
-    # Protein product(s) — elides entirely for non-coding genes (no product).
-    # Pathways/interactions/drugs are protein-function level, so they live here.
-    if not noncoding and (b3.get("reviewed_uniprot")):
-        canon = b3.get("canonical_uniprot")
-        anchor = f"protein-{canon}" if canon else None
-        prot_parts = [sec("3"), sec("4"), _demote(R.r_residue_map(b3)),
-                      sec("7"), sec("8"), sec("10")]
-        zones.append(("Protein product(s)", anchor, prot_parts))
+    # JSON-LD @id linkage for the canonical product (#protein-<acc>).
+    canon = b3.get("canonical_uniprot")
+    protein_a = (f'<a id="protein-{canon}"></a>\n\n'
+                 if (canon and not noncoding) else "")
 
-    # Clinical & disease — the bridge. §6/§12 were scrubbed for non-coding genes
-    # (positional inheritance), so this zone collapses for ncRNA.
-    if not noncoding:
-        zones.append(("Clinical & disease", None, [sec("6"), sec("12")]))
-
-    out = []
-    for title, anchor, parts in zones:
-        body = "\n\n".join(p for p in parts if p and p.strip())
-        if not body.strip():
-            continue
-        # Explicit HTML anchor (Hugo unsafe-HTML is already required for the
-        # inline JSON-LD <script>) so #protein-<acc> deep-links match the
-        # JSON-LD @id without depending on goldmark heading-attribute config.
-        head = (f'<a id="{anchor}"></a>\n\n' if anchor else "") + f"## {title}"
-        out.append(head + "\n\n" + body)
-    return "\n\n".join(out)
+    spec = [
+        ("Identifiers", "identifiers", sec("1"), None),
+        ("Gene structure", "gene-structure",
+         join(sec("2"), sec("11"), sec("9"),
+              _demote(R.r_functional_genomics(b3)), _demote(R.r_generifs(b3)),
+              sec("5")), None),
+        ("Protein", "protein",
+         "" if noncoding else join(sec("3"), sec("4"), _demote(R.r_residue_map(b3))),
+         "Non-coding RNA — no protein product; not a drug target."),
+        ("Function", "function",
+         "" if noncoding else join(sec("7"), sec("8")),
+         "No curated pathway, Gene-Ontology, or interaction data."),
+        ("Disease & clinical", "disease",
+         "" if noncoding else join(_demote(R.r_cancer_overview(bundle)), sec("6"), sec("12")),
+         "No curated disease, variant, or cancer-driver associations."),
+        ("Drugs & pharmacology", "drugs",
+         "" if noncoding else sec("10"),
+         "No drug or pharmacology data — not an established drug target."),
+    ]
+    return emit_canonical(spec, anchors={"protein": protein_a})
 
 def _yaml_escape(s):
     return str(s).replace('"', '\\"')
@@ -240,7 +255,6 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     head = "\n".join(fm)
 
     lead = ""
-    cancer_overview = ""
     related_tail = ""   # "## Related Atlas pages" section, appended at page end
     entity_type = (meta or {}).get("entity_type") or "gene"
     if bundle is not None:
@@ -269,7 +283,6 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         else:
             from atlas.page.declarative import declarative_sentence
             from atlas.page.jsonld import build_jsonld, as_script_tag
-            from atlas.gene.render import r_cancer_overview
             sentence = declarative_sentence(bundle)
             jsonld_tag = as_script_tag(build_jsonld(bundle))
             # The opening is one intro region, not a stack of peer ## sections:
@@ -296,12 +309,9 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             glance = at_a_glance(bundle)
             if glance:
                 sentence += "\n\n" + glance
-            # Cancer-overview block is gene-specific (intOGen + CIViC per the
-            # canonical gene). Disease pages have their own §4 somatic-driver
-            # subblock, so we don't double up.
-            co = r_cancer_overview(bundle)
-            if co:
-                cancer_overview = co + "\n\n"
+            # Cancer-significance (intOGen + CIViC) is no longer a separate
+            # pre-body block — it folds into the canonical "Disease & clinical"
+            # (#disease) section, emitted by render_all (see PAGE_CONTRACT.md).
         # "Related Atlas pages" — cross-entity navigation, rendered as the final
         # section ("see also" convention; keeps the intro focused on the entity).
         # Machine traversal is handled by the JSON-LD edges in <head>; this is
@@ -316,16 +326,18 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         # bury it under hundreds of lines of JSON; the tag is invisible in
         # rendered HTML, so placement below the lead costs crawlers nothing and
         # restores the one sentence an AI agent should extract first). The
-        # complete graph is also written as the entity.jsonld sidecar.
-        lead = sentence + "\n\n" + jsonld_tag + "\n\n"
+        # complete graph is also written as the entity.jsonld sidecar. The whole
+        # intro is one canonical "## Summary {#summary}" section (PAGE_CONTRACT):
+        # lead sentence (most-indexable) → RefSeq → At-a-glance → inline JSON-LD.
+        lead = "## Summary {#summary}\n\n" + sentence + "\n\n" + jsonld_tag + "\n\n"
 
-    if summary_text:
+    if summary_text:    # legacy LLM-summary path (unused — no LLM summaries)
         model = meta.get("summary_model", "Qwen3-235B")
         disclosure = (f"*Summary written by {model} from the deterministic data below. "
                       f"Facts in the tables that follow are the authoritative source.*")
-        return (head + lead + cancer_overview + "## Summary\n\n" + disclosure + "\n\n"
+        return (head + lead + disclosure + "\n\n"
                 + summary_text.strip() + "\n\n" + body_md + related_tail + "\n")
-    return head + lead + cancer_overview + body_md + related_tail + "\n"
+    return head + lead + body_md + related_tail + "\n"
 
 def run_summary(body_md, symbol, model, kind="gene"):
     key = B.api_key()
