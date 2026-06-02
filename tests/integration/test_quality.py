@@ -9,10 +9,13 @@ from ._harness import report
 pytestmark = pytest.mark.integration
 
 _NAN_CELL = re.compile(r"\|\s*nan\s*\|", re.I)             # "| nan |" / "| NaN |"
-# float32 noise (1.4348061) — a long non-round decimal. Excludes scientific-
-# notation mantissas (2.000000e-08, a clean p-value) and trailing-zero padding
-# (0.080000 nM = 0.08, cosmetic) by requiring a NON-zero final decimal digit.
-_FLOAT_ARTIFACT = re.compile(r"\d\.\d{4,}[1-9](?![eE\d])")
+# The UNAMBIGUOUS float32-repr signature — a long run of 9s or 0s in the decimal
+# tail (0.20799999999996, 6.170000076293945). Legit precise/small values
+# (0.00133 nM, MW 493.6038) never have this. A blunt "long decimal" regex can't
+# tell float32 noise from a genuine multi-sig-fig measurement, so the targeted
+# fnum rounding (odds_ratio/maf/resolution, unit-tested) is the real guard; this
+# is the corpus net for the egregious storage-noise case.
+_FLOAT_ARTIFACT = re.compile(r"\.\d*(?:9{6,}|0{5,}[1-9])")
 _DUP_INCLUDING = re.compile(r"including (\w[\w '-]+?) and \1\b", re.I)
 _NONE_CELL = re.compile(r"\|\s*None\s*\|")
 _BAD_ATTR = re.compile(r"\{#")                             # {#id} only belongs on headings
