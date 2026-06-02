@@ -7,9 +7,10 @@ contract, frontmatter schema, data-quality guards, mesh-link integrity,
 JSON-LD validity), so a regression in any of them fails loudly against real
 output.
 
-Point it at a dist with ATLAS_INTEGRATION_DIST (default /data/sugi-atlas-dist).
-The whole suite skips cleanly if no dist is present, so a plain `pytest` on a
-machine without a build still runs the unit tests and skips these.
+Point it at a dist with ATLAS_INTEGRATION_DIST (default ./dist at the repo root,
+the local gitignored build dir `atlas.sh` writes to). The whole suite skips
+cleanly if no dist is present, so a plain `pytest` on a machine without a build
+still runs the unit tests and skips these.
 
     pytest -m integration                      # corpus checks (needs a dist)
     pytest -m "not integration"                # unit only
@@ -23,7 +24,8 @@ import re
 import pytest
 import yaml
 
-DIST = os.environ.get("ATLAS_INTEGRATION_DIST", "/data/sugi-atlas-dist")
+_REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DIST = os.environ.get("ATLAS_INTEGRATION_DIST", os.path.join(_REPO, "dist"))
 ATLAS = os.path.join(DIST, "atlas")
 
 # The FROZEN page contract (docs/PAGE_CONTRACT.md) — anchor ids in order, per

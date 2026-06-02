@@ -1,58 +1,49 @@
 #!/usr/bin/env bash
 #
-# atlas.sh — Sugi Atlas orchestrator.
+# atlas.sh — Sugi Atlas build & test orchestrator.
 #
-# One entry point for the everyday loops: run the tests, build the dense
-# reference set, gate a release, refresh the corpus seeds, or kick off the full
-# corpus. It only orchestrates — the real work lives in `python -m atlas.batch`,
-# `pytest`, and `scripts/build_corpus.py`; this just wires them together with
-# sane defaults and a uniform interface.
+# Two verbs cover the whole loop. `test` is the inner loop (validate the
+# generator); `prod` is the outer loop (ship the real corpus). Both build into
+# a local, gitignored ./dist — nothing is pushed to a separate dist repo.
 #
-#   ./atlas.sh <command> [options]
+#   ./atlas.sh test [int|all]
+#   ./atlas.sh prod
+#   ./atlas.sh help
 #
-# Commands:
-#   test [unit|int|all]   Run tests (default: unit).
-#                           unit → pytest -m "not integration"  (fast, no dist)
-#                           int  → pytest -m integration         (over $DIST)
-#                           all  → unit then int
-#   dense                 Build the dense reference set into $DIST
-#                           (corpus/dense/{genes,diseases,drugs}.txt).
-#   gate                  Release gate: dense build → integration tests.
-#                           Green here is the precondition for a full corpus.
-#   seeds [genes|drugs|diseases]
-#                         Regenerate the full-corpus seed lists from biobtree's
-#                           own ingest sources (corpus/seeds/, gitignored).
-#   corpus                Full corpus build from corpus/seeds/ → tar.gz archive
-#                           (the full corpus is archived, NOT committed to git).
-#   health                Probe biobtree reachability ($ATLAS_BIOBTREE).
-#   help                  This message.
+#   test          Unit suite only — fast, no build. The default.
+#   test int      Integration suite over ./dist (must already be built).
+#   test all      Pre-production check: build the dense set into ./dist, then
+#                 run unit + integration against it. Run this before `prod`.
 #
-# Options (override the defaults; also honoured from the environment):
-#   -d, --dist DIR        output dist            (default $ATLAS_DIST or /data/sugi-atlas-dist)
-#   -w, --workers N       parallel workers       (default: nproc-2)
-#   -n, --limit N         build only first N of each type (test slice)
-#   -a, --archive DIR     archive dir for `corpus` tar.gz (default: $DIST/../atlas-archives)
-#   -h, --help            show help
+#   prod          Production build, detached via nohup (logs → logs/):
+#                   1. pre-production check  (== test all: dense build + tests)
+#                   2. full corpus from corpus/seeds/ into ./dist
+#                   3. integration sweep over the full output
+#                   4. versioned tar.gz archive (dist/atlas-corpus-<stamp>-<sha>)
+#                 Refuses to build the corpus if any test fails. Returns
+#                 immediately with a PID + log path; tail the log to follow.
+#
+# Options (also read from the environment):
+#   -d, --dist DIR    output dist     (default $ATLAS_DIST or ./dist)
+#   -w, --workers N   parallel workers (default: nproc-2; env ATLAS_WORKERS)
+#   -n, --limit N     build only first N of each type — quick smoke
+#   -h, --help        show help
 #
 # Examples:
-#   ./atlas.sh test                 # fast unit suite
-#   ./atlas.sh test all             # unit + integration over the current dist
-#   ./atlas.sh dense -n 20          # quick 20-of-each smoke build
-#   ./atlas.sh gate                 # the pre-release loop: dense then int tests
-#   ./atlas.sh seeds drugs          # refresh just the drug seed list
-#   ./atlas.sh corpus -w 24         # full corpus, 24 workers, archived
+#   ./atlas.sh test            # fast unit suite
+#   ./atlas.sh test all        # dense build + unit + integration
+#   ./atlas.sh test all -n 5   # same, 5-of-each smoke
+#   ./atlas.sh prod            # full corpus, detached, logged, archived
 #
 set -euo pipefail
 cd "$(dirname "$0")"
 
 # ---- defaults ---------------------------------------------------------------
-DIST="${ATLAS_DIST:-/data/sugi-atlas-dist}"
-WORKERS=""
-LIMIT=""
-ARCHIVE=""
+DIST="${ATLAS_DIST:-$(pwd)/dist}"
+WORKERS="${ATLAS_WORKERS:-}"
+LIMIT="${ATLAS_LIMIT:-}"
 BIOBTREE="${ATLAS_BIOBTREE:-http://127.0.0.1:9291}"
-
-CORPUS_DENSE="corpus/dense"
+DENSE_DIR="corpus/dense"
 SEED_DIR="corpus/seeds"
 
 # ---- pretty -----------------------------------------------------------------
@@ -62,134 +53,117 @@ say()  { printf "%s\n" "${B}▸ $*${N}"; }
 ok()   { printf "%s\n" "${G}✓ $*${N}"; }
 warn() { printf "%s\n" "${Y}! $*${N}"; }
 die()  { printf "%s\n" "${R}✗ $*${N}" >&2; exit 1; }
-
 usage() { sed -n '3,/^set -euo/p' "$0" | sed '$d;s/^# \{0,1\}//'; }
 
 # ---- helpers ----------------------------------------------------------------
-default_workers() { local n; n=$(( $(nproc) - 2 )); [ "$n" -lt 1 ] && n=1; echo "$n"; }
+workers() { [ -n "$WORKERS" ] && { echo "$WORKERS"; return; }; local n=$(( $(nproc) - 2 )); [ "$n" -lt 1 ] && n=1; echo "$n"; }
+count()   { grep -cvE '^\s*#|^\s*$' "$1" 2>/dev/null || echo 0; }
 
-count() { grep -cvE '^\s*#|^\s*$' "$1" 2>/dev/null || echo 0; }
-
-# Build a list-dir's {genes,diseases,drugs}.txt into $DIST via the parallel
-# batch driver. $1=list dir, $2=human label.
-build_lists() {
-  local dir="$1" label="$2"
-  local g="$dir/genes.txt" s="$dir/diseases.txt" r="$dir/drugs.txt"
-  for f in "$g" "$s" "$r"; do
-    [ -f "$f" ] || die "missing list $f — (regenerate with: ./atlas.sh seeds)"
-  done
-  local w="${WORKERS:-$(default_workers)}"
-  say "$label → ${B}$DIST${N}"
-  printf "%s\n" "  ${D}genes=$(count "$g")  diseases=$(count "$s")  drugs=$(count "$r")  | workers=$w${LIMIT:+  limit=$LIMIT}${N}"
-  local t0 t1
-  t0=$(date +%s)
-  python -m atlas.batch \
-    --dist "$DIST" --workers "$w" \
-    --genes "@$g" --diseases "@$s" --drugs "@$r" \
-    ${LIMIT:+--limit "$LIMIT"}
-  t1=$(date +%s)
-  ok "$label built in $((t1 - t0))s"
+preflight() {
+  if ! curl -fsS -o /dev/null --max-time 10 "$BIOBTREE/ws/?i=TP53&mode=lite" 2>/dev/null; then
+    die "biobtree unreachable at $BIOBTREE — start it or set ATLAS_BIOBTREE"
+  fi
+  ok "biobtree reachable at $BIOBTREE"
 }
 
-run_integration() {
-  [ -d "$DIST/atlas" ] || die "no built dist at $DIST/atlas — run './atlas.sh dense' first"
-  say "integration tests over ${B}$DIST${N}"
+# build <label> <genes-list> <diseases-list> <drugs-list> → into $DIST
+build() {
+  local label="$1" g="$2" s="$3" r="$4" w
+  for f in "$g" "$s" "$r"; do [ -f "$f" ] || die "missing list $f"; done
+  w=$(workers)
+  say "$label → $DIST  ${D}(genes=$(count "$g") diseases=$(count "$s") drugs=$(count "$r") | workers=$w${LIMIT:+ limit=$LIMIT})${N}"
+  local t0=$SECONDS
+  python -m atlas.batch --dist "$DIST" --workers "$w" \
+    --genes "@$g" --diseases "@$s" --drugs "@$r" ${LIMIT:+--limit "$LIMIT"}
+  ok "$label built in $((SECONDS - t0))s"
+}
+
+build_dense() { build "dense set" "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt"; }
+
+build_full() {
+  [ -f "$SEED_DIR/genes_hgnc.txt" ] || { say "seeds missing → regenerating"; python scripts/build_corpus.py; }
+  build "full corpus" "$SEED_DIR/genes_hgnc.txt" "$SEED_DIR/diseases_mondo_ranked.txt" "$SEED_DIR/drugs_chembl_approved.txt"
+}
+
+unit()        { say "unit tests"; python -m pytest -m "not integration"; }
+integration() {
+  [ -d "$DIST/atlas" ] || die "no built dist at $DIST/atlas — run './atlas.sh test all' first"
+  say "integration tests over $DIST"
   ATLAS_INTEGRATION_DIST="$DIST" python -m pytest -m integration
 }
 
-run_unit() {
-  say "unit tests"
-  python -m pytest -m "not integration"
-}
-
-# ---- commands ---------------------------------------------------------------
-cmd_test() {
-  case "${1:-unit}" in
-    unit)        run_unit ;;
-    int|integration) run_integration ;;
-    all)         run_unit; echo; run_integration ;;
-    *)           die "test: unknown mode '${1}' (use: unit | int | all)" ;;
-  esac
-  ok "tests passed"
-}
-
-cmd_dense() { build_lists "$CORPUS_DENSE" "dense set"; }
-
-cmd_gate() {
-  say "release gate: dense build → integration tests"
-  build_lists "$CORPUS_DENSE" "dense set"
-  echo
-  run_integration
-  ok "gate green — dense build + integration tests pass"
-}
-
-cmd_seeds() {
-  say "regenerating corpus seeds → ${B}$SEED_DIR${N}"
-  python scripts/build_corpus.py ${1:+--only "$1"}
-  ok "seeds written (gitignored; regenerable)"
-}
-
-cmd_corpus() {
-  local g="$SEED_DIR/genes_hgnc.txt"
-  local s="$SEED_DIR/diseases_mondo_ranked.txt"
-  local r="$SEED_DIR/drugs_chembl_approved.txt"
-  for f in "$g" "$s" "$r"; do
-    [ -f "$f" ] || die "missing seed $f — run './atlas.sh seeds' first"
-  done
-  local w="${WORKERS:-$(default_workers)}"
-  local arch="${ARCHIVE:-$(dirname "$DIST")/atlas-archives}"
-  warn "FULL CORPUS — genes=$(count "$g") diseases=$(count "$s") drugs=$(count "$r") | workers=$w"
-  warn "output → $DIST   archive → $arch   (NOT committed to git)"
-  local t0 t1
-  t0=$(date +%s)
-  python -m atlas.batch \
-    --dist "$DIST" --workers "$w" \
-    --genes "@$g" --diseases "@$s" --drugs "@$r" \
-    ${LIMIT:+--limit "$LIMIT"}
-  t1=$(date +%s)
-  ok "corpus built in $(( (t1 - t0) / 60 ))m$(( (t1 - t0) % 60 ))s"
-  mkdir -p "$arch"
-  local out="$arch/atlas-corpus-$(date +%Y%m%d-%H%M%S).tar.gz"
+archive() {
+  local sha stamp out
+  sha=$(git rev-parse --short HEAD 2>/dev/null || echo nogit)
+  stamp=$(date +%Y%m%d-%H%M%S); out="$DIST/atlas-corpus-$stamp-$sha.tar.gz"
   say "archiving $DIST/atlas → $out"
   tar -C "$DIST" -czf "$out" atlas
   ok "$(du -h "$out" | cut -f1)  $out"
 }
 
-cmd_health() {
-  say "biobtree at ${B}$BIOBTREE${N}"
-  local url="$BIOBTREE/ws/?i=TP53&mode=lite"
-  if code=$(curl -fsS -o /dev/null -w '%{http_code}' --max-time 10 "$url" 2>/dev/null); then
-    ok "reachable (HTTP $code, probe TP53)"
-  else
-    die "unreachable — start biobtree or set ATLAS_BIOBTREE (gate: ATLAS_BIOBTREE=http://127.0.0.1:8000)"
+# ---- commands ---------------------------------------------------------------
+cmd_test() {
+  case "${1:-unit}" in
+    unit)             unit ;;
+    int|integration)  integration ;;
+    all)              preflight; build_dense; echo; unit; echo; integration ;;
+    *)                die "test: unknown mode '$1' (use: int | all, or no arg for unit)" ;;
+  esac
+  ok "tests passed"
+}
+
+# The production pipeline — runs inside the detached worker.
+prod_run() {
+  say "PRODUCTION BUILD — $(date)"
+  preflight
+  say "[1/4] pre-production check (dense build + tests)"
+  build_dense; echo; unit; echo; integration
+  ok "pre-production check green"
+  echo; say "[2/4] full corpus"
+  build_full
+  echo; say "[3/4] integration sweep over full output"
+  integration
+  echo; say "[4/4] archive"
+  archive
+  ok "PRODUCTION BUILD COMPLETE — $(date)"
+}
+
+cmd_prod() {
+  if [ "${ATLAS_PROD_WORKER:-}" != "1" ]; then          # launcher: detach + log
+    mkdir -p logs
+    local stamp log pid
+    stamp=$(date +%Y%m%d-%H%M%S); log="logs/prod-$stamp.log"
+    ln -sf "prod-$stamp.log" logs/prod.latest
+    ATLAS_PROD_WORKER=1 ATLAS_DIST="$DIST" ATLAS_WORKERS="$WORKERS" ATLAS_LIMIT="$LIMIT" \
+      nohup "$0" prod >"$log" 2>&1 &
+    pid=$!
+    ok "prod started — pid $pid"
+    say "log: $log"
+    printf "%s\n" "  ${D}follow:  tail -f $log   (or logs/prod.latest)${N}"
+    return 0
   fi
+  prod_run                                              # worker: run the pipeline
 }
 
 # ---- arg parse --------------------------------------------------------------
 [ $# -ge 1 ] || { usage; exit 0; }
 CMD="$1"; shift
-
-POSITIONAL=()
+POS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     -d|--dist)    DIST="$2"; shift 2 ;;
     -w|--workers) WORKERS="$2"; shift 2 ;;
     -n|--limit)   LIMIT="$2"; shift 2 ;;
-    -a|--archive) ARCHIVE="$2"; shift 2 ;;
     -h|--help)    usage; exit 0 ;;
     -*)           die "unknown option: $1" ;;
-    *)            POSITIONAL+=("$1"); shift ;;
+    *)            POS+=("$1"); shift ;;
   esac
 done
-set -- "${POSITIONAL[@]:-}"
+set -- "${POS[@]:-}"
 
 case "$CMD" in
-  test)            cmd_test "${1:-}" ;;
-  dense)           cmd_dense ;;
-  gate)            cmd_gate ;;
-  seeds)           cmd_seeds "${1:-}" ;;
-  corpus|full)     cmd_corpus ;;
-  health)          cmd_health ;;
-  help|-h|--help)  usage ;;
-  *)               die "unknown command: $CMD  (run './atlas.sh help')" ;;
+  test)           cmd_test "${1:-}" ;;
+  prod)           cmd_prod ;;
+  help|-h|--help) usage ;;
+  *)              die "unknown command: $CMD  (run './atlas.sh help')" ;;
 esac
