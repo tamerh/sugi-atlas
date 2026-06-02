@@ -11,7 +11,7 @@ are derived views that join multiple §1–§14 bundles, so they live below the
 dict and are called explicitly by render_all().
 """
 from collections import Counter
-from atlas.render_common import table
+from atlas.render_common import table, fnum, gencc_rank
 from atlas.civic import therapy_label
 from atlas.page import links
 
@@ -30,6 +30,21 @@ def _i(n):
 def _trunc(s, n=80):
     s = (s or "").strip()
     return s if len(s) <= n else s[: n - 1].rstrip() + "…"
+
+
+def _dedup_gencc(rows):
+    """Collapse GenCC rows to one per gene, keeping the strongest-classification
+    record. Returns [(best_row, record_count)] sorted by strength then symbol."""
+    by = {}
+    for r in rows:
+        sym = r.get("symbol")
+        if sym:
+            by.setdefault(sym, []).append(r)
+    out = [(max(rs, key=lambda r: gencc_rank(r.get("gencc_classification"))), len(rs))
+           for rs in by.values()]
+    out.sort(key=lambda bn: (-gencc_rank(bn[0].get("gencc_classification")),
+                             bn[0].get("symbol") or ""))
+    return out
 
 
 def _data_availability(xc):
@@ -166,8 +181,11 @@ def r_gwas_landscape(b):
     if ta:
         out += ["", "**Top associations by p-value:**", "",
                 table(["rsID", "p-value", "Gene", "Risk allele", "Odds ratio"],
+                      # fnum on odds_ratio only (audit #7: float32 artifacts like
+                      # 1.4348061); p-value is exponent-form (3e-67) and must NOT
+                      # be rounded — fnum(3e-67, 2) would collapse it to 0.
                       [(r.get("rsid"), r.get("pvalue"), r.get("gene_symbol"),
-                        r.get("risk_allele"), r.get("odds_ratio"))
+                        r.get("risk_allele"), fnum(r.get("odds_ratio")))
                        for r in ta[:30]])]
     studies = b.get("studies") or []
     if studies:
@@ -240,7 +258,7 @@ def r_variant_details(b):
                        "Consequence", "Gene", "p-value", "Tier"],
                       [(r.get("rsid") or "",
                         r.get("chrom"), r.get("pos"), r.get("alleles"),
-                        r.get("maf"), r.get("consequence"),
+                        fnum(r.get("maf"), 3), r.get("consequence"),
                         r.get("gene_symbol"), r.get("pvalue"), r.get("tier"))
                        for r in tv[:30]])]
     if cv:  # both GWAS and ClinVar present → ClinVar after the GWAS tiers
@@ -289,11 +307,16 @@ def r_mendelian_overlap(b):
                        for g in sg[:30]])]
     gc = b.get("gencc_genes") or []
     if gc:
+        # Collapse to one row per gene (audit #13: cohort fan-out pulls every
+        # GenCC submission — Lynch syndrome had MLH1 ×19); keep the strongest
+        # classification and show how many records back it.
+        ded = _dedup_gencc(gc)
         out += ["", "**GenCC Mendelian classification:**", "",
-                table(["Gene", "Classification", "Inheritance", "Disease"],
+                table(["Gene", "Classification", "Inheritance", "Disease", "Records"],
                       [(g.get("symbol"), g.get("gencc_classification"),
                         g.get("mode_of_inheritance"),
-                        _trunc(g.get("mondo_disease"), 50)) for g in gc[:30]])]
+                        _trunc(g.get("mondo_disease"), 50),
+                        str(n) if n > 1 else "") for g, n in ded[:30]])]
     og = b.get("orphanet_genes") or []
     if og:
         out += ["", "**Orphanet rare-disease linkage (cohort genes):**", "",

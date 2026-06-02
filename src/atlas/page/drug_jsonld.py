@@ -11,6 +11,7 @@ Two output forms (mirror atlas.page.jsonld / disease_jsonld):
 """
 import json
 from atlas.page import links
+from atlas.drug.roles import pharma_class  # audit #9: skip non-pharma roles
 
 BASE_URL = "https://sugi.bio/atlas"
 _HOST = BASE_URL.rsplit("/atlas", 1)[0]  # "https://sugi.bio" — prefix for internal links
@@ -72,9 +73,10 @@ def _treats(b4: dict) -> list:
 
 
 def _description(b1: dict, b2: dict, b6: dict) -> str:
-    name = b1.get("canonical_name") or b1.get("chembl_id") or "?"
+    from atlas.render_common import display_name
+    name = display_name(b1.get("canonical_name") or b1.get("chembl_id") or "?")
     roles = (b6 or {}).get("chebi_roles") or []
-    klass = roles[0] if roles else (b1.get("molecule_type") or "drug")
+    klass = pharma_class(roles, fallback=(b1.get("molecule_type") or "drug"))
     genes = [t.get("gene_symbol") for t in (b2.get("primary_targets") or [])
              if t.get("gene_symbol")][:3]
     tgt = (" targeting " + ", ".join(genes)) if genes else ""
@@ -87,7 +89,14 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
     b4 = bundle.get("4") or {}
     b6 = bundle.get("6") or {}
     page = f"{base_url}/drug/{slug}/"
-    name = b1.get("canonical_name") or slug
+    raw_name = b1.get("canonical_name") or slug
+    # De-SHOUT the display name (audit #12); keep the original ChEMBL form as an
+    # alternateName so lookup by the canonical uppercase name still resolves.
+    from atlas.render_common import display_name
+    name = display_name(raw_name)
+    alts = list(b1.get("alt_names") or [])
+    if name != raw_name and raw_name not in alts:
+        alts = [raw_name] + alts
 
     roles = (b6 or {}).get("chebi_roles") or []
     out = {
@@ -98,8 +107,8 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "identifier": b1.get("chembl_id"),
         "url": page,
         "description": _description(b1, b2, b6),
-        "alternateName": list(b1.get("alt_names") or [])[:12] or None,
-        "drugClass": roles[0] if roles else None,
+        "alternateName": alts[:12] or None,
+        "drugClass": pharma_class(roles),  # audit #9: None if no pharma role
         "sameAs": same_as_urls(b1) or None,
         "target": _targets(b2) or None,
         "treats": _treats(b4) or None,
@@ -117,7 +126,11 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
 
 
 def as_script_tag(jsonld: dict) -> str:
-    return f'<script type="application/ld+json">\n{json.dumps(jsonld, indent=2)}\n</script>'
+    """Inline JSON-LD block, compacted (audit #6): over-long arrays are capped;
+    the full graph stays in the entity.jsonld sidecar."""
+    from atlas.page.jsonld_inline import compact_for_inline
+    return (f'<script type="application/ld+json">\n'
+            f'{json.dumps(compact_for_inline(jsonld), indent=2)}\n</script>')
 
 
 def as_jsonld_string(jsonld: dict) -> str:

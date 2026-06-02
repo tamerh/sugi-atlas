@@ -193,9 +193,11 @@ def test_script_tag_wraps_valid_json():
     tag = as_script_tag(j)
     assert tag.startswith('<script type="application/ld+json">')
     assert tag.endswith("</script>")
-    # body parses as the same dict
+    # body parses as the inline-compacted graph (audit #6: over-long arrays are
+    # capped for the inline copy; the full graph is the entity.jsonld sidecar).
+    from atlas.page.jsonld_inline import compact_for_inline
     body = tag[len('<script type="application/ld+json">'):-len("</script>")].strip()
-    assert json.loads(body) == j
+    assert json.loads(body) == compact_for_inline(j)
 
 def test_sidecar_string_is_parseable_json_with_trailing_newline():
     j = build_jsonld(TP53)

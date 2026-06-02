@@ -11,7 +11,7 @@ reserved for the synthesis/executive-summary layer, not this.
 """
 import sys, os, html
 from atlas.gene import collect as C
-from atlas.render_common import table
+from atlas.render_common import table, phase_label
 from atlas.civic import therapy_label
 from atlas.page import links
 
@@ -605,7 +605,11 @@ def r_drugs(b):
     L.append(f"\n**Clinical trials for the gene's associated diseases "
              f"({b.get('disease_trial_count', 0)}, via MONDO — disease-level, not drug-specific):**\n")
     L.append(table(["Trial", "Phase", "Status", "Title"],
-                   [(t["id"], t.get("phase"), t.get("status"), (t.get("title") or "")[:55]) for t in ct[:40]]))
+                   # phase_label (audit #8): biobtree emits 'NaN' for trials with
+                   # no interventional phase; render it as 'Not specified', not
+                   # a leaked 'nan'/'NAN'.
+                   [(t["id"], phase_label(t.get("phase")), t.get("status"),
+                     (t.get("title") or "")[:55]) for t in ct[:40]]))
     return "\n".join(L)
 
 
@@ -682,9 +686,19 @@ def r_diseases(b):
     L.append(f"**OMIM:** gene `{', '.join(b.get('gene_omim', []))}` | "
              f"disease phenotypes: {', '.join(b.get('disease_omim', [])[:40])}")
     L.append("\n**GenCC curated gene-disease:**\n")
+    # Collapse to one row per disease (audit #13: GenCC has many submissions per
+    # gene–disease pair — FANCB ×4); keep the strongest classification.
+    from atlas.render_common import gencc_rank
+    _gc = {}
+    for g in b.get("gencc", []):
+        d = g.get("disease") or ""
+        if d and (d not in _gc or gencc_rank(g.get("classification")) > gencc_rank(_gc[d].get("classification"))):
+            _gc[d] = g
+    _gc_rows = sorted(_gc.values(),
+                      key=lambda g: -gencc_rank(g.get("classification")))
     L.append(table(["Disease", "Classification", "Inheritance"],
                    [(links.maybe_link(g.get("disease"), links.disease_url(name=g.get("disease"))),
-                     g.get("classification"), g.get("inheritance")) for g in b.get("gencc", [])[:40]]))
+                     g.get("classification"), g.get("inheritance")) for g in _gc_rows[:40]]))
 
     # ClinGen Gene-Disease Validity — expert-panel curated relationship strength.
     # Distinct from GenCC: ClinGen is the canonical authority for gene-disease

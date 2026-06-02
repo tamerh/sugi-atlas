@@ -62,6 +62,17 @@ def build_meta(entity_type, slug, title, datasets, generated_at=None):
     AND the batch driver, so the shape can't drift between paths (the m4 fix).
     `slug` is the URL/filename key (gene slug == symbol); `title` is the human
     label (gene=symbol, disease=canonical name, drug=ChEMBL name)."""
+    # Title-case a SHOUTING all-caps title for display (audit #12: drug names
+    # like 'IMATINIB'). Genes are exempt — symbols (TP53) are upper by
+    # convention; diseases in sentence case get their leading letter capitalized
+    # to match the declarative lead. The original ChEMBL name survives in the
+    # JSON-LD alternateName.
+    if entity_type != "gene" and title:
+        from atlas.render_common import display_name
+        if title.isupper():
+            title = display_name(title)
+        elif entity_type == "disease" and title == title.lower():
+            title = title[0].upper() + title[1:]
     return {
         "title": title,
         "symbol": slug,
@@ -267,10 +278,13 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         if rel:
             related_tail = "\n\n" + rel
         # schema.org JSON-LD — federated-identity signal (sameAs to ontology
-        # cross-refs). Lives inline at the top of the body so AI crawlers see
-        # it on the rendered page; also written as entity.jsonld sidecar by
-        # the publish step for direct machine fetch.
-        lead = jsonld_tag + "\n\n" + sentence + "\n\n"
+        # cross-refs). The readable declarative sentence (+ digest) leads, then
+        # the inline <script> block (audit #6: it used to precede the lead and
+        # bury it under hundreds of lines of JSON; the tag is invisible in
+        # rendered HTML, so placement below the lead costs crawlers nothing and
+        # restores the one sentence an AI agent should extract first). The
+        # complete graph is also written as the entity.jsonld sidecar.
+        lead = sentence + "\n\n" + jsonld_tag + "\n\n"
 
     if summary_text:
         model = meta.get("summary_model", "Qwen3-235B")
@@ -304,7 +318,8 @@ def run_gene(symbol, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MO
     from atlas.page import links
     links.load(dist_dir)
     links.upsert(dist_dir, "gene", symbol,
-                 id_keys=[symbol, (bundle.get("1") or {}).get("hgnc_id")])
+                 id_keys=[symbol, (bundle.get("1") or {}).get("hgnc_id")],
+                 canonical=symbol)
 
     print(f"[2/5] render body")
     body_md = render_all(bundle)
@@ -390,7 +405,8 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
     links.load(dist_dir)
     links.upsert(dist_dir, "disease", slug,
                  id_keys=[a.mondo_id, a.efo_id],
-                 name_keys=[a.canonical_name, *(a.synonyms or ())])
+                 name_keys=[a.canonical_name, *(a.synonyms or ())],
+                 canonical=a.canonical_name)
 
     print(f"[3/5] render body")
     body_md = DR.render_all(bundle)
@@ -476,9 +492,11 @@ def run_drug(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_MODE
     # Cross-entity link mesh: register this drug under its ChEMBL ids + names.
     from atlas.page import links
     links.load(dist_dir)
+    from atlas.render_common import display_name
     links.upsert(dist_dir, "drug", slug,
                  id_keys=[a.chembl_id, a.parent_chembl, *(a.child_chembls or ())],
-                 name_keys=[a.canonical_name, *(getattr(a, "alt_names", None) or ())])
+                 name_keys=[a.canonical_name, *(getattr(a, "alt_names", None) or ())],
+                 canonical=display_name(a.canonical_name))
 
     print(f"[3/5] render body")
     body_md = DRR.render_all(bundle)

@@ -280,8 +280,14 @@ def _sign_or_symptom(b1: dict) -> list:
 
 
 def as_script_tag(jsonld: dict) -> str:
-    """JSON-LD as an inline <script> block for the page body."""
-    body = json.dumps(jsonld, indent=2)
+    """JSON-LD as an inline <script> block for the page body.
+
+    Compacted (audit #6): over-long arrays — the 50-gene cohort, drugs, HPO
+    phenotypes, ontology codes — are capped so the inline graph no longer
+    buries the readable lead. The full graph stays in the entity.jsonld
+    sidecar (see `as_jsonld_string`)."""
+    from atlas.page.jsonld_inline import compact_for_inline
+    body = json.dumps(compact_for_inline(jsonld), indent=2)
     return f'<script type="application/ld+json">\n{body}\n</script>'
 
 

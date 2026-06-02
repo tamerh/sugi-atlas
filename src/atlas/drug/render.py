@@ -2,7 +2,7 @@
 """Deterministic markdown renderer for drug-section bundles — NO model.
 Mirrors gene/render.py + disease/render.py: one r_* fn per section + a RENDER
 dict. Every fact comes verbatim from the bundle."""
-from atlas.render_common import table, fnum
+from atlas.render_common import table, fnum, is_ontology_id, display_name
 from atlas.civic import therapy_label
 from atlas.page import links
 
@@ -15,7 +15,7 @@ def r_drug_ids(b):
     L = ["## Drug identity and classification", ""]
     rows = [
         ("ChEMBL ID", b.get("chembl_id")),
-        ("Name", b.get("canonical_name")),
+        ("Name", display_name(b.get("canonical_name"))),  # audit #12: de-SHOUT
         ("Type", b.get("molecule_type")),
         ("Max phase", b.get("max_phase")),
         ("FDA approved", b.get("is_fda_approved")),
@@ -127,12 +127,26 @@ def r_indications(b):
          f"**{_i(b.get('indication_count'))} indications "
          f"({_i(b.get('approved_count'))} at max phase 4 / approved).**"]
     inds = b.get("indications") or []
-    if inds:
+    # Drop unmapped rows (audit #11): an indication with no human-readable
+    # disease name otherwise rendered its raw EFO/MeSH id (e.g. MP:0001914 — a
+    # mouse-phenotype accession, not a disease). Keep only rows with a real name.
+    named = [i for i in inds
+             if (i.get("name") or "").strip() and not is_ontology_id(i.get("name"))]
+    if named:
         L += ["", table(["Indication", "Max phase", "MONDO", "EFO"],
-                        [(links.maybe_link(i.get("name") or i.get("efo_id") or i.get("mesh_id") or "",
+                        [(links.maybe_link(i.get("name"),
                                            links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
                           i.get("max_phase"), i.get("mondo_id") or "",
-                          i.get("efo_id") or "") for i in inds[:40]])]
+                          i.get("efo_id") or "") for i in named[:40]])]
+        dropped = len(inds) - len(named)
+        if dropped:
+            L.append(f"\n*{dropped} further indication record"
+                     f"{'s' if dropped != 1 else ''} carried no mapped disease "
+                     "name (EFO/MeSH-only) and are omitted.*")
+    elif inds:
+        L.append(f"\n*The {len(inds)} indication record"
+                 f"{'s' if len(inds) != 1 else ''} carry no mapped disease name "
+                 "(EFO/MeSH-only); none shown.*")
     return "\n".join(L)
 
 

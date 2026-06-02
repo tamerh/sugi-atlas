@@ -24,6 +24,10 @@ import re
 
 # Process-global manifest. {entity_type: {resolvable_key: slug}}.
 _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
+# Destination canonical name per slug (audit #13): a name_key can resolve to a
+# page whose canonical name differs (synonym "schizoaffective disorder" →
+# /schizophrenia/). This lets a link render the page it ACTUALLY points to.
+_CANON = {"gene": {}, "disease": {}, "drug": {}}
 _LOADED_FROM = None
 
 
@@ -40,7 +44,7 @@ def load(dist_root):
     """Load the manifest into process-global state. Idempotent per dist_root;
     safe to call at the start of every page build. Missing file → empty mesh
     (resolvers return None → plain text)."""
-    global _MANIFEST, _LOADED_FROM
+    global _MANIFEST, _CANON, _LOADED_FROM
     path = _manifest_path(dist_root)
     try:
         with open(path) as f:
@@ -48,20 +52,24 @@ def load(dist_root):
         _MANIFEST = {"gene": data.get("gene") or {},
                      "disease": data.get("disease") or {},
                      "drug": data.get("drug") or {}}
+        canon = data.get("canon") or {}
+        _CANON = {k: canon.get(k) or {} for k in ("gene", "disease", "drug")}
     except (FileNotFoundError, json.JSONDecodeError):
         _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
+        _CANON = {"gene": {}, "disease": {}, "drug": {}}
     _LOADED_FROM = dist_root
     return _MANIFEST
 
 
 def reset():
     """Clear the mesh (tests / fresh runs)."""
-    global _MANIFEST, _LOADED_FROM
+    global _MANIFEST, _CANON, _LOADED_FROM
     _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
+    _CANON = {"gene": {}, "disease": {}, "drug": {}}
     _LOADED_FROM = None
 
 
-def upsert(dist_root, entity, slug, id_keys=(), name_keys=()):
+def upsert(dist_root, entity, slug, id_keys=(), name_keys=(), canonical=None):
     """Read-modify-write the manifest with one entity's resolvable keys → slug.
     `id_keys` are matched verbatim (HGNC symbol, Mondo ID, ChEMBL ID, …);
     `name_keys` are stored normalized (canonical name + synonyms/aliases).
@@ -77,6 +85,7 @@ def upsert(dist_root, entity, slug, id_keys=(), name_keys=()):
         data = {}
     for k in ("gene", "disease", "drug"):
         data.setdefault(k, {})
+    data.setdefault("canon", {}).setdefault(entity, {})
     bucket = data[entity]
     for k in id_keys:
         if k:
@@ -85,10 +94,14 @@ def upsert(dist_root, entity, slug, id_keys=(), name_keys=()):
         nk = _norm(k)
         if nk:
             bucket[nk] = slug
+    if canonical:
+        data["canon"][entity][slug] = canonical
     from atlas.atomicio import write_json
     write_json(path, data, indent=0, sort_keys=True)   # atomic — see atomicio
     # keep the live mesh current
     _MANIFEST.setdefault(entity, {}).update(bucket)
+    if canonical:
+        _CANON.setdefault(entity, {})[slug] = canonical
 
 
 def _lookup(entity, *keys):
@@ -106,6 +119,18 @@ def _lookup(entity, *keys):
 
 def _url(entity, slug):
     return f"/atlas/{entity}/{slug}/" if slug else None
+
+
+_URL_RE = re.compile(r"^/atlas/(gene|disease|drug)/([^/]+)/$")
+
+
+def canonical_label(url):
+    """The destination page's canonical name for an /atlas/<entity>/<slug>/ URL,
+    or None if unknown (audit #13: render the page a link actually points to)."""
+    m = _URL_RE.match(url or "")
+    if not m:
+        return None
+    return (_CANON.get(m.group(1)) or {}).get(m.group(2))
 
 
 def gene_url(symbol=None, hgnc_id=None):
@@ -158,6 +183,18 @@ def link_csv(cell, resolver):
     return ", ".join(maybe_link(p, resolver(p)) for p in parts if p)
 
 
+def _gene_evidence_score(g):
+    """Disease-specificity rank for a cohort gene (audit #10). Curated
+    gene–disease validity (GenCC) and clinical evidence (CIViC) weigh more than
+    common-variant GWAS / ClinVar overlap. Stable within a score band, so the
+    upstream cohort order is preserved for ties."""
+    ev = g.get("evidence") or {}
+    return ((2 if ev.get("gencc") else 0)
+            + (2 if ev.get("civic_evidence") else 0)
+            + (1 if ev.get("clinvar") else 0)
+            + (1 if ev.get("gwas") else 0))
+
+
 def related_targets(entity_type, bundle):
     """Resolve a page's cross-entity references to BUILT Atlas targets.
     Returns {"Genes": [(label, path)], "Diseases": [...], "Drugs": [...]},
@@ -189,10 +226,15 @@ def related_targets(entity_type, bundle):
             add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
     elif entity_type == "disease":
         b4, b5, b10, b13 = (bundle.get(k) or {} for k in ("4", "5", "10", "13"))
-        for g in (b5.get("genes") or []):
-            add("Genes", g.get("symbol"), gene_url(symbol=g.get("symbol"), hgnc_id=g.get("hgnc_id")))
+        # Rank cohort genes by disease-specific evidence (audit #10): the cohort
+        # is HGNC-id-ordered, so the top-N shown was arbitrary gwas-only genes
+        # (asthma → BCR/RUNX1/RYR1). Curated gene–disease validity (GenCC) and
+        # clinical evidence (CIViC) outrank common-variant (GWAS) / ClinVar.
+        # CIViC somatic drivers (b4) are curated, so they lead.
         for g in (b4.get("somatic_driver_genes") or []):
             add("Genes", g.get("symbol"), gene_url(symbol=g.get("symbol")))
+        for g in sorted(b5.get("genes") or [], key=_gene_evidence_score, reverse=True):
+            add("Genes", g.get("symbol"), gene_url(symbol=g.get("symbol"), hgnc_id=g.get("hgnc_id")))
         for d in (b13.get("trial_drugs") or []):
             add("Drugs", _drug_display(d.get("name") or d.get("molecule_id")),
                 drug_url(chembl_id=d.get("molecule_id"), name=d.get("name")))
@@ -213,6 +255,12 @@ def related_targets(entity_type, bundle):
         for r in (b10.get("civic_evidence") or []):        # name-tier
             add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
 
+    # Disease links resolve by name and a synonym can land on a differently-named
+    # page (audit #13: "schizoaffective disorder" → /schizophrenia/). Relabel to
+    # the destination's canonical name so the text matches the page it opens.
+    groups["Diseases"] = [(canonical_label(url) or lbl, url)
+                          for lbl, url in groups["Diseases"]]
+
     return groups
 
 
@@ -220,6 +268,10 @@ def related_block(entity_type, bundle):
     """The "## Related Atlas pages" markdown section (page end) surfacing the
     mesh as a scannable block. Elides when nothing is built."""
     groups = related_targets(entity_type, bundle)
+    # On disease pages the gene set is the associated-gene cohort (evidence-
+    # ranked, audit #10), not a curated "most relevant" shortlist — label it
+    # honestly so a polygenic-disease cohort isn't read as causal genes.
+    label = {"Genes": "Cohort genes"} if entity_type == "disease" else {}
     lines = []
     for grp in ("Genes", "Diseases", "Drugs"):
         items = groups[grp]
@@ -228,5 +280,5 @@ def related_block(entity_type, bundle):
         shown = items[:12]
         row = ", ".join(maybe_link(lbl, url) for lbl, url in shown)
         extra = f" (+{len(items) - 12} more)" if len(items) > 12 else ""
-        lines.append(f"- **{grp}:** {row}{extra}")
+        lines.append(f"- **{label.get(grp, grp)}:** {row}{extra}")
     return ("## Related Atlas pages\n\n" + "\n".join(lines)) if lines else ""

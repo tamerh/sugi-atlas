@@ -32,9 +32,11 @@ def _class_clause(b1, b6):
         bits.append("approved")
     mtype = (b1.get("molecule_type") or "").lower()
     roles = (b6 or {}).get("chebi_roles") or []
-    # Lead with the first ChEBI role as the functional class; molecule type as
-    # adjective (small-molecule / antibody). Avoid duplicating "agent".
-    klass = roles[0] if roles else (mtype or "drug")
+    # Lead with the best PHARMACOLOGICAL ChEBI role as the functional class
+    # (audit #9: roles[0] can be 'environmental contaminant'/'mutagen'); molecule
+    # type as adjective (small-molecule / antibody). Avoid duplicating "agent".
+    from atlas.drug.roles import pharma_class
+    klass = pharma_class(roles, fallback=(mtype or "drug"))
     if mtype and mtype not in klass:
         bits.append(mtype.replace("small molecule", "small-molecule"))
     bits.append(klass)
@@ -58,8 +60,19 @@ def _indications_clause(b4):
     inds = (b4 or {}).get("indications") or []
     if not n:
         return ""
-    names = [(i.get("name") or "").strip().lower() for i in inds[:2]]
-    names = [x for x in names if x and not x.startswith("mondo:")]
+    # Dedup by name (audit #11: indications cross-walked from both EFO and MeSH
+    # can resolve to the same disease → "including neoplasm and neoplasm"); skip
+    # blank and raw ontology-id names.
+    from atlas.render_common import is_ontology_id
+    seen, names = set(), []
+    for i in inds:
+        nm = (i.get("name") or "").strip().lower()
+        if not nm or is_ontology_id(nm) or nm in seen:
+            continue
+        seen.add(nm)
+        names.append(nm)
+        if len(names) == 2:
+            break
     s = f"; indicated across {n} condition" + ("s" if n != 1 else "")
     if names:
         s += " including " + _join(names)

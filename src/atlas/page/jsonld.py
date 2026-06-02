@@ -136,8 +136,13 @@ def _reverse_edges(bundle, base_url):
     return rev or None
 
 def as_script_tag(jsonld):
-    """JSON-LD as an inline <script> block for the page body."""
-    body = json.dumps(jsonld, indent=2)
+    """JSON-LD as an inline <script> block for the page body.
+
+    Compacted (audit #6): over-long arrays (sameAs, @reverse disease/drug
+    edges) are capped for the inline copy; the full graph stays in the
+    entity.jsonld sidecar."""
+    from atlas.page.jsonld_inline import compact_for_inline
+    body = json.dumps(compact_for_inline(jsonld), indent=2)
     return f'<script type="application/ld+json">\n{body}\n</script>'
 
 def as_jsonld_string(jsonld):

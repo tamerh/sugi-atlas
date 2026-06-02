@@ -4,6 +4,37 @@ atlas.disease.render so we don't duplicate the table primitive.
 Keep this module tiny: zero imports beyond stdlib. Anything section-aware
 belongs in the entity-specific renderer."""
 import html
+import re
+
+# A raw ontology accession (MONDO:0004992, EFO:0010282, MP:0001914) leaking
+# where a human-readable label belongs (audit #11). MP is a mouse-phenotype id,
+# not even a human disease — such rows are unmapped noise, not data.
+_ONTOLOGY_ID = re.compile(
+    r'^(mondo|efo|mesh|hp|hpo|doid|umls|orphanet|orpha|ncit|snomedct|snomed'
+    r'|meddra|mp|go|chebi|omim|gard|medgen|icd\d*)[:_]', re.I)
+
+
+def is_ontology_id(s) -> bool:
+    """True when `s` looks like a raw ontology accession rather than a label."""
+    return bool(s) and bool(_ONTOLOGY_ID.match(str(s).strip()))
+
+
+def display_name(s):
+    """Title-case an all-caps (SHOUTING) label for display (audit #12: ChEMBL
+    names like 'IMATINIB'/'WATER'); leave mixed-case strings untouched. NEVER
+    apply to gene symbols — 'TP53'.isupper() is True but must stay upper."""
+    return s.title() if (s and isinstance(s, str) and s.isupper()) else s
+
+
+# GenCC classification strength, strongest first (audit #13 dedup ranking).
+_GENCC_RANK = {"definitive": 6, "strong": 5, "moderate": 4, "supportive": 3,
+               "limited": 2, "disputed evidence": 1, "refuted": 0,
+               "animal model only": 0, "no known disease relationship": 0}
+
+
+def gencc_rank(c):
+    """Numeric strength of a GenCC classification label (higher = stronger)."""
+    return _GENCC_RANK.get((c or "").strip().lower(), 0)
 
 
 def fnum(v, nd=2):

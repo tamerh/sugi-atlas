@@ -90,7 +90,12 @@ def collect_one(spec):
         write_json(_cache_path(cache_dir, etype, slug),
                    {"bundle": bundle, "datasets": datasets, "title": title,
                     "entity": etype, "slug": slug})
+        # Destination canonical name for the mesh (audit #13). Drug titles are
+        # de-SHOUTed for display; gene/disease titles pass through.
+        from atlas.render_common import display_name
+        canonical = display_name(title) if etype == "drug" else title
         return {"ok": True, "entity": etype, "slug": slug, "verdict": verdict,
+                "canonical": canonical,
                 "id_keys": [str(k) for k in id_keys if k],
                 "name_keys": [k for k in name_keys if k]}
     except (Exception, SystemExit) as e:   # SystemExit too — see harden M1
@@ -154,7 +159,8 @@ def _drain(label, pool, fn, specs):
 
 def _merge_manifest(collected, dist_dir):
     """PHASE B — one writer builds the whole manifest from every key-set."""
-    manifest = {"gene": {}, "disease": {}, "drug": {}}
+    manifest = {"gene": {}, "disease": {}, "drug": {},
+                "canon": {"gene": {}, "disease": {}, "drug": {}}}
     for r in collected:
         bucket = manifest[r["entity"]]
         for k in r["id_keys"]:
@@ -163,6 +169,8 @@ def _merge_manifest(collected, dist_dir):
             nk = links._norm(k)
             if nk:
                 bucket[nk] = r["slug"]
+        if r.get("canonical"):                       # audit #13 destination name
+            manifest["canon"][r["entity"]][r["slug"]] = r["canonical"]
     write_json(os.path.join(dist_dir, "atlas", "manifest.json"),
                manifest, indent=0, sort_keys=True)
     return manifest
