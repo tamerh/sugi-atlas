@@ -131,9 +131,13 @@ every ontology id a token/text lookup returns. Vici's Mondo synonyms include
 "Cataract" resolves to Vici (and every rare syndrome whose multi-symptom synonym
 mentions a common term). **Scope is bigger than trials:** `collectOntologyIDs`
 is shared by **clinical_trials, intogen, AND civic** → the same over-linking
-contaminates `mondo→intogen` (disease §4 drivers), `mondo→civic_evidence` (disease
-§13 subtype map + the disease→drug mesh + the cohort's CIViC route). The gene-side
-`hgnc→civic_evidence` is keyed by gene, NOT affected.
+contaminates `mondo→intogen`, `mondo→civic_evidence`, and `mondo→clinical_trials`.
+**What Atlas actually traverses:** only `mondo→clinical_trials` (§13) and
+`mondo→civic_evidence` (§13 subtype map + disease→drug mesh + cohort CIViC route).
+Atlas reaches intogen and civic *drivers* gene-first (`hgnc→intogen`, `hgnc→civic`
+in §4) — the gene-side edges are keyed by gene and are NOT affected. So the
+**mondo→intogen edge is never traversed by Atlas (blast radius 0)**; the only
+contaminated edge in use is `mondo→civic_evidence`.
 
 **Upstream fix (dev, in progress — needs a re-index):** require an EXACT
 name/synonym match in `collectOntologyIDs` (condition == a full MONDO name or
@@ -143,8 +147,21 @@ takes effect on a re-index.
 **Atlas mitigation (commit 43c5736):** s13 title-validates trials (keep only those
 whose brief_title names the disease/synonym) → trial_count/drugs/lead/At-a-glance
 use the validated set. Interim only; brief_title is a too-strict proxy
-(under-counts: cardiomyopathy 317→92). intogen/civic NOT yet mitigated (pending a
-blast-radius check on the curated head).
+(under-counts: cardiomyopathy 317→92). **No mitigation added for civic** — see
+blast-radius result below.
+
+**Blast-radius check on `mondo→civic_evidence` (curated head, 268 dense-test
+diseases, 2026-06-02):** only 18/268 pages carry §13 CIViC rows at all (303 rows);
+**97% (294/303) match the page's canonical disease name**, 16/18 pages 100% clean.
+The 2 pages with non-canonical rows are both legitimate, NOT contamination:
+`glioblastoma` (27 Glioblastoma + 3 *Glioma*, the parent class) and
+`tumor-predisposition-syndrome-3` (6 *Glioma* rows — its own synonyms are "glioma
+susceptibility 9" / "malignant glioma caused by mutation in POT1", so it genuinely
+predisposes to glioma). **Conclusion: ~0 genuine contamination on the head.** The
+Vici-style over-link is a long-tail rare-disease phenomenon that doesn't reach the
+curated head, so **no interim civic guard is warranted — wait for the upstream
+re-index.** (Re-run this check if the corpus expands deep into the rare-disease
+tail before #28 lands.)
 
 **⚠ REVERT-ON-RESOLVE:** when the re-index lands —
 1. swap the s13 title-match → **exact condition-match** (self-deactivating: once
