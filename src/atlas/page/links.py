@@ -296,17 +296,20 @@ def related_targets(entity_type, bundle):
 
 # Reverse-edge labels: a forward edge from a source of type `src_type` in its
 # `group` becomes, on the TARGET page, a group of the SOURCE entities under this
-# label. Only the directions that add genuine, correctly-named value are
-# surfaced — a biomarker is NOT a target (the #3 lesson), so each carries its own
-# predicate. Disease-as-source reverses are intentionally omitted (redundant with
-# the target's own cohort/indication edges + trial-contamination risk).
+# label. ONLY directions whose SOURCE edge is curated are inverted — a biomarker
+# is not a target (the #3 lesson). Deliberately NOT inverted:
+#   - drug→gene "Targeted by drugs": the drug's primary_targets include raw
+#     ChEMBL bioactivity hits (Salmeterol "targets" TP53), so inverting it
+#     resurfaces exactly the off-target garbage #3 removed. Re-enable once drug
+#     targets are curated (GtoPdb-only) — see the drug-target curation follow-up.
+#   - disease-as-source: redundant with the target's own cohort/indication edges
+#     + trial-contamination risk.
 REVERSE_LABEL = {
     ("gene", "Drugs"):    "Biomarker genes",     # genes whose variants associate this drug (CIViC) → on drug pages
-    ("drug", "Genes"):    "Targeted by drugs",   # drugs that target this gene → on gene pages
-    ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease → on disease pages
-    ("drug", "Diseases"): "Drugs indicated",     # drugs indicated for this disease → on disease pages
+    ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease (GenCC/ClinGen/CIViC) → on disease pages
+    ("drug", "Diseases"): "Drugs indicated",     # drugs whose labelled indication is this disease → on disease pages
 }
-_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes", "Drugs indicated"]
+_REVERSE_ORDER = ["Biomarker genes", "Associated genes", "Drugs indicated"]
 
 
 def _reverse_groups(my_url, forward_urls):
