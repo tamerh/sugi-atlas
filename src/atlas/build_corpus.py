@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate the corpus SEED lists from biobtree's own ingest sources.
 
-Writes corpus/seeds/*.txt (gitignored — regenerable, large). These are the
+Writes data/corpus/seeds/*.txt (gitignored — regenerable, large). These are the
 canonical entity universes the Atlas can build, derived from the exact files
 biobtree ingests (see /data/biobtree/conf/source1.dataset.json):
 
@@ -14,7 +14,7 @@ biobtree ingests (see /data/biobtree/conf/source1.dataset.json):
   disease — the ranked Mondo corpus already built by atlas.disease.corpus
             (dist/build/mondo_corpus.json), ordered by signal_score.
 
-Usage:  python -m atlas.build_corpus [--out corpus/seeds]
+Usage:  python -m atlas.build_corpus [--out data/corpus/seeds]
 """
 import argparse
 import json
@@ -174,7 +174,7 @@ def diseases(out):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(_ROOT, "corpus", "seeds"))
+    ap.add_argument("--out", default=os.path.join(_ROOT, "data", "corpus", "seeds"))
     ap.add_argument("--only", choices=["genes", "drugs", "diseases"])
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)

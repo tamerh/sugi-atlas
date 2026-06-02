@@ -14,4 +14,4 @@ __pycache__/
 .venv/
 
 # generated corpus seeds (regenerable via `python -m atlas.build_corpus`)
-corpus/seeds/
+data/corpus/seeds/

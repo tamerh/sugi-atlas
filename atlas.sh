@@ -17,7 +17,7 @@
 #
 #   prod          Production build, detached via nohup (logs → dist/logs/):
 #                   1. pre-production check  (== test all: dense build + tests)
-#                   2. full corpus from corpus/seeds/ into ./dist
+#                   2. full corpus from data/corpus/seeds/ into ./dist
 #                   3. integration sweep over the full output
 #                   4. versioned tar.gz archive (dist/atlas-corpus-<stamp>-<sha>)
 #                 Refuses to build the corpus if any test fails. Returns
@@ -43,8 +43,8 @@ DIST="${ATLAS_DIST:-$(pwd)/dist}"
 WORKERS="${ATLAS_WORKERS:-}"
 LIMIT="${ATLAS_LIMIT:-}"
 BIOBTREE="${ATLAS_BIOBTREE:-http://127.0.0.1:9291}"
-DENSE_DIR="corpus/dense"
-SEED_DIR="corpus/seeds"
+DENSE_DIR="data/corpus/dense"
+SEED_DIR="data/corpus/seeds"
 
 # ---- pretty -----------------------------------------------------------------
 if [ -t 1 ]; then B=$'\e[1m'; G=$'\e[32m'; Y=$'\e[33m'; R=$'\e[31m'; D=$'\e[2m'; N=$'\e[0m'

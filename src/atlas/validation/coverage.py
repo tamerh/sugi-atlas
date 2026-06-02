@@ -16,7 +16,7 @@ import json, re, os, sys, collections
 from atlas.gene import collect as C
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-BASE = os.path.join(REPO, "validation_data/gene")
+BASE = os.path.join(REPO, "data/validation/gene")
 
 # per section: file prefix, collector fn, datasets that yield a fact, id regex
 SECTIONS = {

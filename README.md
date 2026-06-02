@@ -24,9 +24,9 @@ biobtree (local REST API)  ──►  collect   ──►  render   ──►  p
 | `src/atlas/validation/` | `coverage.py` (25-gene fact-coverage), `stress.py`, `summary_gate.py` |
 | `src/atlas/bench/` | summary-model benchmark + dataset-coverage + mining tools |
 | `src/atlas/*/enju.yaml` | Enju workflow definitions (gene / drug / disease) |
-| `corpus/dense/` | the dense reference set (~1k entities) — the test/release gate |
-| `corpus/seeds/` | full-corpus seed lists (gitignored; regenerable) |
-| `validation_data/gene/` | 25-gene reference set for fact-coverage |
+| `data/corpus/dense/` | the dense reference set (~1k entities) — the test/release gate |
+| `data/corpus/seeds/` | full-corpus seed lists (gitignored; regenerable) |
+| `data/validation/gene/` | 25-gene reference set for fact-coverage |
 | `tests/unit/`, `tests/integration/` | unit suite + corpus-level integration checks |
 | `docs/` | page contract, biobtree issues, collector notes, research |
 | `dist/` | **everything generated** (gitignored): `atlas/` pages, `build/` corpus intermediates, `cache/` bundle cache, `logs/`, release tarballs |
