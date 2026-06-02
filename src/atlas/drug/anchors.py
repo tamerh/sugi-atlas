@@ -248,34 +248,19 @@ def _gtopdb_targets(chembl_id: str, canonical_name: str) -> Tuple[TargetAnchor, 
 def _resolve_targets(canonical_name: str, chembl_id: str):
     """(primary_targets, bioactivity_targets).
 
-    Primary = GtoPdb curated mechanism targets (action + affinity; covers
-    antibodies). Fallback to gene-resolved ChEMBL targets only when GtoPdb has
-    no ligand. Secondary = the raw chembl_target bioactivity set (id/name/type,
-    NOT gene-resolved — cheap; feeds §2 'broader targets' + §3 grouping)."""
+    Primary = GtoPdb curated mechanism targets ONLY (action + affinity; covers
+    antibodies). NO ChEMBL fallback into 'primary' (task #21): the raw
+    chembl_target set is a promiscuous bioactivity cloud — promoting it to
+    "curated primary" made Salmeterol "target" KDM4E/SMN1/TP53 and floods §7
+    related-molecules with off-target overlap. A drug with no GtoPdb ligand
+    therefore has an empty `targets` (honest: no curated mechanism target); its
+    ChEMBL hits live in `bioactivity_targets`, surfaced as clearly-labeled
+    secondary (id/name/type, NOT gene-resolved — cheap; feeds §2 'broader
+    targets' + §3 grouping)."""
     primary = _gtopdb_targets(chembl_id, canonical_name)
-
     bio = map_all(chembl_id, ">>chembl_molecule>>chembl_target")
     bioactivity = tuple({"chembl_target_id": t.get("id"), "name": t.get("title"),
                          "type": t.get("type")} for t in bio if t.get("id"))
-
-    # Fallback: no GtoPdb curated targets → gene-resolve the top ChEMBL targets.
-    # chembl_target's xref is to UniProt (components.acc), so the gene is reached
-    # via chembl_target>>uniprot>>hgnc — biobtree's documented pattern, not a gap.
-    if not primary and bioactivity:
-        top = [b["chembl_target_id"] for b in bioactivity[:25]]
-        t2uni = _batch_map(top, ">>chembl_target>>uniprot")
-        uni2hgnc = _batch_map(sorted({u for us in t2uni.values() for u in us}),
-                              ">>uniprot>>hgnc")
-        sym = _symbols_for(h[0] for h in uni2hgnc.values() if h)
-        resolved = []
-        for b in bioactivity[:25]:
-            uni = (t2uni.get(b["chembl_target_id"]) or [None])[0]
-            hg = (uni2hgnc.get(uni) or [None])[0] if uni else None
-            resolved.append(TargetAnchor(
-                chembl_target_id=b["chembl_target_id"], target_type=b["type"] or "",
-                target_name=b["name"] or "", uniprot=uni, hgnc_id=hg,
-                gene_symbol=sym.get(hg) if hg else None, source="chembl"))
-        primary = tuple(resolved)
     return primary, bioactivity
 
 
