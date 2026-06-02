@@ -173,16 +173,17 @@ def related_targets(entity_type, bundle):
             groups[grp].append((str(label), url))
 
     if entity_type == "gene":
+        # CURATED edges only (correctness #3). Deliberately NOT b12.mondo (raw
+        # OMIM/Mondo∩has-page → pseudogene→Fanconi via a shared MIM) nor
+        # b10.molecules (phase≥1 bioactivity = off-target/promiscuous →
+        # TP53→colchicine mislabeled schema:target). gene→disease comes from
+        # GenCC/ClinGen + CIViC; gene→drug from CIViC therapies.
         b10, b12 = bundle.get("10") or {}, bundle.get("12") or {}
-        for m in (b12.get("mondo") or []):
-            add("Diseases", m.get("name"), disease_url(mondo_id=m.get("id"), name=m.get("name")))
-        for g in (b12.get("gencc") or []):                # name-tier
+        for g in (b12.get("gencc") or []):
             add("Diseases", g.get("disease"), disease_url(name=g.get("disease")))
-        for c in (b12.get("clingen_validity") or []):     # name-tier
+        for c in (b12.get("clingen_validity") or []):
             add("Diseases", c.get("disease"), disease_url(name=c.get("disease")))
-        for m in (b10.get("molecules") or []):
-            add("Drugs", _drug_display(m.get("name")), drug_url(chembl_id=m.get("id"), name=m.get("name")))
-        for r in (b10.get("civic_evidence") or []):        # name-tier
+        for r in (b10.get("civic_evidence") or []):
             th = therapy_label(r.get("therapy"))
             add("Drugs", _drug_display(th), drug_url(name=th))
             add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
