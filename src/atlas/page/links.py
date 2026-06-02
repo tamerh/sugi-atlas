@@ -30,6 +30,13 @@ _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
 _CANON = {"gene": {}, "disease": {}, "drug": {}}
 _LOADED_FROM = None
 
+# Reverse-edge index {target_url: [[src_label, src_url, src_type, group], …]} —
+# incoming cross-entity edges, so a relationship asserted from one side (TP53's
+# CIViC names Venetoclax) is navigable from the other (Venetoclax ← TP53). Built
+# in the batch merge phase (corpus builds only); empty for single-page builds.
+_REVERSE = {}
+_REVERSE_FROM = None
+
 
 def _manifest_path(dist_root):
     return os.path.join(dist_root, "atlas", "manifest.json")
@@ -61,12 +68,31 @@ def load(dist_root):
     return _MANIFEST
 
 
+def load_reverse(dist_root):
+    """Load the reverse-edge index (incoming cross-entity edges). Cached per
+    dist_root so a worker reads the file once, not per page. Missing file →
+    empty (single-page builds have no reverse mesh — it degrades silently)."""
+    global _REVERSE, _REVERSE_FROM
+    if _REVERSE_FROM == dist_root:
+        return _REVERSE
+    path = os.path.join(dist_root, "atlas", "reverse_edges.json")
+    try:
+        with open(path) as f:
+            _REVERSE = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        _REVERSE = {}
+    _REVERSE_FROM = dist_root
+    return _REVERSE
+
+
 def reset():
     """Clear the mesh (tests / fresh runs)."""
-    global _MANIFEST, _CANON, _LOADED_FROM
+    global _MANIFEST, _CANON, _REVERSE, _LOADED_FROM, _REVERSE_FROM
     _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
     _CANON = {"gene": {}, "disease": {}, "drug": {}}
+    _REVERSE = {}
     _LOADED_FROM = None
+    _REVERSE_FROM = None
 
 
 def upsert(dist_root, entity, slug, id_keys=(), name_keys=(), canonical=None):
@@ -268,21 +294,62 @@ def related_targets(entity_type, bundle):
     return groups
 
 
-def related_block(entity_type, bundle):
+# Reverse-edge labels: a forward edge from a source of type `src_type` in its
+# `group` becomes, on the TARGET page, a group of the SOURCE entities under this
+# label. Only the directions that add genuine, correctly-named value are
+# surfaced — a biomarker is NOT a target (the #3 lesson), so each carries its own
+# predicate. Disease-as-source reverses are intentionally omitted (redundant with
+# the target's own cohort/indication edges + trial-contamination risk).
+REVERSE_LABEL = {
+    ("gene", "Drugs"):    "Biomarker genes",     # genes whose variants associate this drug (CIViC) → on drug pages
+    ("drug", "Genes"):    "Targeted by drugs",   # drugs that target this gene → on gene pages
+    ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease → on disease pages
+    ("drug", "Diseases"): "Drugs indicated",     # drugs indicated for this disease → on disease pages
+}
+_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes", "Drugs indicated"]
+
+
+def _reverse_groups(my_url, forward_urls):
+    """Incoming edges for `my_url` from the reverse index, grouped by predicate,
+    deduped against this page's own outgoing links (`forward_urls`) and across
+    reverse groups. Returns [(label, [(src_label, src_url)])] in display order."""
+    by_label = {}
+    seen = set(forward_urls)
+    for entry in (_REVERSE.get(my_url) or []):
+        src_label, src_url, src_type, group = entry
+        if not src_url or src_url == my_url or src_url in seen:
+            continue
+        lab = REVERSE_LABEL.get((src_type, group))
+        if not lab:
+            continue
+        by_label.setdefault(lab, []).append((str(src_label), src_url))
+        seen.add(src_url)              # a url shows under one reverse label only
+    return [(lab, by_label[lab]) for lab in _REVERSE_ORDER if by_label.get(lab)]
+
+
+def related_block(entity_type, bundle, slug=None):
     """The "## Related Atlas pages" markdown section (page end) surfacing the
-    mesh as a scannable block. Elides when nothing is built."""
+    mesh as a scannable block. Forward edges (this page → others) first, then
+    reverse edges (others → this page, deduped). Elides when nothing is built."""
     groups = related_targets(entity_type, bundle)
     # On disease pages the gene set is the associated-gene cohort (evidence-
     # ranked, audit #10), not a curated "most relevant" shortlist — label it
     # honestly so a polygenic-disease cohort isn't read as causal genes.
     label = {"Genes": "Cohort genes"} if entity_type == "disease" else {}
+    forward_urls = {url for items in groups.values() for _lbl, url in items}
     lines = []
-    for grp in ("Genes", "Diseases", "Drugs"):
-        items = groups[grp]
-        if not items:
-            continue
+
+    def _row(lbl_text, items):
         shown = items[:12]
-        row = ", ".join(maybe_link(lbl, url) for lbl, url in shown)
+        row = ", ".join(maybe_link(l, u) for l, u in shown)
         extra = f" (+{len(items) - 12} more)" if len(items) > 12 else ""
-        lines.append(f"- **{label.get(grp, grp)}:** {row}{extra}")
+        lines.append(f"- **{lbl_text}:** {row}{extra}")
+
+    for grp in ("Genes", "Diseases", "Drugs"):
+        if groups[grp]:
+            _row(label.get(grp, grp), groups[grp])
+    # Reverse edges (incoming) — corpus builds only; _REVERSE is empty otherwise.
+    if slug:
+        for rlabel, items in _reverse_groups(_url(entity_type, slug), forward_urls):
+            _row(rlabel, items)
     return ("## Related Atlas pages\n\n" + "\n".join(lines)) if lines else ""

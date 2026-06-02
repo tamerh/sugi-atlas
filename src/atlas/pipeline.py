@@ -307,7 +307,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         # Machine traversal is handled by the JSON-LD edges in <head>; this is
         # the human-facing block. Elides when nothing is built yet.
         from atlas.page import links
-        rel = links.related_block(entity_type, bundle)
+        rel = links.related_block(entity_type, bundle, slug=symbol)
         if rel:
             related_tail = "\n\n" + rel
         # schema.org JSON-LD — federated-identity signal (sameAs to ontology

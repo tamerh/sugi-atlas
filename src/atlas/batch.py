@@ -110,6 +110,7 @@ def render_one(spec):
         payload = json.load(open(_cache_path(cache_dir, etype, slug)))
         bundle, datasets, title = payload["bundle"], payload["datasets"], payload["title"]
         links.load(dist_dir)                       # the COMPLETE manifest
+        links.load_reverse(dist_dir)               # incoming cross-entity edges
         meta = P.build_meta(etype, slug, title, datasets, generated_at)
         if etype == "gene":
             body = P.render_all(bundle)
@@ -176,6 +177,33 @@ def _merge_manifest(collected, dist_dir):
     return manifest
 
 
+def _build_reverse_index(collected, dist_dir, cache_dir):
+    """PHASE B (second half) — invert every resolved cross-entity edge so an
+    asserted relationship is navigable from both ends (TP53→Venetoclax becomes
+    Venetoclax←TP53). Single-pass over the cached bundles, run against the now-
+    complete manifest; written as the reverse_edges.json sidecar the render
+    reads. Edges are kept directional + labeled at render time (links.py)."""
+    links.load(dist_dir)                           # complete manifest, for resolution
+    reverse = {}
+    for r in collected:
+        etype, slug = r["entity"], r["slug"]
+        try:
+            payload = json.load(open(_cache_path(cache_dir, etype, slug)))
+        except (OSError, json.JSONDecodeError):
+            continue
+        src_url = f"/atlas/{etype}/{slug}/"
+        src_label = r.get("canonical") or payload.get("title") or slug
+        groups = links.related_targets(etype, payload["bundle"])
+        for group, items in groups.items():
+            for _label, target_url in items:
+                if target_url and target_url != src_url:
+                    reverse.setdefault(target_url, []).append(
+                        [src_label, src_url, etype, group])
+    write_json(os.path.join(dist_dir, "atlas", "reverse_edges.json"),
+               reverse, indent=0, sort_keys=True)
+    return reverse
+
+
 def _parse_list(val):
     """Comma-separated values, or @file (one entity per line)."""
     if not val:
@@ -208,6 +236,9 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
 
     print(f"[B] merge manifest …")
     _merge_manifest(ok, dist_dir)
+    print(f"[B] build reverse-edge index …")
+    rev = _build_reverse_index(ok, dist_dir, cache_dir)
+    print(f"[B] reverse index: {len(rev)} targets with incoming edges")
 
     gen_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     specs_c = [(r["entity"], r["slug"], dist_dir, cache_dir, gen_at) for r in ok]

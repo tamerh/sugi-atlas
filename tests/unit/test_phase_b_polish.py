@@ -96,6 +96,42 @@ def test_gencc_dedup_prefers_on_disease_record():
     assert [best["symbol"] for best, _n, _on in ded][0] == "SUFU"  # on-disease sorted first
 
 
+def test_reverse_mesh_surfaces_incoming_biomarker_genes():
+    """A gene→drug (CIViC) edge becomes a 'Biomarker genes' link on the drug."""
+    links.reset()
+    links._REVERSE = {"/atlas/drug/venetoclax/": [
+        ["TP53", "/atlas/gene/TP53/", "gene", "Drugs"],
+        ["BCL2", "/atlas/gene/BCL2/", "gene", "Drugs"],
+    ]}
+    blk = links.related_block("drug", {"2": {}, "4": {}, "7": {}, "10": {}},
+                              slug="venetoclax")
+    assert "**Biomarker genes:**" in blk
+    assert "[TP53](/atlas/gene/TP53/)" in blk
+    links.reset()
+
+
+def test_reverse_mesh_dedups_against_forward_edges():
+    """A gene already listed as a forward target is not repeated under reverse."""
+    links.reset()
+    links._MANIFEST = {"gene": {"BCL2": "bcl2"}, "disease": {}, "drug": {}}  # value = slug
+    links._REVERSE = {"/atlas/drug/venetoclax/": [
+        ["BCL2", "/atlas/gene/bcl2/", "gene", "Drugs"],   # same url as the forward target
+        ["TP53", "/atlas/gene/TP53/", "gene", "Drugs"],
+    ]}
+    bundle = {"2": {"primary_targets": [{"gene_symbol": "BCL2"}]}, "4": {}, "7": {}, "10": {}}
+    blk = links.related_block("drug", bundle, slug="venetoclax")
+    bio = [l for l in blk.splitlines() if l.startswith("- **Biomarker genes:**")]
+    assert bio and "TP53" in bio[0] and "bcl2" not in bio[0].lower()  # BCL2 deduped
+    links.reset()
+
+
+def test_reverse_mesh_absent_without_slug_or_index():
+    links.reset()
+    blk = links.related_block("drug", {"2": {}, "4": {}, "7": {}, "10": {}})  # no slug
+    assert "Biomarker genes" not in blk
+    links.reset()
+
+
 def test_canonical_label_resolves_destination(monkeypatch):
     links.reset()
     links._MANIFEST = {"gene": {}, "drug": {},
