@@ -119,10 +119,16 @@ def _cell(c):
 
 
 def table(headers, rows):
-    """GitHub-flavored markdown table. Empty cells blank; HTML entities
-    unescaped; literal pipes in values escaped (no column shift)."""
+    """GitHub-flavored markdown table. Empty cells blank; literal pipes in
+    values escaped (no column shift); identical data rows collapsed (source
+    sometimes repeats a row verbatim — Reactome pathway, Orphanet prevalence)."""
     out = ["| " + " | ".join(headers) + " |",
            "| " + " | ".join("---" for _ in headers) + " |"]
+    seen = set()
     for r in rows:
-        out.append("| " + " | ".join(_cell(c) for c in r) + " |")
+        cells = tuple(_cell(c) for c in r)
+        if any(cells) and cells in seen:
+            continue
+        seen.add(cells)
+        out.append("| " + " | ".join(cells) + " |")
     return "\n".join(out)

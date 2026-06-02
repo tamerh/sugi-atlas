@@ -658,16 +658,12 @@ def r_pathways(b):
            f"{_i(b.get('pathway_count'))}.**"]
     tp = b.get("top_pathways") or []
     if tp:
-        seen, rows = set(), []
-        for p in tp[:30]:
-            row = (p.get("name") or p.get("id") or "", _i(p.get("gene_count")),
-                   ", ".join((p.get("gene_symbols") or [])[:8]))
-            if row in seen:          # collapse pathways that render identically
-                continue
-            seen.add(row)
-            rows.append(row)
         out += ["", "**Top pathways by cohort coverage:**", "",
-                table(["Pathway", "Genes", "Sample cohort genes"], rows)]
+                table(["Pathway", "Genes", "Sample cohort genes"],  # table() dedups
+                      [(p.get("name") or p.get("id") or "",
+                        _i(p.get("gene_count")),
+                        ", ".join((p.get("gene_symbols") or [])[:8]))
+                       for p in tp[:30]])]
     return "\n".join(out)
 
 

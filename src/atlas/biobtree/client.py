@@ -66,6 +66,21 @@ _RETRY_STATUS = {429, 500, 502, 503, 504}
 _MAX_ATTEMPTS = 4
 
 
+def _unescape(obj):
+    """Recursively HTML-unescape every string in a biobtree response, once, at
+    the single point all responses flow through — so EVERY consumer (map
+    targets, search rows, entry attributes, UniProt CC narratives, GO terms)
+    renders clean text (3'-end, not 3&apos;-end). Entities never contain a raw
+    '|', so this is safe for the pipe-delimited map/search values."""
+    if isinstance(obj, str):
+        return html.unescape(obj)
+    if isinstance(obj, list):
+        return [_unescape(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _unescape(v) for k, v in obj.items()}
+    return obj
+
+
 def _get(op: str, params: dict) -> dict:
     """GET with bounded exponential-backoff retry on transient failures.
 
@@ -106,7 +121,7 @@ def _get(op: str, params: dict) -> dict:
                     if isinstance(body, dict) and body.get("Err"):
                         raise BiobtreeError(f"{op} → {body['Err']}")
                     CALLS.append({"path": op, "params": params})
-                    return body
+                    return _unescape(body)
         if attempt < _MAX_ATTEMPTS - 1:
             time.sleep(0.5 * (2 ** attempt))              # 0.5s, 1s, 2s
     raise BiobtreeError(f"{op} failed after {_MAX_ATTEMPTS} attempts: {last}")
@@ -145,7 +160,7 @@ def rows(resp: dict) -> list:
         # would misalign every later value (the MeSH-row bug class). Skip it.
         if len(parts) != len(cols):
             continue
-        out.append({c: html.unescape(p) for c, p in zip(cols, parts)})
+        out.append(dict(zip(cols, parts)))     # strings already unescaped in _get
     return out
 
 
@@ -162,10 +177,7 @@ def map_targets(resp: dict) -> list:
             parts = [p.replace("\x00", "|") for p in t.replace("\\|", "\x00").split("|")]
             if len(parts) != len(cols):     # column-shift guard (see rows())
                 continue
-            # Unescape HTML entities once at the source (GO/UniProt text carries
-            # 3&apos;-end, &lt;, &nbsp;) so every consumer renders clean display
-            # text — not just the table() cells.
-            out.append({c: html.unescape(p) for c, p in zip(cols, parts)})
+            out.append(dict(zip(cols, parts)))   # strings already unescaped in _get
     return out
 
 
