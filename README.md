@@ -28,7 +28,7 @@ biobtree (local REST API)  ──►  collect   ──►  render   ──►  p
 | `data/corpus/seeds/` | full-corpus seed lists (gitignored; regenerable) |
 | `data/validation/gene/` | 25-gene reference set for fact-coverage |
 | `tests/unit/`, `tests/integration/` | unit suite + corpus-level integration checks |
-| `docs/` | the page contract + gene/protein data-model contract; site-file drafts |
+| `docs/` | how-it-works + per-entity build docs (gene/drug/disease) + the mesh + page contract |
 | `dist/` | **everything generated** (gitignored): `atlas/` pages, `build/` corpus intermediates, `cache/` bundle cache, `logs/`, release tarballs |
 
 ## Install & run (dev)
