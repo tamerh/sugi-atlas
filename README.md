@@ -32,9 +32,18 @@ biobtree (local REST API)  ──►  collect   ──►  render   ──►  p
 
 ```bash
 pip install -e .
-ATLAS_BIOBTREE=http://127.0.0.1:8000 python -m atlas.gene.collect TP53 all
+# Defaults to the biobtree Go server direct (http://127.0.0.1:9291, /ws/ + mode=lite)
+# — ~8x faster than the FastAPI gate for bulk page-gen, identical response shapes.
+python -m atlas.gene.collect TP53 all
 python -m atlas.validation.coverage 7
 python -m atlas.validation.stress
+```
+
+`ATLAS_BIOBTREE` overrides the base URL. To route through the FastAPI/MCP gate
+instead (e.g. the only endpoint exposed in some environments):
+
+```bash
+ATLAS_BIOBTREE=http://127.0.0.1:8000 ATLAS_BIOBTREE_TRANSPORT=gate python -m atlas.gene.collect TP53 all
 ```
 
 ## Publishing

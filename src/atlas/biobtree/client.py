@@ -17,8 +17,28 @@ import time
 
 import urllib3
 
-# Host is overridable (README documents ATLAS_BIOBTREE); defaults to local.
-API = os.environ.get("ATLAS_BIOBTREE", "http://127.0.0.1:8000").rstrip("/") + "/api"
+# Two transports, identical response shapes (verified byte-identical for
+# map/search/entry):
+#   "direct" — Atlas → biobtree Go server `/ws/` endpoints, `mode=lite` injected.
+#              ~10x faster for bulk page-gen (no uvicorn hop, no double-JSON
+#              encode/decode, no not_found N+1 probes). The default.
+#   "gate"   — Atlas → the FastAPI/MCP gate `/api/` (it forwards to Go with
+#              mode=lite and adds LLM-UX niceties Atlas doesn't need). Kept as a
+#              fallback for environments that only expose the gate.
+# Both overridable via env (README documents ATLAS_BIOBTREE).
+API_BASE = os.environ.get("ATLAS_BIOBTREE", "http://127.0.0.1:9291").rstrip("/")
+TRANSPORT = os.environ.get("ATLAS_BIOBTREE_TRANSPORT", "direct").strip().lower()
+
+# op → (direct path, gate path, inject mode=lite?). entry is hardwired to
+# entryLite in Go, so it takes no mode param on either transport.
+_OPS = {
+    "search": ("/ws/",      "/api/search", True),
+    "map":    ("/ws/map/",  "/api/map",    True),
+    "entry":  ("/ws/entry/", "/api/entry", False),
+}
+
+# Back-compat: some tooling/tests read `API`. Expose the resolved base+prefix.
+API = API_BASE + ("" if TRANSPORT == "direct" else "/api")
 CALLS = []
 
 
@@ -45,12 +65,22 @@ _RETRY_STATUS = {429, 500, 502, 503, 504}
 _MAX_ATTEMPTS = 4
 
 
-def _get(path: str, params: dict) -> dict:
+def _get(op: str, params: dict) -> dict:
     """GET with bounded exponential-backoff retry on transient failures.
-    Raises BiobtreeError on a 4xx, or after exhausting retries on 5xx/429/
-    timeout/truncated-body. Guards json.loads so an HTML error page or a
+
+    `op` is the logical operation ("search"/"map"/"entry") — the URL path and
+    the `mode=lite` injection are resolved per transport. Raises BiobtreeError
+    on a 4xx, on biobtree's inline {"Err": …} body (the direct Go transport
+    returns query errors with a 200 status), or after exhausting retries on
+    5xx/429/timeout/truncated-body. Guards json.loads so an HTML error page or a
     short read can't surface as a bare JSONDecodeError mid-collection."""
-    url = f"{API}/{path}"
+    direct_path, gate_path, inject_mode = _OPS[op]
+    if TRANSPORT == "direct":
+        url = API_BASE + direct_path
+        if inject_mode:
+            params = {**params, "mode": "lite"}
+    else:
+        url = API_BASE + gate_path
     last = None
     for attempt in range(_MAX_ATTEMPTS):
         try:
@@ -59,20 +89,26 @@ def _get(path: str, params: dict) -> dict:
             last = e
         else:
             if r.status >= 400 and r.status not in _RETRY_STATUS:
-                raise BiobtreeError(f"{path} → HTTP {r.status}: {bytes(r.data[:200])!r}")
+                raise BiobtreeError(f"{op} → HTTP {r.status}: {bytes(r.data[:200])!r}")
             if r.status in _RETRY_STATUS:
-                last = BiobtreeError(f"{path} → HTTP {r.status}")
+                last = BiobtreeError(f"{op} → HTTP {r.status}")
             else:
                 try:
                     body = json.loads(r.data)
                 except (json.JSONDecodeError, ValueError) as e:
                     last = e                              # truncated / non-JSON → retry
                 else:
-                    CALLS.append({"path": path, "params": params})
+                    # biobtree signals a query-level error (e.g. unknown dataset)
+                    # with an {"Err": …} body — the gate turns this into a 503,
+                    # but the direct Go server returns it inline with HTTP 200.
+                    # Terminal: a bad chain won't fix itself on retry.
+                    if isinstance(body, dict) and body.get("Err"):
+                        raise BiobtreeError(f"{op} → {body['Err']}")
+                    CALLS.append({"path": op, "params": params})
                     return body
         if attempt < _MAX_ATTEMPTS - 1:
             time.sleep(0.5 * (2 ** attempt))              # 0.5s, 1s, 2s
-    raise BiobtreeError(f"{path} failed after {_MAX_ATTEMPTS} attempts: {last}")
+    raise BiobtreeError(f"{op} failed after {_MAX_ATTEMPTS} attempts: {last}")
 
 
 def search(term: str, source: str = None) -> dict:
