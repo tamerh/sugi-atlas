@@ -25,6 +25,25 @@ def _clean_ligand(name):
     return pick[:60] + ("…" if len(pick) > 60 else "")
 
 
+_MEASURE_NUM = re.compile(r"^(\s*[<>~=]*\s*)([\d.]+)(.*)$")
+
+
+def _round_measure(s):
+    """Round the numeric part of a measure string to 3 sig figs for display —
+    BindingDB ships spurious precision (0.031623 nM = 0.0316 nM) on heterogeneous
+    assays. Keeps qualifier (>/~) + unit."""
+    if not s:
+        return s
+    m = _MEASURE_NUM.match(str(s))
+    if not m:
+        return s
+    try:
+        v = float(m.group(2))
+    except ValueError:
+        return s
+    return f"{m.group(1)}{float(f'{v:.3g}'):g}{m.group(3)}"
+
+
 def _affinity_nm(s):
     """Parse a BindingDB affinity string to nanomolar; None if unparseable."""
     if not s:
@@ -211,7 +230,7 @@ def collect(a):
         bm = _best_measure(r)
         if bm:
             ranked.append({"ligand": _clean_ligand(r.get("ligand_name")), "measure": bm[1],
-                           "value": bm[2], "nm": round(bm[0], 4)})
+                           "value": _round_measure(bm[2]), "nm": round(bm[0], 4)})
     ranked.sort(key=lambda x: x["nm"])
     bundle["bindingdb_ranked"] = ranked[:25]
     bundle["bindingdb_total"] = len(bd)

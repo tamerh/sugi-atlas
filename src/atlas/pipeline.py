@@ -170,45 +170,49 @@ def _scrub_noncoding(bundle):
                 sec.pop(k, None)
     bundle["_noncoding"] = biotype
 
-from atlas.render_common import demote as _demote, emit_canonical
+from atlas.render_common import demote as _demote, emit_canonical, with_heading_id
 
 
 def render_all(bundle):
     """Gene page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
     Identifiers → Gene structure → Protein → Function → Disease & clinical →
     Drugs & pharmacology. (Summary is wrapped by assemble_page; Related appended
-    after.) Sub-section H2s are demoted to H3."""
+    after.) Section H2s are demoted to H3 and carry stable backend-owned ids."""
     b3 = bundle.get("3") or {}
     noncoding = bundle.get("_noncoding")
 
-    def sec(s):
-        return _demote(R.RENDER[s](bundle[s]))
+    def S(s, anchor):           # registered section, demoted, stable H3 id
+        return with_heading_id(_demote(R.RENDER[s](bundle[s])), anchor)
+
+    def D(md, anchor):          # derived renderer, demoted, stable H3 id
+        return with_heading_id(_demote(md), anchor)
 
     def join(*parts):
         return "\n\n".join(p for p in parts if p and p.strip())
 
-    # JSON-LD @id linkage for the canonical product (#protein-<acc>).
     canon = b3.get("canonical_uniprot")
     protein_a = (f'<a id="protein-{canon}"></a>\n\n'
                  if (canon and not noncoding) else "")
 
     spec = [
-        ("Identifiers", "identifiers", sec("1"), None),
+        ("Identifiers", "identifiers", S("1", "gene-ids"), None),
         ("Gene structure", "gene-structure",
-         join(sec("2"), sec("11"), sec("9"),
-              _demote(R.r_functional_genomics(b3)), _demote(R.r_generifs(b3)),
-              sec("5")), None),
+         join(S("2", "transcripts"), S("11", "expression"), S("9", "regulation"),
+              D(R.r_functional_genomics(b3), "functional-genomics"),
+              D(R.r_generifs(b3), "generif"), S("5", "orthologs")), None),
         ("Protein", "protein",
-         "" if noncoding else join(sec("3"), sec("4"), _demote(R.r_residue_map(b3))),
+         "" if noncoding else join(S("3", "protein-ids"), S("4", "structure"),
+                                   D(R.r_residue_map(b3), "residue-map")),
          "Non-coding RNA — no protein product; not a drug target."),
         ("Function", "function",
-         "" if noncoding else join(sec("7"), sec("8")),
+         "" if noncoding else join(S("7", "pathways"), S("8", "interactions")),
          "No curated pathway, Gene-Ontology, or interaction data."),
         ("Disease & clinical", "disease",
-         "" if noncoding else join(_demote(R.r_cancer_overview(bundle)), sec("6"), sec("12")),
+         "" if noncoding else join(D(R.r_cancer_overview(bundle), "cancer"),
+                                   S("6", "variants"), S("12", "disease-assoc")),
          "No curated disease, variant, or cancer-driver associations."),
         ("Drugs & pharmacology", "drugs",
-         "" if noncoding else sec("10"),
+         "" if noncoding else S("10", "drug-data"),
          "No drug or pharmacology data — not an established drug target."),
     ]
     return emit_canonical(spec, anchors={"protein": protein_a})

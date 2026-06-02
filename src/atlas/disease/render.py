@@ -838,30 +838,35 @@ def render_all(bundles):
     Identifiers → Genetics & variants → Genes & proteins → Function → Therapeutics
     → Clinical trials & evidence. (Summary wrapped by assemble_page; Related
     appended after.) The current 18 section-renderers fold into these as H3."""
-    from atlas.render_common import demote, emit_canonical
+    from atlas.render_common import demote, emit_canonical, with_heading_id
 
-    def sec(s):
-        return demote(RENDER[s](bundles[s]))
+    def S(s, anchor):
+        return with_heading_id(demote(RENDER[s](bundles[s])), anchor)
+
+    def D(md, anchor):
+        return with_heading_id(demote(md), anchor)
 
     def join(*parts):
         return "\n\n".join(p for p in parts if p and p.strip())
 
     spec = [
-        ("Identifiers", "identifiers", sec("1"), None),
-        ("Genetics & variants", "genetics", join(sec("2"), sec("3")),
+        ("Identifiers", "identifiers", S("1", "disease-ids"), None),
+        ("Genetics & variants", "genetics",
+         join(S("2", "gwas"), S("3", "variant-tiers")),
          "No common-variant (GWAS) or curated variant data for this disease."),
         ("Genes & proteins", "genes",
-         join(sec("4"), sec("5"), sec("6"), sec("7"), sec("8"), sec("9")),
+         join(S("4", "mendelian"), S("5", "cohort-genes"), S("6", "protein-families"),
+              S("7", "expression"), S("8", "interactions"), S("9", "structural")),
          "No associated genes curated for this disease."),
-        ("Function", "function", sec("14"),
+        ("Function", "function", S("14", "pathways"),
          "No pathway enrichment — requires an associated-gene cohort."),
         ("Therapeutics", "drugs",
-         join(sec("10"), sec("11"), sec("12"),
-              demote(r_drug_repurposing(bundles)),
-              demote(r_druggability_pyramid(bundles)),
-              demote(r_undrugged_target_profiles(bundles))),
+         join(S("10", "drug-targets"), S("11", "bioactivity"), S("12", "pharmacogenomics"),
+              D(r_drug_repurposing(bundles), "tractability"),
+              D(r_druggability_pyramid(bundles), "druggability"),
+              D(r_undrugged_target_profiles(bundles), "undrugged")),
          "No druggable-target or therapeutic data for this disease's cohort."),
-        ("Clinical trials & evidence", "trials", sec("13"),
+        ("Clinical trials & evidence", "trials", S("13", "clinical-trials"),
          "No clinical trials or CIViC evidence naming this disease."),
     ]
     return emit_canonical(spec)

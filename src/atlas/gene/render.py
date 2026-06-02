@@ -11,7 +11,7 @@ reserved for the synthesis/executive-summary layer, not this.
 """
 import sys, os, html
 from atlas.gene import collect as C
-from atlas.render_common import table, phase_label
+from atlas.render_common import table, phase_label, fnum
 from atlas.civic import therapy_label
 from atlas.page import links
 
@@ -372,7 +372,8 @@ def r_structure(b):
     n = b.get("pdb_count", 0)
     L.append(f"**Experimental structures (PDB): {n}{_cap(n)}**\n")
     L.append(table(["PDB", "Method", "Resolution (Å)"],
-                   [(p["id"], p.get("method"), p.get("resolution")) for p in b.get("pdb", [])]))
+                   [(p["id"], p.get("method"), fnum(p.get("resolution")))  # 2-dp; raw is 1.83549
+                    for p in b.get("pdb", [])]))
     L.append("\n**Predicted structure (AlphaFold):**\n")
     afs = b.get("alphafold", []) or []
     present_rows = [a for a in afs if a.get("present", True) and a.get("id")]

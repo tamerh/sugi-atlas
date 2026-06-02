@@ -36,6 +36,18 @@ def test_summary_first_related_last(pages):
     assert not bad, report(bad)
 
 
+def test_section_h3_have_explicit_ids(pages):
+    """Section H3 headings carry backend-owned {#id}s — never Hugo's
+    prose-derived autoHeadingID (…generif-showing-40 breaks on prose change).
+    (#### sub-sub-headings are exempt — not deep-link targets.)"""
+    bad = []
+    for p in pages:
+        for line in p.body.splitlines():
+            if line.startswith("### ") and "{#" not in line:
+                bad.append(f"{p.entity}/{p.slug}: '{line.strip()[:55]}'")
+    assert not bad, report(bad)
+
+
 def test_no_duplicate_anchor_ids(pages):
     """Anchor ids are a stable API — duplicates within a page break deep links."""
     bad = []

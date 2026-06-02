@@ -360,7 +360,7 @@ def render_all(bundles):
     """Drug page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
     Identifiers → Targets → Indications & clinical → Pharmacology → Related
     molecules. (Summary wrapped by assemble_page; Related appended after.)"""
-    from atlas.render_common import demote, emit_canonical
+    from atlas.render_common import demote, emit_canonical, with_heading_id
     # Fold §6 ChEBI roles + §11 patent metrics into the §1 bundle so the
     # "Identifiers" section carries them (§12 salt forms already covered by §1's
     # own parent/child lines).
@@ -374,22 +374,23 @@ def render_all(bundles):
     merged = dict(bundles)
     merged["1"] = b1
 
-    def sec(s):
-        return demote(RENDER[s](merged[s])) if s in merged else ""
+    def S(s, anchor):
+        return with_heading_id(demote(RENDER[s](merged[s])), anchor) if s in merged else ""
 
     def join(*parts):
         return "\n\n".join(p for p in parts if p and p.strip())
 
     spec = [
-        ("Identifiers", "identifiers", sec("1"), None),
-        ("Targets", "targets", join(sec("2"), sec("3"), sec("8")),
+        ("Identifiers", "identifiers", S("1", "drug-ids"), None),
+        ("Targets", "targets",
+         join(S("2", "primary-targets"), S("3", "bioactivity"), S("8", "target-pathways")),
          "No curated protein targets or measured bioactivity."),
         ("Indications & clinical", "indications",
-         join(sec("4"), sec("5"), sec("10")),
+         join(S("4", "indication-list"), S("5", "clinical-trials"), S("10", "civic")),
          "No labelled indications, trials, or CIViC evidence."),
-        ("Pharmacology", "pharmacology", sec("9"),
+        ("Pharmacology", "pharmacology", S("9", "pharmacogenomics"),
          "No pharmacogenomic data."),
-        ("Related molecules", "related-molecules", sec("7"),
+        ("Related molecules", "related-molecules", S("7", "related-mol"),
          "No competitor molecules sharing a primary target."),
     ]
     return emit_canonical(spec)

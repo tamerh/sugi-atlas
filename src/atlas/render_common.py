@@ -15,6 +15,23 @@ def demote(md):
     return _HEADING.sub(lambda m: "#" + m.group(0), md) if md else md
 
 
+def with_heading_id(md, anchor):
+    """Add an explicit `{#anchor}` to the FIRST heading of a rendered section,
+    so the H3 anchor is a stable backend-owned id (not Hugo's autoHeadingID,
+    which is derived from the prose — `…generif-showing-40` breaks when the count
+    changes). No-op if the section is empty or its first heading already carries
+    an explicit id."""
+    if not md:
+        return md
+    lines = md.split("\n")
+    for i, ln in enumerate(lines):
+        if re.match(r"^#{2,6} ", ln):
+            if "{#" not in ln:
+                lines[i] = ln.rstrip() + f" {{#{anchor}}}"
+            break
+    return "\n".join(lines)
+
+
 def emit_canonical(spec, anchors=None):
     """Emit the FROZEN canonical H2 sequence (docs/PAGE_CONTRACT.md) from a list
     of (label, id, body, placeholder): `## label {#id}` in the given order, body
