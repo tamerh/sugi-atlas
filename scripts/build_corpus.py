@@ -20,10 +20,68 @@ import argparse
 import json
 import os
 import urllib.request
+from multiprocessing import Pool
 
 HGNC_URL = "https://storage.googleapis.com/public-download-files/hgnc/json/json/hgnc_complete_set.json"
 CHEMBL_JSONL = "/data/biobtree/raw_data/chembl/extracted/chembl_molecules.jsonl"
 MONDO_CORPUS = os.path.join(os.path.dirname(__file__), "..", "build", "mondo_corpus.json")
+
+# Gate 2: ChEBI roles that are NON-therapeutic — a molecule whose ONLY roles are
+# these (and which has no ATC and no curated target) is a reagent/excipient/
+# metabolite, not a drug (water's roles = solvent/greenhouse gas/metabolite).
+# Substring match, lowercased. Conservative — anything NOT here counts as a
+# (possibly) pharmacological role, so we keep generously.
+_NONPHARMA_ROLE = (
+    "solvent", "metabolite", "greenhouse gas", "fertilis", "fertiliz", "fuel",
+    "reference compound", "nmr", "chemical shift", "food", "nutrient",
+    "contaminant", "pollutant", "reagent", "dye", "stain", "buffer",
+    "cosmetic", "flavour", "flavor", "fragrance",
+)
+
+
+def _is_pharma_role(role: str) -> bool:
+    r = (role or "").lower()
+    return r != "" and not any(k in r for k in _NONPHARMA_ROLE)
+
+
+def _gate_one(cid: str) -> dict:
+    """Resolve a ChEMBL id and compute the gate-2/3 signals. Top-level for Pool."""
+    from atlas.drug.anchors import resolve as resolve_drug
+    try:
+        a = resolve_drug(cid)
+    except (Exception, SystemExit) as e:   # SystemExit too (harden M1)
+        return {"id": cid, "ok": False, "err": repr(e)[:80]}
+    roles = tuple(getattr(a, "chebi_roles", None) or ())
+    # Drop ONLY a clear reagent: HAS ChEBI roles and ALL are non-pharmacological
+    # (water = solvent/metabolite/greenhouse-gas). KEEP if it has ATC, a curated
+    # target, a pharma role, OR no roles at all — because many real (older/
+    # obscure) drugs are simply un-annotated in ChEMBL (mivacurium/loracarbef:
+    # atc=() targets=0 roles=()), and under-gate > over-gate.
+    therapeutic = (bool(a.atc_codes) or bool(a.targets) or not roles
+                   or any(_is_pharma_role(r) for r in roles))
+    return {"id": cid, "ok": True, "name": a.canonical_name,
+            "therapeutic": therapeutic, "parent": a.parent_chembl,
+            "had_roles": bool(roles)}
+
+
+def gate_drugs(ids, workers=16):
+    """Gate 2 (therapeutic-value filter) + Gate 3 (salt→parent collapse) over a
+    set of ChEMBL ids. Returns (kept_ids, dropped[(id,name,reason)])."""
+    ids = sorted(set(ids))
+    with Pool(workers) as p:
+        res = p.map(_gate_one, ids)
+    present = {r["id"] for r in res if r.get("ok")}
+    kept, dropped = [], []
+    for r in res:
+        if not r.get("ok"):
+            dropped.append((r["id"], "", f"resolve-failed: {r.get('err','')}"))
+        elif r["parent"] and r["parent"] in present:   # salt check first → correct label
+            dropped.append((r["id"], r["name"], f"salt/child of {r['parent']}"))
+        elif not r["therapeutic"]:
+            dropped.append((r["id"], r["name"], "non-therapeutic (no ATC / target / pharma ChEBI role)"))
+        else:
+            kept.append(r["id"])
+    return kept, dropped
 
 
 def _write(path, items):
@@ -70,8 +128,20 @@ def drugs(out):
                 approved.add(mid)
             elif mp in (1, 2, 3):
                 clinical.add(mid)
-    _write(os.path.join(out, "drugs_chembl_approved.txt"), sorted(approved))
     _write(os.path.join(out, "drugs_chembl_clinical.txt"), sorted(clinical))
+    # Gates 2+3: refine the approved set — resolve each, drop reagents/excipients
+    # (no ATC/target/pharma-role) and salt-form children whose parent is also
+    # approved. Emits an audit drop-list to eyeball before a full run.
+    print(f"  gating {len(approved)} approved (resolve + filter) …", flush=True)
+    kept, dropped = gate_drugs(approved)
+    n_reagent = sum(1 for _, _, why in dropped if why.startswith("non-therapeutic"))
+    n_salt = sum(1 for _, _, why in dropped if why.startswith("salt"))
+    n_fail = sum(1 for _, _, why in dropped if why.startswith("resolve"))
+    print(f"  gate2/3: kept {len(kept)}/{len(approved)} — dropped "
+          f"{n_reagent} reagents, {n_salt} salts, {n_fail} resolve-fails")
+    _write(os.path.join(out, "drugs_chembl_approved.txt"), sorted(kept))
+    _write(os.path.join(out, "drugs_chembl_approved.dropped.txt"),
+           [f"{i}\t{nm}\t{why}" for i, nm, why in sorted(dropped)])
 
 
 def diseases(out):
