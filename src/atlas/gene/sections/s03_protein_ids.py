@@ -18,6 +18,7 @@ CHAINS = (
     ">>uniprot>>antibody",
     ">>uniprot>>ufeature",
     ">>uniprot>>brenda",
+    ">>uniprot>>brenda>>brenda_kinetics",
     ">>hgnc>>entrez",                  # anchor-resolved: NCBI gene id + summary
     ">>hgnc>>clingen_dosage",          # anchor-resolved: haplo/triplo scores
     ">>hgnc>>depmap",                  # anchor-resolved: CRISPR fitness
@@ -52,6 +53,7 @@ def collect(a):
     interpro, pfam, antibody = {}, set(), 0
     ufeatures = []
     brenda_ec = []
+    brenda_kinetics = []
     for u in a.reviewed_uniprots:
         for t in map_all(u, ">>uniprot>>interpro"):
             interpro[t["id"]] = {"id": t["id"], "name": t.get("short_name"),
@@ -74,6 +76,30 @@ def collect(a):
                               "inhibitor_count": t.get("inhibitor_count"),
                               "km_count": t.get("km_count"),
                               "kcat_count": t.get("kcat_count")})
+        # Per-substrate kinetics (Km/kcat). TIER 2: the projection carries no
+        # per-row organism, so min–max spans an aggregate across organisms /
+        # conditions — show the range, not a single point value. Keep only rows
+        # with a real measurement; rank best-characterized (most Km values) first.
+        def _i(v):
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                return 0
+        for t in map_all(u, ">>uniprot>>brenda>>brenda_kinetics", cap=150):
+            kmn, kcatn = _i(t.get("km_count")), _i(t.get("kcat_count"))
+            if not (kmn or kcatn):
+                continue
+            sub = (t.get("id") or "").split("|")[-1]
+            # Drop malformed substrate names (reaction-direction fragments like
+            # "-0.0032 {NADPH}") — keep clean chemical names only.
+            if not sub or sub.startswith("-") or "{" in sub:
+                continue
+            brenda_kinetics.append({
+                "substrate": sub, "km_count": kmn, "kcat_count": kcatn,
+                "min_km": t.get("min_km"), "max_km": t.get("max_km")})
+    brenda_kinetics.sort(key=lambda r: -r["km_count"])
+    bundle["brenda_kinetics"] = brenda_kinetics[:15]
+    bundle["brenda_kinetics_total"] = len(brenda_kinetics)
     bundle["interpro"] = list(interpro.values())
     bundle["pfam"] = sorted(pfam)
     bundle["antibody_count"] = antibody
@@ -128,7 +154,8 @@ SECTION = Section(
     needs=("hgnc_id", "ensembl_id", "reviewed_uniprots", "canonical_uniprot"),
     produces=("reviewed_uniprot", "uniprot_all", "refseq_protein", "interpro",
               "pfam", "antibody_count", "ufeatures", "ufeature_counts",
-              "brenda_ec", "cc", "isoforms", "protein_name",
+              "brenda_ec", "brenda_kinetics", "brenda_kinetics_total",
+              "cc", "isoforms", "protein_name",
               "alternative_names", "ncbi_summary", "entrez_id",
               "clingen_dosage", "depmap", "generifs"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

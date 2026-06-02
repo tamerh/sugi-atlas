@@ -145,4 +145,25 @@ them as one render-change wave and verify once:
 2. **Layer B** — body zoning (the 3-zone table) + **#1 residue map** in the
    Protein zone + the nav label reframe.
 3. New-data pickups **#3 → #5 → #2**, each in the two-tier style; file Rhea.
+   *(shipped 2026-06-02)*
 4. One verification pass over the whole wave vs the dense-test baseline.
+
+### Shipped status (2026-06-02)
+- **#1** residue map — ✅ layer B.
+- **#3 GtoPdb** — ✅ §10: target class + top curated ligand interactions
+  (Tier 1). EGFR → catalytic_receptor / ErbB; 106 interactions led by
+  panitumumab/cetuximab/osimertinib-class inhibitors with action types.
+- **#5 BindingDB** — ✅ §10: promoted sample → potency-ranked top-25 (Tier 2),
+  human-filtered, Ki/IC50/Kd/EC50 normalized to nM, `::`-joined ligand names
+  cleaned, "heterogeneous assays — not directly comparable" note.
+- **#2 BRENDA kinetics** — ✅ §3 (enzymes only): per-substrate Km, ranked by
+  measurement depth, Tier-2 note "aggregated across organisms/conditions". A
+  max-only value from a 0-floored aggregate renders `—` (would misrepresent a
+  µM substrate as mM); the inhibitor side was skipped (redundant with
+  GtoPdb/BindingDB + noisy IUPAC names).
+- **Rhea** — ⚠️ blocked, filed as `BIOBTREE_ISSUES #29` (equation field empty in
+  the map projection; route works).
+- **#4 tractability** — partial: GtoPdb druggable class now shown; DepMap
+  dependency already surfaced (§3). A single combined verdict line is deferred
+  (spans §3+§10).
+- Deferred: variant overlay on the residue axis; web-side nav-label reframe.

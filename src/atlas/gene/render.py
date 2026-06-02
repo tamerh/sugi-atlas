@@ -194,6 +194,30 @@ def r_protein_ids(b):
                      f"{e.get('name') or ''} *(BRENDA: {e.get('organism_count', 0)} organisms, "
                      f"{e.get('substrate_count', 0)} substrates, {e.get('inhibitor_count', 0)} inhibitors, "
                      f"{e.get('km_count', 0)} Km, {e.get('kcat_count', 0)} kcat entries)*")
+        # Per-substrate kinetics (Tier 2: Km spans organisms/conditions).
+        kin = b.get("brenda_kinetics") or []
+        if kin:
+            L.append(f"\n**Substrate kinetics (BRENDA, {b.get('brenda_kinetics_total', 0)} "
+                     f"substrates with measured Km), best-characterized {len(kin)}. "
+                     f"*Km ranges are aggregated across organisms/conditions.*\n")
+
+            def _km(r):
+                def f(v):
+                    try:
+                        x = float(v)
+                        return x if x > 0 else None     # 0 = missing-value floor
+                    except (TypeError, ValueError):
+                        return None
+                lo, hi = f(r.get("min_km")), f(r.get("max_km"))
+                # Show a value only with a clean lower bound — a max-only figure
+                # from a 0-floored aggregate (DHF 21.7 mM) would misrepresent a
+                # µM-affinity substrate. The measurement count still conveys depth.
+                if not lo:
+                    return "—"
+                return f"{lo:g}–{hi:g}" if (hi and hi != lo) else f"{lo:g}"
+            L.append(table(["Substrate", "Km (mM)", "Measurements"],
+                           [((k.get("substrate") or "")[:48], _km(k), k.get("km_count"))
+                            for k in kin]))
     # UniProt sequence features — one-line census here; the structured
     # druggable-residue breakdown lives in r_residue_map (the protein zone),
     # so the former flat "top 40 features" table is no longer duplicated here.
@@ -582,11 +606,35 @@ def r_drugs(b):
               "yes" if g.get("has_dosing_info") else "",
               "yes" if g.get("has_recommendation") else "")
              for g in pgg_sorted[:30]]))
-    bd = b.get("bindingdb_sample", [])
-    if bd:
-        L.append(f"\n**Binding affinities (BindingDB, sampled {b.get('bindingdb_sampled', 0)}):**\n")
-        L.append(table(["Ligand", "Ki", "IC50"],
-                       [(x.get("ligand"), x.get("ki"), x.get("ic50")) for x in bd[:15]]))
+    # GtoPdb / IUPHAR — hand-curated pharmacology (Tier 1: leads, plainly).
+    gt = b.get("gtopdb_target")
+    gi = b.get("gtopdb_interactions") or []
+    if gt or gi:
+        L.append("\n**GtoPdb / IUPHAR curated pharmacology** "
+                 "*(IUPHAR/BPS Guide to Pharmacology — expert-curated)*")
+        if gt:
+            cls = (gt.get("type") or "").replace("_", " ")
+            fam = gt.get("family")
+            L.append(f"\n**Target class:** {cls}" + (f" — *{fam}*" if fam else ""))
+        if gi:
+            L.append(f"\n**Most potent curated ligand interactions "
+                     f"({b.get('gtopdb_interaction_count', 0)} total), top {len(gi)}:**\n")
+            L.append(table(["Ligand", "Action", "Affinity", "Parameter"],
+                           [(links.maybe_link(x.get("ligand"), links.drug_url(name=x.get("ligand"))),
+                             x.get("action") or x.get("type"),
+                             x.get("affinity"), x.get("parameter")) for x in gi]))
+
+    # BindingDB — measured affinities (Tier 2: heterogeneous assays; the note
+    # carries the provenance so the ranking isn't read as one comparable scale).
+    br = b.get("bindingdb_ranked") or []
+    if br:
+        L.append(f"\n**Binding affinities (BindingDB):** {b.get('bindingdb_measured', 0)} "
+                 f"measured of {b.get('bindingdb_human', 0)} human assays "
+                 f"({b.get('bindingdb_total', 0)} total across all organisms); "
+                 f"most potent {len(br)} below. *Values come from heterogeneous "
+                 f"assays and are not directly comparable.*\n")
+        L.append(table(["Ligand", "Measure", "Value"],
+                       [(x.get("ligand"), x.get("measure"), x.get("value")) for x in br]))
 
     # ChEMBL bioactivities (pchembl-ranked). pchembl is the gold potency
     # metric — directly comparable across assay types.

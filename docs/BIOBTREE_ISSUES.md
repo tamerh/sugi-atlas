@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #13, #14, #15, #18 + Mondo OBO xrefs; speculative asks #21/#22/#23/#24 removed; filed patent gaps #25/#26/#27; filed trial-edge contamination #28)
+**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #13, #14, #15, #18 + Mondo OBO xrefs; speculative asks #21/#22/#23/#24 removed; filed patent gaps #25/#26/#27; filed trial-edge contamination #28; filed Rhea equation-projection gap #29)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -170,6 +170,32 @@ tail before #28 lands.)
    offered); OR remove the guard entirely and trust the edge;
 2. re-check disease §4 (intogen) / §13 (civic) / the cohort CIViC route for residual
    contamination and drop any guards added there.
+
+---
+
+## Issue #29 — `>>uniprot>>rhea` returns reaction IDs but the `equation` field is empty
+
+**Filed 2026-06-02.** Field-projection gap, not a routing gap — the namespace
+resolves and returns rows. `>>uniprot>>rhea` for an enzyme (e.g. DHFR / P00374)
+returns the catalyzed Rhea reaction IDs with `direction`/`status` populated, but
+the human-readable `equation` (substrate → product) and the ChEBI participant
+ids come back as `""`:
+
+```
+P00374 >>uniprot>>rhea →
+  {id: RHEA:15009, equation: "", direction: "...", status: "Approved"}
+  {id: RHEA:15011, equation: "", direction: "...", status: "Approved"}
+```
+
+So Atlas can list *which* reactions an enzyme catalyzes (the IDs) but cannot show
+*what* the reaction is without a per-id Rhea lookup. **Ask:** project `equation`
+(and the ChEBI participants) into the `rhea` map `compact_fields`, the same way
+`gtopdb`/`brenda` expose their human-readable fields. Until then the enzyme-
+mechanism "substrate → product" line is blocked; the residue map + BRENDA
+kinetics (Km per substrate) are the interim mechanism signal Atlas ships.
+
+(Verified the route/namespace against `/api/meta` `datasets` before filing — this
+is a missing projected field, consistent with the edges-doc-authority rule.)
 
 ---
 

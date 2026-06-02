@@ -1,9 +1,43 @@
-"""§10 — drugs: ChEMBL targets + phased molecules, PharmGKB, BindingDB sample,
-clinical trials via the DISEASE route (gene → MONDO → trials)."""
+"""§10 — drugs: ChEMBL targets + phased molecules, PharmGKB, GtoPdb curated
+pharmacology, potency-ranked BindingDB, clinical trials via the DISEASE route
+(gene → MONDO → trials)."""
+import re
 from collections import Counter
 from atlas.biobtree import map_all, entry, xref_counts
 from atlas.civic import aggregate_predictive
 from atlas.gene.sections.base import Section
+
+# Binding-affinity unit → nanomolar, for ranking heterogeneous BindingDB values
+# (strings like "1.0 nM", "0.5 µM") onto one comparable scale.
+_NM_PER_UNIT = {"m": 1e9, "mm": 1e6, "um": 1e3, "nm": 1.0, "pm": 1e-3, "fm": 1e-6}
+_AFFINITY_RE = re.compile(r'\s*[<>~=]*\s*([\d.]+)\s*([a-z]+)', re.I)
+_HUMAN_ORG = {"homo sapiens", "human"}
+
+
+def _clean_ligand(name):
+    """BindingDB ligand_name is a '::'-joined synonym dump (IUPAC, CHEMBL ids,
+    analog labels). Pick the first human-readable, non-id segment for display."""
+    if not name:
+        return name
+    parts = [p.strip() for p in str(name).split("::") if p.strip()]
+    named = [p for p in parts if not p.upper().startswith("CHEMBL")]
+    pick = (named or parts)[0]
+    return pick[:60] + ("…" if len(pick) > 60 else "")
+
+
+def _affinity_nm(s):
+    """Parse a BindingDB affinity string to nanomolar; None if unparseable."""
+    if not s:
+        return None
+    m = _AFFINITY_RE.match(str(s).strip().replace("µ", "u").replace("μ", "u"))
+    if not m:
+        return None
+    try:
+        val = float(m.group(1))
+    except ValueError:
+        return None
+    factor = _NM_PER_UNIT.get(m.group(2).lower())
+    return val * factor if (factor and val > 0) else None
 
 CHAINS = (
     ">>uniprot>>chembl_target",
@@ -18,6 +52,8 @@ CHAINS = (
     ">>hgnc>>pharmgkb_variant",
     ">>hgnc>>pharmgkb_guideline",
     ">>uniprot>>bindingdb",
+    ">>uniprot>>gtopdb",
+    ">>uniprot>>gtopdb>>gtopdb_interaction",
     ">>uniprot>>pubchem_activity",
     ">>hgnc>>entrez>>ctd_gene_interaction",
     ">>hgnc>>gencc>>mondo>>clinical_trials",
@@ -28,7 +64,7 @@ DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay
             "chembl_document", "patent_compound", "cellosaurus",
             "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant",
             "pharmgkb_guideline",
-            "bindingdb", "pubchem_activity",
+            "bindingdb", "gtopdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc",
             "civic_evidence")
@@ -131,10 +167,56 @@ def collect(a):
         "has_recommendation": t.get("has_recommendation") == "true",
     } for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_guideline")]
 
-    bd = map_all(uni, ">>uniprot>>bindingdb", cap=2) if uni else []
-    bundle["bindingdb_sample"] = [{"ligand": t.get("ligand_name"), "ki": t.get("ki"),
-                                   "ic50": t.get("ic50")} for t in bd[:30]]
-    bundle["bindingdb_sampled"] = len(bd)
+    # GtoPdb / IUPHAR — hand-curated pharmacology (TIER 1). gene-keyed
+    # (uniprot→gtopdb), structurally clean. Target classification + the most
+    # potent curated ligand interactions (affinity = pIC50/pKi, higher = tighter).
+    gtopdb = map_all(uni, ">>uniprot>>gtopdb") if uni else []
+    if gtopdb:
+        g0 = gtopdb[0]
+        bundle["gtopdb_target"] = {"id": g0.get("id"), "type": g0.get("type"),
+                                   "family": g0.get("family_name")}
+        inter = map_all(uni, ">>uniprot>>gtopdb>>gtopdb_interaction", cap=200)
+
+        def _aff(r):
+            try:
+                return float(r.get("affinity") or 0)
+            except (TypeError, ValueError):
+                return 0.0
+        inter = [r for r in inter if _aff(r) > 0]
+        inter.sort(key=_aff, reverse=True)
+        bundle["gtopdb_interactions"] = [{
+            "ligand": r.get("ligand_name"), "type": r.get("type"),
+            "action": r.get("action"), "affinity": round(_aff(r), 2),
+            "parameter": r.get("affinity_parameter"),
+        } for r in inter[:25]]
+        bundle["gtopdb_interaction_count"] = len(inter)
+
+    # BindingDB — measured binding affinities (TIER 2: heterogeneous assays, not
+    # directly comparable). Promote from a 2-row sample to a potency-ranked
+    # slice: filter to the human target, rank by the tightest available measure
+    # (Ki/IC50/Kd/EC50 normalized to nM).
+    bd = map_all(uni, ">>uniprot>>bindingdb") if uni else []
+
+    def _best_measure(r):
+        best = None
+        for m in ("ki", "ic50", "kd", "ec50"):
+            nm = _affinity_nm(r.get(m))
+            if nm is not None and (best is None or nm < best[0]):
+                best = (nm, m.upper(), r.get(m))
+        return best
+    human = [r for r in bd
+             if (r.get("target_source_organism") or "").lower() in _HUMAN_ORG]
+    ranked = []
+    for r in human:
+        bm = _best_measure(r)
+        if bm:
+            ranked.append({"ligand": _clean_ligand(r.get("ligand_name")), "measure": bm[1],
+                           "value": bm[2], "nm": round(bm[0], 4)})
+    ranked.sort(key=lambda x: x["nm"])
+    bundle["bindingdb_ranked"] = ranked[:25]
+    bundle["bindingdb_total"] = len(bd)
+    bundle["bindingdb_human"] = len(human)
+    bundle["bindingdb_measured"] = len(ranked)
 
     # PubChem BioAssay activities — Active outcomes with a real affinity value,
     # sorted by potency (low IC50/Ki/Kd/EC50 = most potent). The activity_id
@@ -326,7 +408,9 @@ SECTION = Section(
               "cellosaurus_total", "cellosaurus_category_counts",
               "cellosaurus_samples", "pharmgkb", "pharmgkb_clinical", "pharmgkb_variant",
               "pharmgkb_guideline",
-              "bindingdb_sample", "pubchem_bioassay", "ctd_interactions",
+              "gtopdb_target", "gtopdb_interactions", "gtopdb_interaction_count",
+              "bindingdb_ranked", "bindingdb_total", "bindingdb_human",
+              "bindingdb_measured", "pubchem_bioassay", "ctd_interactions",
               "disease_trials", "civic_evidence", "civic_predictive_total",
               "civic_evidence_total", "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
