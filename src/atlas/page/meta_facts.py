@@ -1,4 +1,4 @@
-"""Frontmatter key-facts (web-team P2/P3, docs/research/NEXT.md) — derived
+"""Frontmatter key-facts (web-team P2/P3, docs/internal/research/NEXT.md) — derived
 deterministically from the bundle, structured for the frontend "Key facts" card
 + Pagefind, separate from the prose body:
 

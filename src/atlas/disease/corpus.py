@@ -74,7 +74,7 @@ _ISA_LINE   = re.compile(r"^is_a:\s*(MONDO:\d+)", re.M)
 # ranked corpus (e.g. MONDO:0021152 "inherited" rendered a full junk page).
 # We drop ONLY this subtree. Deliberately NOT gating on the broad
 # `disease_grouping` subset — that also flags real hub diseases (cardiomyopathy,
-# AML, renal cell carcinoma). See docs/research/06_admission_gates.md.
+# AML, renal cell carcinoma). See docs/internal/research/06_admission_gates.md.
 DISEASE_CHARACTERISTIC_ROOT = "MONDO:0021125"
 
 

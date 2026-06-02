@@ -2,7 +2,7 @@
 to the internal `/atlas/<type>/<slug>/` URL of its Atlas page, IFF that page
 has been built.
 
-Design (see docs/research/05 §6 + NEXT.md cross-entity work):
+Design (see docs/internal/research/05 §6 + NEXT.md cross-entity work):
   - A manifest at `<dist>/atlas/manifest.json` maps every resolvable key
     (canonical IDs, child/parent ChEMBLs, normalized names + synonyms) → slug,
     per entity type. It is written by the pipeline at build time (run_gene /

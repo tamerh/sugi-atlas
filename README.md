@@ -28,7 +28,7 @@ biobtree (local REST API)  ──►  collect   ──►  render   ──►  p
 | `data/corpus/seeds/` | full-corpus seed lists (gitignored; regenerable) |
 | `data/validation/gene/` | 25-gene reference set for fact-coverage |
 | `tests/unit/`, `tests/integration/` | unit suite + corpus-level integration checks |
-| `docs/` | page contract, biobtree issues, collector notes, research |
+| `docs/` | the page contract + gene/protein data-model contract; site-file drafts |
 | `dist/` | **everything generated** (gitignored): `atlas/` pages, `build/` corpus intermediates, `cache/` bundle cache, `logs/`, release tarballs |
 
 ## Install & run (dev)
@@ -78,5 +78,6 @@ returns immediately with a PID + log path (`dist/logs/prod-<stamp>.log`). Run
 
 The collector was prototyped in `/data/biobtree-collector` on branch
 `deterministic-collector` (a worktree of the `biobtree-content` Hugo
-repository). See `docs/COLLECTOR_NOTES.md` for the rationale, design findings,
-and per-section validation summary inherited from that work.
+repository): mining the published pages showed the tool-call trajectory for
+these structured sections is mostly deterministic, so data-gathering and
+table-rendering use no model at all — only the executive summary does.

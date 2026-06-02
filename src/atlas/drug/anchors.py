@@ -14,8 +14,7 @@ Anchored at a ChEMBL molecule id. More involved than the gene anchor because:
 - salt forms link via parent/childs (a child entry carries `parent`, the
   parent carries `childs`).
 
-All probed live 2026-05-31 — see SPEC_drug_entity.md §15 + the data layer
-confirmed during spec iteration.
+All probed live 2026-05-31 and confirmed against the data layer below.
 """
 import re, sys
 from dataclasses import dataclass, field
