@@ -158,26 +158,59 @@ def _scrub_noncoding(bundle):
                 sec.pop(k, None)
     bundle["_noncoding"] = biotype
 
+_HEADING = re.compile(r'^(#{2,5}) ', re.M)
+
+
+def _demote(md):
+    """Bump every ATX heading one level deeper (## → ###) so a section nests
+    under its zone H2 (MOLECULAR_ENRICHMENT layer B). Non-heading lines pass
+    through unchanged."""
+    return _HEADING.sub(lambda m: "#" + m.group(0), md) if md else md
+
+
 def render_all(bundle):
-    # Explicit section order. Expression (§11) is hoisted to right after
-    # Transcripts (§2): "where is this expressed" is high-value context that
-    # belongs near the top, not buried near the end. Functional genomics +
-    # GeneRIFs were carved out of §3 (gene-level, not protein IDs) and render
-    # right after it. Each renderer returns "" when it has no data.
-    order = ["1", "2", "11", "3", "4", "5", "6", "7", "8", "9", "10", "12"]
-    # Non-coding genes: §6 (variants) + §12 (disease associations) were scrubbed
-    # (positional inheritance), so skip the empty scaffolding — the At-a-glance
-    # affirmative line states the non-coding status instead.
-    if bundle.get("_noncoding"):
-        order = [s for s in order if s not in ("6", "12")]
-    parts = []
-    for s in order:
-        parts.append(R.RENDER[s](bundle[s]))
-        if s == "3":
-            b3 = bundle["3"]
-            parts.append(R.r_functional_genomics(b3))
-            parts.append(R.r_generifs(b3))
-    return "\n\n".join(p for p in parts if p)
+    # Gene/Protein/Clinical zoning (docs/MOLECULAR_ENRICHMENT.md). The page is a
+    # gene AND its protein product(s): locus-level sections, protein-level
+    # sections, and the clinical bridge are grouped under three H2 zones, with
+    # the section H2s demoted to H3. Within a zone the prior ordering is kept
+    # (Expression hoisted near the top; functional-genomics + GeneRIFs are
+    # gene-level, carved out of §3). Each renderer returns "" when it has no data.
+    b3 = bundle.get("3") or {}
+    noncoding = bundle.get("_noncoding")
+
+    def sec(s):
+        return _demote(R.RENDER[s](bundle[s]))
+
+    # Gene — the locus
+    gene_parts = [sec("1"), sec("2"), sec("11"), sec("9"), sec("5"),
+                  _demote(R.r_functional_genomics(b3)), _demote(R.r_generifs(b3))]
+    zones = [("Gene — the locus", None, gene_parts)]
+
+    # Protein product(s) — elides entirely for non-coding genes (no product).
+    # Pathways/interactions/drugs are protein-function level, so they live here.
+    if not noncoding and (b3.get("reviewed_uniprot")):
+        canon = b3.get("canonical_uniprot")
+        anchor = f"protein-{canon}" if canon else None
+        prot_parts = [sec("3"), sec("4"), _demote(R.r_residue_map(b3)),
+                      sec("7"), sec("8"), sec("10")]
+        zones.append(("Protein product(s)", anchor, prot_parts))
+
+    # Clinical & disease — the bridge. §6/§12 were scrubbed for non-coding genes
+    # (positional inheritance), so this zone collapses for ncRNA.
+    if not noncoding:
+        zones.append(("Clinical & disease", None, [sec("6"), sec("12")]))
+
+    out = []
+    for title, anchor, parts in zones:
+        body = "\n\n".join(p for p in parts if p and p.strip())
+        if not body.strip():
+            continue
+        # Explicit HTML anchor (Hugo unsafe-HTML is already required for the
+        # inline JSON-LD <script>) so #protein-<acc> deep-links match the
+        # JSON-LD @id without depending on goldmark heading-attribute config.
+        head = (f'<a id="{anchor}"></a>\n\n' if anchor else "") + f"## {title}"
+        out.append(head + "\n\n" + body)
+    return "\n\n".join(out)
 
 def _yaml_escape(s):
     return str(s).replace('"', '\\"')

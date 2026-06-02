@@ -194,21 +194,14 @@ def r_protein_ids(b):
                      f"{e.get('name') or ''} *(BRENDA: {e.get('organism_count', 0)} organisms, "
                      f"{e.get('substrate_count', 0)} substrates, {e.get('inhibitor_count', 0)} inhibitors, "
                      f"{e.get('km_count', 0)} Km, {e.get('kcat_count', 0)} kcat entries)*")
-    # UniProt sequence features (annotated functional + structural sites)
+    # UniProt sequence features — one-line census here; the structured
+    # druggable-residue breakdown lives in r_residue_map (the protein zone),
+    # so the former flat "top 40 features" table is no longer duplicated here.
     uc = b.get("ufeature_counts") or {}
     if uc:
         total = sum(uc.values())
         L.append(f"\n**UniProt features ({total} total):** "
                  + ", ".join(f"{t} {n}" for t, n in sorted(uc.items(), key=lambda x: -x[1])))
-        # functional features worth listing with locations (skip bulk sequence-variant
-        # — covered in §6 ClinVar — and secondary-structure rows — §4 territory).
-        skip = {"sequence variant", "strand", "helix", "turn"}
-        feats = [f for f in b.get("ufeatures", []) if f.get("type") not in skip]
-        if feats:
-            L.append("\n**Annotated functional features (top 40):**\n")
-            L.append(table(["Type", "Location", "Description"],
-                           [(f["type"], f"{f.get('begin')}–{f.get('end')}",
-                             (f.get("description") or "")[:80]) for f in feats[:40]]))
     return "\n".join(L)
 
 
@@ -276,6 +269,77 @@ def r_generifs(b):
         pmid = r.get("pmid")
         cite = f" (PMID:{pmid})" if pmid else ""
         L.append(f"- {text}{cite}")
+    return "\n".join(L)
+
+
+# Functional-residue map (audit-enrichment #1 / MOLECULAR_ENRICHMENT layer B):
+# regroup UniProt sequence features into a drug-discovery view. (group label,
+# feature types, show per-residue description?)
+_RESIDUE_GROUPS = [
+    ("Catalytic / active sites", ("active site", "site"), True),
+    ("Ligand- & substrate-binding residues", ("binding site",), True),
+    ("Post-translational modifications", ("modified residue",
+     "lipid moiety-binding region", "cross-link"), False),
+    ("Disulfide bonds", ("disulfide bond",), False),
+    ("Glycosylation sites", ("glycosylation site",), False),
+]
+
+
+def _res_loc(f):
+    b, e = f.get("begin"), f.get("end")
+    return str(b) if (e in (None, "", b)) else f"{b}–{e}"
+
+
+def r_residue_map(b):
+    """Structure-function residue view over UniProt features — catalytic,
+    ligand-binding, PTM, disulfide, glycosylation, and mutagenesis-validated
+    positions, grouped per reviewed product. Pure restructure of data §3 already
+    collects (each feature is accession-stamped); '' when no features."""
+    feats = b.get("ufeatures") or []
+    canon = b.get("canonical_uniprot")
+
+    def _product_block(ufe):
+        """Residue-group lines for one product; [] when it has no mappable
+        residues (avoids an orphan product header)."""
+        lines = []
+        for label, types, show_desc in _RESIDUE_GROUPS:
+            rows = [f for f in ufe if f.get("type") in types]
+            if not rows:
+                continue
+            if show_desc:
+                items = "; ".join(
+                    f"**{_res_loc(f)}**" + (f" ({f['description']})" if f.get("description") else "")
+                    for f in rows[:12])
+                more = " …" if len(rows) > 12 else ""
+                lines.append(f"\n**{label} ({len(rows)}):** {items}{more}")
+            else:
+                locs = ", ".join(_res_loc(f) for f in rows[:20])
+                more = " …" if len(rows) > 20 else ""
+                lines.append(f"\n**{label} ({len(rows)}):** {locs}{more}")
+        mut = [f for f in ufe if f.get("type") == "mutagenesis site"]
+        if mut:
+            lines.append(f"\n**Mutagenesis-validated functional residues ({len(mut)}):**\n")
+            lines.append(table(["Position", "Phenotype"],
+                               [(_res_loc(f), (f.get("description") or "")[:120]) for f in mut[:25]]))
+        return lines
+
+    blocks = []
+    for u in (b.get("reviewed_uniprot") or []):
+        ufe = [f for f in feats if f.get("uniprot") == u]
+        body = _product_block(ufe)
+        if body:
+            blocks.append((u, body))
+    if not blocks:
+        return ""
+    L = ["## Functional residue map", "",
+         "Curated UniProt residues grouped by drug-discovery relevance — "
+         "catalytic, ligand-binding, modification, and mutation-validated "
+         "positions. *Source: UniProtKB sequence features.*"]
+    multi = len(blocks) > 1
+    for u, body in blocks:
+        if multi:
+            L.append(f"\n**{u}{' (canonical)' if u == canon else ''}**")
+        L.extend(body)
     return "\n".join(L)
 
 
