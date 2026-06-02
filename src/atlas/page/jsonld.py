@@ -49,20 +49,103 @@ def same_as_urls(bundle):
         out.append(f"https://www.omim.org/entry/{mims[0]}")
     return out
 
-def _encodes(bundle):
-    """encodesBioChemEntity for each reviewed UniProt product. Dual-product
-    genes (CDKN2A) get a list; single-product gets a dict; ncRNA gets None."""
+# UniProt feature types that map to a druggable/functional residue — the
+# Bioschemas `hasSequenceAnnotation` seed for the residue map (layer A). Order
+# is display priority; the full set stays in the §3/§4 body (the residue map).
+_RESIDUE_TYPES = ("active site", "binding site", "site", "modified residue",
+                  "disulfide bond", "glycosylation site",
+                  "lipid moiety-binding region", "mutagenesis site")
+_ANN_CAP = 12      # representative residues in the inline graph, not the full list
+_PDB_CAP = 6
+
+
+def _to_int(v):
+    try:
+        return int(str(v).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def _seq_annotations(ufeatures, acc, cap=_ANN_CAP):
+    """Bioschemas SequenceAnnotation nodes for an accession's functional
+    residues. `ufeatures` are already accession-stamped by s03. Sorted by
+    druggability priority (_RESIDUE_TYPES order) so a gene with dozens of
+    mutagenesis sites still surfaces its active/binding/PTM residues first."""
+    prio = {t: i for i, t in enumerate(_RESIDUE_TYPES)}
+    matched = [f for f in ufeatures
+               if f.get("uniprot") == acc and f.get("type") in prio]
+    matched.sort(key=lambda f: (prio[f["type"]], _to_int(f.get("begin")) or 0))
+    out = []
+    for f in matched:
+        node = {"@type": "SequenceAnnotation", "name": f.get("type")}
+        if f.get("description"):
+            node["description"] = f["description"]
+        start = _to_int(f.get("begin"))
+        if start is not None:
+            end = _to_int(f.get("end"))
+            node["sequenceLocation"] = {"@type": "SequenceRange",
+                                        "rangeStart": start,
+                                        "rangeEnd": end if end is not None else start}
+        out.append(node)
+        if len(out) >= cap:
+            break
+    return out
+
+
+def _representations(b4, acc, is_canonical, cap=_PDB_CAP):
+    """Bioschemas hasRepresentation — AlphaFold (accession-tagged) + a sample of
+    PDB structures. PDB is a flat list not yet accession-tagged, so it attaches
+    to the canonical product (single-product genes: correct; dual-product: a
+    documented approximation pending per-accession PDB tagging in s04)."""
+    out = []
+    for af in (b4.get("alphafold") or []):
+        if af.get("uniprot") == acc and af.get("present"):
+            out.append({"@type": "3DModel", "name": f"AlphaFold {af.get('id')}",
+                        "url": f"https://alphafold.ebi.ac.uk/entry/{acc}"})
+    if is_canonical:
+        for p in (b4.get("pdb") or [])[:cap]:
+            pid = p.get("id")
+            if pid:
+                out.append({"@type": "3DModel", "name": f"PDB {pid}",
+                            "url": f"https://www.rcsb.org/structure/{pid}"})
+    return out
+
+
+def _protein_nodes(bundle, gene_page):
+    """encodesBioChemEntity — one fully-typed, addressable Protein node per
+    reviewed UniProt product (layer A). Each carries its own `@id`
+    (…/gene/SYM/#protein-<acc>), the reciprocal `isEncodedByBioChemEntity` edge
+    back to the Gene, and a Bioschemas Protein-profile seed (sequence
+    annotations = the residue map, structural representations). Dual-product
+    genes (CDKN2A) get a list; single-product a dict; ncRNA None."""
     b3 = bundle.get("3") or {}
+    b4 = bundle.get("4") or {}
     rev = b3.get("reviewed_uniprot") or []
     if not rev:
         return None
-    proteins = [{
-        "@type": "Protein",
-        "name": u,
-        "identifier": f"UniProtKB:{u}",
-        "url": f"https://www.uniprot.org/uniprotkb/{u}",
-    } for u in rev]
-    return proteins[0] if len(proteins) == 1 else proteins
+    canon = b3.get("canonical_uniprot")
+    ufeatures = b3.get("ufeatures") or []
+    nodes = []
+    for acc in rev:
+        is_canon = (acc == canon) or (len(rev) == 1)
+        # Per-accession protein names aren't in the bundle yet (only the
+        # canonical's protein_name); non-canonical products fall back to the
+        # accession until s03 carries per-product names.
+        pname = (b3.get("protein_name") if is_canon else None) or acc
+        node = {
+            "@type": "Protein",
+            "@id": f"{gene_page}#protein-{acc}",
+            "name": pname,
+            "identifier": f"UniProtKB:{acc}",
+            "url": f"https://www.uniprot.org/uniprotkb/{acc}",
+            "sameAs": f"https://www.uniprot.org/uniprotkb/{acc}",
+            "taxonomicRange": "https://www.ncbi.nlm.nih.gov/taxonomy/9606",
+            "isEncodedByBioChemEntity": {"@id": gene_page},
+            "hasSequenceAnnotation": _seq_annotations(ufeatures, acc) or None,
+            "hasRepresentation": _representations(b4, acc, is_canon) or None,
+        }
+        nodes.append({k: v for k, v in node.items() if v not in (None, [], "")})
+    return nodes[0] if len(nodes) == 1 else nodes
 
 def build_jsonld(bundle, base_url=BASE_URL):
     """Compose the schema.org Gene JSON-LD dict from a full collector bundle.
@@ -92,7 +175,10 @@ def build_jsonld(bundle, base_url=BASE_URL):
         "description": _strip_md(declarative_sentence(bundle)),
         "alternateName": alt_names or None,
         "sameAs": same_as_urls(bundle) or None,
-        "encodesBioChemEntity": _encodes(bundle),
+        # Each reviewed product is a fully-typed Protein node with its own @id —
+        # the molecular layer (residue map, structure, binding) hangs off the
+        # Protein, not the Gene (layer A; see docs/MOLECULAR_ENRICHMENT.md).
+        "encodesBioChemEntity": _protein_nodes(bundle, canonical_page),
         "taxonomicRange": "https://www.ncbi.nlm.nih.gov/taxonomy/9606",
     }
     # Surface UniProt CC FUNCTION as a structured `disambiguatingDescription`

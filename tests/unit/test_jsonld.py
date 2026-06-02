@@ -150,6 +150,65 @@ def test_encodes_absent_for_ncrna():
     assert "encodesBioChemEntity" not in j
 
 
+# ───── layer A: typed, addressable Protein nodes (MOLECULAR_ENRICHMENT) ─────
+
+def _bundle_with_molecular():
+    """TP53-shaped bundle carrying §3 ufeatures + §4 structure so the Protein
+    node populates its Bioschemas seed."""
+    b = _bundle(symbol="TP53", name="tumor protein p53", hgnc_id="HGNC:11998",
+                location="17p13.1", biotype="protein_coding",
+                reviewed_uniprot=["P04637"], canonical_uniprot="P04637")
+    b["3"]["protein_name"] = "Cellular tumor antigen p53"
+    b["3"]["ufeatures"] = [
+        {"uniprot": "P04637", "type": "active site", "description": "x", "begin": "120", "end": "120"},
+        {"uniprot": "P04637", "type": "binding site", "begin": "176", "end": "179"},
+        # an ortholog feature on a different accession must NOT leak in
+        {"uniprot": "Q00000", "type": "active site", "begin": "9", "end": "9"},
+        {"uniprot": "P04637", "type": "sequence conflict", "begin": "1", "end": "1"},  # not a residue type
+    ]
+    b["4"] = {"section": "04_structure", "reviewed_uniprot": ["P04637"],
+              "pdb": [{"id": "1TUP", "method": "X-RAY DIFFRACTION", "resolution": "2.2"}],
+              "alphafold": [{"id": "AF-P04637-F1", "uniprot": "P04637", "present": True}]}
+    return b
+
+
+def test_protein_node_has_addressable_id_and_reciprocal_edge():
+    j = build_jsonld(_bundle_with_molecular())
+    p = j["encodesBioChemEntity"]
+    assert p["@id"] == f"{BASE_URL}/gene/TP53/#protein-P04637"
+    assert p["isEncodedByBioChemEntity"] == {"@id": f"{BASE_URL}/gene/TP53/"}
+    assert p["name"] == "Cellular tumor antigen p53"
+    assert p["identifier"] == "UniProtKB:P04637"
+
+
+def test_protein_sequence_annotations_filtered_and_typed():
+    p = build_jsonld(_bundle_with_molecular())["encodesBioChemEntity"]
+    anns = p["hasSequenceAnnotation"]
+    names = [a["name"] for a in anns]
+    assert names == ["active site", "binding site"]          # priority order
+    assert "sequence conflict" not in names                  # non-residue dropped
+    # the Q00000 ortholog feature did not leak onto P04637
+    assert all(a.get("sequenceLocation", {}).get("rangeStart") != 9 for a in anns)
+    assert anns[0]["sequenceLocation"] == {"@type": "SequenceRange",
+                                           "rangeStart": 120, "rangeEnd": 120}
+
+
+def test_protein_representations_pdb_and_alphafold():
+    p = build_jsonld(_bundle_with_molecular())["encodesBioChemEntity"]
+    reps = {r["name"] for r in p["hasRepresentation"]}
+    assert "AlphaFold AF-P04637-F1" in reps
+    assert "PDB 1TUP" in reps
+
+
+def test_dual_product_each_gets_own_protein_id():
+    enc = build_jsonld(CDKN2A)["encodesBioChemEntity"]
+    ids = {p["@id"] for p in enc}
+    assert ids == {f"{BASE_URL}/gene/CDKN2A/#protein-P42771",
+                   f"{BASE_URL}/gene/CDKN2A/#protein-Q8N726"}
+    assert all(p["isEncodedByBioChemEntity"] == {"@id": f"{BASE_URL}/gene/CDKN2A/"}
+               for p in enc)
+
+
 # ───── chromosome / partOf ────────────────────────────────────────────
 
 def test_is_part_of_chromosome():
