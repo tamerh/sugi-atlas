@@ -66,10 +66,20 @@ _TERM_BLOCK = re.compile(r"^\[Term\]\s*$", re.M)
 _ID_LINE    = re.compile(r"^id:\s*(MONDO:\d+)\s*$", re.M)
 _NAME_LINE  = re.compile(r"^name:\s*(.+?)\s*$", re.M)
 _OBSOLETE   = re.compile(r"^is_obsolete:\s*true\s*$", re.M)
+_ISA_LINE   = re.compile(r"^is_a:\s*(MONDO:\d+)", re.M)
+
+# Admission gate 1: the "disease characteristic" subtree — PATO-rooted
+# qualities (inherited / acquired / sporadic / congenital / X-linked) that are
+# NOT diseases but accrue word-matched evidence and float to the top of the
+# ranked corpus (e.g. MONDO:0021152 "inherited" rendered a full junk page).
+# We drop ONLY this subtree. Deliberately NOT gating on the broad
+# `disease_grouping` subset — that also flags real hub diseases (cardiomyopathy,
+# AML, renal cell carcinoma). See docs/research/06_admission_gates.md.
+DISEASE_CHARACTERISTIC_ROOT = "MONDO:0021125"
 
 
 def parse_obo(path: str) -> List[Dict]:
-    """Parse all non-obsolete MONDO term blocks → [{id, name}, ...]."""
+    """Parse all non-obsolete MONDO term blocks → [{id, name, parents}, ...]."""
     with open(path) as f:
         text = f.read()
     parts = _TERM_BLOCK.split(text)[1:]  # drop header before first [Term]
@@ -81,7 +91,27 @@ def parse_obo(path: str) -> List[Dict]:
         if not mid:
             continue
         nm = _NAME_LINE.search(block)
-        out.append({"id": mid.group(1), "name": (nm.group(1) if nm else None)})
+        out.append({"id": mid.group(1), "name": (nm.group(1) if nm else None),
+                    "parents": _ISA_LINE.findall(block)})
+    return out
+
+
+def characteristic_ids(terms: List[Dict], root: str = DISEASE_CHARACTERISTIC_ROOT) -> set:
+    """MONDO ids in the `disease characteristic` qualifier subtree (root + all
+    is_a descendants) — the admission-gate-1 exclusion set. Pure OBO graph walk,
+    no network. `terms` is parse_obo() output."""
+    children = {}
+    for t in terms:
+        for p in t.get("parents") or ():
+            children.setdefault(p, []).append(t["id"])
+    out, stack = set(), [root]
+    while stack:
+        n = stack.pop()
+        for c in children.get(n, ()):
+            if c not in out:
+                out.add(c)
+                stack.append(c)
+    out.add(root)
     return out
 
 
@@ -190,6 +220,13 @@ def cmd_build(args):
     print(f"Parsing OBO {obo} ...", flush=True)
     terms = parse_obo(obo)
     print(f"  {len(terms)} non-obsolete MONDO terms")
+    # Admission gate 1: drop the disease-characteristic qualifier subtree
+    # (inherited/acquired/… — not diseases) before probing. Saves the probes
+    # and keeps the corpus clean at the source.
+    qual = characteristic_ids(terms)
+    before = len(terms)
+    terms = [t for t in terms if t["id"] not in qual]
+    print(f"  gate1: dropped {before - len(terms)} disease-characteristic qualifier nodes")
     if args.limit:
         terms = terms[: args.limit]
         print(f"  (--limit {args.limit} → first {len(terms)})")
