@@ -90,10 +90,15 @@ def r_targets(b):
             if t.get("dep_common_essential"):
                 tags.append("common-essential")
             return f"{fnum(pct)}%" + (f" ({', '.join(tags)})" if tags else "")
+        def _action(a):
+            # GtoPdb returns the literal string 'None'/'Unknown' for ligands with
+            # no defined functional action — render blank, not a fake null cell.
+            a = (a or "").strip()
+            return "" if a.lower() in ("none", "unknown") else a
         L.append(table(["Gene", "Target", "Action", "pAffinity", "Cancer dependency", "UniProt"],
                        [(links.maybe_link(t.get("gene_symbol") or "", links.gene_url(symbol=t.get("gene_symbol"), hgnc_id=t.get("hgnc_id"))),
                          t.get("target_name") or "",
-                         t.get("action") or "", fnum(t.get("affinity")) if t.get("affinity") not in (None, "") else "",
+                         _action(t.get("action")), fnum(t.get("affinity")) if t.get("affinity") not in (None, "") else "",
                          _dep(t), t.get("uniprot") or "") for t in pt]))
     bc = b.get("bioactivity_target_count") or 0
     if bc:

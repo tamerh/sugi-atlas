@@ -619,10 +619,16 @@ def r_drugs(b):
         if gi:
             L.append(f"\n**Most potent curated ligand interactions "
                      f"({b.get('gtopdb_interaction_count', 0)} total), top {len(gi)}:**\n")
+            def _gact(x):
+                # GtoPdb action can be the literal 'None'/'Unknown' — fall back
+                # to the interaction type, else blank (no null-looking cell).
+                a = (x.get("action") or "").strip()
+                if a.lower() in ("none", "unknown"):
+                    a = (x.get("type") or "").strip()
+                return a
             L.append(table(["Ligand", "Action", "Affinity", "Parameter"],
                            [(links.maybe_link(x.get("ligand"), links.drug_url(name=x.get("ligand"))),
-                             x.get("action") or x.get("type"),
-                             x.get("affinity"), x.get("parameter")) for x in gi]))
+                             _gact(x), x.get("affinity"), x.get("parameter")) for x in gi]))
 
     # BindingDB — measured affinities (Tier 2: heterogeneous assays; the note
     # carries the provenance so the ranking isn't read as one comparable scale).

@@ -159,6 +159,22 @@ def test_reverse_mesh_absent_without_slug_or_index():
     links.reset()
 
 
+def test_related_block_always_emits_with_placeholder():
+    """PAGE_CONTRACT: #related is always present (placeholder when no links)."""
+    links.reset()
+    blk = links.related_block("gene", {}, slug="NOPE")
+    assert "## Related Atlas pages {#related}" in blk
+    assert "No linked Atlas pages yet" in blk
+    links.reset()
+
+
+def test_yaml_escape_strips_control_chars():
+    from atlas.pipeline import _yaml_escape
+    assert _yaml_escape("ola\x7fparib") == "olaparib"      # 0x7f stripped
+    assert _yaml_escape('a "b"') == 'a \\"b\\"'            # quotes still escaped
+    assert _yaml_escape("keep\ttab") == "keep\ttab"        # tab kept
+
+
 def test_canonical_label_resolves_destination(monkeypatch):
     links.reset()
     links._MANIFEST = {"gene": {}, "drug": {},

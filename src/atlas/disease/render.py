@@ -12,7 +12,7 @@ dict and are called explicitly by render_all().
 """
 import re
 from collections import Counter
-from atlas.render_common import table, fnum, gencc_rank
+from atlas.render_common import table, fnum, gencc_rank, phase_label
 from atlas.civic import therapy_label
 from atlas.page import links
 
@@ -607,7 +607,7 @@ def r_clinical_trials(b):
         out += ["", "**Top trials by phase / activity:**", "",
                 table(["NCT", "Phase", "Status", "Title"],
                       [(t.get("id") or "",
-                        t.get("phase"), t.get("status"),
+                        phase_label(t.get("phase")), t.get("status"),
                         _trunc(t.get("title"), 65))
                        for t in tt])]
     td = b.get("trial_drugs") or []

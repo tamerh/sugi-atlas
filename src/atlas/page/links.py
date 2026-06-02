@@ -360,4 +360,9 @@ def related_block(entity_type, bundle, slug=None):
     if slug:
         for rlabel, items in _reverse_groups(_url(entity_type, slug), forward_urls):
             _row(rlabel, items)
-    return ("## Related Atlas pages {#related}\n\n" + "\n".join(lines)) if lines else ""
+    # Always emit the canonical #related section (PAGE_CONTRACT — every section
+    # present so the TOC is identical); placeholder when nothing is built yet.
+    if not lines:
+        lines = ["*No linked Atlas pages yet — the cross-entity mesh grows as "
+                 "the corpus expands.*"]
+    return "## Related Atlas pages {#related}\n\n" + "\n".join(lines)

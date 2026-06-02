@@ -6,11 +6,14 @@ requires-python = ">=3.9"
 authors = [{ name = "Tamer Gur" }]
 
 [project.optional-dependencies]
-dev = ["pytest>=7"]
+dev = ["pytest>=7", "PyYAML>=6"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+    "integration: corpus-level checks over a built dist (skipped if absent; set ATLAS_INTEGRATION_DIST)",
+]
 
 [build-system]
 requires = ["setuptools>=64"]

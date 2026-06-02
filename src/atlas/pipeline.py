@@ -213,8 +213,13 @@ def render_all(bundle):
     ]
     return emit_canonical(spec, anchors={"protein": protein_a})
 
+_CTRL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")  # control chars (keep \t,\n)
+
+
 def _yaml_escape(s):
-    return str(s).replace('"', '\\"')
+    # Strip control characters (e.g. a stray 0x7f from biobtree text) — they
+    # break both PyYAML and Hugo frontmatter parsing.
+    return _CTRL.sub("", str(s)).replace('"', '\\"')
 
 def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     """Hugo-frontmatter + declarative lead + (optional) AI summary + body.
