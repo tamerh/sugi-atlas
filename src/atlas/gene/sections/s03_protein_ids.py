@@ -19,13 +19,14 @@ CHAINS = (
     ">>uniprot>>ufeature",
     ">>uniprot>>brenda",
     ">>uniprot>>brenda>>brenda_kinetics",
+    ">>uniprot>>rhea",                 # catalyzed reactions (substrate → product)
     ">>hgnc>>entrez",                  # anchor-resolved: NCBI gene id + summary
     ">>hgnc>>clingen_dosage",          # anchor-resolved: haplo/triplo scores
     ">>hgnc>>depmap",                  # anchor-resolved: CRISPR fitness
     ">>entrez>>generif",               # per-gene PMID-anchored claims
 )
 DATASETS = ("uniprot", "ensembl", "refseq", "interpro", "pfam", "antibody",
-            "ufeature", "brenda", "entrez", "clingen_dosage", "depmap", "generif")
+            "ufeature", "brenda", "rhea", "entrez", "clingen_dosage", "depmap", "generif")
 
 def collect(a):
     bundle = {
@@ -54,6 +55,7 @@ def collect(a):
     ufeatures = []
     brenda_ec = []
     brenda_kinetics = []
+    rhea = {}                          # normalized equation -> {id, equation}
     for u in a.reviewed_uniprots:
         for t in map_all(u, ">>uniprot>>interpro"):
             interpro[t["id"]] = {"id": t["id"], "name": t.get("short_name"),
@@ -97,6 +99,26 @@ def collect(a):
             brenda_kinetics.append({
                 "substrate": sub, "km_count": kmn, "kcat_count": kcatn,
                 "min_km": t.get("min_km"), "max_km": t.get("max_km")})
+        # Rhea — the catalyzed reaction(s), substrate → product. biobtree now
+        # projects the human-readable `equation` (BIOBTREE_ISSUES #29). A Rhea
+        # group is one reaction in several forms: an undirected master (UN/BI,
+        # "A = B") plus LR/RL directional variants ("A => B" / "B => A"). Collapse
+        # the arrows AND the two reversed orderings to a single reaction, and
+        # prefer the undirected master's equation for display.
+        for t in map_all(u, ">>uniprot>>rhea"):
+            eq = (t.get("equation") or "").strip()
+            if not eq:
+                continue
+            norm = " ".join(eq.replace("<=>", "=").replace("=>", "=")
+                              .replace("<=", "=").split())
+            sides = [s.strip() for s in norm.split("=")]
+            key = " = ".join(sorted(sides)) if len(sides) == 2 else norm
+            pref = (t.get("direction") or "").upper() in ("UN", "BI", "")
+            prev = rhea.get(key)
+            if prev is None or (pref and not prev["pref"]):
+                rhea[key] = {"id": t.get("id"), "equation": norm, "pref": pref}
+    bundle["rhea_reactions"] = [{"id": r["id"], "equation": r["equation"]}
+                                for r in list(rhea.values())[:12]]
     brenda_kinetics.sort(key=lambda r: -r["km_count"])
     bundle["brenda_kinetics"] = brenda_kinetics[:15]
     bundle["brenda_kinetics_total"] = len(brenda_kinetics)
@@ -154,7 +176,7 @@ SECTION = Section(
     needs=("hgnc_id", "ensembl_id", "reviewed_uniprots", "canonical_uniprot"),
     produces=("reviewed_uniprot", "uniprot_all", "refseq_protein", "interpro",
               "pfam", "antibody_count", "ufeatures", "ufeature_counts",
-              "brenda_ec", "brenda_kinetics", "brenda_kinetics_total",
+              "brenda_ec", "brenda_kinetics", "brenda_kinetics_total", "rhea_reactions",
               "cc", "isoforms", "protein_name",
               "alternative_names", "ncbi_summary", "entrez_id",
               "clingen_dosage", "depmap", "generifs"),

@@ -218,6 +218,15 @@ def r_protein_ids(b):
             L.append(table(["Substrate", "Km (mM)", "Measurements"],
                            [((k.get("substrate") or "")[:48], _km(k), k.get("km_count"))
                             for k in kin]))
+    # Catalyzed reactions (Rhea) — the enzyme mechanism as substrate → product.
+    # Independent of BRENDA (a protein can carry Rhea reactions with no BRENDA
+    # EC row). biobtree now projects the human-readable equation (#29).
+    rhea = b.get("rhea_reactions") or []
+    if rhea:
+        L.append(f"\n**Catalyzed reactions (Rhea), {len(rhea)} shown:**\n")
+        for r in rhea:
+            rid = (r.get("id") or "").replace("RHEA:", "")
+            L.append(f"- {r.get('equation')}" + (f" *(RHEA:{rid})*" if rid else ""))
     # UniProt sequence features — one-line census here; the structured
     # druggable-residue breakdown lives in r_residue_map (the protein zone),
     # so the former flat "top 40 features" table is no longer duplicated here.

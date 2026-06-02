@@ -140,7 +140,7 @@ def test_drug_gene_mesh_is_gtopdb_curated_only():
 
 
 def test_disease_drug_mesh_excludes_bioactivity():
-    """#3 extension: disease→drug = title-validated trials + CIViC; NOT
+    """#3 extension: disease→drug = trial drugs + CIViC; NOT
     b10.drugs (bioactivity hits on cohort targets → off-target junk)."""
     links.reset()
     links._MANIFEST = {"gene": {}, "drug": {"Cisplatin": "cisplatin",

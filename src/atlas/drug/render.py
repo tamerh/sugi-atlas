@@ -48,15 +48,17 @@ def r_drug_ids(b):
         L.append(f"\n*Parent form; salt/anhydrous children:* "
                  + ", ".join(f"`{c}`" for c in b["child_chembls"]))
     # Patent footprint — SureChEMBL compound mentions (folded in from the
-    # former standalone Patent literature section). The total is a count of
-    # patents *mentioning* the matched structures, not distinct inventions —
-    # and is typically dominated by one promiscuous/reference structure, which
-    # we quantify here. Richer landscape (assignee, CPC/IPC class, distinct
-    # families, jurisdiction/timeline) is gated on biobtree #25/#26/#27.
+    # former standalone Patent literature section). We report distinct patent
+    # *families* (the honest dedup metric — one invention across many
+    # jurisdictions) alongside the raw mention count, which is typically
+    # dominated by one promiscuous/reference structure (quantified here).
+    # (assignee + CPC/IPC landscape is gated on a representative sample — needs
+    # biobtree #27 date-sort/facets.)
     pt = b.get("patent_total") or 0
     if pt:
         bd = b.get("patent_compound_breakdown") or []
         n_rec = len(bd) or len(b.get("patent_compound_ids") or [])
+        fam = b.get("patent_family_total") or 0
         dom = ""
         if bd and bd[0].get("patent_count"):
             top = bd[0]["patent_count"]
@@ -64,10 +66,12 @@ def r_drug_ids(b):
             if len(bd) > 1 and pct >= 60:
                 dom = (f" One matched structure accounts for {_i(top)} ({pct}%) "
                        f"of the total.")
-        L.append(f"\n**Patent mentions (SureChEMBL):** {_i(pt)} across {n_rec} "
-                 f"matched compound structure(s).{dom} Counts are patent mentions "
-                 f"of the compound (not distinct inventions), so promiscuous / "
-                 f"reference molecules inflate the total.")
+        fam_clause = f" across **{_i(fam)} distinct patent families**" if fam else ""
+        L.append(f"\n**Patent coverage (SureChEMBL):** {_i(pt)} patent mentions"
+                 f"{fam_clause}, from {n_rec} matched compound structure(s).{dom} "
+                 f"Mentions count patents naming the compound (not distinct "
+                 f"inventions), so promiscuous / reference molecules inflate that "
+                 f"figure — the family count is the dedup metric.")
     return "\n".join(L)
 
 
@@ -369,6 +373,7 @@ def render_all(bundles):
     b11 = bundles.get("11") or {}
     b1["chebi_roles"] = b6.get("chebi_roles")
     b1["patent_total"] = b11.get("patent_total")
+    b1["patent_family_total"] = b11.get("patent_family_total")
     b1["patent_compound_ids"] = b11.get("patent_compound_ids")
     b1["patent_compound_breakdown"] = b11.get("patent_compound_breakdown")
     merged = dict(bundles)

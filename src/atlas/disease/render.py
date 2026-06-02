@@ -590,13 +590,9 @@ def r_pharmacogenomics(b):
 # §13 clinical_trials -------------------------------------------------------
 
 def r_clinical_trials(b):
-    n, raw = b.get("trial_count") or 0, b.get("trial_count_raw") or 0
-    # Validated = trials whose title names the disease (biobtree's raw
-    # mondo→clinical_trials edge over-links unrelated trials).
-    note = (f" (title-validated; biobtree links {_i(raw)} to this disease, many "
-            f"unrelated)" if raw and raw > n else "")
+    n = b.get("trial_count") or 0
     out = ["## Clinical trials", "",
-           f"**Trials naming this disease: {_i(n)}.**{note}"]
+           f"**Clinical trials: {_i(n)}.**"]
     pc = b.get("phase_counts") or {}
     if pc:
         out += ["", "**Phase distribution (across all retrieved trials):**", ""]

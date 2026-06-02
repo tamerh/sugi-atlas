@@ -86,9 +86,8 @@ def at_a_glance(bundle) -> str:
     if hp:
         bullets.append(f"**Phenotypes (HPO):** {_format_int(hp)}")
 
-    # Clinical trials — the VALIDATED §13 count (title-matched), NOT the raw
-    # xref count (biobtree's mondo→clinical_trials edge is contaminated). 0 is a
-    # valid answer for a rare disease, so don't fall back to the raw count.
+    # Clinical trials — the §13 count off the now exact-match
+    # mondo→clinical_trials edge. 0 is a valid answer for a rare disease.
     tr = b13.get("trial_count") or 0
     if tr:
         bullets.append(f"**Clinical trials:** {_format_int(tr)}")
