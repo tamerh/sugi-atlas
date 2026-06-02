@@ -72,8 +72,13 @@ def _evidence_clause(b1, b2, b4, b5):
 
 
 def _trials_clause(b1, b13):
-    n = (b1 or {}).get("xref_counts", {}).get("clinical_trials") or \
-        (b13 or {}).get("trial_count") or 0
+    # Use the VALIDATED §13 count (title-matched), NOT the raw §1 xref count —
+    # biobtree's mondo→clinical_trials edge is contaminated (Vici syndrome's raw
+    # 1,156 are glaucoma/cataract trials). `.get("trial_count")` may be 0, which
+    # is the correct answer for a rare disease — so don't `or`-fall back to raw.
+    if b13 is None or "trial_count" not in b13:
+        return ""
+    n = b13.get("trial_count") or 0
     if not n:
         return ""
     return f" and {_format_int(n)} clinical trial" + ("s" if n != 1 else "")

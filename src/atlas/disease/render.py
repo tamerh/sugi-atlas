@@ -46,7 +46,8 @@ def _data_availability(xc):
             items.append(f"{_i(n)} {singular}" + ("s" if n != 1 else ""))
 
     add("clinvar", "ClinVar variant")
-    add("clinical_trials", "clinical trial")
+    # NB: clinical_trials xref is the RAW (contaminated) count — omitted here;
+    # the title-validated count lives in §13.
     add("clingen_variant", "ClinGen variant curation")
     g, gs = xc.get("gwas") or 0, xc.get("gwas_study") or 0
     if g:
@@ -541,8 +542,13 @@ def r_pharmacogenomics(b):
 # §13 clinical_trials -------------------------------------------------------
 
 def r_clinical_trials(b):
+    n, raw = b.get("trial_count") or 0, b.get("trial_count_raw") or 0
+    # Validated = trials whose title names the disease (biobtree's raw
+    # mondo→clinical_trials edge over-links unrelated trials).
+    note = (f" (title-validated; biobtree links {_i(raw)} to this disease, many "
+            f"unrelated)" if raw and raw > n else "")
     out = ["## Clinical trials", "",
-           f"**Total trials: {_i(b.get('trial_count'))}.**"]
+           f"**Trials naming this disease: {_i(n)}.**{note}"]
     pc = b.get("phase_counts") or {}
     if pc:
         out += ["", "**Phase distribution (across all retrieved trials):**", ""]

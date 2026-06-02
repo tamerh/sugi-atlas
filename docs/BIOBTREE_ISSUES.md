@@ -1,7 +1,7 @@
 # biobtree MCP — Issues & Improvement Requests
 
 **Initial filing:** 2026-05-28
-**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #13, #14, #15, #18 + Mondo OBO xrefs; speculative asks #21/#22/#23/#24 removed; filed patent gaps #25/#26/#27)
+**Last updated:** 2026-06-01 (biobtree refresh resolved #12, #13, #14, #15, #18 + Mondo OBO xrefs; speculative asks #21/#22/#23/#24 removed; filed patent gaps #25/#26/#27; filed trial-edge contamination #28)
 
 **Context:** Found while building a deterministic gene/disease reference-page
 collector (Sugi Atlas) on top of the local biobtree REST API
@@ -107,6 +107,29 @@ so a drug-patent landscape can be shown without enumerating 100k+ rows.
 **Atlas impact:** can't honestly surface jurisdiction breakdown, filing
 timeline, or "most recent patents" — only the accurate total + per-compound
 split (which need no enumeration).
+
+---
+
+## Issue #28 — `mondo>>clinical_trials` edge is contaminated (unrelated trials)
+
+`map(<mondo>, ">>mondo>>clinical_trials")` returns trials whose actual
+conditions don't match the disease, with absurd counts on rare diseases.
+
+**Repro (2026-06-02):**
+```
+map("MONDO:0009452" /* Vici syndrome, prevalence <1/1,000,000 */, ">>mondo>>clinical_trials")
+→ 1,156 trials; sampled conditions are Glaucoma / Cataract
+  (NCT00273221 "Phacotube vs Phacotrabeculectomy", NCT00312299 "Posterior Capsule
+   Opacification Study") — none about Vici syndrome.
+```
+1,156 > cardiomyopathy's 317 for an ultra-rare disorder is the tell. Looks like
+the trial→mondo linkage is built by a loose condition-text match.
+
+**Atlas impact:** poisoned the disease lead ("Vici … 1,156 clinical trials. Top
+interventions include [cataract drugs]") — a YMYL-trust hazard. Mitigated
+Atlas-side by title-validating trials (keep only those whose brief_title names
+the disease/synonym); the brief_title is in the map projection so it's cheap.
+The real fix is upstream — a curated condition→Mondo mapping.
 
 ---
 

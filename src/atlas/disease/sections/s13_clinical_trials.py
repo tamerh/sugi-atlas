@@ -39,10 +39,33 @@ def _drug_max_phase(d):
     except (ValueError, TypeError):
         return 0
 
+
+def _name_tokens(a):
+    """Disease name tokens for trial-title validation: canonical name + Mondo
+    synonyms, ≥4 chars (drops ambiguous 2–3 char acronyms that match anything)."""
+    names = [a.canonical_name] + list(a.synonyms or ())
+    return [n.lower() for n in names if n and len(n.strip()) >= 4]
+
+
+def _title_matches(title, tokens):
+    t = (title or "").lower()
+    return bool(t) and any(tok in t for tok in tokens)
+
+
 def collect(a):
-    # ---- 1. all trials (cheap target dicts; carry phase/status/title) -----
-    trials = map_all(a.mondo_id, ">>mondo>>clinical_trials", cap=10)
-    trial_count = (a.xref_counts or {}).get("clinical_trials") or len(trials)
+    # ---- 1. trials — VALIDATED by title. biobtree's mondo→clinical_trials edge
+    # is contaminated: it links trials whose actual conditions don't match the
+    # disease (Vici syndrome → 1,156 glaucoma/cataract studies; see
+    # BIOBTREE_ISSUES). The raw map + xref count are therefore untrustworthy, so
+    # we keep only trials whose brief_title names the disease (or a synonym).
+    # brief_title is in the map projection → no per-trial fetch. Drugs/counts
+    # below all derive from this validated set (a contaminated drug ends up in 0
+    # validated trials → trial_count 0 → dropped).
+    raw_trials = map_all(a.mondo_id, ">>mondo>>clinical_trials", cap=10)
+    tokens = _name_tokens(a)
+    trials = [t for t in raw_trials if _title_matches(t.get("brief_title"), tokens)] if tokens else []
+    trial_count = len(trials)
+    trial_count_raw = (a.xref_counts or {}).get("clinical_trials") or len(raw_trials)
 
     # ---- 2. true phase/status distribution over ALL trials (not the
     # top-20 sample, which is biased toward PHASE4 by sort).
@@ -147,8 +170,11 @@ def collect(a):
                 folded[parent_id] = dict(d)
                 folded[parent_id]["molecule_id"] = parent_id
 
-    # Top-30 by max_phase desc, then trial_count desc, then name.
-    top_drugs = sorted(folded.values(),
+    # Top-30 by max_phase desc, then trial_count desc, then name. Keep ONLY
+    # drugs referenced by ≥1 VALIDATED trial (trial_count>0) — a drug seen only
+    # in title-mismatched (contaminated) trials would otherwise pollute the
+    # lead's "top interventions" (e.g. cataract drugs for Vici syndrome).
+    top_drugs = sorted((d for d in folded.values() if (d.get("trial_count") or 0) > 0),
                        key=lambda x: (-(x["max_phase"] or 0),
                                       -(x["trial_count"] or 0),
                                       x["name"] or ""))[:30]
@@ -166,6 +192,7 @@ def collect(a):
     return {"section": "13_clinical_trials",
             "mondo_id": a.mondo_id,
             "trial_count": trial_count,
+            "trial_count_raw": trial_count_raw,
             "top_trials": top_trials,
             "trial_drugs": top_drugs,
             "phase_counts": phase_counts,
@@ -183,7 +210,7 @@ SECTION = Section(
                  "status / lead-drug attrs. Plus CIViC precision-subtype map "
                  "(drug × molecular subtype × indication via mondo→civic_evidence)."),
     needs=("mondo_id", "mesh_ids", "xref_counts"),
-    produces=("trial_count", "top_trials", "trial_drugs", "phase_counts",
+    produces=("trial_count", "trial_count_raw", "top_trials", "trial_drugs", "phase_counts",
               "status_counts", "civic_evidence", "civic_evidence_total",
               "civic_predictive_total", "civic_association_total",
               "civic_evidence_type_counts"),
