@@ -122,14 +122,37 @@ map("MONDO:0009452" /* Vici syndrome, prevalence <1/1,000,000 */, ">>mondo>>clin
   (NCT00273221 "Phacotube vs Phacotrabeculectomy", NCT00312299 "Posterior Capsule
    Opacification Study") — none about Vici syndrome.
 ```
-1,156 > cardiomyopathy's 317 for an ultra-rare disorder is the tell. Looks like
-the trial→mondo linkage is built by a loose condition-text match.
+1,156 > cardiomyopathy's 317 for an ultra-rare disorder is the tell.
 
-**Atlas impact:** poisoned the disease lead ("Vici … 1,156 clinical trials. Top
-interventions include [cataract drugs]") — a YMYL-trust hazard. Mitigated
-Atlas-side by title-validating trials (keep only those whose brief_title names
-the disease/synonym); the brief_title is in the map projection so it's cheap.
-The real fix is upstream — a curated condition→Mondo mapping.
+**Root cause (confirmed by biobtree dev, 2026-06-02):** the `clinical_trials→mondo`
+edge is built by `collectOntologyIDs()→d.lookup(condition)`, which greedily adds
+every ontology id a token/text lookup returns. Vici's Mondo synonyms include
+"absent corpus callosum **cataract** immunodeficiency", so a trial with condition
+"Cataract" resolves to Vici (and every rare syndrome whose multi-symptom synonym
+mentions a common term). **Scope is bigger than trials:** `collectOntologyIDs`
+is shared by **clinical_trials, intogen, AND civic** → the same over-linking
+contaminates `mondo→intogen` (disease §4 drivers), `mondo→civic_evidence` (disease
+§13 subtype map + the disease→drug mesh + the cohort's CIViC route). The gene-side
+`hgnc→civic_evidence` is keyed by gene, NOT affected.
+
+**Upstream fix (dev, in progress — needs a re-index):** require an EXACT
+name/synonym match in `collectOntologyIDs` (condition == a full MONDO name or
+synonym), not a token/text hit. One change fixes trials + intogen + civic; only
+takes effect on a re-index.
+
+**Atlas mitigation (commit 43c5736):** s13 title-validates trials (keep only those
+whose brief_title names the disease/synonym) → trial_count/drugs/lead/At-a-glance
+use the validated set. Interim only; brief_title is a too-strict proxy
+(under-counts: cardiomyopathy 317→92). intogen/civic NOT yet mitigated (pending a
+blast-radius check on the curated head).
+
+**⚠ REVERT-ON-RESOLVE:** when the re-index lands —
+1. swap the s13 title-match → **exact condition-match** (self-deactivating: once
+   the edge only returns condition-matching trials it becomes a no-op) — requires
+   biobtree adding `conditions` to the clinical_trials map `compact_fields` (dev
+   offered); OR remove the guard entirely and trust the edge;
+2. re-check disease §4 (intogen) / §13 (civic) / the cohort CIViC route for residual
+   contamination and drop any guards added there.
 
 ---
 

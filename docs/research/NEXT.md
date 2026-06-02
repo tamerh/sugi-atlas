@@ -154,6 +154,7 @@ All hygiene items from this section shipped 2026-05-31. Per `git log`:
 | #25 patent attrs (assignee/CPC/IPC) not populated | open 🕓 | Blocks drug patent **assignee** breakdown + **technology-class** (CPC/IPC) landscape — fields documented in `patent.md` but empty across CN/EP/US/WO. |
 | #26 no `patent_family` rollup on `patent_compound` | open 🕓 | Blocks **distinct-family** count (honest dedup of SureChEMBL mention inflation); only reachable by `entry()`-ing 100k+ patents otherwise. |
 | #27 `>>patent_compound>>patent` id-ordered, no date sort / facets | open 🕓 | Blocks **jurisdiction / timeline / recent-patents** — any bounded sample is a sampling artifact. |
+| #28 `collectOntologyIDs` over-matches common terms → contaminated `mondo→{clinical_trials,intogen,civic}` | open 🕓, dev fixing (exact-match, needs re-index) | **⚠ HAS AN ACTIVE ATLAS MITIGATION TO REVERT.** Now: s13 title-validates trials (commit 43c5736) — too-strict proxy (cardiomyopathy 317→92). **On resolve:** (1) swap s13 title-match → exact condition-match (self-deactivating; needs `conditions` added to the trial map compact_fields — dev offered) or remove it; (2) re-check disease §4 intogen / §13 civic / cohort CIViC route for residual contamination. Until then intogen/civic are NOT mitigated (pending a head-corpus blast-radius check). |
 
 ## Pre-launch / cross-repo work (defer to launch day)
 
