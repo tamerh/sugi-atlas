@@ -89,6 +89,39 @@ _ONTOLOGY_LABEL = re.compile(
     re.I)
 
 
+def test_no_duplicate_table_rows(pages):
+    """No identical data row repeated in a table (the GenCC ×19 dedup class)."""
+    bad = []
+    for p in pages:
+        for ti, tbl in enumerate(p.tables()):
+            if len(tbl) < 3:
+                continue
+            seen = set()
+            for row in tbl[2:]:                       # skip header + separator
+                key = tuple(c.strip() for c in row)
+                if any(key) and key in seen:
+                    bad.append(f"{p.entity}/{p.slug} table#{ti}: dup row {list(key)[:3]}")
+                    break
+                seen.add(key)
+    assert not bad, report(bad)
+
+
+_ENTITY = re.compile(r"&(?:[a-zA-Z]{2,}|#\d+);")
+
+
+def test_no_html_entity_leaks(pages):
+    """HTML entities (&alpha;, &amp;) are unescaped at render — a leak means a
+    table cell or label bypassed the unescape."""
+    bad = []
+    for p in pages:
+        text = re.sub(r"<script.*?</script>", "", p.body, flags=re.S)  # JSON-LD ok
+        m = _ENTITY.search(text)
+        if m:
+            i = m.start()
+            bad.append(f"{p.entity}/{p.slug}: …{text[max(0, i-15):i+12]}…")
+    assert not bad, report(bad)
+
+
 def test_no_ontology_id_as_link_label(pages):
     """A linked name must be a label, never a raw ontology accession
     (the #11 'MP:0001914 as a disease name' class)."""

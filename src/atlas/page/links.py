@@ -340,6 +340,13 @@ def related_block(entity_type, bundle, slug=None):
     mesh as a scannable block. Forward edges (this page → others) first, then
     reverse edges (others → this page, deduped). Elides when nothing is built."""
     groups = related_targets(entity_type, bundle)
+    # Never link the page to itself (a drug's related_molecules can include
+    # itself; a CIViC therapy can name the drug). Drop the self url from every
+    # group.
+    self_url = _url(entity_type, slug) if slug else None
+    if self_url:
+        for grp in groups:
+            groups[grp] = [(l, u) for l, u in groups[grp] if u != self_url]
     # On disease pages the gene set is the associated-gene cohort (evidence-
     # ranked, audit #10), not a curated "most relevant" shortlist — label it
     # honestly so a polygenic-disease cohort isn't read as causal genes.

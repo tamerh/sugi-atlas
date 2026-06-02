@@ -7,7 +7,29 @@ from ._harness import report
 
 pytestmark = pytest.mark.integration
 
+from atlas.page.jsonld_inline import INLINE_CAP
+
 _TYPE = {"gene": "Gene", "disease": "MedicalCondition", "drug": "Drug"}
+
+
+def test_inline_jsonld_arrays_capped(pages):
+    """The inline graph is compacted (#6) — no top-level or @reverse array
+    exceeds INLINE_CAP (the full graph lives in the sidecar)."""
+    bad = []
+    for p in pages:
+        try:
+            j = p.inline_jsonld()
+        except (ValueError, KeyError):
+            continue
+        if not j:
+            continue
+        for k, v in j.items():
+            if isinstance(v, list) and len(v) > INLINE_CAP:
+                bad.append(f"{p.entity}/{p.slug}: {k}={len(v)}>{INLINE_CAP}")
+        for k, v in (j.get("@reverse") or {}).items() if isinstance(j.get("@reverse"), dict) else []:
+            if isinstance(v, list) and len(v) > INLINE_CAP:
+                bad.append(f"{p.entity}/{p.slug}: @reverse.{k}={len(v)}>{INLINE_CAP}")
+    assert not bad, report(bad)
 
 
 def test_sidecar_parses_and_typed(pages):

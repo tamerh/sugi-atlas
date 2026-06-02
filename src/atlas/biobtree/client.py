@@ -11,6 +11,7 @@ Three primitives + four pure parsers + a per-call reproducibility log:
   xref_counts(entry_resp)         -> {dataset: count} from entry's xref table
   CALLS                           -> per-call reproducibility log
 """
+import html
 import json
 import os
 import time
@@ -144,7 +145,7 @@ def rows(resp: dict) -> list:
         # would misalign every later value (the MeSH-row bug class). Skip it.
         if len(parts) != len(cols):
             continue
-        out.append(dict(zip(cols, parts)))
+        out.append({c: html.unescape(p) for c, p in zip(cols, parts)})
     return out
 
 
@@ -161,7 +162,10 @@ def map_targets(resp: dict) -> list:
             parts = [p.replace("\x00", "|") for p in t.replace("\\|", "\x00").split("|")]
             if len(parts) != len(cols):     # column-shift guard (see rows())
                 continue
-            out.append(dict(zip(cols, parts)))
+            # Unescape HTML entities once at the source (GO/UniProt text carries
+            # 3&apos;-end, &lt;, &nbsp;) so every consumer renders clean display
+            # text — not just the table() cells.
+            out.append({c: html.unescape(p) for c, p in zip(cols, parts)})
     return out
 
 

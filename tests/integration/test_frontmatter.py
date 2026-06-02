@@ -1,7 +1,9 @@
 """Frontmatter schema (P2/P3) over the built corpus."""
 import pytest
 
-from ._harness import ID_RE, report
+from collections import defaultdict
+
+from ._harness import ID_RE, H2_IDS, report
 
 pytestmark = pytest.mark.integration
 
@@ -69,3 +71,23 @@ def test_tldr_coverage(pages):
     with_tldr = sum(1 for p in pages if p.fm.get("tldr"))
     frac = with_tldr / len(pages)
     assert frac >= 0.9, f"only {frac:.0%} of pages have a tldr ({with_tldr}/{len(pages)})"
+
+
+def test_section_defaults_keys_are_valid_anchors(pages):
+    """section_defaults hints reference real canonical anchor ids."""
+    bad = []
+    for p in pages:
+        for k in (p.fm.get("section_defaults") or {}):
+            if k not in H2_IDS[p.entity]:
+                bad.append(f"{p.entity}/{p.slug}: section_defaults key '{k}'")
+    assert not bad, report(bad)
+
+
+def test_identifier_unique_per_entity(pages):
+    """No two pages of a type share an identifier (slug/id collision)."""
+    seen = defaultdict(list)
+    for p in pages:
+        seen[(p.entity, str(p.fm.get("identifier")))].append(p.slug)
+    bad = [f"{et} {ident}: {slugs}" for (et, ident), slugs in seen.items()
+           if ident not in ("None", "") and len(slugs) > 1]
+    assert not bad, report(bad)

@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from ._harness import ATLAS, _INTERNAL_LINK, report
+from ._harness import ATLAS, _INTERNAL_LINK, page_exists, norm, report
 
 pytestmark = pytest.mark.integration
 
@@ -54,6 +54,54 @@ def test_manifest_slugs_match_pages(dist_root, pages):
             bad.append(f"{et}: {len(missing)} manifest slug(s) with no page e.g. {sorted(missing)[:3]}")
         if (orphan := page_slugs - manifest_slugs):
             bad.append(f"{et}: {len(orphan)} page(s) not in canon e.g. {sorted(orphan)[:3]}")
+    assert not bad, report(bad)
+
+
+def test_reverse_index_urls_resolve(dist_root):
+    """No dangling reverse edges — every target + source url in
+    reverse_edges.json points at a built page."""
+    rev = json.load(open(os.path.join(dist_root, "atlas", "reverse_edges.json")))
+    bad = []
+    for target_url, entries in rev.items():
+        if not page_exists(target_url):
+            bad.append(f"target {target_url}")
+        for e in entries:
+            if not page_exists(e[1]):
+                bad.append(f"src {e[1]} → {target_url}")
+    assert not bad, report(bad)
+
+
+def test_related_disease_labels_match_destination(pages):
+    """A disease link in the Related block renders the DESTINATION's canonical
+    name (#13: a synonym like 'schizoaffective disorder' resolving to
+    /schizophrenia/ must show 'schizophrenia')."""
+    title = {(p.entity, p.slug): str(p.fm.get("title") or "") for p in pages}
+    bad = []
+    for p in pages:
+        if "{#related}" not in p.body:
+            continue
+        rel = p.body.split("{#related}", 1)[-1]
+        for full, entity, slug in _INTERNAL_LINK.findall(rel):
+            if entity != "disease":
+                continue
+            idx = rel.find(f"]({full})")
+            label = rel[:idx].rsplit("[", 1)[-1] if idx >= 0 else ""
+            dest = title.get(("disease", slug))
+            if dest and norm(label) != norm(dest):
+                bad.append(f"{p.entity}/{p.slug}: '{label}' → /{slug}/ titled '{dest}'")
+    assert not bad, report(bad)
+
+
+def test_no_self_links_in_mesh(pages):
+    """The Related block never links a page to itself. (Body PPI / pathway
+    tables may legitimately reference the gene itself — those are excluded.)"""
+    bad = []
+    for p in pages:
+        rel = p.body.split("{#related}", 1)[-1] if "{#related}" in p.body else ""
+        for full, entity, slug in _INTERNAL_LINK.findall(rel):
+            if entity == p.entity and slug == p.slug:
+                bad.append(f"{p.entity}/{p.slug} links itself in Related")
+                break
     assert not bad, report(bad)
 
 

@@ -1,0 +1,102 @@
+corpus(corpus/dense): genes=442 diseases=300 drugs=300 | workers=24
+[batch] 1042 entities | 24 workers | dist=/data/sugi-atlas-dist
+[A] collect (1042) …
+[A] 26/1042  7.6/s  eta 2m | gene=26 skip=0
+[A] 52/1042  6.7/s  eta 2m | gene=52 skip=0
+[A] 78/1042  7.2/s  eta 2m | gene=78 skip=0
+[A] 104/1042  7.2/s  eta 2m | gene=104 skip=0
+[A] 130/1042  7.2/s  eta 2m | gene=130 skip=0
+[A] 156/1042  7.1/s  eta 2m | gene=156 skip=0
+[A] 182/1042  7.3/s  eta 2m | gene=182 skip=0
+[A] 208/1042  7.3/s  eta 2m | gene=208 skip=0
+[A] 234/1042  7.2/s  eta 2m | gene=234 skip=0
+[A] 260/1042  7.2/s  eta 2m | gene=260 skip=0
+[A] 286/1042  7.1/s  eta 2m | gene=286 skip=0
+[A] 312/1042  7.2/s  eta 2m | gene=312 skip=0
+[A] 338/1042  7.1/s  eta 2m | gene=338 skip=0
+[A] 364/1042  7.3/s  eta 2m | gene=364 skip=0
+[A] 390/1042  7.4/s  eta 1m | gene=390 skip=0
+[A] 416/1042  7.6/s  eta 1m | gene=416 skip=0
+[A] 442/1042  7.1/s  eta 1m | disease=5 gene=437 skip=0
+[A] 468/1042  6.1/s  eta 2m | disease=25 gene=440 skip=3
+[A] 494/1042  5.8/s  eta 2m | disease=48 gene=441 skip=5
+[A] 520/1042  5.4/s  eta 2m | disease=73 gene=441 skip=6
+[A] 546/1042  5.3/s  eta 2m | disease=97 gene=442 skip=7
+[A] 572/1042  5.1/s  eta 2m | disease=123 gene=442 skip=7
+[A] 598/1042  5.0/s  eta 1m | disease=148 gene=442 skip=8
+[A] 624/1042  4.9/s  eta 1m | disease=174 gene=442 skip=8
+[A] 650/1042  4.8/s  eta 1m | disease=200 gene=442 skip=8
+[A] 676/1042  4.8/s  eta 1m | disease=225 gene=442 skip=9
+[A] 702/1042  4.8/s  eta 1m | disease=251 gene=442 skip=9
+[A] 728/1042  4.8/s  eta 1m | disease=272 drug=5 gene=442 skip=9
+[A] 754/1042  4.9/s  eta 1m | disease=274 drug=29 gene=442 skip=9
+[A] 780/1042  5.0/s  eta 1m | disease=274 drug=55 gene=442 skip=9
+[A] 806/1042  5.1/s  eta 1m | disease=276 drug=79 gene=442 skip=9
+[A] 832/1042  5.3/s  eta 1m | disease=278 drug=103 gene=442 skip=9
+[A] 858/1042  5.4/s  eta 1m | disease=281 drug=126 gene=442 skip=9
+[A] 884/1042  5.6/s  eta 0m | disease=282 drug=151 gene=442 skip=9
+[A] 910/1042  5.7/s  eta 0m | disease=282 drug=177 gene=442 skip=9
+[A] 936/1042  5.9/s  eta 0m | disease=282 drug=203 gene=442 skip=9
+[A] 962/1042  6.0/s  eta 0m | disease=283 drug=228 gene=442 skip=9
+[A] 988/1042  6.2/s  eta 0m | disease=283 drug=254 gene=442 skip=9
+[A] 1014/1042  6.3/s  eta 0m | disease=283 drug=280 gene=442 skip=9
+[A] 1040/1042  6.3/s  eta 0m | disease=289 drug=300 gene=442 skip=9
+[A] 1042/1042  6.0/s  eta 0m | disease=291 drug=300 gene=442 skip=9
+    SKIP disease:epidermolysis bullosa simplex 5C, with pyloric atresia — LookupError("no MONDO row for 'epidermolysis bullosa simplex 5C, with pyloric atresia'")
+    SKIP disease:epidermolysis bullosa simplex 5B, with muscular dystrophy — LookupError("no MONDO row for 'epidermolysis bullosa simplex 5B, with muscular dystrophy'")
+    SKIP disease:epidermolysis bullosa simplex 5A, Ogna type — LookupError("no MONDO row for 'epidermolysis bullosa simplex 5A, Ogna type'")
+    SKIP disease:autosomal recessive ataxia, Beauce type — LookupError("no MONDO row for 'autosomal recessive ataxia, Beauce type'")
+    SKIP disease:Emery-Dreifuss muscular dystrophy 4, autosomal dominant — LookupError("no MONDO row for 'Emery-Dreifuss muscular dystrophy 4, autosomal dominant'")
+    SKIP disease:Emery-Dreifuss muscular dystrophy 5, autosomal dominant — LookupError("no MONDO row for 'Emery-Dreifuss muscular dystrophy 5, autosomal dominant'")
+    SKIP disease:epidermolysis bullosa simplex 3, localized or generalized intermediate, with BP230 deficiency — LookupError("no MONDO row for 'epidermolysis bullosa simplex 3, localized or generalized intermediate, with BP230 deficiency'")
+    SKIP disease:ciliary dyskinesia, primary, 37 — LookupError("no MONDO row for 'ciliary dyskinesia, primary, 37'")
+    SKIP disease:CFTR-related disorder — LookupError("no MONDO row for 'CFTR-related disorder'")
+[A] collected 1033/1042 in 174.5s (9 skipped)
+[B] merge manifest …
+[B] build reverse-edge index …
+[B] reverse index: 698 targets with incoming edges
+[C] render (1033) …
+[C] 25/1033  460.9/s  eta 0m | gene=25 skip=0
+[C] 50/1033  732.5/s  eta 0m | gene=50 skip=0
+[C] 75/1033  934.8/s  eta 0m | gene=75 skip=0
+[C] 100/1033  1059.8/s  eta 0m | gene=100 skip=0
+[C] 125/1033  1166.9/s  eta 0m | gene=125 skip=0
+[C] 150/1033  1246.3/s  eta 0m | gene=150 skip=0
+[C] 175/1033  1313.1/s  eta 0m | gene=175 skip=0
+[C] 200/1033  1347.1/s  eta 0m | gene=200 skip=0
+[C] 225/1033  1395.6/s  eta 0m | gene=225 skip=0
+[C] 250/1033  1447.5/s  eta 0m | gene=250 skip=0
+[C] 275/1033  1474.3/s  eta 0m | gene=275 skip=0
+[C] 300/1033  1512.9/s  eta 0m | gene=300 skip=0
+[C] 325/1033  1527.0/s  eta 0m | gene=325 skip=0
+[C] 350/1033  1568.0/s  eta 0m | gene=350 skip=0
+[C] 375/1033  1603.0/s  eta 0m | gene=375 skip=0
+[C] 400/1033  1628.9/s  eta 0m | gene=400 skip=0
+[C] 425/1033  1647.0/s  eta 0m | gene=425 skip=0
+[C] 450/1033  1672.1/s  eta 0m | disease=11 gene=439 skip=0
+[C] 475/1033  1701.3/s  eta 0m | disease=35 gene=440 skip=0
+[C] 500/1033  1731.0/s  eta 0m | disease=59 gene=441 skip=0
+[C] 525/1033  1764.1/s  eta 0m | disease=84 gene=441 skip=0
+[C] 550/1033  1780.4/s  eta 0m | disease=108 gene=442 skip=0
+[C] 575/1033  1795.1/s  eta 0m | disease=133 gene=442 skip=0
+[C] 600/1033  1798.1/s  eta 0m | disease=158 gene=442 skip=0
+[C] 625/1033  1841.3/s  eta 0m | disease=183 gene=442 skip=0
+[C] 650/1033  1857.4/s  eta 0m | disease=208 gene=442 skip=0
+[C] 675/1033  1878.9/s  eta 0m | disease=233 gene=442 skip=0
+[C] 700/1033  1899.2/s  eta 0m | disease=258 gene=442 skip=0
+[C] 725/1033  1911.9/s  eta 0m | disease=273 drug=10 gene=442 skip=0
+[C] 750/1033  1936.7/s  eta 0m | disease=274 drug=34 gene=442 skip=0
+[C] 775/1033  1961.2/s  eta 0m | disease=274 drug=59 gene=442 skip=0
+[C] 800/1033  1983.3/s  eta 0m | disease=275 drug=83 gene=442 skip=0
+[C] 825/1033  2001.0/s  eta 0m | disease=277 drug=106 gene=442 skip=0
+[C] 850/1033  2020.7/s  eta 0m | disease=278 drug=130 gene=442 skip=0
+[C] 875/1033  2045.8/s  eta 0m | disease=281 drug=152 gene=442 skip=0
+[C] 900/1033  2063.2/s  eta 0m | disease=282 drug=176 gene=442 skip=0
+[C] 925/1033  2088.9/s  eta 0m | disease=282 drug=201 gene=442 skip=0
+[C] 950/1033  2082.3/s  eta 0m | disease=282 drug=226 gene=442 skip=0
+[C] 975/1033  2127.8/s  eta 0m | disease=283 drug=250 gene=442 skip=0
+[C] 1000/1033  2148.3/s  eta 0m | disease=283 drug=275 gene=442 skip=0
+[C] 1025/1033  2164.5/s  eta 0m | disease=283 drug=300 gene=442 skip=0
+[C] 1033/1033  2150.0/s  eta 0m | disease=291 drug=300 gene=442 skip=0
+[C] rendered 1033/1033 in 0.5s
+[batch] done in 175.6s — 1033 pages published

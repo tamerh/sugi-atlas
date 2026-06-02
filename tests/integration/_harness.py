@@ -157,6 +157,20 @@ def _load():
     return pages
 
 
+_URL_PARTS = re.compile(r"/atlas/(gene|disease|drug)/([^/)#]+)/")
+
+
+def page_exists(url):
+    """True if an /atlas/<entity>/<slug>/ url has a page dir in the dist."""
+    m = _URL_PARTS.search(url or "")
+    return bool(m) and os.path.isdir(os.path.join(ATLAS, m.group(1), m.group(2)))
+
+
+def norm(s):
+    """Lowercase + whitespace-collapse, for label/title comparison."""
+    return re.sub(r"\s+", " ", (s or "").strip().lower())
+
+
 def report(violations, limit=25):
     """A readable assertion message: count + the first `limit` offenders."""
     n = len(violations)
