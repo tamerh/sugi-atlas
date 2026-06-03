@@ -40,6 +40,12 @@ _CANCER_RX = re.compile(
 COHORT_CAP = 75
 COHORT_MAX = 150
 
+# Enrichment cohort — a WIDER, evidence-ranked gene set used only to feed the
+# aggregate sections (pathway enrichment, druggability breadth). It is fanned
+# with one cheap chain per gene (not the full per-gene plan), so "wide" is
+# cheap; the bound is about signal (the GWAS tail dilutes enrichment), not cost.
+ENRICH_CAP = 250
+
 # Evidence-route definitions for the gene cohort union. Each entry:
 # (flag_name, chain). Ranking later prefers genes hit by more routes.
 _COHORT_ROUTES = (
@@ -84,6 +90,10 @@ class DiseaseAnchors:
     # Full cohort hgnc ids before capping (useful for §4 Mendelian-overlap stats
     # and "X of Y genes in cohort" counts).
     cohort_full: Tuple[str, ...]
+    # Enrichment cohort — (hgnc_id, symbol) for the top ENRICH_CAP evidence-ranked
+    # genes. NOT resolved to GeneAnchors; aggregate sections fan one cheap chain
+    # over it for breadth (pathway enrichment, druggability) without per-gene depth.
+    enrichment_cohort: Tuple[Tuple[str, str], ...]
     # GWAS study count (top-level, from mondo xrefs — cheap signal for §2).
     gwas_study_count: int
 
@@ -254,18 +264,30 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
 
     cohort_full, evidence = _build_cohort(mondo_id)
 
-    # Pre-resolve the selected gene anchors so downstream cohort sections don't
-    # re-pay anchor cost (each gene resolve is ~4 biobtree calls, once, not per
-    # section). Selection applies the evidence floor + cap (see _select_cohort).
-    cohort: list = []
-    for hgnc in _select_cohort(cohort_full, evidence):
-        # resolve_gene_anchors takes a symbol; pull it from the hgnc entry.
-        # We already have the hgnc id; fetch its entry once to get the symbol.
+    # Resolve the symbol for the top ENRICH_CAP evidence-ranked genes ONCE
+    # (one hgnc entry each). This serves both the wide enrichment cohort and the
+    # deep display cohort (a subset), so symbols aren't resolved twice.
+    symbol_of: Dict[str, str] = {}
+    for hgnc in cohort_full[:ENRICH_CAP]:
         try:
             he = entry(hgnc, "hgnc")
-            symbol = ((he.get("Attributes") or {}).get("Hgnc") or {}).get("symbols", [None])[0]
-            if not symbol:
-                continue
+            s = ((he.get("Attributes") or {}).get("Hgnc") or {}).get("symbols", [None])[0]
+            if s:
+                symbol_of[hgnc] = s
+        except Exception:
+            continue
+    enrichment_cohort = tuple((h, symbol_of[h]) for h in cohort_full[:ENRICH_CAP]
+                              if h in symbol_of)
+
+    # Pre-resolve the DISPLAY gene anchors (full per-gene plan) so downstream
+    # per-gene sections don't re-pay anchor cost. Selection applies the evidence
+    # floor + cap (see _select_cohort); symbols come from the map built above.
+    cohort: list = []
+    for hgnc in _select_cohort(cohort_full, evidence):
+        symbol = symbol_of.get(hgnc)
+        if not symbol:
+            continue
+        try:
             cohort.append(resolve_gene_anchors(symbol))
         except Exception:
             # A single gene anchor failure (rare HGNC, retired symbol) shouldn't
@@ -290,5 +312,6 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
         cohort=tuple(cohort),
         cohort_evidence=evidence,
         cohort_full=tuple(cohort_full),
+        enrichment_cohort=enrichment_cohort,
         gwas_study_count=int(xc.get("gwas_study") or 0),
     )

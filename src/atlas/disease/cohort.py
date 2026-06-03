@@ -12,8 +12,27 @@ Cost: serial today (50 genes × N chains). Threaded fan-out would shrink wall
 clock at the cost of contention on biobtree's process-local cache —
 introduce only if a section becomes the bottleneck.
 """
-from typing import Callable, List, Optional, Dict, Any
+from typing import Callable, List, Optional, Dict, Any, Tuple
 from atlas.gene.anchors import Anchors as GeneAnchors
+from atlas.biobtree import map_all
+
+
+def enrichment_fan(enrichment_cohort: "tuple[tuple[str, str], ...]",
+                   chain: str, cap: int = 10) -> List[Tuple[str, str, list]]:
+    """Run ONE cheap chain over the WIDE enrichment cohort (hgnc_id, symbol
+    pairs), returning [(hgnc_id, symbol, rows), ...]. This is the breadth track:
+    aggregate-only sections (pathway enrichment, druggability) fan a single
+    chain over ~250 genes for sharper statistics, instead of the full per-gene
+    gene-plan depth the display cohort gets. One bad gene → empty rows, never
+    fatal."""
+    out: List[Tuple[str, str, list]] = []
+    for hgnc, sym in enrichment_cohort:
+        try:
+            rows = map_all(hgnc, chain, cap=cap)
+        except Exception:
+            rows = []
+        out.append((hgnc, sym, rows))
+    return out
 
 
 def fan(collect_fn: Callable[[GeneAnchors], dict],

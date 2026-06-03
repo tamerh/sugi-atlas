@@ -505,6 +505,12 @@ def r_drug_targets(b):
            f"Phase ≥3: {_i(b.get('phase3_count'))} · "
            f"Phased (≥1): {_i(b.get('phased_count'))} · "
            f"Undrugged: {_i(b.get('undrugged_count'))}**"]
+    es, dr = b.get("enrichment_size") or 0, b.get("enrichment_druggable") or 0
+    if es:
+        pct = round(100 * dr / es) if es else 0
+        out += ["", f"**Druggability breadth:** {_i(dr)} of {_i(es)} "
+                f"evidence-associated genes ({pct}%) have a ChEMBL target "
+                f"(buckets above are over the deeply-mined display cohort)."]
     ag = b.get("approved_genes") or []
     if ag:
         out += ["", "**Genes with approved drugs:**", "",
@@ -649,9 +655,12 @@ def r_clinical_trials(b):
 # §14 pathways --------------------------------------------------------------
 
 def r_pathways(b):
+    es, gp = b.get("enrichment_size") or 0, b.get("genes_with_pathways") or 0
+    over = (f" Enrichment computed across {_i(es)} evidence-associated genes "
+            f"({_i(gp)} with Reactome annotation)." if es else "")
     out = ["## Pathway analysis", "",
            f"**Distinct Reactome pathways touched by cohort: "
-           f"{_i(b.get('pathway_count'))}.**"]
+           f"{_i(b.get('pathway_count'))}.**{over}"]
     tp = b.get("top_pathways") or []
     if tp:
         out += ["", "**Top pathways by cohort coverage:**", "",

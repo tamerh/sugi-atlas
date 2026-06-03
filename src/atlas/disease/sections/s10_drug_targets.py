@@ -5,7 +5,7 @@ into approved / phase≥3 / phase≥1 buckets and drugged-vs-undrugged split.
 Key derived stat for §16: 'genes with ≥1 approved drug' vs 'undrugged'."""
 from collections import Counter
 from atlas.section import Section
-from atlas.disease.cohort import fan
+from atlas.disease.cohort import fan, enrichment_fan
 from atlas.gene.sections import s10_drugs
 
 CHAINS   = (">>uniprot>>chembl_target",
@@ -93,10 +93,20 @@ def collect(a):
         key=lambda g: g["molecule_count"], reverse=True,
     )[:10]
 
+    # Druggability BREADTH over the wide enrichment cohort: of all the
+    # evidence-associated genes (not just the displayed 75), how many have a
+    # ChEMBL target at all? A cheap presence fan (one chain/gene over ~250),
+    # complementing the deep per-gene molecule data above on the display cohort.
+    enrichment = enrichment_fan(a.enrichment_cohort,
+                                ">>hgnc>>ensembl>>uniprot>>chembl_target")
+    enrichment_druggable = sum(1 for _h, _s, rows in enrichment if rows)
+
     return {
         "section": "10_drug_targets",
         "mondo_id": a.mondo_id,
         "per_gene_drugs": per_gene_drugs,
+        "enrichment_size": len(a.enrichment_cohort),
+        "enrichment_druggable": enrichment_druggable,
         "approved_count": approved_count,
         "phase3_count": phase3_count,
         "phased_count": phased_count,
@@ -112,9 +122,9 @@ SECTION = Section(
     description=("Per-cohort-gene ChEMBL targets + phased molecules. "
                  "Approved / Phase ≥3 / Phase ≥1 buckets per gene. "
                  "Drugged-vs-undrugged split."),
-    needs=("cohort",),
+    needs=("cohort", "enrichment_cohort"),
     produces=("per_gene_drugs", "approved_count", "phase3_count",
               "phased_count", "undrugged_count", "approved_genes",
-              "top_targets", "drugs"),
+              "top_targets", "drugs", "enrichment_size", "enrichment_druggable"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
