@@ -198,8 +198,8 @@ def r_gwas_landscape(b):
     out = [f"## GWAS landscape", "",
            f"**{_i(b.get('assoc_total'))} GWAS associations across "
            f"{_i(b.get('study_total'))} studies.** "
-           f"Cohort touches {_i(b.get('unique_gene_count'))} distinct genes "
-           "across the top hits."]
+           f"Top hits map to {_i(b.get('unique_gene_count'))} distinct genes "
+           "(as reported by GWAS)."]
     ta = b.get("top_assocs") or []
     if ta:
         out += ["", "**Top associations by p-value:**", "",
