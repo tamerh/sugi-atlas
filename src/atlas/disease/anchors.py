@@ -30,7 +30,15 @@ _CANCER_RX = re.compile(
 # "TOP 50" sections; we mirror that. Cohort genes feed gene-collector
 # fan-outs (§5–§12/§14) so a tight cap bounds wall-clock cost
 # (50 genes × ~12 collectors × ~5 chains each ≈ 3k biobtree calls per disease).
-COHORT_CAP = 50
+# Cohort selection. The fan-out reuses the full gene plan per gene, so cohort
+# size is the dominant cost of a disease build — but a flat top-N both drops
+# strong genes on well-studied diseases and admits GWAS-tail noise on others.
+# So: an EVIDENCE FLOOR keeps every gene with curated evidence (GenCC/CIViC) or
+# >=2 routes regardless of the cap (they're never noise), then COHORT_CAP fills
+# the rest from the single-route tail; COHORT_MAX is a hard ceiling so a
+# pathological disease can't fan unbounded.
+COHORT_CAP = 75
+COHORT_MAX = 150
 
 # Evidence-route definitions for the gene cohort union. Each entry:
 # (flag_name, chain). Ranking later prefers genes hit by more routes.
@@ -68,7 +76,8 @@ class DiseaseAnchors:
     # (vs "Clinical subtype" / "Group"). {} for non-rare-disease entries.
     orphanet_attrs: dict
     is_cancer: bool
-    # Gene cohort — top COHORT_CAP genes by evidence-route count.
+    # Gene cohort — all strong-evidence genes (evidence floor) + single-route
+    # tail filled to COHORT_CAP, bounded by COHORT_MAX (see _select_cohort).
     cohort: Tuple[GeneAnchors, ...]
     # Parallel mapping hgnc_id -> evidence-flags dict {route: bool}
     cohort_evidence: Dict[str, Dict[str, bool]]
@@ -157,6 +166,24 @@ def _build_cohort(mondo_id: str):
     ranked = sorted(evidence.keys(), key=lambda h: (-_score(h), h))
     return ranked, evidence
 
+
+def _is_strong(ev_row: Dict[str, bool]) -> bool:
+    """Evidence floor: a gene is 'strong' if it carries curated evidence
+    (GenCC or CIViC) or is hit by >=2 routes. Strong genes are never dropped by
+    the cap; the single-route GWAS/ClinVar tail is what the cap limits."""
+    return bool(ev_row.get("gencc") or ev_row.get("civic_evidence")
+                or sum(1 for v in ev_row.values() if v) >= 2)
+
+
+def _select_cohort(ranked, evidence, cap=COHORT_CAP, hard_max=COHORT_MAX):
+    """Pick the cohort to fan out from the ranked union. Keep ALL strong genes
+    (evidence floor, even past `cap`), then fill remaining slots up to `cap` from
+    the single-route tail in rank order; bounded by `hard_max`. `ranked` is
+    already route-count-descending, so order is preserved within each group."""
+    strong = [h for h in ranked if _is_strong(evidence[h])]
+    tail   = [h for h in ranked if not _is_strong(evidence[h])]
+    return (strong + tail[:max(0, cap - len(strong))])[:hard_max]
+
 def resolve(name_or_id: str) -> DiseaseAnchors:
     """Disease name (or Mondo id) → DiseaseAnchors.
 
@@ -227,11 +254,11 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
 
     cohort_full, evidence = _build_cohort(mondo_id)
 
-    # Pre-resolve the top-N gene anchors so downstream cohort sections don't
-    # re-pay anchor cost. Each gene resolve is ~4 biobtree calls so this
-    # adds ~200 calls upfront for a 50-gene cap — once, not per section.
+    # Pre-resolve the selected gene anchors so downstream cohort sections don't
+    # re-pay anchor cost (each gene resolve is ~4 biobtree calls, once, not per
+    # section). Selection applies the evidence floor + cap (see _select_cohort).
     cohort: list = []
-    for hgnc in cohort_full[:COHORT_CAP]:
+    for hgnc in _select_cohort(cohort_full, evidence):
         # resolve_gene_anchors takes a symbol; pull it from the hgnc entry.
         # We already have the hgnc id; fetch its entry once to get the symbol.
         try:
