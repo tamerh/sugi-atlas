@@ -4,7 +4,22 @@ Orphanet) + canonical name + the per-dataset xref count table.
 NEW collector (not a gene fanout) — operates directly off the DiseaseAnchors
 record, which already pre-resolved the ID set during resolve(). The work
 here is mostly shaping; no new biobtree calls beyond the anchor."""
+import re
 from atlas.section import Section
+
+# biobtree/Orphanet returns the HPO frequency band with the percentages in
+# descending order — "Very frequent (99-80%)". Normalize to the conventional
+# low→high reading ("80-99%"). Generic (any "N-M%" → ascending), so it also
+# fixes Frequent (79-30%), Occasional (29-5%), etc.
+_FREQ_RANGE = re.compile(r"(\d+)\s*-\s*(\d+)\s*%")
+
+
+def _ascending_freq(s):
+    if not s:
+        return s
+    return _FREQ_RANGE.sub(
+        lambda m: "{}-{}%".format(*sorted((int(m.group(1)), int(m.group(2))))), s)
+
 
 CHAINS   = (">>mondo>>efo", ">>mondo>>mesh", ">>mondo>>mim", ">>mondo>>orphanet",
             ">>mondo>>doid", ">>mondo>>sctid", ">>mondo>>umls", ">>mondo>>ncit",
@@ -19,7 +34,10 @@ def collect(a):
     # HPO phenotypes from primary Orphanet entry — frequency-sorted desc so
     # render can slice the most clinically-relevant features first.
     oa = a.orphanet_attrs or {}
-    phenotypes = list(oa.get("phenotypes") or [])
+    # New dicts (don't mutate the shared anchor) with the frequency band in
+    # ascending percentage order.
+    phenotypes = [{**p, "frequency": _ascending_freq(p.get("frequency"))}
+                  for p in (oa.get("phenotypes") or [])]
     phenotypes.sort(key=lambda p: float(p.get("frequency_value") or 0), reverse=True)
 
     bundle = {
