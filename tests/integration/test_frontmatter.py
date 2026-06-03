@@ -76,6 +76,29 @@ def test_tldr_coverage(pages):
     assert frac >= 0.85, f"only {frac:.0%} of pages have a tldr ({with_tldr}/{len(pages)})"
 
 
+def test_evidence_score_present_and_typed(pages):
+    """Every page carries a 0-100 integer `evidence_score` and a
+    `evidence_components` map of integer counts whose keys are STABLE across
+    all pages of a type (the contract the web search ranking relies on)."""
+    bad = []
+    type_keys = {}
+    for p in pages:
+        prom = p.fm.get("evidence_score")
+        if not isinstance(prom, int) or not (0 <= prom <= 100):
+            bad.append(f"{p.entity}/{p.slug}: evidence_score={prom!r}")
+        comps = p.fm.get("evidence_components")
+        if not isinstance(comps, dict) or not comps:
+            bad.append(f"{p.entity}/{p.slug}: evidence_components missing/empty")
+            continue
+        if any(not isinstance(v, int) for v in comps.values()):
+            bad.append(f"{p.entity}/{p.slug}: non-integer component value")
+        keys = frozenset(comps)
+        type_keys.setdefault(p.entity, keys)
+        if keys != type_keys[p.entity]:
+            bad.append(f"{p.entity}/{p.slug}: component keys differ for type")
+    assert not bad, report(bad)
+
+
 def test_section_defaults_keys_are_valid_anchors(pages):
     """section_defaults hints reference real canonical anchor ids."""
     bad = []

@@ -95,6 +95,16 @@ def build_meta(entity_type, slug, title, datasets, generated_at=None, bundle=Non
     if bundle is not None:
         from atlas.page.meta_facts import entity_facts
         meta.update(entity_facts(entity_type, bundle))
+        # Prominence: raw component counts (always) + the 0-100 percentile score
+        # when a batch distribution has been loaded (batch render / single-entity
+        # rebuild against the last batch). Drives search ranking + featured cards.
+        from atlas.page import evidence
+        comps = evidence.components(entity_type, bundle)
+        meta["evidence_components"] = comps
+        score = evidence.lookup(entity_type, slug,
+                                  evidence.raw_signal(entity_type, comps))
+        if score is not None:
+            meta["evidence_score"] = score
     return meta
 
 
@@ -246,6 +256,14 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         if items:
             fm.append(f"{field}:")
             fm += [f'  - "{_yaml_escape(x)}"' for x in items]
+    # Prominence (search ranking): a 0-100 percentile within entity type, plus
+    # the raw component counts (stable keys per type) for client-side re-weight.
+    if meta.get("evidence_score") is not None:
+        fm.append(f"evidence_score: {int(meta['evidence_score'])}")
+    pc = meta.get("evidence_components") or {}
+    if pc:
+        fm.append("evidence_components:")
+        fm += [f"  {k}: {int(v)}" for k, v in pc.items()]
     # Section open/collapsed hints (P3), keyed by canonical anchor id.
     sd = meta.get("section_defaults") or {}
     if sd:

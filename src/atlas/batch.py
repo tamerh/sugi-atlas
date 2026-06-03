@@ -94,8 +94,12 @@ def collect_one(spec):
         # de-SHOUTed for display; gene/disease titles pass through.
         from atlas.render_common import display_name
         canonical = display_name(title) if etype == "drug" else title
+        # Raw evidence_score signal (weighted log of evidence counts) — the merge
+        # phase ranks these into the 0-100 per-type percentile.
+        from atlas.page import evidence
+        ev_raw = evidence.raw_signal(etype, evidence.components(etype, bundle))
         return {"ok": True, "entity": etype, "slug": slug, "verdict": verdict,
-                "canonical": canonical,
+                "canonical": canonical, "evidence_raw": ev_raw,
                 "id_keys": [str(k) for k in id_keys if k],
                 "name_keys": [k for k in name_keys if k]}
     except (Exception, SystemExit) as e:   # SystemExit too — see harden M1
@@ -111,6 +115,8 @@ def render_one(spec):
         bundle, datasets, title = payload["bundle"], payload["datasets"], payload["title"]
         links.load(dist_dir)                       # the COMPLETE manifest
         links.load_reverse(dist_dir)               # incoming cross-entity edges
+        from atlas.page import evidence
+        evidence.load(dist_dir)                  # per-type evidence_score scores
         meta = P.build_meta(etype, slug, title, datasets, generated_at, bundle=bundle)
         if etype == "gene":
             body = P.render_all(bundle)
@@ -177,6 +183,21 @@ def _merge_manifest(collected, dist_dir):
     return manifest
 
 
+def _write_evidence(collected, dist_dir):
+    """PHASE B — rank each entity's raw evidence_score signal into a 0-100 percentile
+    within its type, and persist the per-type distribution so a later single-
+    entity rebuild ranks against the same frozen corpus."""
+    from atlas.page import evidence
+    raw_by_type = {}
+    for r in collected:
+        raw_by_type.setdefault(r["entity"], {})[r["slug"]] = r.get("evidence_raw", 0.0)
+    out = {et: evidence.percentiles(m) for et, m in raw_by_type.items()}
+    out["_dist"] = {et: sorted(m.values()) for et, m in raw_by_type.items()}
+    write_json(os.path.join(dist_dir, "atlas", "evidence.json"),
+               out, indent=0, sort_keys=True)
+    print(f"[B] evidence: scored {sum(len(m) for m in raw_by_type.values())} entities")
+
+
 def _build_reverse_index(collected, dist_dir, cache_dir):
     """PHASE B (second half) — invert every resolved cross-entity edge so an
     asserted relationship is navigable from both ends (TP53→Venetoclax becomes
@@ -239,6 +260,7 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
     print(f"[B] build reverse-edge index …")
     rev = _build_reverse_index(ok, dist_dir, cache_dir)
     print(f"[B] reverse index: {len(rev)} targets with incoming edges")
+    _write_evidence(ok, dist_dir)
 
     gen_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     specs_c = [(r["entity"], r["slug"], dist_dir, cache_dir, gen_at) for r in ok]
