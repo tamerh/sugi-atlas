@@ -10,12 +10,15 @@ pytestmark = pytest.mark.integration
 
 _NAN_CELL = re.compile(r"\|\s*nan\s*\|", re.I)             # "| nan |" / "| NaN |"
 # The UNAMBIGUOUS float32-repr signature — a long run of 9s or 0s in the decimal
-# tail (0.20799999999996, 6.170000076293945). Legit precise/small values
-# (0.00133 nM, MW 493.6038) never have this. A blunt "long decimal" regex can't
-# tell float32 noise from a genuine multi-sig-fig measurement, so the targeted
-# fnum rounding (odds_ratio/maf/resolution, unit-tested) is the real guard; this
-# is the corpus net for the egregious storage-noise case.
-_FLOAT_ARTIFACT = re.compile(r"\.\d*(?:9{6,}|0{5,}[1-9])")
+# tail FOLLOWED BY MORE DIGITS (0.20799999999996, 6.170000076293945). The
+# trailing-digit requirement is load-bearing: a real float32 artifact keeps
+# spilling digits, whereas a clean small number (p = 0.000001) or an HGVS
+# genomic coordinate (g.20000001_…) *terminates* right after the run — those are
+# legitimate source content, not our rounding noise. Legit precise/small values
+# (0.00133 nM, MW 493.6038) never have this. The targeted fnum rounding
+# (odds_ratio/maf/resolution, unit-tested) is the real guard; this is the corpus
+# net for the egregious storage-noise case.
+_FLOAT_ARTIFACT = re.compile(r"\.\d*(?:9{6,}\d|0{5,}[1-9]\d)")
 _DUP_INCLUDING = re.compile(r"including (\w[\w '-]+?) and \1\b", re.I)
 _NONE_CELL = re.compile(r"\|\s*None\s*\|")
 _BAD_ATTR = re.compile(r"\{#")                             # {#id} only belongs on headings

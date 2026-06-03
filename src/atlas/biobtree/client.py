@@ -14,6 +14,7 @@ Three primitives + four pure parsers + a per-call reproducibility log:
 import html
 import json
 import os
+import re
 import time
 
 import urllib3
@@ -66,14 +67,22 @@ _RETRY_STATUS = {429, 500, 502, 503, 504}
 _MAX_ATTEMPTS = 4
 
 
+_ENTITY_CI = re.compile(r"&(amp|lt|gt|quot|apos|nbsp);", re.I)
+_ENTITY_MAP = {"amp": "&", "lt": "<", "gt": ">", "quot": '"', "apos": "'", "nbsp": " "}
+
+
 def _unescape(obj):
     """Recursively HTML-unescape every string in a biobtree response, once, at
     the single point all responses flow through — so EVERY consumer (map
     targets, search rows, entry attributes, UniProt CC narratives, GO terms)
     renders clean text (3'-end, not 3&apos;-end). Entities never contain a raw
-    '|', so this is safe for the pipe-delimited map/search values."""
+    '|', so this is safe for the pipe-delimited map/search values.
+
+    html.unescape is case-sensitive (only `&amp;`), but source text — notably
+    ClinicalTrials.gov titles — carries mixed-case malformed entities like
+    `&Amp;`. Normalize the common five case-insensitively first."""
     if isinstance(obj, str):
-        return html.unescape(obj)
+        return html.unescape(_ENTITY_CI.sub(lambda m: _ENTITY_MAP[m.group(1).lower()], obj))
     if isinstance(obj, list):
         return [_unescape(x) for x in obj]
     if isinstance(obj, dict):

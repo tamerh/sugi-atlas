@@ -62,12 +62,17 @@ def _indications_clause(b4):
         return ""
     # Dedup by name (audit #11: indications cross-walked from both EFO and MeSH
     # can resolve to the same disease → "including neoplasm and neoplasm"); skip
-    # blank and raw ontology-id names.
+    # blank and raw ontology-id names. Also skip a name that is a prefix-relative
+    # of one already chosen (e.g. "anxiety" vs "anxiety disorder", "bacterial
+    # infectious disease" vs "…with sepsis") — the lead should name two visibly
+    # DISTINCT diseases, not a parent and its child.
     from atlas.render_common import is_ontology_id
     seen, names = set(), []
     for i in inds:
         nm = (i.get("name") or "").strip().lower()
         if not nm or is_ontology_id(nm) or nm in seen:
+            continue
+        if any(nm.startswith(c + " ") or c.startswith(nm + " ") for c in names):
             continue
         seen.add(nm)
         names.append(nm)

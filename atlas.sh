@@ -71,6 +71,12 @@ build() {
   local label="$1" g="$2" s="$3" r="$4" w
   for f in "$g" "$s" "$r"; do [ -f "$f" ] || die "missing list $f"; done
   w=$(workers)
+  # Start every build from a clean slate so pages from a prior phase/run can't
+  # linger as orphans. This matters in `prod`: the [1/4] dense check populates
+  # dist/atlas, then [2/4] full corpus must NOT inherit those dense-only pages
+  # (e.g. GBA, which the full HGNC seed lists as GBA1, or salt-form drugs) — they
+  # would fail the manifest⇄pages bijection.
+  rm -rf "$DIST/atlas" "$DIST/cache"
   say "$label → $DIST  ${D}(genes=$(count "$g") diseases=$(count "$s") drugs=$(count "$r") | workers=$w${LIMIT:+ limit=$LIMIT})${N}"
   local t0=$SECONDS
   python -m atlas.batch --dist "$DIST" --workers "$w" \

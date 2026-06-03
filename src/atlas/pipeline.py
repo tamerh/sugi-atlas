@@ -221,9 +221,12 @@ _CTRL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")  # control chars (keep \
 
 
 def _yaml_escape(s):
-    # Strip control characters (e.g. a stray 0x7f from biobtree text) — they
-    # break both PyYAML and Hugo frontmatter parsing.
-    return _CTRL.sub("", str(s)).replace('"', '\\"')
+    # Make a value safe inside a double-quoted YAML scalar. Strip control chars
+    # (e.g. a stray 0x7f from biobtree text), then escape backslash BEFORE quote
+    # — a value with a literal/ trailing backslash (e.g. a truncated Mondo
+    # synonym `…(formerly cutaneous \"`) would otherwise escape the closing quote
+    # and break the whole frontmatter block.
+    return _CTRL.sub("", str(s)).replace("\\", "\\\\").replace('"', '\\"')
 
 def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     """Hugo-frontmatter + declarative lead + (optional) AI summary + body.

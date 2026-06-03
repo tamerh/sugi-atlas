@@ -67,10 +67,13 @@ def test_list_and_map_fields_well_typed(pages):
 
 
 def test_tldr_coverage(pages):
-    """Soft gate: the vast majority of pages should carry a TL;DR."""
+    """Soft gate: the vast majority of pages should carry a TL;DR. The full
+    corpus has a long tail of legitimately-thin entities (ncRNA genes, sparse
+    rare diseases) with no key facts to summarize, so the floor is 0.85 — the
+    dense set sat near 1.0; this only catches a corpus-wide tldr regression."""
     with_tldr = sum(1 for p in pages if p.fm.get("tldr"))
     frac = with_tldr / len(pages)
-    assert frac >= 0.9, f"only {frac:.0%} of pages have a tldr ({with_tldr}/{len(pages)})"
+    assert frac >= 0.85, f"only {frac:.0%} of pages have a tldr ({with_tldr}/{len(pages)})"
 
 
 def test_section_defaults_keys_are_valid_anchors(pages):

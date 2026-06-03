@@ -115,7 +115,11 @@ def _cell(c):
     '|' (e.g. "1838-Glu-|-Ala-1839"), which would otherwise shift the column."""
     if c is None:
         return ""
-    return html.unescape(str(c)).replace("|", "\\|")
+    s = html.unescape(str(c))
+    if s.strip().lower() == "nan":          # biobtree returns the literal string
+        return ""                           # "nan" for a missing value (e.g. an
+                                            # ortholog row with no gene symbol)
+    return s.replace("|", "\\|")
 
 
 def table(headers, rows):

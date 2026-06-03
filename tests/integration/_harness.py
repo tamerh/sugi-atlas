@@ -40,7 +40,7 @@ H2_IDS = {
                 "pharmacology", "related-molecules", "related"],
 }
 ID_RE = {
-    "gene":    re.compile(r"^[A-Za-z0-9][A-Za-z0-9._\-]*$"),   # HGNC symbol
+    "gene":    re.compile(r"^[A-Za-z0-9][A-Za-z0-9._@\-]*$"),  # HGNC symbol (incl. @ for gene clusters, e.g. PCDHA@)
     "disease": re.compile(r"^MONDO:\d+$"),
     "drug":    re.compile(r"^CHEMBL\d+$"),
 }
