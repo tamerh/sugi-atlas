@@ -167,20 +167,22 @@ def r_disease_ids(b):
                            p.get("validation_status"))
                           for p in prevs_sorted]))
 
-    # Clinical features (HPO phenotypes from Orphanet, frequency-sorted).
-    # Show top 30; full list lives in the bundle/sidecar for RAG consumers.
+    # Clinical features (HPO phenotypes from Orphanet, frequency-sorted). These
+    # are curated, frequency-annotated, and all clinically meaningful (not noisy
+    # like a GWAS tail), so show a generous top 50; the full list is in the
+    # bundle/sidecar for RAG consumers.
     phs = b.get("phenotypes") or []
     if phs:
         total = b.get("phenotype_count") or len(phs)
         out.append("")
         out.append(f"**Clinical features ({total} HPO phenotypes, Orphanet "
-                   f"curated; top {min(30, len(phs))} by frequency):**")
+                   f"curated; top {min(50, len(phs))} by frequency):**")
         out.append("")
         out.append(table(["HPO ID", "Term", "Frequency"],
                          [(p.get("hpo_id"),
                            p.get("hpo_term"),
                            p.get("frequency"))
-                          for p in phs[:30]]))
+                          for p in phs[:50]]))
     return "\n".join(out)
 
 
