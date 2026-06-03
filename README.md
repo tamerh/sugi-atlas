@@ -81,3 +81,13 @@ The collector was prototyped in `/data/biobtree-collector` on branch
 repository): mining the published pages showed the tool-call trajectory for
 these structured sections is mostly deterministic, so data-gathering and
 table-rendering use no model at all — only the executive summary does.
+
+## License
+
+The code in this repository is licensed **MIT** (see [LICENSE](LICENSE)).
+
+The generated Atlas **content** is published separately under **CC BY-SA 4.0**.
+It is derived from biobtree's integrated sources, each of which carries its own
+license and attribution requirements; the full per-source list is provided on
+the Atlas site (sugi.bio/atlas). Downstream reuse of the content must comply
+with those upstream terms.
