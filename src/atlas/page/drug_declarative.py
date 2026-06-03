@@ -55,6 +55,15 @@ def _targets_clause(b2):
     return " targeting " + _join(genes[:3])
 
 
+def _near(a, b):
+    """True if one of a/b is the other followed by a word boundary — i.e. a
+    parent and its qualified child ("osteoarthritis" vs "osteoarthritis, knee",
+    "anxiety" vs "anxiety disorder"). Used to keep the lead's two named diseases
+    visibly distinct."""
+    lo, hi = sorted((a, b), key=len)
+    return hi.startswith(lo) and (len(hi) == len(lo) or not hi[len(lo)].isalnum())
+
+
 def _indications_clause(b4):
     n = (b4 or {}).get("indication_count") or 0
     inds = (b4 or {}).get("indications") or []
@@ -72,8 +81,8 @@ def _indications_clause(b4):
         nm = (i.get("name") or "").strip().lower()
         if not nm or is_ontology_id(nm) or nm in seen:
             continue
-        if any(nm.startswith(c + " ") or c.startswith(nm + " ") for c in names):
-            continue
+        if any(_near(nm, c) for c in names):     # "osteoarthritis" vs
+            continue                             # "osteoarthritis, knee" etc.
         seen.add(nm)
         names.append(nm)
         if len(names) == 2:
