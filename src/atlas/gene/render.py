@@ -191,7 +191,12 @@ def r_protein_ids(b):
     L.append(table(["ID", "Name", "Type"],
                    [(d["id"], d.get("name"), d.get("type")) for d in b.get("interpro", [])]))
     L.append(f"\n**Pfam:** " + ", ".join(f"`{x}`" for x in b.get("pfam", [])))
-    L.append(f"\n**Antibody resources:** {b.get('antibody_count', 0)}")
+    # Therapeutic antibodies targeting this protein (TheraSAbDab/SAbDab via the
+    # antibody dataset). Only shown when present — the reverse edge is sparse, so
+    # a universal "0" otherwise reads as a research-reagent count, which it isn't.
+    if b.get("antibody_count"):
+        L.append(f"\n**Therapeutic antibodies (targeting this protein):** "
+                 f"{b.get('antibody_count')}")
     # BRENDA enzyme classification — EC number + name + summary stats.
     # Non-enzyme proteins (TFs, inhibitors) have empty brenda_ec; block elides.
     brenda = b.get("brenda_ec") or []
