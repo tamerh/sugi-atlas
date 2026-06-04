@@ -212,16 +212,23 @@ def test_no_caret_coded_tokens(pages):
     assert not bad, report(bad)
 
 
-# alt_names chemistry fragments — bare locants/stereo + unbalanced parens, the
-# gemcitabine "2'"/"5R)-3" class from over-eager synonym comma-splitting.
+# alt_names chemistry fragments — bare locants/stereo, the gemcitabine
+# "2'"/"4R" class from over-eager synonym comma-splitting. DRUG-scoped: gene
+# aliases legitimately include "12S"/"16S" (mitochondrial rRNA names) and bare
+# numeric HGNC aliases ("52", "225"), which are NOT fragments.
 _ALT_FRAGMENT = re.compile(r"^\d+['’′ʹ]?$|^\d+[RS]$", re.I)
 
 
 def test_no_fragment_alt_names(pages):
+    """Unbalanced-paren aliases are malformed for ANY type (Mondo/encoding
+    class); bare locant/stereo fragments are a drug-chemistry artifact, so those
+    are checked only on drug pages."""
     bad = []
     for p in pages:
         for a in (p.fm.get("alt_names") or []):
             s = str(a)
-            if _ALT_FRAGMENT.match(s) or s.count("(") != s.count(")"):
-                bad.append(f"{p.entity}/{p.slug}: {a!r}")
+            if s.count("(") != s.count(")"):
+                bad.append(f"{p.entity}/{p.slug}: {a!r} (unbalanced parens)")
+            elif p.entity == "drug" and _ALT_FRAGMENT.match(s):
+                bad.append(f"{p.entity}/{p.slug}: {a!r} (chem fragment)")
     assert not bad, report(bad)
