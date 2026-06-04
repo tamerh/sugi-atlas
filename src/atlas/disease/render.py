@@ -928,6 +928,25 @@ RENDER = {
 }
 
 
+def _cohort_empty_note(bundles):
+    """When no gene cohort resolves, explain (at the top of the Genes zone) that
+    the molecular/therapeutic sections are gene-derived and therefore empty —
+    so an antibody-mediated / autoimmune / non-gene-defined disease doesn't read
+    as broken. Parent pointer is intentionally omitted here (Disease family
+    already carries it). '' when the cohort has genes."""
+    if (bundles.get("5") or {}).get("gene_count"):
+        return ""
+    return ("*No associated-gene cohort resolved for this disease. Atlas builds "
+            "the molecular and therapeutic sections — associated genes, protein "
+            "families, druggability, pathways, interactions, and drug associations "
+            "— by aggregating over a disease's associated genes (resolved via "
+            "GWAS / GenCC / ClinVar / CIViC), and none resolved here. This is "
+            "expected for antibody-mediated, autoimmune, or otherwise "
+            "non-gene-defined conditions; the curated evidence for this disease is "
+            "its clinical features, GWAS susceptibility, and clinical trials "
+            "(above).*")
+
+
 def render_all(bundles):
     """Disease page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
     Clinical features → Identifiers → Genetics & variants → Genes & proteins →
@@ -958,7 +977,8 @@ def render_all(bundles):
          join(S("2", "gwas"), S("3", "variant-tiers")),
          "No common-variant (GWAS) or curated variant data for this disease."),
         ("Genes & proteins", "genes",
-         join(S("4", "mendelian"), S("5", "cohort-genes"), S("6", "protein-families"),
+         join(_cohort_empty_note(bundles),
+              S("4", "mendelian"), S("5", "cohort-genes"), S("6", "protein-families"),
               S("7", "expression"), S("8", "interactions"), S("9", "structural")),
          "No associated genes curated for this disease."),
         ("Function", "function", S("14", "pathways"),
