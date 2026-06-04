@@ -432,6 +432,14 @@ def r_structure(b):
         L.append(f"\n*No AlphaFold model available for {a['uniprot']} — "
                  "AlphaFold DB does not currently provide models for proteins "
                  "above ~3000 aa.*")
+    # Antibody-complex structures (SAbDab) — antibodies co-crystallized with this
+    # protein; a high count marks a validated antibody target. Structural (not
+    # necessarily therapeutic) antibodies.
+    ab = b.get("antibody_structures") or []
+    if ab:
+        L.append(f"\n**Antibody-complex structures (SAbDab): {len(ab)}** — "
+                 + ", ".join(f"`{p}`" for p in ab[:25])
+                 + (f" (+{len(ab) - 25} more)" if len(ab) > 25 else ""))
     return "\n".join(L)
 
 

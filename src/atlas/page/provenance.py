@@ -38,7 +38,7 @@ UPSTREAM = {
     "uniprot":           ("UniProt",                               "https://www.uniprot.org/"),
     "interpro":          ("InterPro",                              "https://www.ebi.ac.uk/interpro/"),
     "pfam":              ("Pfam",                                  "https://www.ebi.ac.uk/interpro/entry/pfam/"),
-    "antibody":          ("Antibodypedia",                         "https://www.antibodypedia.com/"),
+    "antibody":          ("SAbDab / Thera-SAbDab (Oxford OPIG)",   "https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabdab/"),
     "ufeature":          ("UniProt sequence features",             "https://www.uniprot.org/"),
     "brenda":            ("BRENDA enzyme database",                "https://www.brenda-enzymes.org/"),
     "rhea":              ("Rhea reaction database",                "https://www.rhea-db.org/"),

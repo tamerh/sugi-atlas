@@ -2,18 +2,27 @@
 from atlas.biobtree import map_all
 from atlas.gene.sections.base import Section
 
-CHAINS = (">>uniprot>>pdb", ">>uniprot>>alphafold")
-DATASETS = ("pdb", "alphafold", "uniprot")
+CHAINS = (">>uniprot>>pdb", ">>uniprot>>alphafold", ">>uniprot>>pdb>>antibody")
+DATASETS = ("pdb", "alphafold", "uniprot", "antibody")
 
 def collect(a):
     bundle = {"section": "04_structure", "symbol": a.symbol,
               "hgnc_id": a.hgnc_id, "reviewed_uniprot": list(a.reviewed_uniprots)}
 
-    pdb, af = {}, []
+    pdb, af, ab_pdbs = {}, [], set()
     for u in a.reviewed_uniprots:
         for t in map_all(u, ">>uniprot>>pdb"):
             pdb[t["id"]] = {"id": t["id"], "method": t.get("method"),
                             "resolution": t.get("resolution")}
+        # Antibody-complex structures (SAbDab) bound to this protein, reached via
+        # the bidirectional PDB↔antibody edge (>>uniprot>>pdb>>antibody). The ids
+        # are PDB_Hchain_Lchain — dedup to the distinct PDB. A high count flags a
+        # validated antibody target (PD-1, EGFR, CD20). Map-only (no entry) so the
+        # disease cohort-fan stays cheap; therapeutic INN names aren't edge-linked.
+        for t in map_all(u, ">>uniprot>>pdb>>antibody"):
+            pid = (t.get("id") or "").split("_")[0]
+            if pid:
+                ab_pdbs.add(pid)
         # biobtree 2026-05-31 refresh resolved BIOBTREE_ISSUES #10 — alphafold
         # coverage now extends to ~3000 aa (MTOR works at 2549 aa). Remaining
         # empties (ATM/BRCA2/DMD/TTN/MUC16 — all >~3000 aa) reflect AlphaFold-DB
@@ -32,12 +41,13 @@ def collect(a):
     bundle["pdb"] = list(pdb.values())
     bundle["pdb_count"] = len(pdb)
     bundle["alphafold"] = af
+    bundle["antibody_structures"] = sorted(ab_pdbs)
     return bundle
 
 SECTION = Section(
     id="4", name="structure",
     description="Experimental PDB structures (method + resolution) and AlphaFold predicted model (pLDDT)",
     needs=("hgnc_id", "reviewed_uniprots"),
-    produces=("pdb", "pdb_count", "alphafold"),
+    produces=("pdb", "pdb_count", "alphafold", "antibody_structures"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
