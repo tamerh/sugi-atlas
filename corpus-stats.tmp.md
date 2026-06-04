@@ -1,11 +1,11 @@
 # Sugi Atlas — corpus statistics & validation (preprint draft)
 
-> **Working/tmp doc** — not committed. Drafted 2026-06-04 for the preprint's
-> "corpus statistics + validation" table. Numbers from the completed prod build
-> (`853a8aa`, full corpus) and the `c48cb41` archive (section coverage);
-> validation counts from the test suite at `7067e31`. All deterministic and
-> reproducible from the commit. **Re-measure after the biobtree-release run** —
-> coverage (esp. CIViC/trials) will shift up once #32 under-linking is fixed.
+> **Working/tmp doc** — not committed. Re-measured 2026-06-04 off the comprehensive
+> build `f20d676` (admission gate v2 [non-human dropped], phase-3 drugs added,
+> audit fixes, index.md layout). Archive: atlas-corpus-20260604-193822-f20d676.
+> All deterministic, reproducible from the commit. **Re-measure once more after
+> the biobtree-release run** — CIViC/trials coverage will rise when #32
+> under-linking is fixed.
 
 ---
 
@@ -13,68 +13,74 @@
 
 | Entity type | Pages | Share |
 |---|---:|---:|
-| Genes | 29,338 | 56.4% |
-| Diseases | 19,683 | 37.8% |
-| Drugs | 2,987 | 5.7% |
-| **Total** | **52,008** | — |
+| Genes | 29,338 | 55.7% |
+| Diseases | 18,618 | 35.4% |
+| Drugs | 4,701 | 8.9% |
+| **Total** | **52,657** | — |
 
-**Seeds → pages → skipped: 52,008 → 52,008 → 0.** Full-corpus seeds are
-pre-resolved HGNC / Mondo / ChEMBL identifiers, so every seed yields a page.
-(Resolution skips occur only in the name-seeded pre-production check — e.g.
-Orphanet-only synonyms with no Mondo id — never in the published corpus.)
+**Seeds → pages → skipped: 52,657 → ~52,655 → ~2.** Full-corpus seeds are
+pre-resolved HGNC / Mondo / ChEMBL identifiers, so essentially every seed yields
+a page. **Admission gates** drop, at seed time: gate-1 disease-characteristic
+qualifiers; **gate-2 non-human / veterinary disease terms (~1,065** — e.g.
+achondroplasia-in-cattle). **Drug seed = approved (phase 4) ∪ late-stage clinical
+(phase 3)**, de-salted + therapeutic-filtered (4,225+1,892 → 4,701).
 
-Build time: full corpus ~43 min (collect+merge+render), 30 workers.
+Build time: full corpus ~44 min (collect+merge+render), 30 workers.
 
 ---
 
 ## Table 2 — Section-level data coverage
 
 % of pages carrying real data in each evidence-bearing section (vs. an explicit
-"no data" placeholder). Computed deterministically from the build (`c48cb41`
-archive: 29,338 genes / 19,681 diseases / 2,987 drugs).
+"no data" placeholder). Computed deterministically from the
+build f20d676: 29,338 genes / 18,616 diseases / 4,701 drugs).
 
 ### Genes (n = 29,338)
-| Section (signal) | Pages w/ data | % |
-|---|---:|---:|
-| Variants (ClinVar) | 18,863 | 64.3 |
-| Protein interactions | 18,526 | 63.1 |
-| GWAS associations | 15,175 | 51.7 |
-| Clinical trials | 7,204 | 24.6 |
-| Drugs | 2,543 | 8.7 |
-| CIViC evidence | 333 | 1.1 |
+| Section (signal) | % |
+|---|---:|
+| Variants (ClinVar) | 64 |
+| Protein interactions | 63 |
+| GWAS associations | 52 |
+| Clinical trials | 25 |
+| Drugs | 9 |
+| CIViC evidence | 1 |
 
-### Diseases (n = 19,681)
-| Section (signal) | Pages w/ data | % |
-|---|---:|---:|
-| Cohort genes | 10,278 | 52.2 |
-| Variants | 9,334 | 47.4 |
-| Clinical trials | 6,067 | 30.8 |
-| Drugs / targets | 3,994 | 20.3 |
-| GWAS | 1,165 | 5.9 |
-| CIViC evidence | 422 | 2.1 |
+### Diseases (n = 18,616) — note coverage rose vs the pre-gate build (animal empties removed)
+| Section (signal) | % |
+|---|---:|
+| Cohort genes | 55 |
+| Variants | 50 |
+| Clinical trials | 33 |
+| Drugs / targets | 21 |
+| GWAS | 6 |
+| CIViC evidence | 2 |
 
-### Drugs (n = 2,987)
-| Section (signal) | Pages w/ data | % |
-|---|---:|---:|
-| Indications | 2,536 | 84.9 |
-| Clinical trials | 2,268 | 75.9 |
-| Patent families | 2,247 | 75.2 |
-| Targets | 1,840 | 61.6 |
-| Bioactivity | 1,840 | 61.6 |
-| CIViC evidence | 177 | 5.9 |
+### Drugs (n = 4,701) — approved + phase-3
+| Section (signal) | % |
+|---|---:|
+| Indications | 87 |
+| Clinical trials | 82 |
+| Patent families | 69 |
+| Targets | 53 |
+| Bioactivity | 53 |
+| CIViC evidence | 5 |
 
-**Framing note:** low absolute rates (CIViC 1–6%, gene–drug 8.7%) are not Atlas
+(Drug target/bioactivity % dipped vs approved-only — phase-3 candidates more
+often lack a fully-resolved target; trials % rose since phase-3 drugs are
+trial-heavy and the trials count is now the true total, not the 1,600 cap.)
+
+**Framing note:** low absolute rates (CIViC 1–5%, gene–drug 9%) are not Atlas
 gaps — they reflect how sparse *curated* evidence genuinely is across the whole
 genome/disease space. The per-section placeholder makes "no curated data"
 explicit rather than hiding it. State this as a design property.
 
 ---
 
-## Table 3 — Validation suite (100% pass over all 52,008 pages)
+## Table 3 — Validation suite (100% pass over all 52,657 pages)
 
 | Suite | Tests | Verifies |
 |---|---:|---|
-| Unit | 168 | renderers, evidence/percentile logic, declarative leads, JSON-LD builders, helper precision (causal-gene, alias splitting, ChEBI roles) |
+| Unit | 170 | renderers, evidence/percentile logic, declarative leads, JSON-LD builders, helper precision (causal-gene, alias splitting, ChEBI roles) |
 | Integration · contract | 6 | frozen H2/H3 anchor set & order, per entity type |
 | Integration · frontmatter | 10 | required fields, typed identifiers, `evidence_score`, `section_defaults` |
 | Integration · JSON-LD | 5 | schema.org Gene / MedicalCondition / Drug validity |
