@@ -160,11 +160,20 @@ def collect(a):
     # cap at top-40 (insertion order from biobtree ~ chronological). Each entry
     # carries gene_id + text only; full PMID list comes from entry() but we don't
     # call it here — the id format `geneid_pmid_idx` already embeds the PMID.
+    # Drop HuGE Navigator stock phrases ("Observational study of gene-disease
+    # association. (HuGE Navigator)" and kin) — templated, near-identical, and on
+    # well-studied genes they crowd out the mechanistic RIFs. Filter BEFORE the
+    # cap so 40 substantive findings survive (TP53 had 27/40 as this boilerplate).
     generifs = []
     if a.entrez_id:
-        for r in map_all(a.entrez_id, ">>entrez>>generif", cap=1)[:40]:
+        for r in map_all(a.entrez_id, ">>entrez>>generif", cap=1):
+            text = r.get("text") or ""
+            if "HuGE Navigator" in text:
+                continue
             pmid = (r.get("id") or "").split("_")[1] if "_" in (r.get("id") or "") else None
-            generifs.append({"id": r.get("id"), "pmid": pmid, "text": r.get("text") or ""})
+            generifs.append({"id": r.get("id"), "pmid": pmid, "text": text})
+            if len(generifs) >= 40:
+                break
     bundle["generifs"] = generifs
     bundle["generif_count_in_page"] = len(generifs)
 

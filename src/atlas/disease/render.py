@@ -33,18 +33,9 @@ def _trunc(s, n=80):
     return s if len(s) <= n else s[: n - 1].rstrip() + "…"
 
 
-_GENCC_STOP = {"disease", "diseases", "syndrome", "cancer", "carcinoma", "tumor",
-               "tumour", "neoplasm", "disorder", "disorders", "type", "familial",
-               "hereditary", "susceptibility", "predisposition", "complementation",
-               "group", "deficiency", "autosomal", "dominant", "recessive",
-               "with", "without"}
-
-
-def _disease_tokens(s):
-    """Substantive tokens of a disease name for on-disease matching (drops the
-    generic descriptors that would over-match)."""
-    return {t for t in re.findall(r"[a-z0-9]+", (s or "").lower())
-            if len(t) >= 4 and t not in _GENCC_STOP}
+# Shared with the dual-evidence on-disease filter (atlas.disease.cohort) so both
+# the GenCC dedup here and §4 use identical disease-name matching.
+from atlas.disease.cohort import disease_tokens as _disease_tokens
 
 
 def _dedup_gencc(rows, disease_name=None):

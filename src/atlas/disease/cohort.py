@@ -16,6 +16,25 @@ from typing import Callable, List, Optional, Dict, Any, Tuple
 from atlas.gene.anchors import Anchors as GeneAnchors
 from atlas.biobtree import map_all
 
+import re
+
+# Generic descriptors that would over-match when comparing two disease names
+# (every cancer shares "cancer", "carcinoma"…). Dropping them keeps the
+# substantive tokens that actually identify the disease.
+_GENCC_STOP = {"disease", "diseases", "syndrome", "cancer", "carcinoma", "tumor",
+               "tumour", "neoplasm", "disorder", "disorders", "type", "familial",
+               "hereditary", "susceptibility", "predisposition", "complementation",
+               "group", "deficiency", "autosomal", "dominant", "recessive",
+               "with", "without"}
+
+
+def disease_tokens(s):
+    """Substantive tokens of a disease name for on-disease matching (drops the
+    generic descriptors that would over-match). Shared by the GenCC dedup and
+    the dual-evidence on-disease filter so both use identical matching."""
+    return {t for t in re.findall(r"[a-z0-9]+", (s or "").lower())
+            if len(t) >= 4 and t not in _GENCC_STOP}
+
 
 def enrichment_fan(enrichment_cohort: "tuple[tuple[str, str], ...]",
                    chain: str, cap: int = 10) -> List[Tuple[str, str, list]]:

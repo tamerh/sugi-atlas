@@ -5,7 +5,7 @@ somatic-driver evidence (CIViC / intogen at gene level).
 Genes with BOTH GWAS + Mendelian evidence = highest-confidence targets."""
 from atlas.section import Section
 from atlas.biobtree import map_all
-from atlas.disease.cohort import filter_evidence
+from atlas.disease.cohort import filter_evidence, disease_tokens
 
 CHAINS   = (">>mondo>>orphanet", ">>orphanet>>hgnc", ">>orphanet>>mim",
             ">>mondo>>gencc>>hgnc", ">>hgnc>>gencc", ">>hgnc>>orphanet",
@@ -65,16 +65,26 @@ def collect(a):
             })
     bundle["omim_genes"] = omim_genes
 
-    # Dual evidence: GWAS + (GenCC OR ClinVar OR Orphanet-hit). Symbols only.
-    gencc_symbols = {g["symbol"] for g in gencc_genes}
+    # Dual evidence: GWAS + ON-DISEASE Mendelian. The GenCC/Orphanet hit must
+    # name THIS disease — previously any >>hgnc>>gencc / >>hgnc>>orphanet record
+    # counted, so a GWAS-hit gene that also causes an unrelated Mendelian disease
+    # (ATXN1 → ataxia, TBX5 → Holt-Oram) was mislabelled a breast-cancer
+    # "highest-confidence target". ev.gencc/ev.clinvar already come from the
+    # disease's own evidence routes (on-disease by construction); the name-match
+    # restricts the Orphanet/GenCC additions to the same disease.
+    dn = disease_tokens(a.canonical_name)
+    ondisease_gencc = {g["symbol"] for g in gencc_genes
+                       if dn and (disease_tokens(g.get("mondo_disease")) & dn)}
+    ondisease_orphanet = {g["symbol"] for g in orphanet_genes
+                          if dn and (disease_tokens(g.get("orphanet_name")) & dn)}
     dual = []
     for ga in a.cohort:
         ev = a.cohort_evidence.get(ga.hgnc_id) or {}
         if not ev.get("gwas"):
             continue
         if (ev.get("gencc") or ev.get("clinvar")
-                or ga.symbol in gencc_symbols
-                or ga.symbol in orphanet_hit_symbols):
+                or ga.symbol in ondisease_gencc
+                or ga.symbol in ondisease_orphanet):
             dual.append(ga.symbol)
     bundle["dual_evidence_genes"] = dual
 

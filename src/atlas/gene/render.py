@@ -787,10 +787,15 @@ def r_expression(b):
     # Tissue name as plain text — the UBERON/CL id is shown in its own column;
     # we don't link every id (consistency: links are reserved for primary
     # targets, not decorative on every row).
-    L.append(f"\n**Top tissues by expression ({b.get('tissue_count', 0)} total):**\n")
-    L.append(table(["Tissue", "Anatomy ID", "Score", "Rank", "Quality"],
+    # Bgee expression score (0-100, higher = more highly expressed; derived from
+    # the per-condition rank). We drop the raw Rank column — it's inversely
+    # redundant with the score and the pair reads as a contradiction (high score
+    # next to a mid-looking rank) when it isn't.
+    L.append(f"\n**Top tissues by expression ({b.get('tissue_count', 0)} total), "
+             f"by Bgee expression score (0-100, higher = more expressed):**\n")
+    L.append(table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
                    [(t.get("tissue") or "", t.get("anatomy_id") or "",
-                     t.get("score"), t.get("rank"), t.get("quality"))
+                     t.get("score"), t.get("quality"))
                     for t in b.get("top_tissues", [])[:30]]))
     sc = b.get("single_cell_datasets", [])
     L.append(f"\n**Single-cell datasets ({len(sc)}):**\n")
@@ -872,8 +877,13 @@ def r_diseases(b):
                          for m in b.get("mondo", [])[:15]))
     L.append(f"\n**Orphanet ({len(b.get('orphanet', []))}):** "
              + ", ".join(f"{o.get('name') or ''} ({o['id']})" for o in b.get("orphanet", [])[:15]))
-    L.append(f"\n**HPO phenotypes: {b.get('hpo_total', 0)}** (top):\n")
-    L.append(table(["HPO", "Term"], [(h["id"], h.get("name")) for h in b.get("hpo", [])[:30]]))
+    # No relevance/frequency ordering on the gene→HPO route, so don't claim
+    # "(top)" — these are the first 30 by HPO id. (Frequency-ranked clinical
+    # features live on the disease pages.)
+    _hpo = b.get("hpo", [])
+    L.append(f"\n**HPO phenotypes: {b.get('hpo_total', 0)}** "
+             f"({min(30, len(_hpo))} of {b.get('hpo_total', 0)} shown, HPO-id order):\n")
+    L.append(table(["HPO", "Term"], [(h["id"], h.get("name")) for h in _hpo[:30]]))
     L.append(f"\n**GWAS associations: {b.get('gwas_total', 0)}** (top):\n")
     L.append(table(["Study", "Trait", "p-value"],
                    [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]]))
