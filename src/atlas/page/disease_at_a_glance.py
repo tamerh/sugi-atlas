@@ -64,6 +64,18 @@ def at_a_glance(bundle) -> str:
     if prev:
         bullets.append(prev)
 
+    # Causal gene(s) — high-confidence GenCC Definitive/Strong or OMIM overlap.
+    # The headline fact for a Mendelian disease (CFTR for cystic fibrosis); the
+    # cohort tables stay untouched. Absent for polygenic / GWAS-only diseases.
+    from atlas.disease.cohort import causal_genes
+    cg = causal_genes(bundle)
+    if cg:
+        shown = cg[:4]
+        items = ", ".join(f"{sym} ({lbl})" for sym, lbl in shown)
+        if len(cg) > len(shown):
+            items += f" (+{len(cg) - len(shown)} more)"
+        bullets.append(f"**Causal gene{'s' if len(cg) != 1 else ''}:** {items}")
+
     # Cohort genes (§5) — size of the associated-gene set this page aggregates.
     gc = b5.get("gene_count") or 0
     if gc:

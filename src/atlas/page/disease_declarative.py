@@ -119,6 +119,26 @@ def _pathway_clause(b14):
     return f" The dominant Reactome pathway is *{name}* ({top['gene_count']} cohort genes)."
 
 
+def _causal_clause(bundle):
+    """' caused by …' clause for monogenic diseases — the headline fact for a
+    Mendelian condition. Driven by the high-confidence causal set (on-disease
+    GenCC Definitive/Strong, or OMIM Mendelian overlap). '' for polygenic /
+    GWAS-only diseases, so it never appears where it wouldn't be true."""
+    from atlas.disease.cohort import causal_genes
+    cg = causal_genes(bundle)
+    if not cg:
+        return ""
+    syms = [s for s, _ in cg]
+    if len(syms) == 1:
+        return f" caused by {syms[0]} ({cg[0][1]})"
+    if len(syms) == 2:
+        return f" caused by variants in {syms[0]} and {syms[1]}"
+    if len(syms) == 3:
+        return f" caused by variants in {syms[0]}, {syms[1]}, and {syms[2]}"
+    return (f" caused by variants in {syms[0]}, {syms[1]}, {syms[2]}, "
+            f"and {len(syms) - 3} other genes")
+
+
 def declarative_sentence(bundle):
     """Compose the disease lead from a full bundle dict {section_id: bundle_dict}.
 
@@ -148,7 +168,11 @@ def declarative_sentence(bundle):
         head += f" ({', '.join(parens)})"
 
     sentence = f"{head} is a {klass}"
-    sentence += _evidence_clause(b1, b2, b4, b5)
+    causal = _causal_clause(bundle)          # " caused by CFTR (GenCC Definitive)"
+    ev = _evidence_clause(b1, b2, b4, b5)    # " with N cohort genes (…)"
+    if causal and ev:
+        ev = "," + ev                        # "…Definitive), with N cohort genes"
+    sentence += causal + ev
     sentence += _trials_clause(b1, b13)
     sentence += "."
     sentence += _pathway_clause(b14)

@@ -6,6 +6,7 @@ Genes with BOTH GWAS + Mendelian evidence = highest-confidence targets."""
 from atlas.section import Section
 from atlas.biobtree import map_all
 from atlas.disease.cohort import filter_evidence, disease_tokens
+from atlas.render_common import gencc_rank
 
 CHAINS   = (">>mondo>>orphanet", ">>orphanet>>hgnc", ">>orphanet>>mim",
             ">>mondo>>gencc>>hgnc", ">>hgnc>>gencc", ">>hgnc>>orphanet",
@@ -33,6 +34,20 @@ def collect(a):
                 "mondo_disease": t.get("disease_title"),
             })
     bundle["gencc_genes"] = gencc_genes
+
+    # On-disease GenCC by EXACT Mondo id (>>mondo>>gencc) — genes GenCC curated
+    # for THIS disease entity specifically, with classification. Unlike the
+    # per-gene >>hgnc>>gencc set above (which carries a gene's records for ANY
+    # disease), this respects the Mondo boundary, so it's the precise source for
+    # the "causal gene" claim: a neonatal-diabetes / MODY gene curated under its
+    # own Mondo id won't leak onto the type-2-diabetes page. One extra call.
+    dg = {}
+    for r in map_all(a.mondo_id, ">>mondo>>gencc"):
+        sym = r.get("gene_symbol")
+        cls = r.get("classification_title")
+        if sym and (sym not in dg or gencc_rank(cls) > gencc_rank(dg[sym])):
+            dg[sym] = cls
+    bundle["disease_gencc"] = [{"symbol": s, "classification": c} for s, c in dg.items()]
 
     # Orphanet: any cohort gene with a >>hgnc>>orphanet hit. Bounded by cohort.
     orphanet_genes = []
@@ -122,7 +137,7 @@ SECTION = Section(
                  "for cancers: cohort genes with somatic-driver evidence "
                  "(intOGen, CIViC). High-confidence target subset."),
     needs=("mondo_id", "cohort", "cohort_evidence", "is_cancer", "orphanet_ids", "omim_ids"),
-    produces=("disease_name", "gencc_genes", "orphanet_genes", "omim_genes",
-              "somatic_driver_genes", "dual_evidence_genes"),
+    produces=("disease_name", "gencc_genes", "disease_gencc", "orphanet_genes",
+              "omim_genes", "somatic_driver_genes", "dual_evidence_genes"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
