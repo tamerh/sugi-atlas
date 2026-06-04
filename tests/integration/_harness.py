@@ -34,8 +34,8 @@ ATLAS = os.path.join(DIST, "atlas")
 H2_IDS = {
     "gene":    ["summary", "identifiers", "gene-structure", "protein",
                 "function", "disease", "drugs", "related"],
-    "disease": ["summary", "clinical", "identifiers", "genetics", "genes",
-                "function", "drugs", "trials", "related"],
+    "disease": ["summary", "clinical", "identifiers", "family", "genetics",
+                "genes", "function", "drugs", "trials", "related"],
     "drug":    ["summary", "identifiers", "targets", "indications",
                 "pharmacology", "related-molecules", "related"],
 }

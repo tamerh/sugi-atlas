@@ -41,16 +41,26 @@ def collect(a):
                   for p in (oa.get("phenotypes") or [])]
     phenotypes.sort(key=lambda p: float(p.get("frequency_value") or 0), reverse=True)
 
-    # Mondo child count — flags umbrella / grouping terms (cardiomyopathy: 12
-    # children, muscular dystrophy: 11) vs leaf diseases (cystic fibrosis: 1), so
-    # the lead can say "umbrella term covering N subtypes" instead of a flat
-    # "is a disease". One cheap call; diseases aren't fanned for §1.
-    child_count = 0
+    # Mondo ontology family — parent (broader term) + children (subtypes). Rows
+    # carry id+name, so no per-term resolution. Drives the Disease family section
+    # (parent pointer for sparse subtypes — IDH-wildtype glioblastoma → the rich
+    # glioblastoma parent) and the umbrella flag (child_count). Two cheap calls;
+    # diseases aren't fanned for §1.
+    parent = None
+    children = []
     if a.mondo_id:
         try:
-            child_count = len(map_all(a.mondo_id, ">>mondo>>mondochild"))
+            pr = map_all(a.mondo_id, ">>mondo>>mondoparent")
+            if pr:
+                parent = {"id": pr[0].get("id"), "name": pr[0].get("name")}
         except Exception:
             pass
+        try:
+            children = [{"id": r.get("id"), "name": r.get("name")}
+                        for r in map_all(a.mondo_id, ">>mondo>>mondochild") if r.get("id")]
+        except Exception:
+            pass
+    child_count = len(children)
 
     bundle = {
         "section": "01_disease_ids",
@@ -79,6 +89,8 @@ def collect(a):
         "phenotype_count": oa.get("phenotype_count") or len(phenotypes),
         "is_cancer": a.is_cancer,
         "child_count": child_count,
+        "parent": parent,
+        "children": children,
         "xref_counts": dict(a.xref_counts),
     }
     return bundle
@@ -96,6 +108,6 @@ SECTION = Section(
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count",
-              "child_count", "xref_counts", "is_cancer"),
+              "child_count", "parent", "children", "xref_counts", "is_cancer"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

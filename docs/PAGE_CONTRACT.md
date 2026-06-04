@@ -43,12 +43,13 @@ H3 IDs: `#transcripts #expression #regulation #generif #residue-map #pathways #i
 | 1 | Summary | `#summary` | lead + At-a-glance |
 | 2 | Clinical features | `#clinical` | Epidemiology (prevalence), Signs & symptoms (HPO) — the headline clinical presentation, lifted out of Identifiers |
 | 3 | Identifiers | `#identifiers` | disease identifiers, synonyms, data availability |
-| 4 | Genetics & variants | `#genetics` | GWAS landscape, Variant details & tiers |
-| 5 | Genes & proteins | `#genes` | Mendelian/GenCC overlap & somatic drivers, Cohort genes→proteins, Protein-family classification, Interactions among cohort, Structural data, Expression context |
-| 6 | Function | `#function` | Pathway analysis |
-| 7 | Therapeutics | `#drugs` | Drug-target analysis, Bioactivity/enzyme, Pharmacogenomics, Chemical tractability, Druggability pyramid, Undrugged target profiles |
-| 8 | Clinical trials & evidence | `#trials` | Clinical trials, CIViC |
-| 9 | Related Atlas pages | `#related` | mesh |
+| 4 | Disease family | `#family` | Mondo broader term (parent) + subtypes (children); routes sparse subtype pages to the rich parent. No H3. |
+| 5 | Genetics & variants | `#genetics` | GWAS landscape, Variant details & tiers |
+| 6 | Genes & proteins | `#genes` | Mendelian/GenCC overlap & somatic drivers, Cohort genes→proteins, Protein-family classification, Interactions among cohort, Structural data, Expression context |
+| 7 | Function | `#function` | Pathway analysis |
+| 8 | Therapeutics | `#drugs` | Drug-target analysis, Bioactivity/enzyme, Pharmacogenomics, Chemical tractability, Druggability pyramid, Undrugged target profiles |
+| 9 | Clinical trials & evidence | `#trials` | Clinical trials, CIViC |
+| 10 | Related Atlas pages | `#related` | mesh |
 
 H3 IDs: `#epidemiology #symptoms #gwas #variant-tiers #gencc #cohort-genes #tractability #civic`
 

@@ -200,6 +200,44 @@ def r_symptoms(b):
                 for p in phs[:50]])])
 
 
+def r_disease_family(b1, b5):
+    """Mondo ontology family — broader term (parent) + subtypes (children), with
+    a pointer to the parent when this page's own cohort is sparse. Granular
+    subtype terms (IDH-wildtype glioblastoma, MONDO:0850335) often carry little
+    direct evidence while the broader term (glioblastoma) holds the cohort,
+    trials, and CIViC — so we route the reader there. All links are
+    manifest-gated (render only when the target is a built page). Body only — the
+    "## Disease family {#family}" heading comes from the canonical zone."""
+    b1 = b1 or {}
+    parent = b1.get("parent") or None
+    children = b1.get("children") or []
+    if not parent and not children:
+        return ""
+    out = []
+    parent_url = (links.disease_url(mondo_id=parent.get("id"), name=parent.get("name"))
+                  if parent else None)
+    gene_count = (b5 or {}).get("gene_count") or 0
+    if parent and parent_url and gene_count == 0:
+        out += [f"This is a subtype of **{links.maybe_link(parent.get('name'), parent_url)}**. "
+                "Genetic, therapeutic, and trial evidence is largely curated at the "
+                "broader-term level — see the parent page for the associated-gene "
+                "cohort and molecular evidence.", ""]
+    elif b1.get("child_count"):
+        n = b1["child_count"]
+        out += [f"An umbrella term covering {n} Mondo subtype"
+                f"{'s' if n != 1 else ''}.", ""]
+    if parent:
+        out.append("**Broader term:** "
+                   + links.maybe_link(parent.get("name"), parent_url))
+    if children:
+        clinks = ", ".join(
+            links.maybe_link(c.get("name"),
+                             links.disease_url(mondo_id=c.get("id"), name=c.get("name")))
+            for c in children)
+        out.append(f"\n**Subtypes ({len(children)}):** {clinks}")
+    return "\n".join(out)
+
+
 # §2 gwas_landscape ---------------------------------------------------------
 
 def r_gwas_landscape(b):
@@ -885,6 +923,9 @@ def render_all(bundles):
               D(r_symptoms(bundles["1"]), "symptoms")),
          "No curated clinical features (Orphanet) for this disease."),
         ("Identifiers", "identifiers", S("1", "disease-ids"), None),
+        ("Disease family", "family",
+         r_disease_family(bundles.get("1"), bundles.get("5")),
+         "No broader Mondo term or subtypes recorded for this disease."),
         ("Genetics & variants", "genetics",
          join(S("2", "gwas"), S("3", "variant-tiers")),
          "No common-variant (GWAS) or curated variant data for this disease."),

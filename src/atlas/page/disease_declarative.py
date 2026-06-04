@@ -181,7 +181,24 @@ def declarative_sentence(bundle):
     sentence += _pathway_clause(b14)
     sentence += _civic_subtype_clause(b13)
     sentence += _drugs_clause(b13)
+    sentence += _parent_clause(b1, b5)
     return sentence
+
+
+def _parent_clause(b1, b5):
+    """When this page's gene cohort is empty but it sits under a broader Mondo
+    term, point the reader to the parent — granular subtype terms carry little
+    direct evidence while the parent holds the cohort (IDH-wildtype glioblastoma
+    → glioblastoma). Plain text; the linked navigation is in the Disease family
+    section. '' for content-rich diseases."""
+    parent = (b1 or {}).get("parent") or None
+    if not parent or ((b5 or {}).get("gene_count") or 0) > 0:
+        return ""
+    nm = parent.get("name")
+    if not nm:
+        return ""
+    return (f" A subtype of {nm} — broader associated-gene and molecular evidence "
+            "is on the parent page (see Disease family below).")
 
 
 def _civic_subtype_clause(b13):
