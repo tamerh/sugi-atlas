@@ -65,8 +65,15 @@ def is_ontology_id(s) -> bool:
 def display_name(s):
     """Title-case an all-caps (SHOUTING) label for display (audit #12: ChEMBL
     names like 'IMATINIB'/'WATER'); leave mixed-case strings untouched. NEVER
-    apply to gene symbols — 'TP53'.isupper() is True but must stay upper."""
-    return s.title() if (s and isinstance(s, str) and s.isupper()) else s
+    apply to gene symbols — 'TP53'.isupper() is True but must stay upper. Also
+    leave drug development CODES alone — anything containing a digit (N6022,
+    K-877, F19 131I, ABT199) is an identifier, not a shouting word, and must
+    keep its exact case."""
+    if not (s and isinstance(s, str) and s.isupper()):
+        return s
+    if any(c.isdigit() for c in s):           # code, not a word — preserve
+        return s
+    return s.title()
 
 
 # GenCC classification strength, strongest first (audit #13 dedup ranking).

@@ -56,11 +56,10 @@ def biobtree_version():
 
 GENERATED_BY = "Sugi Atlas"  # attribution stamp; details on the /methods page
 
-# Page filename (web-team P3). "page.md" (default — current biobtree-content sync
-# expects it) or "index.md" (Hugo page-bundle → lets biobtree-content mount the
-# dist as a module with no sync wrapper). Flip via env once their module mount is
-# ready; doing it unilaterally would break their current sync script.
-PAGE_FILENAME = os.environ.get("ATLAS_PAGE_FILENAME", "page.md")
+# Page filename. "index.md" makes each <entity>/<slug>/ a Hugo leaf page-bundle,
+# so biobtree-content can mount the dist as a module directly (no sync wrapper).
+# The web team's mount must expect this layout.
+PAGE_FILENAME = "index.md"
 
 
 def build_meta(entity_type, slug, title, datasets, generated_at=None, bundle=None):

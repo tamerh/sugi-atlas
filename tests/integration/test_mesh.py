@@ -33,7 +33,8 @@ def test_drug_mesh_labels_not_shouting(pages):
                 continue
             idx = rel.find(f"]({full})")          # within the Related block only
             label = rel[:idx].rsplit("[", 1)[-1] if idx >= 0 else ""
-            if len(label) > 3 and label == label.upper():
+            if (len(label) > 3 and label == label.upper()
+                    and not any(c.isdigit() for c in label)):   # codes (N6022) ok
                 bad.append(f"{p.entity}/{p.slug}: SHOUTING drug label {label!r}")
     assert not bad, report(bad)
 

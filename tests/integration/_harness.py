@@ -72,7 +72,7 @@ _INTERNAL_LINK = re.compile(r"\]\((/atlas/(gene|disease|drug)/([^/)#]+)/[^)]*)\)
 
 
 def _maybe_skip():
-    if not os.path.isdir(ATLAS) or not glob.glob(os.path.join(ATLAS, "*", "*", "page.md")):
+    if not os.path.isdir(ATLAS) or not glob.glob(os.path.join(ATLAS, "*", "*", "index.md")):
         pytest.skip(f"no built dist at {ATLAS} (set ATLAS_INTEGRATION_DIST)",
                     allow_module_level=True)
 
@@ -152,7 +152,7 @@ class Page:
 
 def _load():
     pages = []
-    for path in glob.glob(os.path.join(ATLAS, "*", "*", "page.md")):
+    for path in glob.glob(os.path.join(ATLAS, "*", "*", "index.md")):
         entity = os.path.basename(os.path.dirname(os.path.dirname(path)))
         slug = os.path.basename(os.path.dirname(path))
         pages.append(Page(entity, slug, path))

@@ -47,7 +47,10 @@ def test_title_not_shouting(pages):
     bad = []
     for p in pages:
         t = str(p.fm.get("title") or "")
-        if p.entity != "gene" and len(t) > 3 and t == t.upper():
+        # All-caps WORDS shout (GLEEVEC); all-caps codes with a digit (N6022,
+        # K-877) are identifiers and stay as-is.
+        if (p.entity != "gene" and len(t) > 3 and t == t.upper()
+                and not any(c.isdigit() for c in t)):
             bad.append(f"{p.entity}/{p.slug}: {t!r}")
     assert not bad, report(bad)
 
