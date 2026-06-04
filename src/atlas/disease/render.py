@@ -210,13 +210,21 @@ def r_disease_family(b1, b5):
     "## Disease family {#family}" heading comes from the canonical zone."""
     b1 = b1 or {}
     parent = b1.get("parent") or None
+    ancestors = b1.get("ancestors") or []
     children = b1.get("children") or []
-    if not parent and not children:
+    siblings = b1.get("siblings") or []
+    if not (parent or ancestors or children or siblings):
         return ""
+
+    def _dl(t):  # manifest-gated disease link by id (label = name)
+        return links.maybe_link(t.get("name"),
+                                links.disease_url(mondo_id=t.get("id"), name=t.get("name")))
+
     out = []
     parent_url = (links.disease_url(mondo_id=parent.get("id"), name=parent.get("name"))
                   if parent else None)
     gene_count = (b5 or {}).get("gene_count") or 0
+    # Lead: route a sparse subtype to its parent; else flag an umbrella term.
     if parent and parent_url and gene_count == 0:
         out += [f"This is a subtype of **{links.maybe_link(parent.get('name'), parent_url)}**. "
                 "Genetic, therapeutic, and trial evidence is largely curated at the "
@@ -226,15 +234,19 @@ def r_disease_family(b1, b5):
         n = b1["child_count"]
         out += [f"An umbrella term covering {n} Mondo subtype"
                 f"{'s' if n != 1 else ''}.", ""]
-    if parent:
-        out.append("**Broader term:** "
-                   + links.maybe_link(parent.get("name"), parent_url))
+    # Breadcrumb: root → … → parent → THIS (current term bold, not linked).
+    if ancestors:
+        crumb = " › ".join(_dl(t) for t in reversed(ancestors))
+        cur = b1.get("canonical_name") or b1.get("name") or "this disease"
+        out.append(f"**Classification path:** {crumb} › **{cur}**")
+    # Siblings (co-subtypes under the same parent) — lateral navigation.
+    if siblings:
+        out.append(f"\n**Related subtypes ({len(siblings)}):** "
+                   + ", ".join(_dl(t) for t in siblings))
+    # Children (this term's own subtypes).
     if children:
-        clinks = ", ".join(
-            links.maybe_link(c.get("name"),
-                             links.disease_url(mondo_id=c.get("id"), name=c.get("name")))
-            for c in children)
-        out.append(f"\n**Subtypes ({len(children)}):** {clinks}")
+        out.append(f"\n**Subtypes ({len(children)}):** "
+                   + ", ".join(_dl(t) for t in children))
     return "\n".join(out)
 
 

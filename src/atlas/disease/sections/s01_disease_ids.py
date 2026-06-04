@@ -41,25 +41,42 @@ def collect(a):
                   for p in (oa.get("phenotypes") or [])]
     phenotypes.sort(key=lambda p: float(p.get("frequency_value") or 0), reverse=True)
 
-    # Mondo ontology family — parent (broader term) + children (subtypes). Rows
-    # carry id+name, so no per-term resolution. Drives the Disease family section
-    # (parent pointer for sparse subtypes — IDH-wildtype glioblastoma → the rich
-    # glioblastoma parent) and the umbrella flag (child_count). Two cheap calls;
-    # diseases aren't fanned for §1.
-    parent = None
+    # Mondo ontology family — the local neighborhood that drives the Disease
+    # family section: ancestors (breadcrumb, walked up the primary is-a chain),
+    # children (this term's subtypes), siblings (the parent's other children).
+    # Rows carry id+name (no per-term resolution); calls are cheap and heavily
+    # cached (the upper ontology is shared), and diseases aren't fanned for §1.
+    ancestors = []      # nearest-first: [parent, grandparent, …, root]
     children = []
+    siblings = []
     if a.mondo_id:
-        try:
-            pr = map_all(a.mondo_id, ">>mondo>>mondoparent")
-            if pr:
-                parent = {"id": pr[0].get("id"), "name": pr[0].get("name")}
-        except Exception:
-            pass
+        seen, cur = set(), a.mondo_id           # walk up, bounded + cycle-guarded
+        for _ in range(10):
+            try:
+                pr = map_all(cur, ">>mondo>>mondoparent")
+            except Exception:
+                break
+            if not pr:
+                break
+            pid, pname = pr[0].get("id"), pr[0].get("name")
+            if not pid or pid in seen:
+                break
+            seen.add(pid)
+            ancestors.append({"id": pid, "name": pname})
+            cur = pid
         try:
             children = [{"id": r.get("id"), "name": r.get("name")}
                         for r in map_all(a.mondo_id, ">>mondo>>mondochild") if r.get("id")]
         except Exception:
             pass
+        if ancestors:                           # siblings = parent's children − self
+            try:
+                siblings = [{"id": r.get("id"), "name": r.get("name")}
+                            for r in map_all(ancestors[0]["id"], ">>mondo>>mondochild")
+                            if r.get("id") and r.get("id") != a.mondo_id]
+            except Exception:
+                pass
+    parent = ancestors[0] if ancestors else None
     child_count = len(children)
 
     bundle = {
@@ -90,7 +107,9 @@ def collect(a):
         "is_cancer": a.is_cancer,
         "child_count": child_count,
         "parent": parent,
+        "ancestors": ancestors,
         "children": children,
+        "siblings": siblings,
         "xref_counts": dict(a.xref_counts),
     }
     return bundle
@@ -108,6 +127,7 @@ SECTION = Section(
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count",
-              "child_count", "parent", "children", "xref_counts", "is_cancer"),
+              "child_count", "parent", "ancestors", "children", "siblings",
+              "xref_counts", "is_cancer"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
