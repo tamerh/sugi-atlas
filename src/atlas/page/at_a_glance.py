@@ -47,6 +47,17 @@ def _gene_disease(b12) -> str:
     if not cands:
         return ""
     cands.sort(key=lambda c: _GD_RANK.get((c[1] or "").strip().lower(), 9))
+    # Dedup by disease (this is one gene's page) — GenCC/ClinGen repeat the same
+    # gene-disease relationship across submissions; count distinct relationships,
+    # not raw rows. Sort-first keeps the strongest classification per disease.
+    seen, uniq = set(), []
+    for c in cands:
+        d = (c[0] or "").strip().lower()
+        if d in seen:
+            continue
+        seen.add(d)
+        uniq.append(c)
+    cands = uniq
     disease, classification, source = cands[0]
     n_more = len(cands) - 1
     more = (f" — +{n_more} more curated relationship{'s' if n_more != 1 else ''}"

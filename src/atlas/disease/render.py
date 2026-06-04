@@ -432,10 +432,10 @@ def r_genes_proteins(b):
            f"**{_i(b.get('gene_count'))} cohort genes, "
            f"{_i(b.get('protein_count'))} distinct canonical proteins.**"]
     ev = b.get("evidence_summary") or {}
-    if ev:
+    if ev and any(ev.values()):              # skip the all-zero partition (no cohort)
         out += ["", "**Evidence partition:**", ""]
         out.append(table(["Subset", "Genes"],
-                         [(k, _i(v)) for k, v in ev.items()]))
+                         [(k, _i(v)) for k, v in ev.items() if v]))
     genes = b.get("genes") or []
     if genes:
         out += ["", "**Cohort genes (full):**", "",
@@ -493,7 +493,7 @@ def r_expression_context(b):
            f"**Cohort genes with no expression data: "
            f"{_i(b.get('no_expression_count'))}.**"]
     bd = b.get("breadth_distribution") or {}
-    if bd:
+    if bd and any(bd.values()):              # skip the all-zero distribution (no cohort)
         out += ["", "**Breadth distribution (Bgee present_calls):**", ""]
         order = ["narrow (1-5 tissues)", "moderate (6-20)", "broad (>20)", "unknown"]
         ordered = [(k, bd[k]) for k in order if k in bd]
@@ -835,6 +835,12 @@ def r_druggability_pyramid(bundles):
             t = "E"
         tiers[t] += 1
         tier_members[t].append(sym)
+
+    # Cohort-empty diseases (no gene cohort) would otherwise render an all-zero
+    # 5-row pyramid — skip it; the zone placeholder + Disease family parent
+    # pointer cover the "no data here" case.
+    if not tiers:
+        return ""
 
     labels = {
         "A": "Approved (phase 4 drug)",

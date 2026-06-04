@@ -20,6 +20,13 @@ def _cap(n):
     return ""  # pagination works (p= param) — counts are real, not capped at 100
 
 
+def _labeled(label, items):
+    """'**label:** a, b, c' — or '' when items is empty, so an empty list doesn't
+    leave a dangling '**label:** ' with no content (audit: lncRNA gene pages)."""
+    items = [x for x in items]
+    return (f"\n**{label}:** " + ", ".join(items)) if items else ""
+
+
 def _ctd_actions(actions, cap=5):
     """CTD encodes each action as `verb^object` ("increases^expression"); a
     chemical can carry 20+, producing an unreadable wall. Humanize the caret and
@@ -103,7 +110,7 @@ def r_transcripts(b):
     n = b.get("refseq_mrna_count", 0)
     L.append(f"\n**RefSeq mRNA: {n}{_cap(n)}** — MANE Select: `{b.get('mane_select_refseq')}`")
     L.append(", ".join(f"`{x}`" for x in b.get("refseq_mrna", [])))
-    L.append(f"\n**CCDS:** " + ", ".join(f"`{x}`" for x in b.get("ccds", [])))
+    L.append(_labeled("CCDS", (f"`{x}`" for x in b.get("ccds", []))))
     L.append(f"\n**Canonical transcript `{b.get('canonical_transcript')}` — "
              f"{b.get('canonical_exon_count', 0)} exons**\n")
     L.append(table(["Exon", "Start", "End"],
@@ -193,7 +200,7 @@ def r_protein_ids(b):
     L.append("\n**Domains & families (InterPro):**\n")
     L.append(table(["ID", "Name", "Type"],
                    [(d["id"], d.get("name"), d.get("type")) for d in b.get("interpro", [])]))
-    L.append(f"\n**Pfam:** " + ", ".join(f"`{x}`" for x in b.get("pfam", [])))
+    L.append(_labeled("Pfam", (f"`{x}`" for x in b.get("pfam", []))))
     # Therapeutic antibodies targeting this protein (TheraSAbDab/SAbDab via the
     # antibody dataset). Only shown when present — the reverse edge is sparse, so
     # a universal "0" otherwise reads as a research-reagent count, which it isn't.
@@ -501,10 +508,10 @@ def r_interactions(b):
     L.append(f"\n**IntAct ({b.get('intact_count', 0)}), top by confidence:**\n")
     L.append(table(["A", "B", "Type", "Score"],
                    [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]]))
-    L.append(f"\n**BioGRID ({b.get('biogrid_count', 0)}):** "
-             + ", ".join(f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15]))
-    L.append(f"\n**ESM2 similar proteins:** " + ", ".join(f"`{p}`" for p in b.get("esm2_similar", [])[:40]))
-    L.append(f"\n**Diamond homologs:** " + ", ".join(f"`{p}`" for p in b.get("diamond_similar", [])[:40]))
+    L.append(_labeled(f"BioGRID ({b.get('biogrid_count', 0)})",
+                      (f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15])))
+    L.append(_labeled("ESM2 similar proteins", (f"`{p}`" for p in b.get("esm2_similar", [])[:40])))
+    L.append(_labeled("Diamond homologs", (f"`{p}`" for p in b.get("diamond_similar", [])[:40])))
     L.append(f"\n**SIGNOR signaling ({b.get('signor_count', 0)}):**\n")
     L.append(table(["A", "Effect", "B", "Mechanism"],
                    [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:30]]))
@@ -529,8 +536,8 @@ def r_tf_regulation(b):
     if pmids:
         links = ", ".join(f"PMID:{p}" for p in pmids[:10])
         L.append(f"\n*JASPAR matrix evidence (PMIDs):* {links}")
-    L.append(f"\n**Upstream regulators (CollecTRI, top):** "
-             + ", ".join(r.get("regulator") for r in b.get("upstream_regulators", [])[:40]))
+    L.append(_labeled("Upstream regulators (CollecTRI, top)",
+                      (r.get("regulator") for r in b.get("upstream_regulators", [])[:40])))
     # miRDB miRNAs targeting this gene — post-transcriptional regulators.
     # Sorted by max_score (miRDB confidence). target_count is the miRNA's
     # promiscuity across all genes (lower = more specific target relationship).
