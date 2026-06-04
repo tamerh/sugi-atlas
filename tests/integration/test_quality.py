@@ -139,3 +139,74 @@ def test_no_ontology_id_as_link_label(pages):
         if m:
             bad.append(f"{p.entity}/{p.slug}: [{m.group(1)}](…)")
     assert not bad, report(bad)
+
+
+# ── lints added after the 2026-06 review pass (each maps to a shipped fix) ────
+
+# Raw Python booleans leaking into prose / cells — "Is drug target: **True**",
+# "| FDA approved | True |". The render must map these to yes/no.
+_LEAKED_BOOL = re.compile(r"\|\s*(?:True|False)\s*\||:\s*(?:True|False)\*\*")
+
+# A GFM separator row (only pipes/dashes/colons/space) — used to spot a table
+# header with no data rows under it.
+_SEP_ROW = re.compile(r"^\|[\s:|-]+\|\s*$")
+
+# A STRING-interaction self-edge: the gene §8 table is
+# "| Protein A | Protein B | Partner UniProt | Score |". Match col1 == col2 with
+# a UniProt-accession col3 + numeric score col4 (the table's signature, so we
+# don't trip on coincidental repeats in other tables). Homodimers are dropped at
+# collect, so any survivor is the biobtree #34 query-as-partner bug resurfacing.
+_SELF_EDGE = re.compile(r"\|\s*([A-Za-z0-9][\w-]*)\s*\|\s*\1\s*\|\s*[A-Z0-9]{6,}\s*\|\s*\d+\s*\|")
+
+# CV-coded CTD action tokens that must be humanized before display
+# ("increases^expression" → "increases expression"). Scoped to the CTD action
+# vocabulary so it doesn't trip on chemistry like "Y^90" (yttrium-90).
+_CARET_TOKEN = re.compile(r"\b(?:increases|decreases|affects)\^\w+")
+
+
+def test_no_leaked_python_bools(pages):
+    """No `True`/`False` rendered as a field value (audit: gene TF/drug-target
+    flags, drug FDA-approved). They must read yes/no."""
+    bad = []
+    for p in pages:
+        m = _LEAKED_BOOL.search(p.body)
+        if m:
+            i = m.start()
+            bad.append(f"{p.entity}/{p.slug}: …{p.body[max(0, i-25):i+8]}…")
+    assert not bad, report(bad)
+
+
+def test_no_empty_tables(pages):
+    """No header-only table (separator row with no data row under it) — the
+    `table()` guard must elide an empty sub-block, not print a bare header."""
+    bad = []
+    for p in pages:
+        lines = p.body.splitlines()
+        for i, ln in enumerate(lines):
+            if _SEP_ROW.match(ln):
+                nxt = lines[i + 1] if i + 1 < len(lines) else ""
+                if not nxt.lstrip().startswith("|"):
+                    bad.append(f"{p.entity}/{p.slug}: empty table near line {i}")
+                    break
+    assert not bad, report(bad)
+
+
+def test_no_self_interaction_edge(pages):
+    """A protein is never its own STRING partner (biobtree #34 workaround) —
+    interaction rows must name the real, distinct partner."""
+    bad = []
+    for p in pages:
+        m = _SELF_EDGE.search(p.body)
+        if m:
+            bad.append(f"{p.entity}/{p.slug}: {m.group(1)} ↔ {m.group(1)}")
+    assert not bad, report(bad)
+
+
+def test_no_caret_coded_tokens(pages):
+    """CV action verbs are humanized — no `verb^object` survives (CTD actions)."""
+    bad = []
+    for p in pages:
+        m = _CARET_TOKEN.search(p.body)
+        if m:
+            bad.append(f"{p.entity}/{p.slug}: '{m.group(0)}'")
+    assert not bad, report(bad)
