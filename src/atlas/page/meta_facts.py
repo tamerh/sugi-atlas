@@ -29,18 +29,24 @@ def _identifier(entity_type, b1):
 
 
 def _clean_aliases(names, cap=20):
-    """Split comma-joined synonyms (ChEMBL packs 'GLEEVEC,STI-571' into one),
-    strip, and case-insensitively dedup keeping the first-seen form."""
+    """Strip + case-insensitively dedup synonyms (keep first-seen form). Does NOT
+    split on commas: comma-splitting shatters chemical names (gemcitabine's IUPAC
+    name → "2'", "5R)-3") and Mondo synonyms with internal commas ("AT,
+    complementation group A"). Drug brand/code pairs ('GLEEVEC,STI-571') are
+    split upstream in the drug anchor, where a separator comma can be told apart
+    from a chemistry comma; here we just normalize."""
     out, seen = [], set()
     for raw in names or []:
-        for part in str(raw).split(","):
-            p = part.strip()
-            k = p.lower()
-            if p and k not in seen:
-                seen.add(k)
-                out.append(p)
-            if len(out) >= cap:
-                return out
+        p = str(raw).strip()
+        k = p.lower()
+        # Drop malformed aliases with unbalanced parentheses — a Mondo source
+        # quirk ("…type V)") or an encoding artifact ("ChC)diak-Higashi", a
+        # mangled "Chédiak"). The well-formed name survives as a separate synonym.
+        if p and k not in seen and p.count("(") == p.count(")"):
+            seen.add(k)
+            out.append(p)
+        if len(out) >= cap:
+            break
     return out
 
 

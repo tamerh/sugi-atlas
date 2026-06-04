@@ -210,3 +210,18 @@ def test_no_caret_coded_tokens(pages):
         if m:
             bad.append(f"{p.entity}/{p.slug}: '{m.group(0)}'")
     assert not bad, report(bad)
+
+
+# alt_names chemistry fragments — bare locants/stereo + unbalanced parens, the
+# gemcitabine "2'"/"5R)-3" class from over-eager synonym comma-splitting.
+_ALT_FRAGMENT = re.compile(r"^\d+['’′ʹ]?$|^\d+[RS]$", re.I)
+
+
+def test_no_fragment_alt_names(pages):
+    bad = []
+    for p in pages:
+        for a in (p.fm.get("alt_names") or []):
+            s = str(a)
+            if _ALT_FRAGMENT.match(s) or s.count("(") != s.count(")"):
+                bad.append(f"{p.entity}/{p.slug}: {a!r}")
+    assert not bad, report(bad)

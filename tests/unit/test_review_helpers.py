@@ -93,3 +93,30 @@ def test_split_chebi_roles_all_other_leaves_pharma_empty():
 
 def test_split_chebi_roles_empty():
     assert _split_chebi_roles([]) == ([], [])
+
+
+# ── drug alt-name splitting / fragment rejection (gemcitabine IUPAC bug) ──────
+from atlas.drug.anchors import _split_synonym, _alt_name_ok
+
+
+def test_split_synonym_keeps_chemistry_whole():
+    iupac = "(2R,3R,4R,5R)-3,3-difluoro-2'-deoxycytidine"
+    assert _split_synonym(iupac) == [iupac]                 # parens → never split
+    assert _split_synonym("3,3-difluoro-2-deoxycytidine") == \
+        ["3,3-difluoro-2-deoxycytidine"]                    # comma-then-digit → kept
+
+
+def test_split_synonym_splits_brand_code_pairs():
+    assert _split_synonym("GLEEVEC,STI-571") == ["GLEEVEC", "STI-571"]
+    # digit before comma but a LETTER after → separator, still splits
+    assert _split_synonym("STI571,GLEEVEC") == ["STI571", "GLEEVEC"]
+
+
+def test_alt_name_ok_rejects_chemistry_fragments():
+    for frag in ["2", "2'", "2′", "4R", "5R)-3", "(unbalanced", "3,3-"]:
+        assert not _alt_name_ok(frag), frag
+
+
+def test_alt_name_ok_keeps_real_synonyms():
+    for ok in ["Gleevec", "STI-571", "LY-188011", "Gemzar", "Imatinib"]:
+        assert _alt_name_ok(ok), ok

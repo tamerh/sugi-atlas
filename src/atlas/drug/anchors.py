@@ -80,10 +80,41 @@ class DrugAnchors:
 _CHEM_NAME_RX = re.compile(r"[0-9]\-|piperazin|pyrimidin|benzamid|\bN\-\[|methyl\-", re.I)
 
 
+_FRAGMENT_RX = re.compile(r"^\d+['’′ʹ′‵]?$|^\d+[RS]$", re.I)  # "2","2'","2′","4R"
+
+
 def _alt_name_ok(n: str) -> bool:
     if not n or len(n) > 40:
         return False
-    return not _CHEM_NAME_RX.search(n)
+    if _CHEM_NAME_RX.search(n):
+        return False
+    # Reject chemistry FRAGMENTS — bare locants/stereo ("2", "2'", "4R") and
+    # strings with unbalanced parentheses ("5R)-3"). Defensive: catches both
+    # comma-split leftovers and fragments already present in the source list.
+    if _FRAGMENT_RX.match(n) or n.count("(") != n.count(")"):
+        return False
+    return True
+
+
+# A chemistry comma is followed by a digit — locants "3,3-difluoro", stereo
+# "(2R,3R...)". A separator comma is followed by a letter ("STI571,GLEEVEC" —
+# drug codes end in digits, so digit-BEFORE-comma must NOT count as chemistry).
+_DIGIT_COMMA = re.compile(r",\s*\d")
+
+
+def _split_synonym(s):
+    """Split a synonym string into list members ONLY on commas that are genuine
+    separators — a comma OUTSIDE parentheses and NOT adjacent to a digit. Commas
+    inside chemistry — stereo descriptors "(2R,3R,4R,5R)", locants "3,3-difluoro"
+    — are kept, so an IUPAC name isn't shattered into fragments ("2'", "5R)-3")
+    that would slip past the chemical-name filter. The whole chemical name is
+    then rejected as a unit by _alt_name_ok, as intended.
+
+    "GLEEVEC,STI-571" (two brand codes, no chemistry) still splits cleanly."""
+    s = str(s)
+    if "(" in s or ")" in s or _DIGIT_COMMA.search(s):
+        return [s.strip()]
+    return [p.strip() for p in s.split(",")]
 
 
 _HTML_TAG_RX = re.compile(r"<[^>]+>")
@@ -370,12 +401,11 @@ def resolve(name_or_id: str) -> DrugAnchors:
         molecule_type=mol.get("type") or "",
         max_phase=_phase(mol.get("highestDevelopmentPhase")),
         atc_codes=tuple(mol.get("atcClassification") or ()),
-        # Split embedded commas — a single ChEMBL altName is sometimes a comma-
-        # joined pair ("GLEEVEC,STI-571"), which would render as one corrupt name
-        # in the comma-joined display and JSON-LD. Flatten, strip, de-dup in order.
+        # Split comma-joined synonym pairs ("GLEEVEC,STI-571") but NOT chemistry
+        # commas (IUPAC stereo/locants) — see _split_synonym. Flatten, de-dup.
         alt_names=tuple(dict.fromkeys(
             part for n in (mol.get("altNames") or [])
-            for part in (p.strip() for p in str(n).split(","))
+            for part in _split_synonym(n)
             if _alt_name_ok(part))),
         parent_chembl=mol.get("parent"),
         child_chembls=tuple(mol.get("childs") or ()),
