@@ -115,7 +115,7 @@ def drugs(out):
     # direct entry fetch (reliable) instead of a flaky name search (weird
     # chemical names like "3,3',4',5-TETRACHLOROSALICYLANILIDE" don't round-trip
     # through search). Require a name so the page has a human label/slug.
-    approved, clinical = set(), set()
+    approved, phase3, clinical = set(), set(), set()
     with open(CHEMBL_JSONL) as f:
         for ln in f:
             try:
@@ -128,21 +128,27 @@ def drugs(out):
             mp = r.get("max_phase")
             if mp == 4:
                 approved.add(mid)
-            elif mp in (1, 2, 3):
-                clinical.add(mid)
+            elif mp == 3:
+                phase3.add(mid)          # late-stage clinical candidates (seeded)
+            elif mp in (1, 2):
+                clinical.add(mid)        # earlier-phase (not seeded)
     _write(os.path.join(out, "drugs_chembl_clinical.txt"), sorted(clinical))
-    # Gates 2+3: refine the approved set — resolve each, drop reagents/excipients
-    # (no ATC/target/pharma-role) and salt-form children whose parent is also
-    # approved. Emits an audit drop-list to eyeball before a full run.
-    print(f"  gating {len(approved)} approved (resolve + filter) …", flush=True)
-    kept, dropped = gate_drugs(approved)
+    # Seed = approved (phase 4) ∪ late-stage clinical candidates (phase 3) — the
+    # pipeline a research audience expects, and it lets disease-page trial-drug
+    # links resolve to real pages. Gates 2+3 (drop reagents/excipients with no
+    # ATC/target/pharma-role; collapse salt children onto an in-seed parent) run
+    # over the union, so a phase-3 salt of an approved parent is still dropped.
+    seed = approved | phase3
+    print(f"  gating {len(seed)} approved+phase3 "
+          f"({len(approved)}+{len(phase3)}) (resolve + filter) …", flush=True)
+    kept, dropped = gate_drugs(seed)
     n_reagent = sum(1 for _, _, why in dropped if why.startswith("non-therapeutic"))
     n_salt = sum(1 for _, _, why in dropped if why.startswith("salt"))
     n_fail = sum(1 for _, _, why in dropped if why.startswith("resolve"))
-    print(f"  gate2/3: kept {len(kept)}/{len(approved)} — dropped "
+    print(f"  gate2/3: kept {len(kept)}/{len(seed)} — dropped "
           f"{n_reagent} reagents, {n_salt} salts, {n_fail} resolve-fails")
-    _write(os.path.join(out, "drugs_chembl_approved.txt"), sorted(kept))
-    _write(os.path.join(out, "drugs_chembl_approved.dropped.txt"),
+    _write(os.path.join(out, "drugs_chembl_seed.txt"), sorted(kept))
+    _write(os.path.join(out, "drugs_chembl_seed.dropped.txt"),
            [f"{i}\t{nm}\t{why}" for i, nm, why in sorted(dropped)])
 
 

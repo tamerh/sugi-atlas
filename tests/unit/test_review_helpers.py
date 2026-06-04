@@ -143,3 +143,13 @@ def test_non_human_ids_subtree_and_flags():
     assert "MONDO:9000001" in nh and "MONDO:9000002" in nh         # subtree + descendant
     assert "MONDO:9000003" in nh                                   # flagged outside subtree
     assert "MONDO:9000004" not in nh                               # human kept
+
+
+# ── drug development-status label (approved vs phase-3 seed expansion) ────────
+def test_drug_status_label():
+    from atlas.page.drug_at_a_glance import _status
+    assert _status({"is_fda_approved": True}) == "Approved (max clinical phase 4)"
+    assert _status({"max_phase": 4}).startswith("Approved")
+    assert _status({"max_phase": 3}) == "Max clinical phase 3 (not approved)"
+    assert _status({"max_phase": 2}) == "Max clinical phase 2 (not approved)"
+    assert _status({"max_phase": None}) == ""

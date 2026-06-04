@@ -28,7 +28,7 @@ def _status(b1) -> str:
         mp = int(float(mp))
     except (TypeError, ValueError):
         return ""
-    return f"Phase {mp} (investigational)" if mp else ""
+    return f"Max clinical phase {mp} (not approved)" if mp else ""
 
 
 def at_a_glance(bundle) -> str:

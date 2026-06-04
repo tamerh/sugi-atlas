@@ -30,6 +30,8 @@ def _class_clause(b1, b6):
     bits = []
     if b1.get("is_fda_approved") or (b1.get("max_phase") == 4):
         bits.append("approved")
+    elif b1.get("max_phase") == 3:
+        bits.append("phase-3 clinical-stage")
     mtype = (b1.get("molecule_type") or "").lower()
     roles = (b6 or {}).get("chebi_roles") or []
     # Lead with the best PHARMACOLOGICAL ChEBI role as the functional class
