@@ -11,6 +11,41 @@ def _i(n):
     return f"{n:,}" if isinstance(n, int) else (n if n is not None else "")
 
 
+# ChEBI roles mix pharmacological roles with chemical / biological / application
+# ones ("environmental contaminant", "xenobiotic", "human metabolite", "solvent").
+# Split them so the medical roles read as a drug-class signal and the rest don't
+# masquerade as one (atorvastatin's only roles were "contaminant, xenobiotic").
+_NON_PHARMA_ROLE = ("contaminant", "xenobiotic", "pollutant", "metabolite",
+                    "solvent", "fertilizer", "fertiliser", "food", "dye",
+                    "reagent", "nmr ", "fuel", "detergent", "buffer",
+                    "antifoaming", "propellant", "refrigerant", "marine",
+                    "algal", "plant ", "indicator", "flavour", "flavor",
+                    "fragrance", "cosmetic")
+
+
+def _split_chebi_roles(roles):
+    """(pharmacological_roles, other_roles) — other = chemical/environmental/
+    metabolite roles matched by _NON_PHARMA_ROLE keywords."""
+    pharma, other = [], []
+    for r in roles or []:
+        (other if any(k in (r or "").lower() for k in _NON_PHARMA_ROLE)
+         else pharma).append(r)
+    return pharma, other
+
+
+def _render_chebi_roles(roles):
+    """Two lines: medical roles first, other (non-pharmacological) roles second.
+    Either is omitted when empty."""
+    pharma, other = _split_chebi_roles(roles)
+    out = []
+    if pharma:
+        out.append(f"\n**Pharmacological roles (ChEBI):** {', '.join(pharma)}.")
+    if other:
+        out.append(f"\n**Other ChEBI roles (chemical / environmental):** "
+                   f"{', '.join(other)}.")
+    return out
+
+
 def r_drug_ids(b):
     L = ["## Drug identity and classification", ""]
     rows = [
@@ -34,11 +69,10 @@ def r_drug_ids(b):
         L.append(f"\n**IUPAC name:** {b['iupac_name']}")
     if b.get("chebi_definition"):
         L.append(f"\n**ChEBI definition:** {b['chebi_definition']}")
-    # Drug class — ChEBI functional roles (folded in from the former
-    # standalone Pharmacology section; ATC already lives in the table above).
-    roles = b.get("chebi_roles") or []
-    if roles:
-        L.append(f"\n**ChEBI roles:** {', '.join(roles)}.")
+    # ChEBI functional roles (folded in from the former standalone Pharmacology
+    # section; ATC already lives in the table above). Split pharmacological from
+    # chemical/environmental roles so the latter don't read as a drug class.
+    L += _render_chebi_roles(b.get("chebi_roles") or [])
     an = b.get("alt_names") or []
     if an:
         L.append(f"\n**Also known as:** {', '.join(an[:12])}")
@@ -129,9 +163,9 @@ def r_bioactivity(b):
     L.append(f"**ChEMBL activities: {_i(b.get('potent_count'))} potent at "
              f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top 30 by "
              f"potency (10 = 0.1 nM, 6 = 1 µM):**\n")
-    L.append(table(["pChembl", "Type", "Value", "Unit", "Activity ID"],
-                   [(fnum(r.get("pchembl")), r.get("type"), fnum(r.get("value")),
-                     r.get("unit"), r.get("id")) for r in ca]))
+    L.append(table(["Target", "pChembl", "Type", "Value", "Unit", "Activity ID"],
+                   [(r.get("target") or "", fnum(r.get("pchembl")), r.get("type"),
+                     fnum(r.get("value")), r.get("unit"), r.get("id")) for r in ca]))
     return "\n".join(L)
 
 
@@ -177,10 +211,13 @@ def r_related_molecules(b):
     # Sugi Atlas, so spell out how it's built.
     L.append("*Molecules sharing ≥1 of this drug's curated primary targets, "
              "merged from two biobtree sources and ranked by shared-target "
-             "count: **ChEMBL** clinical-stage candidates (development phase ≥2) "
-             "and **PubChem** drug-class bioactivity (approved / known drugs "
-             "acting on the target). Deduplicated by drug name; the drug's own "
-             "salt forms are excluded.*")
+             "count, then clinical phase: **ChEMBL** clinical-stage candidates "
+             "(development phase ≥2) and **PubChem** drug-class bioactivity "
+             "(approved / known drugs acting on the target). Deduplicated by drug "
+             "name; the drug's own salt forms are excluded. Note: for a drug with "
+             "few primary targets a shared-target match can reflect off-target / "
+             "promiscuous binding rather than the same therapeutic mechanism — "
+             "the phase ordering surfaces bona-fide therapeutics first.*")
     L.append(f"\n**{_i(b.get('competitor_count'))} molecules share ≥1 primary "
              f"target. Top {len(rm)} by shared-target count:**\n")
 
