@@ -154,18 +154,26 @@ def diseases(out):
     # round-trip through search). Page slug still derives from canonical_name.
     d = [e for e in json.load(open(MONDO_CORPUS))["diseases"] if e.get("id")]
 
-    # Admission gate 1: drop the disease-characteristic qualifier subtree
-    # (inherited/acquired/sporadic/… — not diseases). Surgical: ONLY this
-    # subtree, NOT the broad disease_grouping subset (which holds real hubs).
-    from atlas.disease.corpus import parse_obo, characteristic_ids, OBO_PATH
+    # Admission gates: (1) the disease-characteristic qualifier subtree
+    # (inherited/acquired/sporadic/… — not diseases), and (2) non-human /
+    # veterinary diseases (achondroplasia-in-cattle, canine rhabdomyosarcoma —
+    # out of scope, render empty). Surgical subtrees, NOT the broad
+    # disease_grouping subset (which holds real human hubs).
+    from atlas.disease.corpus import (parse_obo, characteristic_ids,
+                                      non_human_ids, OBO_PATH)
     obo = os.path.abspath(OBO_PATH)   # canonical cache path (corpus json records a stale bin/.. path)
     if not os.path.exists(obo):
         raise FileNotFoundError(f"Mondo OBO not found at {obo} — run atlas.disease.corpus ensure_obo")
-    qual = characteristic_ids(parse_obo(obo))
-    kept = [e for e in d if e["id"] not in qual]
-    dropped = [e for e in d if e["id"] in qual]
-    print(f"  gate1: dropped {len(dropped)} qualifier nodes "
-          f"(e.g. {[e['canonical_name'] for e in dropped[:5]]})")
+    terms = parse_obo(obo)
+    qual = characteristic_ids(terms)
+    nonhuman = non_human_ids(terms)
+    drop = qual | nonhuman
+    kept = [e for e in d if e["id"] not in drop]
+    dropped = [e for e in d if e["id"] in drop]
+    print(f"  gate1: dropped {sum(1 for e in d if e['id'] in qual)} qualifier nodes")
+    print(f"  gate2: dropped {sum(1 for e in d if e['id'] in nonhuman)} non-human / "
+          f"veterinary nodes (e.g. "
+          f"{[e['canonical_name'] for e in d if e['id'] in nonhuman][:4]})")
     _write(os.path.join(out, "diseases_mondo_ranked.txt"), [e["id"] for e in kept])
     # Audit trail — eyeball before a full run (id  name  signal).
     _write(os.path.join(out, "diseases_mondo_ranked.dropped.txt"),

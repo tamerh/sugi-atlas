@@ -67,6 +67,10 @@ _ID_LINE    = re.compile(r"^id:\s*(MONDO:\d+)\s*$", re.M)
 _NAME_LINE  = re.compile(r"^name:\s*(.+?)\s*$", re.M)
 _OBSOLETE   = re.compile(r"^is_obsolete:\s*true\s*$", re.M)
 _ISA_LINE   = re.compile(r"^is_a:\s*(MONDO:\d+)", re.M)
+# Non-human / veterinary markers (admission gate 2): Mondo tags these terms with
+# a def-pattern xref and/or a non-human in_taxon relationship.
+_NONHUMAN_PATTERN  = "MONDO:patterns/nonhuman_disease"
+_INTAXON_NONHUMAN  = re.compile(r"in_taxon NCBITaxon:(?!9606\b)\d+")
 
 # Admission gate 1: the "disease characteristic" subtree — PATO-rooted
 # qualities (inherited / acquired / sporadic / congenital / X-linked) that are
@@ -79,7 +83,9 @@ DISEASE_CHARACTERISTIC_ROOT = "MONDO:0021125"
 
 
 def parse_obo(path: str) -> List[Dict]:
-    """Parse all non-obsolete MONDO term blocks → [{id, name, parents}, ...]."""
+    """Parse all non-obsolete MONDO term blocks →
+    [{id, name, parents, non_human}, ...]. `non_human` flags veterinary terms
+    by their def-pattern xref or a non-human in_taxon (used by gate 2)."""
     with open(path) as f:
         text = f.read()
     parts = _TERM_BLOCK.split(text)[1:]  # drop header before first [Term]
@@ -92,7 +98,9 @@ def parse_obo(path: str) -> List[Dict]:
             continue
         nm = _NAME_LINE.search(block)
         out.append({"id": mid.group(1), "name": (nm.group(1) if nm else None),
-                    "parents": _ISA_LINE.findall(block)})
+                    "parents": _ISA_LINE.findall(block),
+                    "non_human": (_NONHUMAN_PATTERN in block
+                                  or bool(_INTAXON_NONHUMAN.search(block)))})
     return out
 
 
@@ -112,6 +120,34 @@ def characteristic_ids(terms: List[Dict], root: str = DISEASE_CHARACTERISTIC_ROO
                 out.add(c)
                 stack.append(c)
     out.add(root)
+    return out
+
+
+# Admission gate 2: non-human / veterinary diseases. Mondo carries ~4,000+ such
+# terms (achondroplasia-in-cattle, canine rhabdomyosarcoma, …) — out of scope
+# for a human reference atlas, and they render as empty pages (no human gene
+# cohort). They form a clean is_a subtree under "non-human animal disease".
+NON_HUMAN_ROOT = "MONDO:0005583"
+
+
+def non_human_ids(terms: List[Dict], root: str = NON_HUMAN_ROOT) -> set:
+    """MONDO ids that are non-human / veterinary: the is_a subtree under
+    'non-human animal disease' (root + descendants), unioned with any term
+    flagged `non_human` at parse (def-pattern / non-human in_taxon) that sits
+    outside the subtree. Pure OBO graph walk, no network."""
+    children = {}
+    for t in terms:
+        for p in t.get("parents") or ():
+            children.setdefault(p, []).append(t["id"])
+    out, stack = set(), [root]
+    while stack:
+        n = stack.pop()
+        for c in children.get(n, ()):
+            if c not in out:
+                out.add(c)
+                stack.append(c)
+    out.add(root)
+    out |= {t["id"] for t in terms if t.get("non_human")}
     return out
 
 
@@ -227,6 +263,12 @@ def cmd_build(args):
     before = len(terms)
     terms = [t for t in terms if t["id"] not in qual]
     print(f"  gate1: dropped {before - len(terms)} disease-characteristic qualifier nodes")
+    # Admission gate 2: drop non-human / veterinary diseases (out of scope for a
+    # human atlas; render empty). Before probing — saves the biobtree probes too.
+    nh = non_human_ids(terms)
+    before = len(terms)
+    terms = [t for t in terms if t["id"] not in nh]
+    print(f"  gate2: dropped {before - len(terms)} non-human / veterinary nodes")
     if args.limit:
         terms = terms[: args.limit]
         print(f"  (--limit {args.limit} → first {len(terms)})")

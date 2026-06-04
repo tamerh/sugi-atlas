@@ -120,3 +120,26 @@ def test_alt_name_ok_rejects_chemistry_fragments():
 def test_alt_name_ok_keeps_real_synonyms():
     for ok in ["Gleevec", "STI-571", "LY-188011", "Gemzar", "Imatinib"]:
         assert _alt_name_ok(ok), ok
+
+
+# ── admission gate 2: non-human / veterinary disease exclusion ───────────────
+from atlas.disease.corpus import non_human_ids, NON_HUMAN_ROOT
+
+
+def test_non_human_ids_subtree_and_flags():
+    terms = [
+        {"id": NON_HUMAN_ROOT, "name": "non-human animal disease", "parents": [], "non_human": False},
+        {"id": "MONDO:9000001", "name": "achondroplasia, cattle",
+         "parents": [NON_HUMAN_ROOT], "non_human": True},          # under subtree
+        {"id": "MONDO:9000002", "name": "x, cattle (deeper)",
+         "parents": ["MONDO:9000001"], "non_human": False},        # descendant of subtree
+        {"id": "MONDO:9000003", "name": "y, dog", "parents": ["MONDO:8888"],
+         "non_human": True},                                       # flagged, outside subtree
+        {"id": "MONDO:9000004", "name": "cystic fibrosis", "parents": ["MONDO:8888"],
+         "non_human": False},                                      # human — keep
+    ]
+    nh = non_human_ids(terms)
+    assert NON_HUMAN_ROOT in nh
+    assert "MONDO:9000001" in nh and "MONDO:9000002" in nh         # subtree + descendant
+    assert "MONDO:9000003" in nh                                   # flagged outside subtree
+    assert "MONDO:9000004" not in nh                               # human kept
