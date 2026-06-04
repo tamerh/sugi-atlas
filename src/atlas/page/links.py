@@ -355,10 +355,13 @@ def related_block(entity_type, bundle, slug=None):
     lines = []
 
     def _row(lbl_text, items):
-        shown = items[:12]
-        row = ", ".join(maybe_link(l, u) for l, u in shown)
-        extra = f" (+{len(items) - 12} more)" if len(items) > 12 else ""
-        lines.append(f"- **{lbl_text}:** {row}{extra}")
+        # Show ALL cross-links — these are navigable internal edges (the point of
+        # the Related section) and matter for the web team's link graph / search.
+        # No "(+N more)" dead-end text. Hub pages get long rows (max ~520 incoming
+        # edges); the frontend collapses them. Forward groups are bounded by the
+        # cohort/target caps; reverse groups can be large for hub genes/diseases.
+        row = ", ".join(maybe_link(l, u) for l, u in items)
+        lines.append(f"- **{lbl_text}:** {row}")
 
     for grp in ("Genes", "Diseases", "Drugs"):
         if groups[grp]:
