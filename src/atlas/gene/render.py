@@ -80,6 +80,9 @@ def r_gene_ids(b):
                      f"{rid} — {rt}"
                      + (f", {ln} nt" if ln else "")
                      + (f", {oc} organism(s)" if oc else "")))
+    # Skip empty-value rows (e.g. "| Aliases |  |", "| OMIM |  |" on lncRNA genes)
+    # — the disease/drug identifier tables already do this.
+    rows = [(k, v) for k, v in rows if v not in (None, "")]
     return "## Gene identifiers\n\n" + table(["Field", "Value"], rows)
 
 

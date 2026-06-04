@@ -170,33 +170,44 @@ def r_bioactivity(b):
 
 
 def r_indications(b):
-    L = ["## Indications", "",
-         f"**{_i(b.get('indication_count'))} indications "
-         f"({_i(b.get('approved_count'))} at ChEMBL trial phase 4).** "
-         f"Phase below is the highest clinical-trial phase recorded for this drug "
-         f"against each disease — not the molecule's overall approval status "
-         f"(that is in the Summary)."]
     inds = b.get("indications") or []
-    # Drop unmapped rows (audit #11): an indication with no human-readable
-    # disease name otherwise rendered its raw EFO/MeSH id (e.g. MP:0001914 — a
-    # mouse-phenotype accession, not a disease). Keep only rows with a real name.
-    named = [i for i in inds
-             if (i.get("name") or "").strip() and not is_ontology_id(i.get("name"))]
+    head = (f"**{_i(b.get('indication_count'))} indications "
+            f"({_i(b.get('approved_count'))} at ChEMBL trial phase 4).**")
+    # Keep only rows with a real disease name (drop raw EFO/MeSH/MP ids), then
+    # dedup by (name, MONDO) — the source repeats the same disease across xrefs
+    # (gemcitabine/metformin showed 'neoplasm/MONDO:…' twice). All mapped rows
+    # are shown (no silent 40-cap); the count line reconciles via the note.
+    named, seen = [], set()
+    for i in inds:
+        nm = (i.get("name") or "").strip()
+        if not nm or is_ontology_id(nm):
+            continue
+        key = (nm.lower(), i.get("mondo_id") or "")
+        if key in seen:
+            continue
+        seen.add(key)
+        named.append(i)
+    L = ["## Indications", ""]
     if named:
-        L += ["", table(["Indication", "Trial phase", "MONDO", "EFO"],
-                        [(links.maybe_link(i.get("name"),
-                                           links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
-                          i.get("max_phase"), i.get("mondo_id") or "",
-                          i.get("efo_id") or "") for i in named[:40]])]
+        L += [head + " Phase below is the highest clinical-trial phase recorded "
+              "for this drug against each disease — not the molecule's overall "
+              "approval status (that is in the Summary).", "",
+              table(["Indication", "Trial phase", "MONDO", "EFO"],
+                    [(links.maybe_link(i.get("name"),
+                                       links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
+                      i.get("max_phase"), i.get("mondo_id") or "",
+                      i.get("efo_id") or "") for i in named])]
         dropped = len(inds) - len(named)
-        if dropped:
+        if dropped > 0:
             L.append(f"\n*{dropped} further indication record"
-                     f"{'s' if dropped != 1 else ''} carried no mapped disease "
-                     "name (EFO/MeSH-only) and are omitted.*")
-    elif inds:
-        L.append(f"\n*The {len(inds)} indication record"
-                 f"{'s' if len(inds) != 1 else ''} carry no mapped disease name "
-                 "(EFO/MeSH-only); none shown.*")
+                     f"{'s' if dropped != 1 else ''} had no mapped disease name "
+                     "(EFO/MeSH-only) or were duplicates, and are omitted.*")
+    else:
+        L.append(head)
+        if inds:
+            L.append(f"\n*The {len(inds)} indication record"
+                     f"{'s' if len(inds) != 1 else ''} carry no mapped disease name "
+                     "(EFO/MeSH-only); none shown.*")
     return "\n".join(L)
 
 
@@ -331,7 +342,14 @@ def r_clinical_trials(b):
          f"**Total trials: {_i(b.get('trial_count'))}.**"]
     pc = b.get("phase_counts") or {}
     if pc:
-        L += ["", "**Phase distribution:**", "",
+        # The phase/status distribution + top list are over a sampled subset when
+        # the drug has more trials than we page through (high-trial drugs).
+        sampled = b.get("sampled_trials") or 0
+        total = b.get("trial_count") or 0
+        note = (f" (phase/status distribution below is over {_i(sampled)} sampled "
+                f"trials of the {_i(total)} total)" if total and sampled and total > sampled
+                else "")
+        L += ["", f"**Phase distribution{note}:**", "",
               table(["Phase", "Trials"],
                     [(k, _i(v)) for k, v in sorted(pc.items(), key=lambda kv: -kv[1])])]
     tt = b.get("top_trials") or []

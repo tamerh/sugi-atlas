@@ -246,9 +246,9 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     prepended above the LLM summary. Required for the AI-friendly page shape;
     legacy callers that don't pass it get the prior (no-lead) layout."""
     fm = ["---"]
-    for k in ("title", "identifier", "symbol", "entity_type", "generated_at",
-              "atlas_version", "biobtree_version", "generated_by"):
-        if meta.get(k) is not None:
+    for k in ("title", "identifier", "symbol", "entity_type", "description",
+              "generated_at", "atlas_version", "biobtree_version", "generated_by"):
+        if meta.get(k):
             fm.append(f'{k}: "{_yaml_escape(meta[k])}"')
     # Search aliases (P2) — NOT Hugo-reserved `aliases:` (that emits 301s).
     for field in ("alt_names", "tldr"):

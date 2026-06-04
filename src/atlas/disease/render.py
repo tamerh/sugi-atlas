@@ -737,11 +737,16 @@ def r_pathways(b):
            f"{_i(b.get('pathway_count'))}.**{over}"]
     tp = b.get("top_pathways") or []
     if tp:
+        def _samp(p):  # reconcile the sample with the Genes count (audit: 8 vs 9)
+            syms = p.get("gene_symbols") or []
+            gc = p.get("gene_count") or len(syms)
+            shown = syms[:8]
+            extra = gc - len(shown)
+            return ", ".join(shown) + (f" (+{extra} more)" if extra > 0 else "")
         out += ["", "**Top pathways by cohort coverage:**", "",
                 table(["Pathway", "Genes", "Sample cohort genes"],  # table() dedups
                       [(p.get("name") or p.get("id") or "",
-                        _i(p.get("gene_count")),
-                        ", ".join((p.get("gene_symbols") or [])[:8]))
+                        _i(p.get("gene_count")), _samp(p))
                        for p in tp[:30]])]
     return "\n".join(out)
 

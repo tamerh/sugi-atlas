@@ -53,11 +53,17 @@ def _clean_aliases(names, cap=20):
 def _alt_names(entity_type, b1):
     if entity_type == "gene":
         src = (b1.get("hgnc") or {}).get("aliases")
+        title = (b1.get("hgnc") or {}).get("symbol")
     elif entity_type == "disease":
         src = b1.get("synonyms")
+        title = b1.get("canonical_name")
     else:
         src = b1.get("alt_names")        # drug brand / INN synonyms
-    return _clean_aliases(src)
+        title = b1.get("canonical_name")
+    # Drop the entity's own title (case-insensitive) — a self-reference chip
+    # ("GEMCITABINE" alt-name on the Gemcitabine page).
+    t = (title or "").strip().lower()
+    return [a for a in _clean_aliases(src) if a.strip().lower() != t]
 
 
 def _tldr(entity_type, bundle):
@@ -90,12 +96,36 @@ def _section_defaults(entity_type, bundle):
     return d
 
 
+_DECLARATIVE = {"gene": "atlas.page.declarative",
+                "disease": "atlas.page.disease_declarative",
+                "drug": "atlas.page.drug_declarative"}
+
+
+def _meta_description(entity_type, bundle, limit=155):
+    """Per-page <meta description>: the declarative lead, stripped of markdown and
+    truncated at a word boundary. Each page gets a distinct description instead of
+    the generic site-wide fallback (audit: all 52k shared one)."""
+    try:
+        mod = importlib.import_module(_DECLARATIVE[entity_type])
+        s = mod.declarative_sentence(bundle) or ""
+    except Exception:
+        return ""
+    s = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", s)   # link → label
+    s = re.sub(r"[*`_]", "", s)                      # drop emphasis
+    s = re.sub(r"\s+", " ", s).strip()
+    if len(s) > limit:
+        s = s[:limit].rsplit(" ", 1)[0].rstrip(" ,;.") + "…"
+    return s
+
+
 def entity_facts(entity_type, bundle):
-    """{identifier, alt_names, tldr, section_defaults} for the frontmatter."""
+    """{identifier, alt_names, tldr, description, section_defaults} for the
+    frontmatter."""
     b1 = bundle.get("1") or {}
     return {
         "identifier": _identifier(entity_type, b1),
         "alt_names": _alt_names(entity_type, b1),
         "tldr": _tldr(entity_type, bundle),
+        "description": _meta_description(entity_type, bundle),
         "section_defaults": _section_defaults(entity_type, bundle),
     }
