@@ -168,6 +168,9 @@ def declarative_sentence(bundle):
         head += f" ({', '.join(parens)})"
 
     sentence = f"{head} is a {klass}"
+    n_sub = b1.get("child_count") or 0       # umbrella / grouping term?
+    if n_sub >= 5:
+        sentence += f" (an umbrella term covering {n_sub} Mondo subtypes)"
     causal = _causal_clause(bundle)          # " caused by CFTR (GenCC Definitive)"
     ev = _evidence_clause(b1, b2, b4, b5)    # " with N cohort genes (…)"
     if causal and ev:

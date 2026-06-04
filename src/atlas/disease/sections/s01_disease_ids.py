@@ -6,6 +6,7 @@ record, which already pre-resolved the ID set during resolve(). The work
 here is mostly shaping; no new biobtree calls beyond the anchor."""
 import re
 from atlas.section import Section
+from atlas.biobtree import map_all
 
 # biobtree/Orphanet returns the HPO frequency band with the percentages in
 # descending order — "Very frequent (99-80%)". Normalize to the conventional
@@ -25,10 +26,10 @@ CHAINS   = (">>mondo>>efo", ">>mondo>>mesh", ">>mondo>>mim", ">>mondo>>orphanet"
             ">>mondo>>doid", ">>mondo>>sctid", ">>mondo>>umls", ">>mondo>>ncit",
             ">>mondo>>medgen", ">>mondo>>icd10cm", ">>mondo>>icd11",
             ">>mondo>>gard", ">>mondo>>meddra", ">>mondo>>nord",
-            ">>mondo>>uberon")
+            ">>mondo>>uberon", ">>mondo>>mondochild")
 DATASETS = ("mondo", "efo", "mesh", "mim", "orphanet",
             "doid", "sctid", "umls", "ncit", "medgen",
-            "icd10cm", "icd11", "gard", "meddra", "nord", "uberon")
+            "icd10cm", "icd11", "gard", "meddra", "nord", "uberon", "mondochild")
 
 def collect(a):
     # HPO phenotypes from primary Orphanet entry — frequency-sorted desc so
@@ -39,6 +40,17 @@ def collect(a):
     phenotypes = [{**p, "frequency": _ascending_freq(p.get("frequency"))}
                   for p in (oa.get("phenotypes") or [])]
     phenotypes.sort(key=lambda p: float(p.get("frequency_value") or 0), reverse=True)
+
+    # Mondo child count — flags umbrella / grouping terms (cardiomyopathy: 12
+    # children, muscular dystrophy: 11) vs leaf diseases (cystic fibrosis: 1), so
+    # the lead can say "umbrella term covering N subtypes" instead of a flat
+    # "is a disease". One cheap call; diseases aren't fanned for §1.
+    child_count = 0
+    if a.mondo_id:
+        try:
+            child_count = len(map_all(a.mondo_id, ">>mondo>>mondochild"))
+        except Exception:
+            pass
 
     bundle = {
         "section": "01_disease_ids",
@@ -66,6 +78,7 @@ def collect(a):
         "phenotypes": phenotypes,
         "phenotype_count": oa.get("phenotype_count") or len(phenotypes),
         "is_cancer": a.is_cancer,
+        "child_count": child_count,
         "xref_counts": dict(a.xref_counts),
     }
     return bundle
@@ -83,6 +96,6 @@ SECTION = Section(
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count",
-              "xref_counts", "is_cancer"),
+              "child_count", "xref_counts", "is_cancer"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

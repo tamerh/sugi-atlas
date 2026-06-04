@@ -76,6 +76,12 @@ def at_a_glance(bundle) -> str:
             items += f" (+{len(cg) - len(shown)} more)"
         bullets.append(f"**Causal gene{'s' if len(cg) != 1 else ''}:** {items}")
 
+    # Umbrella / grouping term — many Mondo children (cardiomyopathy: 12) vs a
+    # leaf disease (1). Tells the reader this page spans subtypes.
+    nsub = b1.get("child_count") or 0
+    if nsub >= 5:
+        bullets.append(f"**Umbrella term:** {_format_int(nsub)} Mondo subtypes")
+
     # Cohort genes (§5) — size of the associated-gene set this page aggregates.
     gc = b5.get("gene_count") or 0
     if gc:
