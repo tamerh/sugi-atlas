@@ -492,6 +492,10 @@ def r_expression_context(b):
     out = ["## Expression context", "",
            f"**Cohort genes with no expression data: "
            f"{_i(b.get('no_expression_count'))}.**"]
+    scm = b.get("sc_marker_gene_count") or 0
+    if scm:
+        out.append(f"\n**{_i(scm)} cohort gene{'s' if scm != 1 else ''} are a "
+                   f"single-cell marker in ≥1 SCXA experiment.**")
     bd = b.get("breadth_distribution") or {}
     if bd and any(bd.values()):              # skip the all-zero distribution (no cohort)
         out += ["", "**Breadth distribution (Bgee present_calls):**", ""]
@@ -514,7 +518,8 @@ def r_expression_context(b):
                 table(["Symbol", "Bgee breadth", "FANTOM5 breadth", "SCXA", "Top tissues"],
                       [(g.get("symbol"), g.get("bgee_breadth"),
                         g.get("fantom5_breadth"),
-                        "yes" if g.get("scxa_present") else "",
+                        ("marker" if g.get("scxa_marker")
+                         else "yes" if g.get("scxa_present") else ""),
                         ", ".join((g.get("top_tissues") or [])[:3]))
                        for g in pge[:30]])]
     return "\n".join(out)

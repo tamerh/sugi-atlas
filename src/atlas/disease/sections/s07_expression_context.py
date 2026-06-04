@@ -13,8 +13,8 @@ from atlas.section import Section
 from atlas.disease.cohort import fan
 from atlas.gene.sections import s11_expression
 
-CHAINS   = (">>hgnc>>ensembl>>bgee", ">>hgnc>>ensembl>>scxa")  # via gene §11
-DATASETS = ("hgnc", "ensembl", "bgee", "scxa")
+CHAINS   = (">>hgnc>>ensembl>>bgee", ">>hgnc>>ensembl>>scxa_expression")  # via gene §11
+DATASETS = ("hgnc", "ensembl", "bgee", "scxa_expression")
 
 _TOP_TISSUES_PER_GENE = 3
 _COHORT_TOP_TISSUES = 20
@@ -47,11 +47,12 @@ def collect(a):
     }
     cohort_tissue_counts: Counter = Counter()
     no_expression_count = 0
+    sc_marker_gene_count = 0          # cohort genes that are a single-cell marker
 
     for b in g11_bundles:
         bgee = b.get("bgee") or {}
         fantom5 = b.get("fantom5") or {}
-        scxa = b.get("single_cell_datasets") or []
+        sc = b.get("single_cell") or {}
         top_t_raw = b.get("top_tissues") or []
 
         # bgee exposes both a categorical label ("narrow"/"broad"/"ubiquitous")
@@ -65,7 +66,10 @@ def collect(a):
             except (TypeError, ValueError):
                 bgee_breadth = None
         fantom5_breadth = fantom5.get("breadth") if fantom5 else None
-        scxa_present = bool(scxa)
+        scxa_present = bool(sc.get("total_experiments"))
+        scxa_marker = bool(sc.get("marker_experiments"))
+        if scxa_marker:
+            sc_marker_gene_count += 1
 
         # Top tissues by score — gene §11 already sorted bgee_evidence by
         # expression_score desc. Fall back to empty list if none.
@@ -78,6 +82,7 @@ def collect(a):
             "bgee_breadth": bgee_breadth,
             "fantom5_breadth": fantom5_breadth,
             "scxa_present": scxa_present,
+            "scxa_marker": scxa_marker,
             "top_tissues": top_tissues,
         })
 
@@ -102,6 +107,7 @@ def collect(a):
         "breadth_distribution": breadth_distribution,
         "cohort_tissue_counts": top_cohort_tissues,
         "no_expression_count": no_expression_count,
+        "sc_marker_gene_count": sc_marker_gene_count,
     }
 
 
@@ -112,6 +118,6 @@ SECTION = Section(
                  "no expression evidence as low confidence."),
     needs=("cohort",),
     produces=("per_gene_expression", "breadth_distribution",
-              "cohort_tissue_counts", "no_expression_count"),
+              "cohort_tissue_counts", "no_expression_count", "sc_marker_gene_count"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

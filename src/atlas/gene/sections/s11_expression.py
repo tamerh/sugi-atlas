@@ -6,13 +6,19 @@ from atlas.gene.sections.base import Section
 CHAINS = (
     ">>ensembl>>bgee", ">>ensembl>>bgee>>bgee_evidence",
     ">>ensembl>>fantom5_gene", ">>ensembl>>fantom5_promoter",
-    ">>ensembl>>scxa",
+    ">>ensembl>>scxa_expression",
+    ">>ensembl>>scxa_expression>>scxa_gene_experiment",
 )
-DATASETS = ("bgee", "bgee_evidence", "fantom5_gene", "fantom5_promoter", "scxa", "ensembl")
+DATASETS = ("bgee", "bgee_evidence", "fantom5_gene", "fantom5_promoter",
+            "scxa_expression", "scxa_gene_experiment", "ensembl")
 
 def _num(x):
     try: return float(x)
     except (TypeError, ValueError): return 0.0
+
+def _int(x):
+    try: return int(x)
+    except (TypeError, ValueError): return 0
 
 def collect(a):
     bundle = {"section": "11_expression", "symbol": a.symbol}
@@ -54,15 +60,30 @@ def collect(a):
     bundle["fantom5_promoters"] = [{"id": t["id"], "tpm_average": t.get("tpm_average"),
                                     "samples_expressed": t.get("samples_expressed")} for t in proms]
 
-    bundle["single_cell_datasets"] = [{"id": t["id"], "description": t.get("description"),
-                                       "cells": t.get("number_of_cells")}
-                                      for t in (map_all(ens, ">>ensembl>>scxa") if ens else [])]
+    # Single-cell (scxa) — per-gene marker + max expression across SC experiments
+    # via the scxa_expression node (the old >>ensembl>>scxa was dataset-
+    # degenerate — biobtree #31). scxa_gene_experiment carries the per-experiment
+    # marker flag + max mean expression. No per-experiment description fetch
+    # (keeps the disease cohort-fan cheap; the accession is a stable EBI ref).
+    sc = {}
+    if ens:
+        se = map_all(ens, ">>ensembl>>scxa_expression")
+        if se:
+            exps = [{"experiment_id": e.get("experiment_id"),
+                     "is_marker": str(e.get("is_marker_in_experiment")).lower() == "true",
+                     "max_expression": e.get("max_mean_expression")}
+                    for e in map_all(ens, ">>ensembl>>scxa_expression>>scxa_gene_experiment")]
+            exps.sort(key=lambda r: (not r["is_marker"], -_num(r.get("max_expression"))))
+            sc = {"total_experiments": _int(se[0].get("total_experiments")),
+                  "marker_experiments": _int(se[0].get("marker_experiment_count")),
+                  "experiments": exps[:20]}
+    bundle["single_cell"] = sc
     return bundle
 
 SECTION = Section(
     id="11", name="expression",
     description="Bgee per-tissue expression + FANTOM5 CAGE (gene + alt promoters) + single-cell datasets",
     needs=("ensembl_id",),
-    produces=("bgee", "top_tissues", "fantom5", "fantom5_promoters", "single_cell_datasets"),
+    produces=("bgee", "top_tissues", "fantom5", "fantom5_promoters", "single_cell"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

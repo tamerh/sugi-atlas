@@ -812,11 +812,27 @@ def r_expression(b):
                    [(t.get("tissue") or "", t.get("anatomy_id") or "",
                      t.get("score"), t.get("quality"))
                     for t in b.get("top_tissues", [])[:30]]))
-    sc = b.get("single_cell_datasets", [])
-    L.append(f"\n**Single-cell datasets ({len(sc)}):**\n")
-    L.append(table(["Dataset", "Description", "Cells"],
-                   [(d["id"], (d.get("description") or "")[:60], d.get("cells")) for d in sc[:15]]))
+    # Single-cell (SCXA) — per-gene marker status + max expression across
+    # single-cell experiments (biobtree #31: via the scxa_expression node).
+    sc = b.get("single_cell") or {}
+    if sc.get("total_experiments"):
+        L.append(f"\n**Single-cell (SCXA): detected in {sc['total_experiments']} "
+                 f"experiment(s), a significant marker in "
+                 f"{sc.get('marker_experiments', 0)}.**\n")
+        exps = sc.get("experiments") or []
+        if exps:
+            L.append(table(["Experiment", "Marker?", "Max mean expression"],
+                           [(_scxa_link(e.get("experiment_id")),
+                             "yes" if e.get("is_marker") else "",
+                             e.get("max_expression")) for e in exps[:15]]))
     return "\n".join(L)
+
+
+def _scxa_link(eid):
+    """Link an SCXA experiment accession to its EBI Single Cell Expression Atlas
+    page; plain text when missing."""
+    return (f"[{eid}](https://www.ebi.ac.uk/gxa/sc/experiments/{eid})"
+            if eid else "")
 
 
 def r_cancer_overview(bundle):

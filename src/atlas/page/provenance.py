@@ -127,6 +127,8 @@ UPSTREAM = {
     "fantom5_gene":      ("FANTOM5",                               "https://fantom.gsc.riken.jp/5/"),
     "fantom5_promoter":  ("FANTOM5",                               "https://fantom.gsc.riken.jp/5/"),
     "scxa":              ("EBI Single Cell Expression Atlas",      "https://www.ebi.ac.uk/gxa/sc/"),
+    "scxa_expression":   ("EBI Single Cell Expression Atlas",      "https://www.ebi.ac.uk/gxa/sc/"),
+    "scxa_gene_experiment": ("EBI Single Cell Expression Atlas",   "https://www.ebi.ac.uk/gxa/sc/"),
 }
 
 def _section_provenance(sec):
