@@ -489,7 +489,12 @@ def r_pathways(b):
 def r_interactions(b):
     L = ["## Protein interactions and networks", ""]
     L.append(f"**STRING ({b.get('string_count', 0)}), top by confidence (×1000):**\n")
-    L.append(table(["Partner", "Score"], [(s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]]))
+    # Show both sides of each interaction (this protein ↔ partner) + the partner's
+    # UniProt accession. Partner is the non-query side (biobtree #34 workaround).
+    self_sym = b.get("symbol") or "—"
+    L.append(table(["Protein A", "Protein B", "Partner UniProt", "Score"],
+                   [(self_sym, s.get("partner_symbol") or s.get("partner"),
+                     s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]]))
     L.append(f"\n**IntAct ({b.get('intact_count', 0)}), top by confidence:**\n")
     L.append(table(["A", "B", "Type", "Score"],
                    [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]]))

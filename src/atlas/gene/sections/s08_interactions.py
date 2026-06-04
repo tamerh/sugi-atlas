@@ -38,6 +38,27 @@ def _f(x):
     except (TypeError, ValueError): return 0.0
 
 
+_SYM_CACHE = {}
+
+
+def _uniprot_symbol(uni):
+    """Resolve a UniProt accession → HGNC gene symbol (readable STRING partner),
+    cached process-wide. None when unresolvable (keep the accession then)."""
+    if uni in _SYM_CACHE:
+        return _SYM_CACHE[uni]
+    sym = None
+    try:
+        h = map_all(uni, ">>uniprot>>hgnc")
+        if h:
+            he = entry(h[0]["id"], "hgnc")
+            syms = ((he.get("Attributes") or {}).get("Hgnc") or {}).get("symbols") or []
+            sym = syms[0] if syms else None
+    except Exception:
+        pass
+    _SYM_CACHE[uni] = sym
+    return sym
+
+
 def collect(a):
     bundle = {"section": "08_interactions", "symbol": a.symbol}
     uni = a.canonical_uniprot
@@ -57,13 +78,26 @@ def collect(a):
 
     # PPIs via the interaction RECORDS (NOT >>...>>uniprot, which collapses to
     # bare partner ids) — these carry the per-edge scores/evidence.
+    #
+    # The map projection's `uniprot_b` is a FIXED side — for ~half the rows it's
+    # the query protein itself, not the partner (biobtree #34), which both looks
+    # like a self-loop and loses the real partner (uniprot_a). So read each top
+    # record's entry() (it carries uniprot_a + uniprot_b + score) and take the
+    # non-query side as the partner. entry() is local-cache fast (~0.3ms each).
     st = map_all(uni, ">>uniprot>>string_interaction", cap=_PPI_CAP) if uni else []
     st.sort(key=lambda t: _f(t.get("score")), reverse=True)
-    # Drop self-edges (STRING lists the protein against itself at score ~999) and
-    # blank partners before the top-30 cut, so self-loops don't eat real slots.
-    bundle["string"] = [{"partner": t.get("uniprot_b"), "score": t.get("score")}
-                        for t in st
-                        if t.get("uniprot_b") and t.get("uniprot_b") != uni][:30]
+    string = []
+    for t in st[:30]:
+        attrs = (((entry(t["id"], "string_interaction") or {}).get("Attributes")
+                  or {}).get("StringInteraction") or {})
+        ua, ub = attrs.get("uniprot_a"), attrs.get("uniprot_b")
+        partner = ua if ub == uni else ub
+        if not partner or partner == uni:    # skip blanks + self-interactions
+            continue
+        string.append({"partner": partner,
+                       "partner_symbol": _uniprot_symbol(partner),
+                       "score": attrs.get("score") or t.get("score")})
+    bundle["string"] = string
     bundle["string_count"] = string_n or len(st)
 
     ia = map_all(uni, ">>uniprot>>intact", cap=_PPI_CAP) if uni else []
