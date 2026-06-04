@@ -59,7 +59,11 @@ def collect(a):
     # bare partner ids) — these carry the per-edge scores/evidence.
     st = map_all(uni, ">>uniprot>>string_interaction", cap=_PPI_CAP) if uni else []
     st.sort(key=lambda t: _f(t.get("score")), reverse=True)
-    bundle["string"] = [{"partner": t.get("uniprot_b"), "score": t.get("score")} for t in st[:30]]
+    # Drop self-edges (STRING lists the protein against itself at score ~999) and
+    # blank partners before the top-30 cut, so self-loops don't eat real slots.
+    bundle["string"] = [{"partner": t.get("uniprot_b"), "score": t.get("score")}
+                        for t in st
+                        if t.get("uniprot_b") and t.get("uniprot_b") != uni][:30]
     bundle["string_count"] = string_n or len(st)
 
     ia = map_all(uni, ">>uniprot>>intact", cap=_PPI_CAP) if uni else []

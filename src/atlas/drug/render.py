@@ -18,7 +18,8 @@ def r_drug_ids(b):
         ("Name", display_name(b.get("canonical_name"))),  # audit #12: de-SHOUT
         ("Type", b.get("molecule_type")),
         ("Max phase", b.get("max_phase")),
-        ("FDA approved", b.get("is_fda_approved")),
+        ("FDA approved", None if b.get("is_fda_approved") is None
+         else ("yes" if b.get("is_fda_approved") else "no")),
         ("PubChem CID", b.get("pubchem_cid")),
         ("ChEBI", b.get("chebi_id")),
         ("ATC", ", ".join(b.get("atc_codes") or [])),
@@ -37,7 +38,7 @@ def r_drug_ids(b):
     # standalone Pharmacology section; ATC already lives in the table above).
     roles = b.get("chebi_roles") or []
     if roles:
-        L.append(f"\n**Drug class (ChEBI roles):** {', '.join(roles)}.")
+        L.append(f"\n**ChEBI roles:** {', '.join(roles)}.")
     an = b.get("alt_names") or []
     if an:
         L.append(f"\n**Also known as:** {', '.join(an[:12])}")
@@ -66,12 +67,15 @@ def r_drug_ids(b):
             if len(bd) > 1 and pct >= 60:
                 dom = (f" One matched structure accounts for {_i(top)} ({pct}%) "
                        f"of the total.")
-        fam_clause = f" across **{_i(fam)} distinct patent families**" if fam else ""
-        L.append(f"\n**Patent coverage (SureChEMBL):** {_i(pt)} patent mentions"
-                 f"{fam_clause}, from {n_rec} matched compound structure(s).{dom} "
-                 f"Mentions count patents naming the compound (not distinct "
-                 f"inventions), so promiscuous / reference molecules inflate that "
-                 f"figure — the family count is the dedup metric.")
+        # Lead with the family count (the honest dedup metric the caveat itself
+        # endorses); demote the raw mention figure to the parenthetical.
+        head = (f"**{_i(fam)} distinct patent families** "
+                f"({_i(pt)} SureChEMBL compound mentions)" if fam
+                else f"**{_i(pt)} SureChEMBL compound mentions**")
+        L.append(f"\n**Patent coverage:** {head}, from {n_rec} matched compound "
+                 f"structure(s).{dom} Mentions count patents naming the compound "
+                 f"(not distinct inventions), so promiscuous / reference molecules "
+                 f"inflate the mention figure — families are the dedup metric.")
     return "\n".join(L)
 
 
@@ -134,7 +138,10 @@ def r_bioactivity(b):
 def r_indications(b):
     L = ["## Indications", "",
          f"**{_i(b.get('indication_count'))} indications "
-         f"({_i(b.get('approved_count'))} at max phase 4 / approved).**"]
+         f"({_i(b.get('approved_count'))} at ChEMBL trial phase 4).** "
+         f"Phase below is the highest clinical-trial phase recorded for this drug "
+         f"against each disease — not the molecule's overall approval status "
+         f"(that is in the Summary)."]
     inds = b.get("indications") or []
     # Drop unmapped rows (audit #11): an indication with no human-readable
     # disease name otherwise rendered its raw EFO/MeSH id (e.g. MP:0001914 — a
@@ -142,7 +149,7 @@ def r_indications(b):
     named = [i for i in inds
              if (i.get("name") or "").strip() and not is_ontology_id(i.get("name"))]
     if named:
-        L += ["", table(["Indication", "Max phase", "MONDO", "EFO"],
+        L += ["", table(["Indication", "Trial phase", "MONDO", "EFO"],
                         [(links.maybe_link(i.get("name"),
                                            links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
                           i.get("max_phase"), i.get("mondo_id") or "",
@@ -304,7 +311,7 @@ def r_pharmacology(b):
     body = []
     roles = b.get("chebi_roles") or []
     if roles:
-        body.append(f"**Drug class (ChEBI roles):** {', '.join(roles)}.")
+        body.append(f"**ChEBI roles:** {', '.join(roles)}.")
     atc = b.get("atc_codes") or []
     if atc:
         codes = ", ".join(atc)

@@ -125,14 +125,19 @@ def _cell(c):
 def table(headers, rows):
     """GitHub-flavored markdown table. Empty cells blank; literal pipes in
     values escaped (no column shift); identical data rows collapsed (source
-    sometimes repeats a row verbatim — Reactome pathway, Orphanet prevalence)."""
+    sometimes repeats a row verbatim — Reactome pathway, Orphanet prevalence).
+    All-blank rows are dropped, and a table with no surviving data rows renders
+    as "" (not a dangling header-only table) — sub-blocks that turn out empty
+    elide cleanly instead of printing `| Field | … |` with nothing under it."""
     out = ["| " + " | ".join(headers) + " |",
            "| " + " | ".join("---" for _ in headers) + " |"]
     seen = set()
     for r in rows:
         cells = tuple(_cell(c) for c in r)
-        if any(cells) and cells in seen:
+        if not any(cells) or cells in seen:
             continue
         seen.add(cells)
         out.append("| " + " | ".join(cells) + " |")
+    if len(out) == 2:                       # header only, no data rows
+        return ""
     return "\n".join(out)

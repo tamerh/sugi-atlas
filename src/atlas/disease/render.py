@@ -157,18 +157,38 @@ def r_epidemiology(b):
     Moved from §1 into the Clinical features zone (it's clinical profile, not an
     identifier). Returns '' when no prevalence data so the zone elides."""
     prevs = b.get("prevalences") or []
+
+    def _informative(p):
+        # Drop rows with no quantitative content — blank value AND a class that's
+        # blank or "Unknown" (e.g. "Prevalence at birth | Unknown | | Hungary").
+        cls = str(p.get("prevalence_class") or "").strip().lower()
+        val = str(p.get("val_moy") or "").strip()
+        return bool(val) or (cls and cls != "unknown")
+
+    prevs = [p for p in prevs if _informative(p)]
     if not prevs:
         return ""
-    prevs_sorted = sorted(prevs,
-                          key=lambda p: (0 if p.get("validation_status") == "Validated" else 1,
-                                         p.get("prevalence_type") or ""))
+
+    def _geo_rank(g):                       # broadest geography first
+        g = (g or "").lower()
+        return 0 if "worldwide" in g else (1 if "europe" in g else 2)
+
+    prevs_sorted = sorted(
+        prevs,
+        key=lambda p: (0 if p.get("validation_status") == "Validated" else 1,
+                       _geo_rank(p.get("geographic")), p.get("prevalence_type") or ""))
+    # Cap — rare diseases (cystic fibrosis: 62 records, every EU country ×
+    # point/birth prevalence) would otherwise dwarf the symptoms table below.
+    shown = prevs_sorted[:20]
+    note = (f", top {len(shown)} (validated / broadest geography first)"
+            if len(prevs_sorted) > len(shown) else "")
     return "\n".join(
         ["## Epidemiology", "",
-         f"**{len(prevs)} prevalence record(s), Orphanet:**", "",
+         f"**{len(prevs)} prevalence record(s), Orphanet{note}:**", "",
          table(["Type", "Class", "Value", "Geography", "Validation"],
                [(p.get("prevalence_type"), p.get("prevalence_class"),
                  p.get("val_moy"), p.get("geographic"), p.get("validation_status"))
-                for p in prevs_sorted])])
+                for p in shown])])
 
 
 def r_symptoms(b):
@@ -518,8 +538,10 @@ def r_drug_targets(b):
                 f"(buckets above are over the deeply-mined display cohort)."]
     ag = b.get("approved_genes") or []
     if ag:
-        out += ["", "**Genes with approved drugs:**", "",
-                table(["Symbol", "Lead drug"],
+        out += ["", "**Genes with an approved drug** (the molecule shown is one "
+                "approved compound that hits the gene — not necessarily a drug of "
+                "choice or one indicated for this disease):", "",
+                table(["Symbol", "Example approved molecule"],
                       [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"))),
                         g.get("drug") or g.get("top_molecule") or "")
                        for g in ag])]
@@ -568,10 +590,16 @@ def r_bioactivity_enzyme(b):
                        for g in eg[:50]])]
     usp = b.get("undrugged_starting_points") or []
     if usp:
-        out += ["", "**Undrugged cohort genes with high screening signal (≥100 ChEMBL assays):**", "",
-                table(["Symbol", "ChEMBL assays", "Note"],
-                      [(g.get("symbol"), _i(g.get("chembl_assay_total")),
-                        g.get("note") or "") for g in usp[:30]])]
+        # NB: this is a studied-ness signal, NOT a drugged/undrugged claim — the
+        # list includes well-drugged targets (ESR1, EGFR…). Real drugged-status
+        # resolution is done in §17 against the approved-drug set; here we only
+        # report screening volume and point readers to Therapeutics for status.
+        out += ["", "**Cohort genes with high screening signal (≥100 ChEMBL "
+                "assays)** — a studied-ness signal; see Therapeutics for "
+                "approved-drug status:", "",
+                table(["Symbol", "ChEMBL assays"],
+                      [(g.get("symbol"), _i(g.get("chembl_assay_total")))
+                       for g in usp[:30]])]
     return "\n".join(out)
 
 

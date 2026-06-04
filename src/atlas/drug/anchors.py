@@ -370,7 +370,13 @@ def resolve(name_or_id: str) -> DrugAnchors:
         molecule_type=mol.get("type") or "",
         max_phase=_phase(mol.get("highestDevelopmentPhase")),
         atc_codes=tuple(mol.get("atcClassification") or ()),
-        alt_names=tuple(n for n in (mol.get("altNames") or []) if _alt_name_ok(n)),
+        # Split embedded commas — a single ChEMBL altName is sometimes a comma-
+        # joined pair ("GLEEVEC,STI-571"), which would render as one corrupt name
+        # in the comma-joined display and JSON-LD. Flatten, strip, de-dup in order.
+        alt_names=tuple(dict.fromkeys(
+            part for n in (mol.get("altNames") or [])
+            for part in (p.strip() for p in str(n).split(","))
+            if _alt_name_ok(part))),
         parent_chembl=mol.get("parent"),
         child_chembls=tuple(mol.get("childs") or ()),
         targets=targets,

@@ -20,6 +20,15 @@ def _cap(n):
     return ""  # pagination works (p= param) — counts are real, not capped at 100
 
 
+def _ctd_actions(actions, cap=5):
+    """CTD encodes each action as `verb^object` ("increases^expression"); a
+    chemical can carry 20+, producing an unreadable wall. Humanize the caret and
+    cap the chain (the full set is in the bundle/JSON sidecar)."""
+    shown = [str(a).replace("^", " ") for a in (actions or [])[:cap]]
+    extra = len(actions or []) - len(shown)
+    return ", ".join(shown) + (f" (+{extra} more)" if extra > 0 else "")
+
+
 def _dedup_sentences(text):
     """Collapse duplicate period-separated segments (UniProt subcellular-location
     CC concatenates per-isoform notes, which repeat the same location many times)."""
@@ -379,10 +388,22 @@ def r_residue_map(b):
 def r_structure(b):
     L = ["## Structure", ""]
     n = b.get("pdb_count", 0)
-    L.append(f"**Experimental structures (PDB): {n}{_cap(n)}**\n")
+    pdb = b.get("pdb", []) or []
+    # Cap the dump — TP53 carries 313 PDB entries, EGFR 351; an uncapped table
+    # buries the rest of the Protein section. Best resolution first (None last),
+    # like the other capped tables. Full set is paginated in biobtree (p= param).
+    def _res(p):                            # resolution arrives as a string;
+        try:                                # coerce for sorting, push N/A last
+            return float(p.get("resolution"))
+        except (TypeError, ValueError):
+            return float("inf")
+    pdb_sorted = sorted(pdb, key=_res)
+    shown = pdb_sorted[:30]
+    note = f", top {len(shown)} by resolution" if len(pdb) > len(shown) else ""
+    L.append(f"**Experimental structures (PDB): {n}{note}**\n")
     L.append(table(["PDB", "Method", "Resolution (Å)"],
                    [(p["id"], p.get("method"), fnum(p.get("resolution")))  # 2-dp; raw is 1.83549
-                    for p in b.get("pdb", [])]))
+                    for p in shown]))
     L.append("\n**Predicted structure (AlphaFold):**\n")
     afs = b.get("alphafold", []) or []
     present_rows = [a for a in afs if a.get("present", True) and a.get("id")]
@@ -479,7 +500,7 @@ def r_interactions(b):
 
 def r_tf_regulation(b):
     L = ["## Regulation", "",
-         f"**Is transcription factor: {b.get('is_transcription_factor')}**\n"]
+         f"**Is transcription factor: {'yes' if b.get('is_transcription_factor') else 'no'}**\n"]
     L.append(f"**Downstream targets (CollecTRI): {b.get('downstream_count', 0)}**\n")
     L.append(table(["Target", "Regulation"],
                    [(t.get("target"), t.get("regulation")) for t in b.get("downstream_targets", [])[:30]]))
@@ -514,7 +535,7 @@ def r_tf_regulation(b):
 
 def r_drugs(b):
     L = ["## Drug and pharmacology data", "",
-         f"**Is drug target: {b.get('is_drug_target')}**\n"]
+         f"**Is drug target: {'yes' if b.get('is_drug_target') else 'no'}**\n"]
     # ChEMBL target/bioactivity blocks only render when populated — non-target
     # genes (e.g. APOE) would otherwise show "(0)" lines + empty tables. CIViC /
     # PharmGKB / CTD blocks below still carry the section for such genes.
@@ -685,8 +706,8 @@ def r_drugs(b):
     if ctd:
         L.append(f"\n**CTD chemical–gene interactions (human, "
                  f"{b.get('ctd_interaction_total', 0)} total), top 30 by PubMed support:**\n")
-        L.append(table(["Chemical", "Actions (CV verbs)", "PubMed papers"],
-                       [(r["chemical"], ", ".join(r["actions"]),
+        L.append(table(["Chemical", "Actions (top 5)", "PubMed papers"],
+                       [(r["chemical"], _ctd_actions(r["actions"]),
                          r["pmids"]) for r in ctd]))
 
     # ChEMBL screening-assay depth — how heavily this target has been
