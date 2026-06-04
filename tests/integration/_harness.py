@@ -34,8 +34,8 @@ ATLAS = os.path.join(DIST, "atlas")
 H2_IDS = {
     "gene":    ["summary", "identifiers", "gene-structure", "protein",
                 "function", "disease", "drugs", "related"],
-    "disease": ["summary", "identifiers", "genetics", "genes", "function",
-                "drugs", "trials", "related"],
+    "disease": ["summary", "clinical", "identifiers", "genetics", "genes",
+                "function", "drugs", "trials", "related"],
     "drug":    ["summary", "identifiers", "targets", "indications",
                 "pharmacology", "related-molecules", "related"],
 }
@@ -53,7 +53,7 @@ H3_IDS = {
              "functional-genomics", "generif", "orthologs", "protein-ids",
              "structure", "residue-map", "pathways", "interactions", "cancer",
              "variants", "disease-assoc", "drug-data"},
-    "disease": {"disease-ids", "gwas", "variant-tiers", "mendelian",
+    "disease": {"epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",
                 "cohort-genes", "protein-families", "expression", "interactions",
                 "structural", "pathways", "drug-targets", "bioactivity",
                 "pharmacogenomics", "tractability", "druggability", "undrugged",

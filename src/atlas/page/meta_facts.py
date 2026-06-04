@@ -75,6 +75,9 @@ def _section_defaults(entity_type, bundle):
     if entity_type == "gene" and (bundle.get("10") or {}).get("is_drug_target"):
         d["drugs"] = "open"
     elif entity_type == "disease":
+        # Clinical presentation is the headline — open it when present.
+        if (bundle.get("1") or {}).get("phenotypes"):
+            d["clinical"] = "open"
         d["trials" if (bundle.get("13") or {}).get("trial_count") else "genes"] = "open"
     elif entity_type == "drug":
         d["indications"] = "open"

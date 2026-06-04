@@ -149,41 +149,44 @@ def r_disease_ids(b):
     avail = _data_availability(b.get("xref_counts") or {})
     if avail:
         out += ["", "**Data availability:** " + avail + "."]
-
-    # Epidemiology — Orphanet curates multi-geography prevalence data per
-    # rare disease. Show as a small table when present (validated rows first).
-    prevs = b.get("prevalences") or []
-    if prevs:
-        prevs_sorted = sorted(prevs,
-                              key=lambda p: (0 if p.get("validation_status") == "Validated" else 1,
-                                             p.get("prevalence_type") or ""))
-        out.append("")
-        out.append(f"**Epidemiology ({len(prevs)} prevalence records, "
-                   "Orphanet):**")
-        out.append("")
-        out.append(table(["Type", "Class", "Value", "Geography", "Validation"],
-                         [(p.get("prevalence_type"), p.get("prevalence_class"),
-                           p.get("val_moy"), p.get("geographic"),
-                           p.get("validation_status"))
-                          for p in prevs_sorted]))
-
-    # Clinical features (HPO phenotypes from Orphanet, frequency-sorted). These
-    # are curated, frequency-annotated, and all clinically meaningful (not noisy
-    # like a GWAS tail), so show a generous top 50; the full list is in the
-    # bundle/sidecar for RAG consumers.
-    phs = b.get("phenotypes") or []
-    if phs:
-        total = b.get("phenotype_count") or len(phs)
-        out.append("")
-        out.append(f"**Clinical features ({total} HPO phenotypes, Orphanet "
-                   f"curated; top {min(50, len(phs))} by frequency):**")
-        out.append("")
-        out.append(table(["HPO ID", "Term", "Frequency"],
-                         [(p.get("hpo_id"),
-                           p.get("hpo_term"),
-                           p.get("frequency"))
-                          for p in phs[:50]]))
     return "\n".join(out)
+
+
+def r_epidemiology(b):
+    """Epidemiology — Orphanet multi-geography prevalence (validated first).
+    Moved from §1 into the Clinical features zone (it's clinical profile, not an
+    identifier). Returns '' when no prevalence data so the zone elides."""
+    prevs = b.get("prevalences") or []
+    if not prevs:
+        return ""
+    prevs_sorted = sorted(prevs,
+                          key=lambda p: (0 if p.get("validation_status") == "Validated" else 1,
+                                         p.get("prevalence_type") or ""))
+    return "\n".join(
+        ["## Epidemiology", "",
+         f"**{len(prevs)} prevalence record(s), Orphanet:**", "",
+         table(["Type", "Class", "Value", "Geography", "Validation"],
+               [(p.get("prevalence_type"), p.get("prevalence_class"),
+                 p.get("val_moy"), p.get("geographic"), p.get("validation_status"))
+                for p in prevs_sorted])])
+
+
+def r_symptoms(b):
+    """Signs & symptoms — Orphanet-curated HPO clinical features, frequency-sorted
+    (top 50; full list in the bundle/JSON-LD sidecar). The headline clinical
+    presentation of a disease, so it gets a first-class section right after the
+    summary rather than being buried under identifiers."""
+    phs = b.get("phenotypes") or []
+    if not phs:
+        return ""
+    total = b.get("phenotype_count") or len(phs)
+    return "\n".join(
+        ["## Signs & symptoms", "",
+         f"**{total} HPO clinical features (Orphanet curated; top "
+         f"{min(50, len(phs))} by frequency):**", "",
+         table(["HPO ID", "Term", "Frequency"],
+               [(p.get("hpo_id"), p.get("hpo_term"), p.get("frequency"))
+                for p in phs[:50]])])
 
 
 # §2 gwas_landscape ---------------------------------------------------------
@@ -842,9 +845,10 @@ RENDER = {
 
 def render_all(bundles):
     """Disease page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
-    Identifiers → Genetics & variants → Genes & proteins → Function → Therapeutics
-    → Clinical trials & evidence. (Summary wrapped by assemble_page; Related
-    appended after.) The current 18 section-renderers fold into these as H3."""
+    Clinical features → Identifiers → Genetics & variants → Genes & proteins →
+    Function → Therapeutics → Clinical trials & evidence. (Summary wrapped by
+    assemble_page; Related appended after.) Clinical features (epidemiology +
+    HPO signs/symptoms) leads — it's the headline content for a disease."""
     from atlas.render_common import demote, emit_canonical, with_heading_id
 
     def S(s, anchor):
@@ -857,6 +861,10 @@ def render_all(bundles):
         return "\n\n".join(p for p in parts if p and p.strip())
 
     spec = [
+        ("Clinical features", "clinical",
+         join(D(r_epidemiology(bundles["1"]), "epidemiology"),
+              D(r_symptoms(bundles["1"]), "symptoms")),
+         "No curated clinical features (Orphanet) for this disease."),
         ("Identifiers", "identifiers", S("1", "disease-ids"), None),
         ("Genetics & variants", "genetics",
          join(S("2", "gwas"), S("3", "variant-tiers")),

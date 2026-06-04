@@ -59,6 +59,7 @@ def test_ncrna_emits_all_sections_with_placeholders(monkeypatch):
 
 
 DISEASE_H2 = [
+    "## Clinical features {#clinical}",
     "## Identifiers {#identifiers}",
     "## Genetics & variants {#genetics}",
     "## Genes & proteins {#genes}",
