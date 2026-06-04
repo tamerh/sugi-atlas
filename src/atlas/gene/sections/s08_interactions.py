@@ -94,8 +94,13 @@ def collect(a):
         partner = ua if ub == uni else ub
         if not partner or partner == uni:    # skip blanks + self-interactions
             continue
-        string.append({"partner": partner,
-                       "partner_symbol": _uniprot_symbol(partner),
+        psym = _uniprot_symbol(partner)
+        # Also skip same-GENE self-edges: a secondary/isoform accession that maps
+        # back to this gene's own symbol (MYO18A, MIEF1) — a self-loop by gene
+        # identity even though the accession differs.
+        if psym and a.symbol and psym.upper() == a.symbol.upper():
+            continue
+        string.append({"partner": partner, "partner_symbol": psym,
                        "score": attrs.get("score") or t.get("score")})
     bundle["string"] = string
     bundle["string_count"] = string_n or len(st)
