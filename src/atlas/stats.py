@@ -131,7 +131,9 @@ def compute(src):
 _LABELS = {
     "civic_count": "CIViC evidence", "drug_count": "Drugs", "gene_count": "Cohort genes",
     "variant_count": "Variants (ClinVar)", "gwas_count": "GWAS", "trial_count": "Clinical trials",
-    "interaction_count": "Protein interactions",
+    "interaction_count": "Protein interactions", "phenotype_count": "Phenotypes (HPO)",
+    "indication_count": "Indications", "target_count": "Targets",
+    "activity_count": "Bioactivity", "patent_family_count": "Patent families",
 }
 
 
