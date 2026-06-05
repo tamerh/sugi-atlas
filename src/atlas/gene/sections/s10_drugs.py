@@ -326,13 +326,20 @@ def collect(a):
     potent.sort(key=_pchembl, reverse=True)
     # Resolve each displayed activity to its compound. The molecule is not stored
     # on the activity record (only an xref edge — see BIOBTREE_ISSUES #36), so we
-    # traverse it per row for the top 30. The activity id (CHEMBL_ACT_…) is opaque;
+    # traverse it per row for the top 50. The activity id (CHEMBL_ACT_…) is opaque;
     # the molecule (named when known, e.g. Mobocertinib, else its ChEMBL id) is the
     # identity that makes the row interpretable.
-    acts = []
-    for r in potent[:30]:
+    acts, seen = [], set()
+    for r in potent[:100]:            # cap the per-activity molecule lookups
+        if len(acts) >= 50:
+            break
         mol = map_all(r["id"], ">>chembl_activity>>chembl_molecule")
         m = mol[0] if mol else {}
+        key = (r.get("pchembl"), r.get("standard_type"), r.get("standard_value"),
+               r.get("standard_units"), m.get("id"))
+        if key in seen:               # drop duplicate assay records (same compound + measurement)
+            continue
+        seen.add(key)
         acts.append({
             "id": r["id"],
             "type": r.get("standard_type"),
