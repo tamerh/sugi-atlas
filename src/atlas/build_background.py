@@ -113,9 +113,10 @@ def build_membership():
                 print(f"  {i}/{len(syms)} — {len(mem)} with annotation", flush=True)
     os.makedirs(OUTDIR, exist_ok=True)
     path = os.path.join(OUTDIR, "membership.json.gz")
-    with gzip.open(path, "wt") as f:
-        json.dump({"biobtree_version": pipeline.biobtree_version(),
-                   "genes": mem, "names": names}, f, sort_keys=True)
+    blob = json.dumps({"biobtree_version": pipeline.biobtree_version(),
+                       "genes": mem, "names": names}, sort_keys=True).encode()
+    with open(path, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as gz:
+        gz.write(blob)                   # mtime=0 → byte-reproducible across rebuilds
     print(f"[membership] {len(mem)} genes, {len(names)} names → {path} "
           f"({os.path.getsize(path)//1024} KB)", flush=True)
 
