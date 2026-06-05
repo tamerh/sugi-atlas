@@ -1,9 +1,8 @@
 # Atlas
 
 A deterministic reference atlas for **genes, drugs, and diseases**, built on
-[biobtree](https://biobtree.org) and published at `sugi.bio/atlas/`. Code gathers
-and renders every fact and statistic — no model decides what to query or how to
-fill a table; a single optional, gated LLM step writes only the executive summary.
+[biobtree](https://biobtree.org) and published at `sugi.bio/atlas/`. Every fact
+and statistic is gathered and rendered by code.
 
 > **How it works, the per-entity build details, the frozen page contract, and the
 > cross-entity mesh all live in [`docs/`](docs/)** — start with
