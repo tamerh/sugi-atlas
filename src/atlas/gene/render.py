@@ -96,8 +96,8 @@ def r_transcripts(b):
     L.append(f"\n**RefSeq mRNA: {n}{_cap(n)}** — MANE Select: `{b.get('mane_select_refseq')}`")
     L.append(", ".join(f"`{x}`" for x in b.get("refseq_mrna", [])))
     L.append(_labeled("CCDS", (f"`{x}`" for x in b.get("ccds", []))))
-    L.append(f"\n**Canonical transcript `{b.get('canonical_transcript')}` — "
-             f"{b.get('canonical_exon_count', 0)} exons**\n")
+    L.append("\n### Canonical transcript exons {#canonical-exons}\n")
+    L.append(f"`{b.get('canonical_transcript')}` — {b.get('canonical_exon_count', 0)} exons\n")
     L.append(table(["Exon", "Start", "End"],
                    [(e["id"], e.get("start"), e.get("end")) for e in b.get("canonical_exons", [])]))
     return "\n".join(L)
@@ -174,7 +174,7 @@ def r_protein_ids(b):
     # Named isoforms — surfaces p53α/β/γ, K-Ras4A/4B, p16INK4a/p14ARF, etc.
     isoforms = b.get("isoforms") or []
     if isoforms:
-        L.append(f"\n**Isoforms ({len(isoforms)}):**\n")
+        L.append(f"\n### Isoforms ({len(isoforms)}) {{#isoforms}}\n")
         L.append(table(["UniProt ID", "Names", "Canonical?"],
                        [(iso.get("id") or "",
                          ", ".join(iso.get("names") or []),
@@ -184,7 +184,7 @@ def r_protein_ids(b):
     rp = b.get("refseq_protein", [])
     L.append(f"\n**RefSeq proteins ({b.get('refseq_protein_count', 0)}):** "
              + ", ".join(f"`{p['id']}`" + ("*" if p.get("mane") else "") for p in rp) + "  (*=MANE)")
-    L.append("\n**Domains & families (InterPro):**\n")
+    L.append("\n### Domains & families (InterPro) {#domains}\n")
     L.append(table(["ID", "Name", "Type"],
                    [(d["id"], d.get("name"), d.get("type")) for d in b.get("interpro", [])]))
     L.append(_labeled("Pfam", (f"`{x}`" for x in b.get("pfam", []))))
@@ -208,9 +208,10 @@ def r_protein_ids(b):
         # Per-substrate kinetics (Tier 2: Km spans organisms/conditions).
         kin = b.get("brenda_kinetics") or []
         if kin:
-            L.append(f"\n**Substrate kinetics (BRENDA, {b.get('brenda_kinetics_total', 0)} "
-                     f"substrates with measured Km), best-characterized {len(kin)}.** "
-                     f"*Km ranges are aggregated across organisms/conditions.*\n")
+            L.append("\n### Substrate kinetics (BRENDA) {#brenda}\n")
+            L.append(f"{b.get('brenda_kinetics_total', 0)} substrates with measured Km, "
+                     f"best-characterized {len(kin)}. *Km ranges are aggregated across "
+                     f"organisms/conditions.*\n")
 
             def _km(r):
                 def f(v):
@@ -404,11 +405,12 @@ def r_structure(b):
     pdb_sorted = sorted(pdb, key=_res)
     shown = pdb_sorted[:30]
     note = f", top {len(shown)} by resolution" if len(pdb) > len(shown) else ""
-    L.append(f"**Experimental structures (PDB): {n}{note}**\n")
+    L.append("\n### Experimental structures (PDB) {#pdb}\n")
+    L.append(f"{n} structures{note}.\n")
     L.append(table(["PDB", "Method", "Resolution (Å)"],
                    [(p["id"], p.get("method"), fnum(p.get("resolution")))  # 2-dp; raw is 1.83549
                     for p in shown]))
-    L.append("\n**Predicted structure (AlphaFold):**\n")
+    L.append("\n### Predicted structure (AlphaFold) {#alphafold}\n")
     afs = b.get("alphafold", []) or []
     present_rows = [a for a in afs if a.get("present", True) and a.get("id")]
     missing_rows = [a for a in afs if not a.get("present", True)]
@@ -446,17 +448,19 @@ def r_orthologs(b):
 def r_variants(b):
     L = ["## Clinical variants and AI predictions", ""]
     bd = b.get("clinvar_breakdown", {})
-    L.append(f"**ClinVar: {b.get('clinvar_total', 0)} variants total.** "
-             f"Per-class counts are floors (≥ shown; pagination cap):\n")
+    L.append("\n### ClinVar {#clinvar}\n")
+    L.append(f"{b.get('clinvar_total', 0)} variants total. Per-class counts are floors "
+             f"(≥ shown; pagination cap):\n")
     L.append(table(["Classification", "Count (floor)"], list(bd.items())))
-    L.append(f"\n**Top pathogenic / likely-pathogenic ({len(b.get('top_pathogenic', []))}):**\n")
+    L.append(f"\n### Top pathogenic / likely-pathogenic ({len(b.get('top_pathogenic', []))}) {{#top-pathogenic}}\n")
     L.append(table(["Variant ID", "HGVS", "Classification"],
                    [(v["id"], v.get("hgvs"), v.get("classification")) for v in b.get("top_pathogenic", [])]))
-    L.append(f"\n**SpliceAI: {b.get('spliceai_total', 0)} predictions.** Top by Δscore:\n")
+    L.append("\n### SpliceAI {#spliceai}\n")
+    L.append(f"{b.get('spliceai_total', 0)} predictions. Top by Δscore:\n")
     L.append(table(["Variant", "Effect", "Δscore"],
                    [(v["id"], v.get("effect"), v.get("score")) for v in b.get("top_spliceai", [])]))
-    L.append(f"\n**AlphaMissense: {b.get('alphamissense_total', 0)} scored.** "
-             f"Top likely-pathogenic:\n")
+    L.append("\n### AlphaMissense {#alphamissense}\n")
+    L.append(f"{b.get('alphamissense_total', 0)} scored. Top likely-pathogenic:\n")
     L.append(table(["Variant", "Protein change", "am_pathogenicity"],
                    [(v["id"], v.get("variant"), v.get("am_pathogenicity")) for v in b.get("top_alphamissense", [])]))
     ds = b.get("dbsnp_sample", [])
@@ -468,7 +472,8 @@ def r_variants(b):
 
 def r_pathways(b):
     L = ["## Pathways and Gene Ontology", "",
-         f"**Reactome pathways: {b.get('reactome_count', 0)}**\n"]
+         "### Reactome pathways {#reactome}", "",
+         f"{b.get('reactome_count', 0)} pathways\n"]
     L.append(table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:30]]))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
     L.append(", ".join(f"`{m['name']}`" for m in b.get("msigdb", [])[:15]))
@@ -482,12 +487,14 @@ def r_pathways(b):
     # Reactome's hierarchy is tight (1-2 parents per pathway); GO's is broader.
     rp = b.get("reactome_parent_rollup") or []
     if rp:
-        L.append(f"\n**Reactome top-level categories (rollup of top-{len(rp)} pathways):**\n")
+        L.append("\n### Reactome top-level categories {#reactome-categories}\n")
+        L.append(f"Rollup of top-{len(rp)} pathways:\n")
         L.append(table(["Category", "Pathways"],
                        [(p.get("name") or p["id"], p.get("pathway_count")) for p in rp[:15]]))
     gp = b.get("go_parent_rollup") or []
     if gp:
-        L.append(f"\n**GO top-level categories (rollup of top GO terms by namespace):**\n")
+        L.append("\n### GO top-level categories {#go-categories}\n")
+        L.append("Rollup of top GO terms by namespace:\n")
         L.append(table(["Category", "Terms"],
                        [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:40]]))
     return "\n".join(L)
@@ -495,21 +502,24 @@ def r_pathways(b):
 
 def r_interactions(b):
     L = ["## Protein interactions and networks", ""]
-    L.append(f"**STRING ({b.get('string_count', 0)}), top by confidence (×1000):**\n")
+    L.append("\n### STRING {#string}\n")
+    L.append(f"{b.get('string_count', 0)} interactions, top by confidence (×1000):\n")
     # Show both sides of each interaction (this protein ↔ partner) + the partner's
     # UniProt accession. Partner is the non-query side (biobtree #34 workaround).
     self_sym = b.get("symbol") or "—"
     L.append(table(["Protein A", "Protein B", "Partner UniProt", "Score"],
                    [(self_sym, s.get("partner_symbol") or s.get("partner"),
                      s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]]))
-    L.append(f"\n**IntAct ({b.get('intact_count', 0)}), top by confidence:**\n")
+    L.append("\n### IntAct {#intact}\n")
+    L.append(f"{b.get('intact_count', 0)} interactions, top by confidence:\n")
     L.append(table(["A", "B", "Type", "Score"],
                    [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]]))
     L.append(_labeled(f"BioGRID ({b.get('biogrid_count', 0)})",
                       (f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15])))
     L.append(_labeled("ESM2 similar proteins", (f"`{p}`" for p in b.get("esm2_similar", [])[:40])))
     L.append(_labeled("Diamond homologs", (f"`{p}`" for p in b.get("diamond_similar", [])[:40])))
-    L.append(f"\n**SIGNOR signaling ({b.get('signor_count', 0)}):**\n")
+    L.append("\n### SIGNOR signaling {#signor}\n")
+    L.append(f"{b.get('signor_count', 0)} interactions.\n")
     L.append(table(["A", "Effect", "B", "Mechanism"],
                    [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:30]]))
     return "\n".join(L)
@@ -518,14 +528,15 @@ def r_interactions(b):
 def r_tf_regulation(b):
     L = ["## Regulation", "",
          f"**Is transcription factor: {'yes' if b.get('is_transcription_factor') else 'no'}**\n"]
-    L.append(f"**Downstream targets (CollecTRI): {b.get('downstream_count', 0)}**\n")
+    L.append("\n### Downstream targets (CollecTRI) {#collectri}\n")
+    L.append(f"{b.get('downstream_count', 0)} targets.\n")
     L.append(table(["Target", "Regulation"],
                    [(t.get("target"), t.get("regulation")) for t in b.get("downstream_targets", [])[:30]]))
     # JASPAR motifs — only render when present (most non-TF genes have none,
     # which would otherwise leave an empty header-only table).
     motifs = b.get("jaspar_motifs") or []
     if motifs:
-        L.append("\n**JASPAR motifs:**\n")
+        L.append("\n### JASPAR motifs {#jaspar}\n")
         L.append(table(["Motif", "Name", "Family"],
                        [(m["id"], m.get("name"), m.get("family")) for m in motifs]))
     # JASPAR PMIDs — evidence trail for the motifs above.
@@ -540,10 +551,10 @@ def r_tf_regulation(b):
     # promiscuity across all genes (lower = more specific target relationship).
     n_mir = b.get("mirna_count", 0)
     if n_mir:
-        L.append(f"\n**miRNA regulators (miRDB): {n_mir}** targeting "
-                 f"{b.get('symbol')}, top 30 by miRDB confidence (max_score; "
-                 f"target_count = how many genes the miRNA targets in total — "
-                 f"lower means more specific):\n")
+        L.append("\n### miRNA regulators (miRDB) {#mirdb}\n")
+        L.append(f"{n_mir} targeting {b.get('symbol')}, top 30 by miRDB confidence "
+                 f"(max_score; target_count = how many genes the miRNA targets in total "
+                 f"— lower means more specific):\n")
         L.append(table(["miRNA", "Max score", "Avg score", "miRNA target_count"],
                        [(m["id"], m.get("max_score"), m.get("avg_score"),
                          m.get("target_count")) for m in b.get("mirna_regulators", [])]))
@@ -828,7 +839,7 @@ def r_expression(b):
                  f"expressed in {f5.get('samples_expressed')} samples.")
     fp = b.get("fantom5_promoters") or []
     if fp:
-        L.append(f"\n**FANTOM5 promoters ({len(fp)} alternative TSS):**\n")
+        L.append(f"\n### FANTOM5 promoters ({len(fp)} alternative TSS) {{#fantom5-promoters}}\n")
         L.append(table(["Promoter ID", "TPM avg", "Samples expressed"],
                        [(p["id"], p.get("tpm_average"), p.get("samples_expressed")) for p in fp[:10]]))
     # Tissue name as plain text — the UBERON/CL id is shown in its own column;
@@ -838,8 +849,9 @@ def r_expression(b):
     # the per-condition rank). We drop the raw Rank column — it's inversely
     # redundant with the score and the pair reads as a contradiction (high score
     # next to a mid-looking rank) when it isn't.
-    L.append(f"\n**Top tissues by expression ({b.get('tissue_count', 0)} total), "
-             f"by Bgee expression score (0-100, higher = more expressed):**\n")
+    L.append("\n### Top tissues by expression {#tissue-expression}\n")
+    L.append(f"{b.get('tissue_count', 0)} total, by Bgee expression score (0-100, higher "
+             f"= more expressed):\n")
     L.append(table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
                    [(t.get("tissue") or "", t.get("anatomy_id") or "",
                      t.get("score"), t.get("quality"))
@@ -848,9 +860,9 @@ def r_expression(b):
     # single-cell experiments (biobtree #31: via the scxa_expression node).
     sc = b.get("single_cell") or {}
     if sc.get("total_experiments"):
-        L.append(f"\n**Single-cell (SCXA): detected in {sc['total_experiments']} "
-                 f"experiment(s), a significant marker in "
-                 f"{sc.get('marker_experiments', 0)}.**\n")
+        L.append("\n### Single-cell (SCXA) {#scxa}\n")
+        L.append(f"Detected in {sc['total_experiments']} experiment(s), a significant "
+                 f"marker in {sc.get('marker_experiments', 0)}.\n")
         exps = sc.get("experiments") or []
         if exps:
             L.append(table(["Experiment", "Marker?", "Max mean expression"],
@@ -908,7 +920,7 @@ def r_diseases(b):
     L = ["## Disease associations", ""]
     L.append(f"**OMIM:** gene `{', '.join(b.get('gene_omim', []))}` | "
              f"disease phenotypes: {', '.join(b.get('disease_omim', [])[:40])}")
-    L.append("\n**GenCC curated gene-disease:**\n")
+    L.append("\n### GenCC curated gene-disease {#gencc}\n")
     # Collapse to one row per disease (audit #13: GenCC has many submissions per
     # gene–disease pair — FANCB ×4); keep the strongest classification.
     from atlas.render_common import gencc_rank
@@ -928,8 +940,8 @@ def r_diseases(b):
     # validity classifications used by clinical variant labs (ACMG/AMP guidelines).
     cgv = b.get("clingen_validity") or []
     if cgv:
-        L.append(f"\n**ClinGen Gene-Disease Validity ({len(cgv)}):** "
-                 "expert-panel classifications — Definitive > Strong > Moderate > "
+        L.append(f"\n### ClinGen Gene-Disease Validity ({len(cgv)}) {{#clingen}}\n")
+        L.append("Expert-panel classifications — Definitive > Strong > Moderate > "
                  "Limited > Disputed > Refuted.\n")
         L.append(table(["Disease", "Classification", "Inheritance"],
                        [(links.maybe_link(c.get("disease"), links.disease_url(name=c.get("disease"))),
@@ -944,10 +956,12 @@ def r_diseases(b):
     # "(top)" — these are the first 30 by HPO id. (Frequency-ranked clinical
     # features live on the disease pages.)
     _hpo = b.get("hpo", [])
-    L.append(f"\n**HPO phenotypes: {b.get('hpo_total', 0)}** "
-             f"({min(30, len(_hpo))} of {b.get('hpo_total', 0)} shown, HPO-id order):\n")
+    L.append("\n### HPO phenotypes {#hpo}\n")
+    L.append(f"{b.get('hpo_total', 0)} total ({min(30, len(_hpo))} of "
+             f"{b.get('hpo_total', 0)} shown, HPO-id order):\n")
     L.append(table(["HPO", "Term"], [(h["id"], h.get("name")) for h in _hpo[:30]]))
-    L.append(f"\n**GWAS associations: {b.get('gwas_total', 0)}** (top):\n")
+    L.append("\n### GWAS associations {#gwas-assoc}\n")
+    L.append(f"{b.get('gwas_total', 0)} associations (top):\n")
     L.append(table(["Study", "Trait", "p-value"],
                    [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]]))
 
@@ -957,7 +971,7 @@ def r_diseases(b):
     # AI agents doing cross-resource joins on trait IDs.
     efo = b.get("efo_traits") or []
     if efo:
-        L.append(f"\n**EFO canonical traits ({len(efo)}, from GWAS):**\n")
+        L.append(f"\n### EFO canonical traits ({len(efo)}, from GWAS) {{#efo}}\n")
         L.append(table(["EFO ID", "Trait name"],
                        [(e["id"], e.get("name")) for e in efo[:30]]))
 
@@ -969,7 +983,7 @@ def r_diseases(b):
     # no name (e.g. `C538339`); a row with a bare id misleads LLMs.
     mesh = [m for m in (b.get("mesh_descriptors") or []) if (m.get("name") or "").strip()]
     if mesh:
-        L.append(f"\n**MeSH disease descriptors ({len(mesh)}):**\n")
+        L.append(f"\n### MeSH disease descriptors ({len(mesh)}) {{#mesh}}\n")
         L.append(table(["Descriptor", "Name", "Tree numbers"],
                        [(m["id"],
                          m["name"] + (" *(supp.)*" if m.get("is_supplementary") else ""),

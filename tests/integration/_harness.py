@@ -66,7 +66,18 @@ H3_IDS = {
 # Frozen H4 id allow-list per entity. H4s are the table-block titles inside a
 # section (e.g. gene §drug-data). A page's H4 ids must be a SUBSET of these.
 H4_IDS = {
-    "gene": {"uniprot-cc",
+    "gene": {  # §transcripts / §protein-ids / §structure
+             "canonical-exons", "isoforms", "domains", "uniprot-cc", "brenda",
+             "pdb", "alphafold",
+             # §variants
+             "clinvar", "top-pathogenic", "spliceai", "alphamissense",
+             # §pathways / §interactions / §regulation
+             "reactome", "reactome-categories", "go-categories",
+             "string", "intact", "signor", "collectri", "jaspar", "mirdb",
+             # §expression / §disease-assoc
+             "fantom5-promoters", "tissue-expression", "scxa",
+             "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",
+             # §drug-data
              "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",
              "pharmgkb-guidelines", "gtopdb", "bindingdb", "chembl-bioactivity",
              "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials"},
