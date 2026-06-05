@@ -36,3 +36,15 @@ def test_clean_ligand_returns_full_name():
     long = "x" * 100
     out = _clean_ligand(long)
     assert out == long and "…" not in out
+
+
+# ── §5 ortholog organism recovery (biobtree #37) ─────────────────────────────
+def test_ortholog_organism_from_id():
+    from atlas.gene.sections.s05_orthologs import _organism_from_id as f
+    # biobtree leaves WormBase ortholog genome empty → recover from the id prefix
+    assert f("WBGENE00000264") == "caenorhabditis_elegans"
+    assert f("WBGene00018327") == "caenorhabditis_elegans"   # case-insensitive
+    assert f("FBgn0000546") == "drosophila_melanogaster"
+    # Ensembl-namespaced orthologs are populated upstream → no fallback
+    assert f("ENSMUSG00000017146") == ""
+    assert f("") == "" and f(None) == ""
