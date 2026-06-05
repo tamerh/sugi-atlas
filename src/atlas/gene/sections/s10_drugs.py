@@ -272,8 +272,12 @@ def collect(a):
         if not bm:
             continue
         name = _clean_ligand(r.get("ligand_name"))
-        patent = _patent_id(name)                 # set only for patent-ref names
-        if patent:
+        # Authoritative patent source: the projected patent_number (populated for
+        # named AND patent-extracted compounds), else the patent parsed from the
+        # ligand reference. So a blank Patent cell means genuinely no patent.
+        patent = (r.get("patent_number") or "").strip() or _patent_id(name)
+        # Recover a chemical name when ligand_name is only a patent reference.
+        if _is_patent_ref(name):
             cid = (r.get("pubchem_cids") or "").split(",")[0].strip()
             recovered = pc_title.get(cid)
             if recovered and not _is_patent_ref(recovered):
