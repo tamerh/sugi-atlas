@@ -123,6 +123,7 @@ def render_one(spec):
             from atlas.page.jsonld import build_jsonld, as_jsonld_string
             jsonld = as_jsonld_string(build_jsonld(bundle))
         elif etype == "disease":
+            bundle["_indicated_drugs"] = links.indicated_drugs(dist_dir, slug)
             body = DR.render_all(bundle)
             from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
             jsonld = as_jsonld_string(build_jsonld(bundle, slug))
@@ -225,6 +226,43 @@ def _build_reverse_index(collected, dist_dir, cache_dir):
     return reverse
 
 
+def _build_indication_index(collected, dist_dir, cache_dir):
+    """PHASE B — invert ChEMBL drug indications into a disease→drugs index so a
+    disease page surfaces the drugs DIRECTLY indicated for it (not gene-cohort-
+    mediated). Phase ≥2 captured (≤1 is noise — 90% fail, Levodopa↔asthma); the
+    renderer then TIERS it: phase ≥3 as "indicated", phase 2 as a separate
+    investigational sub-block. Keyed by disease URL, written as indicated_drugs.json
+    the render reads via links.indicated_drugs(). This is the disease-direct
+    therapeutic edge — the only drug content a non-molecular disease can show."""
+    links.load(dist_dir)                           # complete manifest, for resolution
+    idx = {}                                        # disease_url -> {drug_url: {name, max_phase}}
+    for r in collected:
+        if r["entity"] != "drug":
+            continue
+        try:
+            payload = json.load(open(_cache_path(cache_dir, r["entity"], r["slug"])))
+        except (OSError, json.JSONDecodeError):
+            continue
+        drug_url = f"/atlas/drug/{r['slug']}/"
+        drug_name = r.get("canonical") or payload.get("title") or r["slug"]
+        for i in (payload["bundle"].get("4") or {}).get("indications") or []:
+            phase = i.get("max_phase") or 0
+            if phase < 2:                          # ≤1: exploratory noise, excluded
+                continue
+            d_url = links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))
+            if not d_url or d_url == drug_url:
+                continue
+            slot = idx.setdefault(d_url, {}).setdefault(
+                drug_url, {"name": drug_name, "url": drug_url, "max_phase": 0})
+            slot["max_phase"] = max(slot["max_phase"], phase)   # best phase per drug↔disease
+    # Approved-first, then name — deterministic ordering for the rendered table.
+    out = {d_url: sorted(drugs.values(), key=lambda x: (-x["max_phase"], x["name"]))
+           for d_url, drugs in idx.items()}
+    write_json(os.path.join(dist_dir, "atlas", "indicated_drugs.json"),
+               out, indent=0, sort_keys=True)
+    return out
+
+
 def _parse_list(val):
     """Comma-separated values, or @file (one entity per line)."""
     if not val:
@@ -260,6 +298,8 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
     print(f"[B] build reverse-edge index …")
     rev = _build_reverse_index(ok, dist_dir, cache_dir)
     print(f"[B] reverse index: {len(rev)} targets with incoming edges")
+    ind = _build_indication_index(ok, dist_dir, cache_dir)
+    print(f"[B] indication index: {len(ind)} diseases with ≥1 indicated drug")
     _write_evidence(ok, dist_dir)
 
     gen_at = datetime.now(timezone.utc).isoformat(timespec="seconds")

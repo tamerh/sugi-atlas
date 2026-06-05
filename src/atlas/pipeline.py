@@ -480,6 +480,7 @@ def run_disease(name, dist_dir, do_summary=True, summary_model=DEFAULT_SUMMARY_M
                  canonical=a.canonical_name)
 
     print(f"[3/5] render body")
+    bundle["_indicated_drugs"] = links.indicated_drugs(dist_dir, slug)
     body_md = DR.render_all(bundle)
 
     print(f"[3a/5] body_gate")

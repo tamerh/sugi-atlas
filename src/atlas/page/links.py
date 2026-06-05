@@ -37,6 +37,14 @@ _LOADED_FROM = None
 _REVERSE = {}
 _REVERSE_FROM = None
 
+# Disease→drug indication index {disease_url: [{name, url, max_phase}, …]} —
+# drugs whose labelled/late-stage (phase ≥3) ChEMBL indication is this disease.
+# A disease-DIRECT therapeutic edge (not gene-cohort-mediated), so non-molecular
+# diseases (autoimmune/clinical-only) still surface real registered drugs. Built
+# in the merge phase (corpus builds only); empty for single-page builds.
+_INDICATIONS = {}
+_INDICATIONS_FROM = None
+
 
 def _manifest_path(dist_root):
     return os.path.join(dist_root, "atlas", "manifest.json")
@@ -85,14 +93,40 @@ def load_reverse(dist_root):
     return _REVERSE
 
 
+def load_indications(dist_root):
+    """Load the disease→drug indication index (merge sidecar). Cached per
+    dist_root. Missing file → empty (single-page builds have no index)."""
+    global _INDICATIONS, _INDICATIONS_FROM
+    if _INDICATIONS_FROM == dist_root:
+        return _INDICATIONS
+    path = os.path.join(dist_root, "atlas", "indicated_drugs.json")
+    try:
+        with open(path) as f:
+            _INDICATIONS = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        _INDICATIONS = {}
+    _INDICATIONS_FROM = dist_root
+    return _INDICATIONS
+
+
+def indicated_drugs(dist_root, slug):
+    """Drugs whose phase ≥3 ChEMBL indication is this disease — [{name, url,
+    max_phase}], approved-first. Read at render time and injected into the
+    disease bundle (`_indicated_drugs`) for the Therapeutics section."""
+    return load_indications(dist_root).get(f"/atlas/disease/{slug}/") or []
+
+
 def reset():
     """Clear the mesh (tests / fresh runs)."""
     global _MANIFEST, _CANON, _REVERSE, _LOADED_FROM, _REVERSE_FROM
+    global _INDICATIONS, _INDICATIONS_FROM
     _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
     _CANON = {"gene": {}, "disease": {}, "drug": {}}
     _REVERSE = {}
     _LOADED_FROM = None
     _REVERSE_FROM = None
+    _INDICATIONS = {}
+    _INDICATIONS_FROM = None
 
 
 def upsert(dist_root, entity, slug, id_keys=(), name_keys=(), canonical=None):
@@ -285,8 +319,14 @@ def related_targets(entity_type, bundle):
             if (t.get("source") or "").lower() != "gtopdb":
                 continue
             add("Genes", t.get("gene_symbol"), gene_url(symbol=t.get("gene_symbol"), hgnc_id=t.get("hgnc_id")))
+        # Phase ≥3 only (launch decision): all-phase indications surfaced
+        # investigational junk as "indicated" (asthma ← Atorvastatin, a phase-3
+        # trial). The disease side renders these as a dedicated "Drugs indicated"
+        # section from the indication index, NOT the generic reverse block (the
+        # ("drug","Diseases") reverse label is intentionally absent below).
         for i in (b4.get("indications") or []):
-            add("Diseases", i.get("name"), disease_url(mondo_id=i.get("mondo_id"), name=i.get("name")))
+            if (i.get("max_phase") or 0) >= 3:
+                add("Diseases", i.get("name"), disease_url(mondo_id=i.get("mondo_id"), name=i.get("name")))
         for r in (b7.get("related_molecules") or []):
             add("Drugs", _drug_display(r.get("name")), drug_url(name=r.get("name")))
         for r in (b10.get("civic_evidence") or []):        # name-tier
@@ -312,9 +352,12 @@ REVERSE_LABEL = {
     ("gene", "Drugs"):    "Biomarker genes",     # genes whose variants associate this drug (CIViC) → on drug pages
     ("drug", "Genes"):    "Targeted by drugs",   # drugs that curatedly target this gene (GtoPdb) → on gene pages
     ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease (GenCC/ClinGen/CIViC) → on disease pages
-    ("drug", "Diseases"): "Drugs indicated",     # drugs whose labelled indication is this disease → on disease pages
+    # ("drug","Diseases") deliberately omitted: drug→disease indications are
+    # surfaced as the dedicated "Drugs indicated for this disease" Therapeutics
+    # section (render r_drugs_indicated, fed by the indicated_drugs.json index),
+    # which carries the development phase the flat reverse block can't.
 }
-_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes", "Drugs indicated"]
+_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes"]
 
 
 def _reverse_groups(my_url, forward_urls):

@@ -153,3 +153,52 @@ def test_drug_status_label():
     assert _status({"max_phase": 3}) == "Max clinical phase 3 (not approved)"
     assert _status({"max_phase": 2}) == "Max clinical phase 2 (not approved)"
     assert _status({"max_phase": None}) == ""
+
+
+# ── disease→drug indication section (reverse-indication, tiered phase 3+ / 2) ─
+from atlas.disease.render import r_drugs_indicated
+
+
+def test_r_drugs_indicated_empty_elides():
+    assert r_drugs_indicated({}) == ""
+    assert r_drugs_indicated({"_indicated_drugs": []}) == ""
+
+
+def test_r_drugs_indicated_renders_approved_first_with_honest_phase():
+    md = r_drugs_indicated({"_indicated_drugs": [
+        {"name": "Rituximab", "url": "/atlas/drug/rituximab/", "max_phase": 4},
+        {"name": "Belimumab", "url": "/atlas/drug/belimumab/", "max_phase": 3},
+    ]})
+    assert "## Drugs indicated for this disease" in md
+    assert "1 approved" in md and "1 in late-stage (phase 3) trials" in md
+    # approved labelled phase 4; phase-3 labelled as late-stage
+    assert "Approved (phase 4)" in md
+    assert "Phase 3 (in late-stage trials)" in md
+    # disease-direct framing (not gene-cohort-mediated)
+    assert "Disease-direct" in md
+    # both linked to their built drug pages
+    assert "/atlas/drug/rituximab/" in md and "/atlas/drug/belimumab/" in md
+
+
+def test_r_drugs_indicated_tiers_phase2_separately():
+    md = r_drugs_indicated({"_indicated_drugs": [
+        {"name": "Belimumab", "url": "/atlas/drug/belimumab/", "max_phase": 4},
+        {"name": "Atorvastatin", "url": "/atlas/drug/atorvastatin/", "max_phase": 2},
+    ]})
+    # phase-4 in the main table; phase-2 in the investigational sub-block, never
+    # in the table and never called "indicated"
+    assert "Approved (phase 4)" in md
+    assert "Earlier-phase candidates (phase 2, investigational" in md
+    table_part, early_part = md.split("Earlier-phase candidates")
+    assert "Belimumab" in table_part and "Atorvastatin" not in table_part
+    assert "Atorvastatin" in early_part
+
+
+def test_r_drugs_indicated_phase2_only_does_not_claim_indicated():
+    md = r_drugs_indicated({"_indicated_drugs": [
+        {"name": "Atorvastatin", "url": "/atlas/drug/atorvastatin/", "max_phase": 2},
+    ]})
+    # no approved/late-stage drug → explicit disclaimer, no results table
+    assert "No approved or late-stage" in md
+    assert "| Drug | Development status |" not in md
+    assert "Earlier-phase candidates (phase 2" in md

@@ -947,6 +947,48 @@ def _cohort_empty_note(bundles):
             "(above).*")
 
 
+def r_drugs_indicated(bundles):
+    """Drugs DIRECTLY indicated for this disease (ChEMBL drug_indication), from
+    the merge-phase indication index (links.indicated_drugs → injected as
+    bundles['_indicated_drugs']). Disease-direct therapeutic edge: unlike the
+    cohort-target tables below it needs no associated-gene cohort, so autoimmune
+    / clinical-only diseases (anti-NMDA aside — off-label drugs aren't ChEMBL
+    indications) can still surface real registered drugs.
+
+    TIERED so "indicated" never overstates: phase ≥3 (approved + late-stage) in
+    the main table, approved first; phase 2 listed separately as investigational
+    candidates (efficacy unproven, ~70% never reach approval). Phase ≤1 is
+    excluded upstream. Empty → '' so the Therapeutics zone elides cleanly."""
+    rows = bundles.get("_indicated_drugs") or []
+    if not rows:
+        return ""
+    indicated = [r for r in rows if (r.get("max_phase") or 0) >= 3]
+    early = [r for r in rows if (r.get("max_phase") or 0) == 2]
+
+    out = ["## Drugs indicated for this disease", ""]
+    if indicated:
+        approved = sum(1 for r in indicated if (r.get("max_phase") or 0) >= 4)
+        late = len(indicated) - approved
+        out += [
+            f"**{_i(approved)} approved" + (f", {_i(late)} in late-stage (phase 3) "
+            "trials" if late else "") + ".** Disease-direct ChEMBL indications, not "
+            "inferred from the associated-gene cohort below.", "",
+            table(["Drug", "Development status"],
+                  [(links.maybe_link(r.get("name"), r.get("url")),
+                    "Approved (phase 4)" if (r.get("max_phase") or 0) >= 4
+                    else "Phase 3 (in late-stage trials)")
+                   for r in indicated]),
+        ]
+    else:
+        out += ["No approved or late-stage (phase ≥3) drug is indicated for this "
+                "disease; the following are in earlier-phase trials only.", ""]
+    if early:
+        names = ", ".join(links.maybe_link(r.get("name"), r.get("url")) for r in early)
+        out += ["", f"*Earlier-phase candidates (phase 2, investigational — efficacy "
+                f"not yet established): {names}.*"]
+    return "\n".join(out)
+
+
 def render_all(bundles):
     """Disease page body in the FROZEN canonical H2 order (docs/PAGE_CONTRACT.md):
     Clinical features → Identifiers → Genetics & variants → Genes & proteins →
@@ -984,7 +1026,8 @@ def render_all(bundles):
         ("Function", "function", S("14", "pathways"),
          "No pathway enrichment — requires an associated-gene cohort."),
         ("Therapeutics", "drugs",
-         join(S("10", "drug-targets"), S("11", "bioactivity"), S("12", "pharmacogenomics"),
+         join(D(r_drugs_indicated(bundles), "indicated"),
+              S("10", "drug-targets"), S("11", "bioactivity"), S("12", "pharmacogenomics"),
               D(r_drug_repurposing(bundles), "tractability"),
               D(r_druggability_pyramid(bundles), "druggability"),
               D(r_undrugged_target_profiles(bundles), "undrugged")),
