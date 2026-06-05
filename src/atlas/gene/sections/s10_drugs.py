@@ -16,13 +16,16 @@ _HUMAN_ORG = {"homo sapiens", "human"}
 
 def _clean_ligand(name):
     """BindingDB ligand_name is a '::'-joined synonym dump (IUPAC, CHEMBL ids,
-    analog labels). Pick the first human-readable, non-id segment for display."""
+    patent refs, analog labels). Pick the first non-CHEMBL segment and return it
+    in FULL — no baked-in truncation; the frontend clamps long IUPAC names for
+    display. Patent-extracted compounds carry only a patent reference here (e.g.
+    'US8524722, 5'); recovering a chemical name for those needs a structure join
+    to ChEMBL/PubChem upstream in BioBTree."""
     if not name:
         return name
     parts = [p.strip() for p in str(name).split("::") if p.strip()]
     named = [p for p in parts if not p.upper().startswith("CHEMBL")]
-    pick = (named or parts)[0]
-    return pick[:60] + ("…" if len(pick) > 60 else "")
+    return (named or parts)[0]
 
 
 _MEASURE_NUM = re.compile(r"^(\s*[<>~=]*\s*)([\d.]+)(.*)$")

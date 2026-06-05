@@ -30,7 +30,9 @@ def test_clean_ligand_picks_readable_name():
     assert _clean_ligand(None) is None
 
 
-def test_clean_ligand_truncates():
+def test_clean_ligand_returns_full_name():
+    # No baked-in truncation: a long IUPAC name comes back whole (the frontend
+    # clamps for display). Web-team report: names were arriving cut with "…".
     long = "x" * 100
     out = _clean_ligand(long)
-    assert out.endswith("…") and len(out) == 61
+    assert out == long and "…" not in out
