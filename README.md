@@ -8,17 +8,6 @@ and statistic is gathered and rendered by code.
 > cross-entity mesh all live in [`docs/`](docs/)** — start with
 > [docs/how-it-works.md](docs/how-it-works.md).
 
-## Quick start
-
-```bash
-pip install -e .[dev]
-# Needs the biobtree Go server running (default http://127.0.0.1:9291).
-python -m atlas.gene.collect TP53 all      # collect + render one gene to stdout
-```
-
-`ATLAS_BIOBTREE` overrides the base URL (transport details in
-[docs/how-it-works.md](docs/how-it-works.md) § biobtree transport).
-
 ## Build, test, release — `atlas.sh`
 
 Everything builds into a local, gitignored `./dist`.
