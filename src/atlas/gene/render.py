@@ -528,10 +528,12 @@ def r_interactions(b):
 def r_tf_regulation(b):
     L = ["## Regulation", "",
          f"**Is transcription factor: {'yes' if b.get('is_transcription_factor') else 'no'}**\n"]
-    L.append("\n### Downstream targets (CollecTRI) {#collectri}\n")
-    L.append(f"{b.get('downstream_count', 0)} targets.\n")
-    L.append(table(["Target", "Regulation"],
-                   [(t.get("target"), t.get("regulation")) for t in b.get("downstream_targets", [])[:30]]))
+    dt = b.get("downstream_targets") or []
+    if dt:                                          # elide when no CollecTRI targets
+        L.append("\n### Downstream targets (CollecTRI) {#collectri}\n")
+        L.append(f"{b.get('downstream_count', 0)} targets.\n")
+        L.append(table(["Target", "Regulation"],
+                       [(t.get("target"), t.get("regulation")) for t in dt[:30]]))
     # JASPAR motifs — only render when present (most non-TF genes have none,
     # which would otherwise leave an empty header-only table).
     motifs = b.get("jaspar_motifs") or []

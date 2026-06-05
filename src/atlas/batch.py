@@ -221,6 +221,10 @@ def _build_reverse_index(collected, dist_dir, cache_dir):
                 if target_url and target_url != src_url:
                     reverse.setdefault(target_url, []).append(
                         [src_label, src_url, etype, group])
+    # Sort each edge list to a stable order (group, label, url) — deterministic
+    # regardless of collection order, and groups same-type back-links together.
+    for edges in reverse.values():
+        edges.sort(key=lambda e: (e[3], (e[0] or "").lower(), e[1]))
     write_json(os.path.join(dist_dir, "atlas", "reverse_edges.json"),
                reverse, indent=0, sort_keys=True)
     return reverse
@@ -286,7 +290,12 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
     print(f"[A] collect ({total}) …", flush=True)
     with Pool(workers) as pool:
         collected = _drain("A", pool, collect_one, specs_a)
-    ok = [r for r in collected if r.get("ok")]
+    # imap_unordered returns in completion order — sort to a stable (entity, slug)
+    # order so every phase-B output is byte-identical across runs: manifest
+    # name-key collisions resolve deterministically and reverse-edge lists are
+    # built in a fixed order (the "deterministic build" guarantee).
+    ok = sorted((r for r in collected if r.get("ok")),
+                key=lambda r: (r["entity"], r["slug"]))
     failed = [r for r in collected if not r.get("ok")]
     for r in failed:
         print(f"    SKIP {r['entity']}:{r.get('ident')} — {r.get('error')}")
