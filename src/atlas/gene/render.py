@@ -657,8 +657,8 @@ def r_drugs(b):
     gt = b.get("gtopdb_target")
     gi = b.get("gtopdb_interactions") or []
     if gt or gi:
-        L.append("\n**GtoPdb / IUPHAR curated pharmacology** "
-                 "*(IUPHAR/BPS Guide to Pharmacology — expert-curated)*")
+        L.append("\n### GtoPdb / IUPHAR curated pharmacology {#gtopdb}\n")
+        L.append("*(IUPHAR/BPS Guide to Pharmacology — expert-curated)*")
         if gt:
             cls = (gt.get("type") or "").replace("_", " ")
             fam = gt.get("family")
@@ -682,11 +682,11 @@ def r_drugs(b):
     # carries the provenance so the ranking isn't read as one comparable scale).
     br = b.get("bindingdb_ranked") or []
     if br:
-        L.append(f"\n**Binding affinities (BindingDB):** {b.get('bindingdb_measured', 0)} "
-                 f"measured of {b.get('bindingdb_human', 0)} human assays "
-                 f"({b.get('bindingdb_total', 0)} total across all organisms); "
-                 f"most potent {len(br)} below. *Values come from heterogeneous "
-                 f"assays and are not directly comparable.*\n")
+        L.append("\n### Binding affinities (BindingDB) {#bindingdb}\n")
+        L.append(f"{b.get('bindingdb_measured', 0)} measured of {b.get('bindingdb_human', 0)} "
+                 f"human assays ({b.get('bindingdb_total', 0)} total across all organisms); "
+                 f"most potent {len(br)} below. *Values come from heterogeneous assays and "
+                 f"are not directly comparable.*\n")
         # Patent column when a displayed compound carries a source patent — the
         # hyphenated number (US-8524722) linked to Google Patents, plus the
         # invention title (more readable than the IUPAC). Blank for the rest.
@@ -709,9 +709,10 @@ def r_drugs(b):
     # metric — directly comparable across assay types.
     ca = b.get("chembl_activities") or []
     if ca:
-        L.append(f"\n**ChEMBL bioactivities ({b.get('chembl_activity_potent_count', 0)} "
-                 f"potent at pChembl≥5 of {b.get('chembl_activity_total', 0)} total), "
-                 f"top {len(ca)} by pChembl (potency: 10 = 0.1 nM, 6 = 1 µM):**\n")
+        L.append("\n### ChEMBL bioactivities {#chembl-bioactivity}\n")
+        L.append(f"{b.get('chembl_activity_potent_count', 0)} potent at pChembl≥5 of "
+                 f"{b.get('chembl_activity_total', 0)} total, top {len(ca)} by pChembl "
+                 f"(potency: 10 = 0.1 nM, 6 = 1 µM).\n")
         L.append(table(["pChembl", "Type", "Value", "Unit", "Molecule"],
                        [(r.get("pchembl"), r.get("type"), r.get("value"), r.get("unit"),
                          links.maybe_link(r.get("molecule_name") or r.get("molecule_id") or "",
@@ -724,11 +725,11 @@ def r_drugs(b):
     # directly without needing a separate entry fetch.
     pba = b.get("pubchem_bioassay") or []
     if pba:
-        L.append(f"\n**PubChem BioAssay actives ({b.get('pubchem_bioassay_active_count', 0)} "
-                 f"with measured affinity, of {b.get('pubchem_bioassay_total', 0)} total), "
-                 f"{len(pba)} most potent distinct compounds.** *Largely complementary to "
-                 f"BindingDB; screening values are coarse (µM, 4 dp), so sub-nM hits tie at "
-                 f"the floor.*\n")
+        L.append("\n### PubChem BioAssay actives {#pubchem-bioassay}\n")
+        L.append(f"{b.get('pubchem_bioassay_active_count', 0)} with measured affinity, of "
+                 f"{b.get('pubchem_bioassay_total', 0)} total; {len(pba)} most potent distinct "
+                 f"compounds. *Largely complementary to BindingDB; screening values are coarse "
+                 f"(µM, 4 dp), so sub-nM hits tie at the floor.*\n")
         def _cmpd(p):
             return p.get("name") or (
                 links.maybe_link(p["cid"], f"https://pubchem.ncbi.nlm.nih.gov/compound/{p['cid']}/")
@@ -763,8 +764,8 @@ def r_drugs(b):
     if cat:
         type_counts = b.get("chembl_assay_type_counts") or {}
         breakdown = ", ".join(f"{n} {k.lower()}" for k, n in type_counts.items())
-        L.append(f"\n**ChEMBL screening assays ({cat} unique, capped per target):** "
-                 f"{breakdown}")
+        L.append("\n### ChEMBL screening assays {#chembl-assays}\n")
+        L.append(f"{cat} unique, capped per target: {breakdown}")
         samples = b.get("chembl_assay_samples") or []
         if samples:
             L.append("\nRepresentative assays (with source publication via chembl_document):\n")
