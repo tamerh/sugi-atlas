@@ -35,3 +35,10 @@ def test_enrich_keeps_counts_adds_stats():
     assert by["mitf"]["fdr"] < by["big"]["fdr"]
     assert by["none"]["fold"] is None and by["none"]["fdr"] is None
     assert all("k" in o for o in out)                        # raw count preserved
+
+
+def test_interactome_enrichment_degrades_gracefully():
+    from atlas.ora import interactome_enrichment
+    # too few partners → [] (caller shows a 'not enough partners' note, no crash)
+    assert interactome_enrichment([], "reactome") == []
+    assert interactome_enrichment(["ONLYONE"], "go") == []

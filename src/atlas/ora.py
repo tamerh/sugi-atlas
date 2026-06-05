@@ -15,9 +15,18 @@ Model (one category, e.g. a pathway):
 fold-enrichment = (k/n) / (K/N); p = P(X >= k), X ~ Hypergeometric(N, K, n).
 """
 import functools
+import gzip
 import json
 import math
 import os
+from collections import Counter
+
+# Interaction-partner ORA tuning (see the gene-page interactome experiment): the
+# standard gene-set-size band excludes umbrella categories (K>500) AND tiny-K
+# leaf-pathway noise (K<15); min overlap + FDR filter; rank by fold. A floor on
+# annotated partners degrades sparsely-connected genes gracefully.
+_MIN_PARTNERS = 10
+_K_LO, _K_HI, _MIN_K, _MAX_FDR = 15, 500, 5, 0.01
 
 
 @functools.lru_cache(maxsize=8)
@@ -39,6 +48,51 @@ def background(name):
 
 def reactome_background():
     return background("reactome")
+
+
+@functools.lru_cache(maxsize=1)
+def load_membership():
+    """(genes, names): genes = {symbol: {'reactome': [ids], 'go': [ids]}},
+    names = {id: label}, from data/background/membership.json.gz (atlas.build_
+    background). Powers interaction-partner ORA without a per-gene fan at corpus
+    build. ({}, {}) when absent."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for path in ("data/background/membership.json.gz",
+                 os.path.join(here, "..", "..", "data", "background", "membership.json.gz")):
+        try:
+            with gzip.open(path, "rt") as f:
+                d = json.load(f)
+            return d.get("genes") or {}, d.get("names") or {}
+        except (OSError, json.JSONDecodeError, ValueError):
+            continue
+    return {}, {}
+
+
+def interactome_enrichment(partners, kind, top_n=8):
+    """ORA of a gene's interaction-partner set vs the genome background. partners:
+    gene symbols (self excluded upstream). kind: 'reactome' | 'go'. Returns up to
+    top_n enriched categories [{id,name,k,K,fold,fdr}], filtered to the standard
+    gene-set size band + min overlap + FDR, ranked by fold. [] when too few
+    annotated partners (caller shows a 'not enough partners' note)."""
+    genes, names = load_membership()
+    counts = Counter()
+    annotated = 0
+    for p in partners:
+        ids = (genes.get(p) or {}).get(kind) or []
+        if ids:
+            annotated += 1
+        for cid in ids:
+            counts[cid] += 1
+    if annotated < _MIN_PARTNERS:
+        return []
+    universe_n, sizes = background(kind)
+    items = enrich([{"id": cid, "name": names.get(cid), "k": k, "K": sizes.get(cid, 0)}
+                    for cid, k in counts.items()], cohort_n=annotated, universe_n=universe_n)
+    band = [it for it in items
+            if it["fdr"] is not None and it["fdr"] < _MAX_FDR
+            and _K_LO <= (it["K"] or 0) <= _K_HI and it["k"] >= _MIN_K]
+    band.sort(key=lambda it: (-(it["fold"] or 0.0), it["fdr"], it["id"]))
+    return band[:top_n]
 
 
 def _log_choose(n, k):

@@ -13,6 +13,7 @@ re-index.
 Outputs: data/background/{reactome,go,family}.json = {chain, biobtree_version,
 universe_n, sizes}.
 """
+import gzip
 import json
 import os
 import sys
@@ -82,11 +83,51 @@ def build(name):
     print(f"[background:{name}] universe_n={annotated}, {len(sizes)} categories → {path}", flush=True)
 
 
+def _membership(sym):
+    """Per-gene Reactome pathway + GO-BP (id, name) pairs (the same chains the
+    backgrounds use). Powers interaction-partner ORA on gene pages: a gene's
+    partner set is looked up against this table — no per-gene fan at corpus build."""
+    try:
+        rc = [(p["id"], p.get("name")) for p in map_all(sym, ">>hgnc>>ensembl>>reactome", cap=10) if p.get("id")]
+        go = [(t["id"], t.get("name")) for t in map_all(sym, ">>hgnc>>uniprot>>go", cap=10)
+              if t.get("id") and t.get("type") == "biological_process"]
+    except Exception:
+        rc, go = [], []
+    return (sym, rc, go)
+
+
+def build_membership():
+    syms = [l.strip() for l in open(SEEDS) if l.strip()]
+    print(f"[membership] reactome + GO-BP per gene over {len(syms)} genes …", flush=True)
+    mem, names = {}, {}
+    with Pool(16) as pool:
+        for i, (sym, rc, go) in enumerate(pool.imap_unordered(_membership, syms, chunksize=8), 1):
+            rc_ids = sorted({i for i, _ in rc})
+            go_ids = sorted({i for i, _ in go})
+            if rc_ids or go_ids:
+                mem[sym] = {"reactome": rc_ids, "go": go_ids}
+            for cid, nm in rc + go:
+                if nm and cid not in names:
+                    names[cid] = nm
+            if i % 5000 == 0:
+                print(f"  {i}/{len(syms)} — {len(mem)} with annotation", flush=True)
+    os.makedirs(OUTDIR, exist_ok=True)
+    path = os.path.join(OUTDIR, "membership.json.gz")
+    with gzip.open(path, "wt") as f:
+        json.dump({"biobtree_version": pipeline.biobtree_version(),
+                   "genes": mem, "names": names}, f, sort_keys=True)
+    print(f"[membership] {len(mem)} genes, {len(names)} names → {path} "
+          f"({os.path.getsize(path)//1024} KB)", flush=True)
+
+
 def main(argv=None):
     argv = argv if argv is not None else sys.argv[1:]
-    names = argv or list(_BUILDERS)
+    names = argv or (list(_BUILDERS) + ["membership"])
     for name in names:
-        build(name)
+        if name == "membership":
+            build_membership()
+        else:
+            build(name)
 
 
 if __name__ == "__main__":

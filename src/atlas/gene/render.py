@@ -522,7 +522,38 @@ def r_interactions(b):
     L.append(f"{b.get('signor_count', 0)} interactions.\n")
     L.append(table(["A", "Effect", "B", "Mechanism"],
                    [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:30]]))
+    L.extend(_interactome_enrichment(b))
     return "\n".join(L)
+
+
+def _interactome_enrichment(b):
+    """Reactome / GO-BP over-representation among this gene's IntAct interaction
+    partners — a functional readout of the neighbourhood, distinct from the gene's
+    own pathway/GO memberships. Standard gene-set-size band + FDR + fold via
+    atlas.ora; counts/members kept. [] when too few partners (degrade gracefully)."""
+    from atlas import ora
+    partners = b.get("interaction_partners") or []
+    rc = ora.interactome_enrichment(partners, "reactome")
+    go = ora.interactome_enrichment(partners, "go")
+    if not rc and not go:
+        return []
+    L = ["\n### Enriched among interaction partners {#interactome-enrichment}\n",
+         f"Reactome pathways and GO biological processes over-represented among this "
+         f"gene's {len(partners)} IntAct physical interaction partners (hypergeometric "
+         f"vs the genome-wide background, BH-FDR, gene-set size 15–500, ranked by fold). "
+         f"A functional readout of the neighbourhood — *distinct from this gene's own "
+         f"memberships above, and biased toward well-studied / hub proteins, so read it "
+         f"as themes rather than proof.*"]
+
+    def _tbl(rows, col0):
+        return table([col0, "Partners", "Fold", "FDR"],
+                     [(it.get("name") or it["id"], it["k"],
+                       f"{it['fold']:.1f}×", f"{it['fdr']:.0e}") for it in rows])
+    if rc:
+        L += ["\n**Reactome pathways:**\n", _tbl(rc, "Pathway")]
+    if go:
+        L += ["\n**GO biological processes:**\n", _tbl(go, "GO term")]
+    return L
 
 
 def r_tf_regulation(b):

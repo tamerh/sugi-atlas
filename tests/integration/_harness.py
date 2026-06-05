@@ -73,7 +73,8 @@ H4_IDS = {
              "clinvar", "top-pathogenic", "spliceai", "alphamissense",
              # §pathways / §interactions / §regulation
              "reactome", "reactome-categories", "go-categories",
-             "string", "intact", "signor", "collectri", "jaspar", "mirdb",
+             "string", "intact", "signor", "interactome-enrichment",
+             "collectri", "jaspar", "mirdb",
              # §expression / §disease-assoc
              "fantom5-promoters", "tissue-expression", "scxa",
              "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",

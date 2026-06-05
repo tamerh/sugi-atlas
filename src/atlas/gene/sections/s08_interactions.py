@@ -111,6 +111,13 @@ def collect(a):
                          "type": t.get("interaction_type"),
                          "score": t.get("confidence_score")} for t in ia[:30]]
     bundle["intact_count"] = intact_n or len(ia)
+    # Full distinct IntAct (physical) partner symbols — the gene set for
+    # interaction-partner ORA on the page (render-time, atlas.ora). Self-edges
+    # excluded; symbols are looked up against the precomputed membership table.
+    _self = (a.symbol or "").upper()
+    bundle["interaction_partners"] = sorted(
+        {g for t in ia for g in (t.get("protein_a_gene"), t.get("protein_b_gene"))
+         if g and g.upper() != _self})
 
     bg = map_all(uni, ">>uniprot>>biogrid_interaction", cap=_PPI_CAP) if uni else []
     bundle["biogrid"] = [{"partner": t.get("interactor_b_symbol"),
@@ -137,6 +144,7 @@ SECTION = Section(
     id="8", name="interactions",
     description="Protein-protein interactions (STRING/IntAct/BioGRID with scores), SIGNOR signaling, ESM2/Diamond structural similarity",
     needs=("canonical_uniprot",),
-    produces=("string", "intact", "biogrid", "signor", "esm2_similar", "diamond_similar"),
+    produces=("string", "intact", "biogrid", "signor", "esm2_similar", "diamond_similar",
+              "interaction_partners"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
