@@ -352,12 +352,24 @@ REVERSE_LABEL = {
     ("gene", "Drugs"):    "Biomarker genes",     # genes whose variants associate this drug (CIViC) → on drug pages
     ("drug", "Genes"):    "Targeted by drugs",   # drugs that curatedly target this gene (GtoPdb) → on gene pages
     ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease (GenCC/ClinGen/CIViC) → on disease pages
+    ("disease", "Genes"): "Disease cohort memberships",  # diseases whose associated-gene cohort includes this gene → on gene pages. COHORT MEMBERSHIP (GWAS/GenCC/ClinVar/CIViC), NOT a causal claim — shown in full (coexists with the gene's forward Associated diseases; the caption flags the overlap).
     # ("drug","Diseases") deliberately omitted: drug→disease indications are
     # surfaced as the dedicated "Drugs indicated for this disease" Therapeutics
     # section (render r_drugs_indicated, fed by the indicated_drugs.json index),
     # which carries the development phase the flat reverse block can't.
 }
-_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes"]
+_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes", "Disease cohort memberships"]
+
+# Italic clarifier rendered after a group label — kills the misread that a
+# predictive/biomarker or cohort-membership edge is a target/causal claim.
+_GROUP_CAPTION = {
+    "Biomarker drugs (CIViC)":
+        "drugs whose response is associated with variants in this gene — "
+        "CIViC predictive evidence, not targeting",
+    "Disease cohort memberships":
+        "association, not causation — diseases whose associated-gene cohort lists "
+        "this gene; a subset are also under Associated diseases",
+}
 
 
 def _reverse_groups(my_url, forward_urls):
@@ -365,16 +377,23 @@ def _reverse_groups(my_url, forward_urls):
     deduped against this page's own outgoing links (`forward_urls`) and across
     reverse groups. Returns [(label, [(src_label, src_url)])] in display order."""
     by_label = {}
-    seen = set(forward_urls)
+    placed = set()                     # a url shows under one reverse label only
+    # These reverse relationships are DISTINCT from any forward edge of the same
+    # url, so they're shown even when the url is already a forward link: a drug can
+    # be both a CIViC biomarker (forward) and a GtoPdb target (reverse); a disease
+    # can be a curated association (forward) and list the gene in its cohort.
+    _coexist = {"Targeted by drugs", "Disease cohort memberships"}
     for entry in (_REVERSE.get(my_url) or []):
         src_label, src_url, src_type, group = entry
-        if not src_url or src_url == my_url or src_url in seen:
+        if not src_url or src_url == my_url or src_url in placed:
             continue
         lab = REVERSE_LABEL.get((src_type, group))
         if not lab:
             continue
+        if lab not in _coexist and src_url in forward_urls:
+            continue                   # already surfaced as a forward edge of this page
         by_label.setdefault(lab, []).append((str(src_label), src_url))
-        seen.add(src_url)              # a url shows under one reverse label only
+        placed.add(src_url)
     return [(lab, by_label[lab]) for lab in _REVERSE_ORDER if by_label.get(lab)]
 
 
@@ -393,7 +412,12 @@ def related_block(entity_type, bundle, slug=None):
     # On disease pages the gene set is the associated-gene cohort (evidence-
     # ranked, audit #10), not a curated "most relevant" shortlist — label it
     # honestly so a polygenic-disease cohort isn't read as causal genes.
-    label = {"Genes": "Cohort genes"} if entity_type == "disease" else {}
+    if entity_type == "disease":
+        label = {"Genes": "Cohort genes"}
+    elif entity_type == "gene":                      # forward gene edges: name the relationship precisely
+        label = {"Diseases": "Associated diseases", "Drugs": "Biomarker drugs (CIViC)"}
+    else:
+        label = {}
     forward_urls = {url for items in groups.values() for _lbl, url in items}
     lines = []
 
@@ -404,7 +428,9 @@ def related_block(entity_type, bundle, slug=None):
         # edges); the frontend collapses them. Forward groups are bounded by the
         # cohort/target caps; reverse groups can be large for hub genes/diseases.
         row = ", ".join(maybe_link(l, u) for l, u in items)
-        lines.append(f"- **{lbl_text}:** {row}")
+        cap = _GROUP_CAPTION.get(lbl_text)           # italic non-causality clarifier
+        head = f"**{lbl_text}** *({cap})*:" if cap else f"**{lbl_text}:**"
+        lines.append(f"- {head} {row}")
 
     for grp in ("Genes", "Diseases", "Drugs"):
         if groups[grp]:
