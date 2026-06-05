@@ -324,13 +324,25 @@ def collect(a):
     ca = map_all(uni, ">>uniprot>>chembl_activity") if uni else []
     potent = [r for r in ca if _pchembl(r) >= 5.0]
     potent.sort(key=_pchembl, reverse=True)
-    bundle["chembl_activities"] = [{
-        "id": r["id"],
-        "type": r.get("standard_type"),
-        "value": r.get("standard_value"),
-        "unit": r.get("standard_units"),
-        "pchembl": r.get("pchembl"),
-    } for r in potent[:30]]
+    # Resolve each displayed activity to its compound. The molecule is not stored
+    # on the activity record (only an xref edge — see BIOBTREE_ISSUES #36), so we
+    # traverse it per row for the top 30. The activity id (CHEMBL_ACT_…) is opaque;
+    # the molecule (named when known, e.g. Mobocertinib, else its ChEMBL id) is the
+    # identity that makes the row interpretable.
+    acts = []
+    for r in potent[:30]:
+        mol = map_all(r["id"], ">>chembl_activity>>chembl_molecule")
+        m = mol[0] if mol else {}
+        acts.append({
+            "id": r["id"],
+            "type": r.get("standard_type"),
+            "value": r.get("standard_value"),
+            "unit": r.get("standard_units"),
+            "pchembl": r.get("pchembl"),
+            "molecule_id": m.get("id"),
+            "molecule_name": (m.get("name") or "").strip() or None,
+        })
+    bundle["chembl_activities"] = acts
     bundle["chembl_activity_total"] = len(ca)
     bundle["chembl_activity_potent_count"] = len(potent)
 

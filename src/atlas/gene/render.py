@@ -705,9 +705,12 @@ def r_drugs(b):
         L.append(f"\n**ChEMBL bioactivities ({b.get('chembl_activity_potent_count', 0)} "
                  f"potent at pChembl≥5 of {b.get('chembl_activity_total', 0)} total), "
                  f"top 30 by pChembl (potency: 10 = 0.1 nM, 6 = 1 µM):**\n")
-        L.append(table(["pChembl", "Type", "Value", "Unit", "Activity ID"],
-                       [(r.get("pchembl"), r.get("type"), r.get("value"),
-                         r.get("unit"), r["id"]) for r in ca]))
+        L.append(table(["pChembl", "Type", "Value", "Unit", "Molecule"],
+                       [(r.get("pchembl"), r.get("type"), r.get("value"), r.get("unit"),
+                         links.maybe_link(r.get("molecule_name") or r.get("molecule_id") or "",
+                                          f"https://www.ebi.ac.uk/chembl/compound_report_card/{r['molecule_id']}/")
+                         if r.get("molecule_id") else "")
+                        for r in ca]))
 
     # PubChem BioAssay actives — sorted by potency. CID/AID get clickable
     # PubChem URLs so an AI agent (or human) can drill into the assay record
