@@ -332,6 +332,10 @@ def collect(a):
     # matter and is worth showing identifiably rather than as bare CIDs.
     pc_names = ({p["id"]: p.get("title") for p in map_all(uni, ">>uniprot>>pubchem_activity>>pubchem")
                  if p.get("id") and p.get("title")} if uni else {})
+    # Assay names (what each AID measured, e.g. "Inhibition of EGFR") — one bulk
+    # hop, keyed by AID, for readable experimental context alongside the compound.
+    assay_names = ({a["id"]: a.get("name") for a in map_all(uni, ">>uniprot>>pubchem_activity>>pubchem_assay")
+                    if a.get("id") and a.get("name")} if uni else {})
     # Keep value==0 rows: PubChem rounds to 4-decimal µM, so the MOST potent
     # (sub-0.1 nM) round to 0.0000 — excluding them dropped the actual top.
     actives = [r for r in pa if r.get("activity_outcome") == "Active"
@@ -353,6 +357,7 @@ def collect(a):
         bioassays.append({
             "id": r["id"], "cid": cid, "aid": aid,
             "name": pc_names.get(cid),
+            "assay_name": assay_names.get(aid),
             "activity_type": r.get("activity_type"),
             "value": "<0.0001" if _f(v) == 0.0 else v,   # below the 4-decimal µM floor
             "unit": r.get("unit"),

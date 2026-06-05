@@ -729,13 +729,19 @@ def r_drugs(b):
                  f"{len(pba)} most potent distinct compounds.** *Largely complementary to "
                  f"BindingDB; screening values are coarse (µM, 4 dp), so sub-nM hits tie at "
                  f"the floor.*\n")
+        def _cmpd(p):
+            return p.get("name") or (
+                links.maybe_link(p["cid"], f"https://pubchem.ncbi.nlm.nih.gov/compound/{p['cid']}/")
+                if p.get("cid") else "")
+
+        def _assay(p):
+            if not p.get("aid"):
+                return ""
+            link = links.maybe_link(p["aid"], f"https://pubchem.ncbi.nlm.nih.gov/bioassay/{p['aid']}/")
+            nm = (p.get("assay_name") or "").replace("*", r"\*")   # what the assay measured
+            return f"{link}: {nm}" if nm else link
         L.append(table(["Compound", "Assay", "Type", "Value", "Unit"],
-                       [((p.get("name") or
-                          (links.maybe_link(p["cid"], f"https://pubchem.ncbi.nlm.nih.gov/compound/{p['cid']}/")
-                           if p.get("cid") else "")),
-                         links.maybe_link(p["aid"], f"https://pubchem.ncbi.nlm.nih.gov/bioassay/{p['aid']}/")
-                         if p.get("aid") else "",
-                         p.get("activity_type"), p.get("value"), p.get("unit"))
+                       [(_cmpd(p), _assay(p), p.get("activity_type"), p.get("value"), p.get("unit"))
                         for p in pba]))
 
     # CTD literature-mined chemical-gene interactions — Comparative
