@@ -9,6 +9,7 @@
 #   ./atlas.sh test [int|all]
 #   ./atlas.sh prod
 #   ./atlas.sh release vX.Y.Z
+#   ./atlas.sh release-publish vX.Y.Z
 #   ./atlas.sh help
 #
 #   test          Unit suite only — fast, no build. The default.
@@ -24,6 +25,11 @@
 #                 command is printed to run elsewhere (no token needed on prod).
 #                 Requires a committed tree. Build the corpus off the tag (`prod`)
 #                 to stamp pages with vX.Y.Z.
+#
+#   release-publish vX.Y.Z  Create the GitHub release for an already-pushed tag.
+#                 Run this where gh is installed + authenticated (e.g. a laptop);
+#                 the build box only needs `release` (tag + push, no token). Tag
+#                 must already exist on origin.
 #
 #   prod          Production build, detached via nohup (logs → dist/logs/):
 #                   1. pre-production check  (== test all: dense build + tests)
@@ -207,11 +213,29 @@ $dirty"
     gh release create "$version" --title "$version" --generate-notes
     ok "RELEASE $version published — pipeline only, no corpus attached"
   else
-    local repo; repo=$(git remote get-url origin 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#\.git$##')
-    warn "gh not installed here — the tag is pushed; publish the GitHub release from a gh machine:"
-    printf "%s\n" "    ${B}gh release create $version --repo ${repo:-OWNER/REPO} --title $version --generate-notes${N}"
+    warn "gh not installed here — the tag is pushed. Publish the GitHub release on a gh machine (e.g. your laptop):"
+    printf "%s\n" "    ${B}./atlas.sh release-publish $version${N}"
   fi
   echo; say "build the corpus off this tag (./atlas.sh prod) to stamp pages with $version"
+}
+
+# release-publish vX.Y.Z — create the GitHub release for an ALREADY-pushed tag.
+# The counterpart to `release` for the split workflow: `release` tags + pushes on
+# the build box (where biobtree is, no gh/token needed); `release-publish` runs
+# wherever gh is installed + authenticated (e.g. a laptop). It refuses to invent a
+# tag — gh would otherwise create one at the default-branch HEAD if it's missing.
+cmd_release_publish() {
+  local version="${1:-}"
+  [ -n "$version" ] || die "usage: ./atlas.sh release-publish <version>   (e.g. v1.0.0)"
+  [[ "$version" == v* ]] || version="v$version"
+  command -v gh >/dev/null 2>&1 || die "gh (GitHub CLI) not found — run this where gh is installed (e.g. your laptop)"
+  gh auth status >/dev/null 2>&1 || die "gh not authenticated — run 'gh auth login' first"
+  git ls-remote --tags origin "refs/tags/$version" | grep -q . \
+    || die "tag $version not on origin — run './atlas.sh release $version' on the build box first"
+  gh release view "$version" >/dev/null 2>&1 && die "GitHub release $version already exists"
+  say "publishing GitHub release $version (pipeline source only — no corpus attached)"
+  gh release create "$version" --title "$version" --generate-notes
+  ok "RELEASE $version published"
 }
 
 # ---- arg parse --------------------------------------------------------------
@@ -231,9 +255,10 @@ done
 set -- "${POS[@]:-}"
 
 case "$CMD" in
-  test)           cmd_test "${1:-}" ;;
-  prod)           cmd_prod ;;
-  release)        cmd_release "${1:-}" ;;
-  help|-h|--help) usage ;;
+  test)            cmd_test "${1:-}" ;;
+  prod)            cmd_prod ;;
+  release)         cmd_release "${1:-}" ;;
+  release-publish) cmd_release_publish "${1:-}" ;;
+  help|-h|--help)  usage ;;
   *)              die "unknown command: $CMD  (run './atlas.sh help')" ;;
 esac
