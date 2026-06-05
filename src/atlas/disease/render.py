@@ -1013,6 +1013,21 @@ def render_all(bundles):
     def join(*parts):
         return "\n\n".join(p for p in parts if p and p.strip())
 
+    # Cohort-derived sections fan out over the disease's associated genes; with no
+    # cohort they would render only all-zero "0 cohort genes" leads. Skip them and
+    # let the zone fall back to its placeholder (Genes & proteins keeps the
+    # explanatory cohort-empty note). Disease-direct content (GWAS, variants,
+    # indicated drugs, trials, CIViC) is cohort-independent and always renders.
+    has_cohort = bool((bundles.get("5") or {}).get("gene_count"))
+    cohort_genes = (join(S("4", "mendelian"), S("5", "cohort-genes"), S("6", "protein-families"),
+                         S("7", "expression"), S("8", "interactions"), S("9", "structural"))
+                    if has_cohort else "")
+    cohort_drugs = (join(S("10", "drug-targets"), S("11", "bioactivity"), S("12", "pharmacogenomics"),
+                         D(r_drug_repurposing(bundles), "tractability"),
+                         D(r_druggability_pyramid(bundles), "druggability"),
+                         D(r_undrugged_target_profiles(bundles), "undrugged"))
+                    if has_cohort else "")
+
     spec = [
         ("Clinical features", "clinical",
          join(D(r_epidemiology(bundles["1"]), "epidemiology"),
@@ -1026,18 +1041,12 @@ def render_all(bundles):
          join(S("2", "gwas"), S("3", "variant-tiers")),
          "No common-variant (GWAS) or curated variant data for this disease."),
         ("Genes & proteins", "genes",
-         join(_cohort_empty_note(bundles),
-              S("4", "mendelian"), S("5", "cohort-genes"), S("6", "protein-families"),
-              S("7", "expression"), S("8", "interactions"), S("9", "structural")),
+         join(_cohort_empty_note(bundles), cohort_genes),
          "No associated genes curated for this disease."),
-        ("Function", "function", S("14", "pathways"),
+        ("Function", "function", S("14", "pathways") if has_cohort else "",
          "No pathway enrichment — requires an associated-gene cohort."),
         ("Therapeutics", "drugs",
-         join(D(r_drugs_indicated(bundles), "indicated"),
-              S("10", "drug-targets"), S("11", "bioactivity"), S("12", "pharmacogenomics"),
-              D(r_drug_repurposing(bundles), "tractability"),
-              D(r_druggability_pyramid(bundles), "druggability"),
-              D(r_undrugged_target_profiles(bundles), "undrugged")),
+         join(D(r_drugs_indicated(bundles), "indicated"), cohort_drugs),
          "No druggable-target or therapeutic data for this disease's cohort."),
         ("Clinical trials & evidence", "trials", S("13", "clinical-trials"),
          "No clinical trials or CIViC evidence naming this disease."),
