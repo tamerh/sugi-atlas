@@ -755,11 +755,33 @@ def r_pathways(b):
             shown = syms[:8]
             extra = gc - len(shown)
             return ", ".join(shown) + (f" (+{extra} more)" if extra > 0 else "")
-        out += ["", "### Top pathways by cohort coverage {#cohort-pathways}", "",
-                table(["Pathway", "Genes", "Sample cohort genes"],  # table() dedups
-                      [(p.get("name") or p.get("id") or "",
-                        _i(p.get("gene_count")), _samp(p))
-                       for p in tp[:30]])]
+
+        def _fdr(q):
+            if q is None:
+                return "—"
+            return f"{q:.0e}" if q < 1e-3 else f"{q:.3f}"
+
+        # ORA-ranked when the Reactome background is present (fold + FDR columns,
+        # sorted by enrichment); count-only fallback otherwise. Counts + members
+        # are kept either way (ground-truth for human/agent consumers).
+        if any(p.get("fdr") is not None for p in tp):
+            out += ["", "### Pathways by enrichment {#cohort-pathways}", "",
+                    "Over-representation of cohort genes vs the genome-wide Reactome "
+                    "background (hypergeometric test, Benjamini-Hochberg FDR; fold = "
+                    f"observed/expected over {_i(gp)} annotated cohort genes). Counts "
+                    "and members are kept as ground-truth; sorted by enrichment.", "",
+                    table(["Pathway", "Cohort genes", "Fold", "FDR", "Sample cohort genes"],
+                          [(p.get("name") or p.get("id") or "",
+                            _i(p.get("gene_count")),
+                            f"{p['fold']:.1f}×" if p.get("fold") else "—",
+                            _fdr(p.get("fdr")), _samp(p))
+                           for p in tp[:30]])]
+        else:
+            out += ["", "### Top pathways by cohort coverage {#cohort-pathways}", "",
+                    table(["Pathway", "Genes", "Sample cohort genes"],  # table() dedups
+                          [(p.get("name") or p.get("id") or "",
+                            _i(p.get("gene_count")), _samp(p))
+                           for p in tp[:30]])]
     return "\n".join(out)
 
 

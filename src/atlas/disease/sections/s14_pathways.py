@@ -10,6 +10,7 @@ via Ensembl.)"""
 from collections import Counter, defaultdict
 from atlas.section import Section
 from atlas.disease.cohort import enrichment_fan
+from atlas.ora import enrich, reactome_background
 
 CHAINS   = (">>hgnc>>ensembl>>reactome",)
 DATASETS = ("hgnc", "ensembl", "reactome")
@@ -40,9 +41,26 @@ def collect(a):
             if sym and sym not in pathway_to_genes[pid]:
                 pathway_to_genes[pid].append(sym)
 
-    top_pathways = [{"id": pid, "name": pathway_name.get(pid),
-                     "gene_count": count, "gene_symbols": pathway_to_genes[pid]}
-                    for pid, count in pathway_gene_counts.most_common(TOP_N)]
+    # Over-representation analysis vs the genome-wide Reactome background: rank by
+    # statistical enrichment (BH-FDR, then fold), NOT raw count — so size-biased
+    # umbrella pathways (Signal Transduction, Disease) stop floating to the top and
+    # the disease-specific pathways surface. Counts + gene lists are KEPT (the
+    # consumer, human or agent, cites them as ground-truth); enrichment is added.
+    universe_n, sizes = reactome_background()
+    items = enrich([{"id": pid, "name": pathway_name.get(pid), "k": cnt,
+                     "K": sizes.get(pid, 0), "gene_symbols": pathway_to_genes[pid]}
+                    for pid, cnt in pathway_gene_counts.items()],
+                   cohort_n=genes_with_pathways, universe_n=universe_n)
+
+    def _rank(it):                       # tested (lowest FDR) first; else by count
+        tested = it["fdr"] is not None
+        return (0 if tested else 1, it["fdr"] if tested else 0.0,
+                -(it["fold"] or 0.0), -it["k"], it["id"])
+    items.sort(key=_rank)
+    top_pathways = [{"id": it["id"], "name": it["name"], "gene_count": it["k"],
+                     "background_size": it["K"], "fold": it["fold"], "fdr": it["fdr"],
+                     "gene_symbols": it["gene_symbols"]}
+                    for it in items[:TOP_N]]
 
     return {
         "section": "14_pathways",
