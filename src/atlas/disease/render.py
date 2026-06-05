@@ -178,7 +178,8 @@ def r_epidemiology(b):
             if len(prevs_sorted) > len(shown) else "")
     return "\n".join(
         ["## Epidemiology", "",
-         f"**{len(prevs)} prevalence record(s), Orphanet{note}:**", "",
+         "### Prevalence records {#prevalence}", "",
+         f"{len(prevs)} prevalence record(s), Orphanet{note}:", "",
          table(["Type", "Class", "Value", "Geography", "Validation"],
                [(p.get("prevalence_type"), p.get("prevalence_class"),
                  p.get("val_moy"), p.get("geographic"), p.get("validation_status"))
@@ -196,8 +197,9 @@ def r_symptoms(b):
     total = b.get("phenotype_count") or len(phs)
     return "\n".join(
         ["## Signs & symptoms", "",
-         f"**{total} HPO clinical features (Orphanet curated; top "
-         f"{min(50, len(phs))} by frequency):**", "",
+         "### Clinical features (HPO) {#hpo-features}", "",
+         f"{total} HPO clinical features (Orphanet curated; top "
+         f"{min(50, len(phs))} by frequency):", "",
          table(["HPO ID", "Term", "Frequency"],
                [(p.get("hpo_id"), p.get("hpo_term"), p.get("frequency"))
                 for p in phs[:50]])])
@@ -271,7 +273,7 @@ def r_gwas_landscape(b):
            "(as reported by GWAS)."]
     ta = b.get("top_assocs") or []
     if ta:
-        out += ["", "**Top associations by p-value:**", "",
+        out += ["", "### Top associations by p-value {#gwas-associations}", "",
                 table(["rsID", "p-value", "Gene", "Risk allele", "Odds ratio"],
                       # fnum on odds_ratio only (audit #7: float32 artifacts like
                       # 1.4348061); p-value is exponent-form (3e-67) and must NOT
@@ -281,7 +283,7 @@ def r_gwas_landscape(b):
                        for r in ta[:30]])]
     studies = b.get("studies") or []
     if studies:
-        out += ["", "**Top studies (by case count):**", "",
+        out += ["", "### Top studies (by case count) {#gwas-studies}", "",
                 table(["Study", "Lead author", "Year", "Cases", "Controls", "Title"],
                       [(s.get("id") or "",
                         s.get("lead_author"), s.get("year"),
@@ -318,8 +320,9 @@ def r_variant_details(b):
         # clinvar_total here is a paginated fetch count (caps at ~600), not the
         # disease's full ClinVar set — present it as a retrieved sample / floor
         # so it doesn't contradict the accurate xref total in "At a glance".
-        bl = [f"**ClinVar germline variants ({_i(b.get('clinvar_total'))} retrieved; "
-              f"paginated sample, class counts are floors):**"]
+        bl = ["### ClinVar germline variants {#clinvar-variants}", "",
+              f"{_i(b.get('clinvar_total'))} retrieved; paginated sample, class counts "
+              f"are floors:"]
         if cc:
             order = sorted(cc.items(), key=lambda kv: -kv[1])
             bl.append("\n" + ", ".join(f"{_i(v)} {k.lower()}" for k, v in order))
@@ -334,18 +337,18 @@ def r_variant_details(b):
         return "\n".join(out)
 
     if any(tc.values()):
-        out += ["**Tier distribution (top 50 variants):**", ""]
+        out += ["### Tier distribution (top 50 variants) {#tier-distribution}", ""]
         rows = sorted(tc.items(), key=lambda kv: kv[0])
         out.append(table(["Tier", "Variants"], [(k, _i(v)) for k, v in rows]))
     if any(md.values()):
-        out += ["", "**MAF distribution:**", ""]
+        out += ["", "### MAF distribution {#maf-distribution}", ""]
         out.append(table(["Bucket", "Variants"], [(k, _i(v)) for k, v in md.items()]))
     if any(cd.values()):
-        out += ["", "**Functional consequences:**", ""]
+        out += ["", "### Functional consequences {#consequences}", ""]
         rows = sorted(cd.items(), key=lambda kv: -kv[1])[:15]
         out.append(table(["Consequence", "Count"], [(k, _i(v)) for k, v in rows]))
     if tv:
-        out += ["", "**Top variants:**", "",
+        out += ["", "### Top variants {#top-variants}", "",
                 table(["rsID", "Chr", "Pos", "Alleles", "MAF",
                        "Consequence", "Gene", "p-value", "Tier"],
                       [(r.get("rsid") or "",
@@ -381,7 +384,7 @@ def r_mendelian_overlap(b):
             if sym in orph_set:  r.append("Orphanet")
             if sym in omim_set:  r.append("OMIM")
             return ", ".join(r)
-        out += ["", "**Dual-evidence genes (GWAS + Mendelian — highest-confidence targets):**", "",
+        out += ["", "### Dual-evidence genes (GWAS + Mendelian — highest-confidence targets) {#dual-evidence}", "",
                 table(["Gene", "HGNC", "Evidence routes"],
                       [(sym, sym, _routes(sym))
                        for sym in dual[:50]])]
@@ -389,7 +392,7 @@ def r_mendelian_overlap(b):
     if sg:
         # CIViC's `name` field equals the gene symbol — we surface the CIViC
         # gene ID (plain text) as the actual value-add.
-        out += ["", "**Somatic driver evidence (intOGen + CIViC, cohort fanout):**", "",
+        out += ["", "### Somatic driver evidence (intOGen + CIViC, cohort fanout) {#somatic-drivers}", "",
                 table(["Gene", "intOGen role", "Cancer types", "CIViC"],
                       [(g.get("symbol"),
                         (g.get("intogen") or {}).get("role"),
@@ -403,8 +406,8 @@ def r_mendelian_overlap(b):
         # GenCC submission — Lynch syndrome had MLH1 ×19); prefer each gene's
         # record FOR this disease, else its strongest, and surface the count.
         ded = _dedup_gencc(gc, b.get("disease_name"))
-        out += ["", "**GenCC gene–disease validity (cohort genes):** *the Disease "
-                "column is the GenCC-asserted condition — a cohort gene's "
+        out += ["", "### GenCC gene–disease validity (cohort genes) {#gencc-validity}", "",
+                "*the Disease column is the GenCC-asserted condition — a cohort gene's "
                 "strongest validity may be for a related predisposition syndrome.*", "",
                 table(["Gene", "Classification", "Inheritance", "Disease", "Records"],
                       [(g.get("symbol"), g.get("gencc_classification"),
@@ -413,7 +416,7 @@ def r_mendelian_overlap(b):
                         str(n) if n > 1 else "") for g, n, _on in ded[:30]])]
     og = b.get("orphanet_genes") or []
     if og:
-        out += ["", "**Orphanet rare-disease linkage (cohort genes):**", "",
+        out += ["", "### Orphanet rare-disease linkage (cohort genes) {#orphanet-linkage}", "",
                 table(["Gene", "Orphanet ID", "Rare disease"],
                       [(g.get("symbol"),
                         g.get("orphanet_id") or "",
@@ -421,7 +424,7 @@ def r_mendelian_overlap(b):
                        for g in og[:50]])]
     omg = b.get("omim_genes") or []
     if omg:
-        out += ["", "**OMIM-shared genes (cohort gene's MIM ids overlap the disease's):**", "",
+        out += ["", "### OMIM-shared genes (cohort gene's MIM ids overlap the disease's) {#omim-shared}", "",
                 table(["Gene", "MIM ids"],
                       [(g.get("symbol"), ", ".join(g.get("mim_ids") or []))
                        for g in omg[:30]])]
@@ -436,12 +439,12 @@ def r_genes_proteins(b):
            f"{_i(b.get('protein_count'))} distinct canonical proteins.**"]
     ev = b.get("evidence_summary") or {}
     if ev and any(ev.values()):              # skip the all-zero partition (no cohort)
-        out += ["", "**Evidence partition:**", ""]
+        out += ["", "### Evidence partition {#evidence-partition}", ""]
         out.append(table(["Subset", "Genes"],
                          [(k, _i(v)) for k, v in ev.items() if v]))
     genes = b.get("genes") or []
     if genes:
-        out += ["", "**Cohort genes (full):**", "",
+        out += ["", "### Cohort genes (full) {#cohort-genes-full}", "",
                 table(["Symbol", "HGNC", "Ensembl", "UniProt", "Name", "Evidence"],
                       [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"), hgnc_id=g.get("hgnc_id"))),
                         g.get("hgnc_id"), g.get("ensembl_id"),
@@ -455,8 +458,8 @@ def r_genes_proteins(b):
     # HGNC ids. New 2026-05-31, post BIOBTREE_ISSUES #9 resolution.
     fns = b.get("cohort_function_summary") or []
     if fns:
-        out += ["", "**Cohort function summary (lead sentence per gene, "
-                "UniProt-curated):**", "",
+        out += ["", "### Cohort function summary {#cohort-function}", "",
+                "Lead sentence per gene, UniProt-curated.", "",
                 table(["Symbol", "Protein name", "Function (lead sentence)"],
                       [(f["symbol"], _trunc(f.get("protein_name"), 40),
                         f.get("function_lead", ""))
@@ -474,12 +477,12 @@ def r_protein_families(b):
            f"Druggable fraction: {b.get('druggable_fraction')}**"]
     fc = b.get("family_counts") or {}
     if fc:
-        out += ["", "**Family distribution:**", ""]
+        out += ["", "### Family distribution {#family-distribution}", ""]
         rows = sorted(fc.items(), key=lambda kv: -kv[1])
         out.append(table(["Family", "Genes"], [(k, _i(v)) for k, v in rows]))
     fa = b.get("family_assignments") or []
     if fa:
-        out += ["", "**Per-gene assignment:**", "",
+        out += ["", "### Per-gene assignment {#family-assignment}", "",
                 table(["Symbol", "Family", "Druggable?", "EC", "InterPro (top 3)"],
                       [(g.get("symbol"), g.get("assigned_family"),
                         "yes" if g.get("druggable") else "no",
@@ -501,13 +504,13 @@ def r_expression_context(b):
                    f"single-cell marker in ≥1 SCXA experiment.**")
     bd = b.get("breadth_distribution") or {}
     if bd and any(bd.values()):              # skip the all-zero distribution (no cohort)
-        out += ["", "**Breadth distribution (Bgee present_calls):**", ""]
+        out += ["", "### Breadth distribution (Bgee present_calls) {#breadth-distribution}", ""]
         order = ["narrow (1-5 tissues)", "moderate (6-20)", "broad (>20)", "unknown"]
         ordered = [(k, bd[k]) for k in order if k in bd]
         out.append(table(["Bucket", "Genes"], [(k, _i(v)) for k, v in ordered]))
     tt = b.get("cohort_tissue_counts") or {}
     if tt:
-        out += ["", "**Top tissues across cohort:**", ""]
+        out += ["", "### Top tissues across cohort {#cohort-tissues}", ""]
         if isinstance(tt, dict):
             items = list(tt.items())
         else:
@@ -517,7 +520,7 @@ def r_expression_context(b):
                          [(k, _i(v)) for k, v in items]))
     pge = b.get("per_gene_expression") or []
     if pge:
-        out += ["", "**Per-gene tissue summary (top 30):**", "",
+        out += ["", "### Per-gene tissue summary (top 30) {#per-gene-tissue}", "",
                 table(["Symbol", "Bgee breadth", "FANTOM5 breadth", "SCXA", "Top tissues"],
                       [(g.get("symbol"), g.get("bgee_breadth"),
                         g.get("fantom5_breadth"),
@@ -535,12 +538,12 @@ def r_protein_interactions(b):
            f"**Intra-cohort edges: {_i(b.get('cohort_edge_count'))}.**"]
     hubs = b.get("hub_genes") or []
     if hubs:
-        out += ["", "**Hub genes (top 10 by interactor count):**", "",
+        out += ["", "### Hub genes (top 10 by interactor count) {#hub-genes}", "",
                 table(["Symbol", "Interactor count"],
                       [(h.get("symbol"), _i(h.get("interactor_count"))) for h in hubs])]
     edges = b.get("cohort_edges") or []
     if edges:
-        out += ["", "**Intra-cohort edges:**", "",
+        out += ["", "### Intra-cohort edges {#intra-cohort-edges}", "",
                 table(["A", "B", "Sources"],
                       [(e.get("a"), e.get("b"), ", ".join(e.get("sources") or []))
                        for e in edges[:50]])]
@@ -556,14 +559,14 @@ def r_structural_data(b):
            f"No structure: {_i(b.get('no_structure_count'))}**"]
     pdb = b.get("pdb_genes") or []
     if pdb:
-        out += ["", "**Cohort genes with PDB structures (top 30):**", "",
+        out += ["", "### Cohort genes with PDB structures (top 30) {#cohort-pdb}", "",
                 table(["Symbol", "UniProt", "PDB entries"],
                       [(g.get("symbol"),
                         g.get("uniprot") or "",
                         _i(g.get("pdb_count"))) for g in pdb[:30]])]
     af = b.get("alphafold_only_genes") or []
     if af:
-        out += ["", "**AlphaFold-only cohort genes (top 30 by pLDDT):**", "",
+        out += ["", "### AlphaFold-only cohort genes (top 30 by pLDDT) {#cohort-alphafold}", "",
                 table(["Symbol", "UniProt", "pLDDT"],
                       [(g.get("symbol"),
                         g.get("uniprot") or "",
@@ -587,22 +590,22 @@ def r_drug_targets(b):
                 f"(buckets above are over the deeply-mined display cohort)."]
     ag = b.get("approved_genes") or []
     if ag:
-        out += ["", "**Genes with an approved drug** (the molecule shown is one "
-                "approved compound that hits the gene — not necessarily a drug of "
-                "choice or one indicated for this disease):", "",
+        out += ["", "### Genes with an approved drug {#approved-drug-genes}", "",
+                "The molecule shown is one approved compound that hits the gene — not "
+                "necessarily a drug of choice or one indicated for this disease.", "",
                 table(["Symbol", "Example approved molecule"],
                       [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"))),
                         g.get("drug") or g.get("top_molecule") or "")
                        for g in ag])]
     tt = b.get("top_targets") or []
     if tt:
-        out += ["", "**Top cohort targets by molecule count:**", "",
+        out += ["", "### Top cohort targets by molecule count {#top-targets}", "",
                 table(["Symbol", "Molecules", "Max phase"],
                       [(t.get("symbol"), _i(t.get("molecule_count")),
                         t.get("max_phase")) for t in tt])]
     drugs = b.get("drugs") or []
     if drugs:
-        out += ["", "**Drugs targeting cohort genes (top 30):**", "",
+        out += ["", "### Drugs targeting cohort genes (top 30) {#cohort-drugs}", "",
                 table(["Molecule", "Max phase", "Targets in cohort"],
                       [(links.maybe_link(d.get("name") or d.get("id") or "",
                                          links.drug_url(chembl_id=d.get("id"), name=d.get("name"))),
@@ -624,14 +627,14 @@ def r_bioactivity_enzyme(b):
         [g for g in pgb if (g.get("chembl_assay_total") or 0) > 0],
         key=lambda g: -(g.get("chembl_assay_total") or 0))
     if studied_all:
-        out += ["", "**Cohort genes with ChEMBL bioactivity (full, sorted by assay count):**", "",
+        out += ["", "### Cohort genes with ChEMBL bioactivity (full, sorted by assay count) {#cohort-bioactivity}", "",
                 table(["Symbol", "Assays", "Type breakdown"],
                       [(g.get("symbol"), _i(g.get("chembl_assay_total")),
                         ", ".join(f"{k}:{v}" for k, v in (g.get("chembl_assay_types") or {}).items()))
                        for g in studied_all[:50]])]
     eg = b.get("enzyme_genes") or []
     if eg:
-        out += ["", "**Cohort enzymes (BRENDA EC):**", "",
+        out += ["", "### Cohort enzymes (BRENDA EC) {#cohort-enzymes}", "",
                 table(["Symbol", "EC numbers", "Names"],
                       [(g.get("symbol"),
                         ", ".join(g.get("ec_numbers") or []),
@@ -643,9 +646,9 @@ def r_bioactivity_enzyme(b):
         # list includes well-drugged targets (ESR1, EGFR…). Real drugged-status
         # resolution is done in §17 against the approved-drug set; here we only
         # report screening volume and point readers to Therapeutics for status.
-        out += ["", "**Cohort genes with high screening signal (≥100 ChEMBL "
-                "assays)** — a studied-ness signal; see Therapeutics for "
-                "approved-drug status:", "",
+        out += ["", "### Cohort genes with high screening signal {#screening-signal}", "",
+                "≥100 ChEMBL assays — a studied-ness signal; see Therapeutics for "
+                "approved-drug status.", "",
                 table(["Symbol", "ChEMBL assays"],
                       [(g.get("symbol"), _i(g.get("chembl_assay_total")))
                        for g in usp[:30]])]
@@ -666,7 +669,7 @@ def r_pharmacogenomics(b):
            f"with CPIC/DPWG dosing guidelines: {_i(cpic)}.**"]
     pg = [g for g in (b.get("pgx_genes") or []) if (g.get("cpic_count") or 0)]
     if pg:
-        out += ["", "**Cohort genes with a CPIC/DPWG dosing guideline:**", "",
+        out += ["", "### Cohort genes with a CPIC/DPWG dosing guideline {#cohort-pgx}", "",
                 table(["Symbol", "CPIC guidelines"],
                       [(g.get("symbol"), _i(g.get("cpic_count"))) for g in pg[:30]])]
     elif not cpic:
@@ -683,12 +686,12 @@ def r_clinical_trials(b):
            f"**Clinical trials: {_i(n)}.**"]
     pc = b.get("phase_counts") or {}
     if pc:
-        out += ["", "**Phase distribution (across all retrieved trials):**", ""]
+        out += ["", "### Phase distribution (across all retrieved trials) {#trial-phases}", ""]
         rows = sorted(pc.items(), key=lambda kv: -kv[1])
         out.append(table(["Phase", "Trials"], [(k, _i(v)) for k, v in rows]))
     tt = b.get("top_trials") or []
     if tt:
-        out += ["", "**Top trials by phase / activity:**", "",
+        out += ["", "### Top trials by phase / activity {#top-trials}", "",
                 table(["NCT", "Phase", "Status", "Title"],
                       [(t.get("id") or "",
                         phase_label(t.get("phase")), t.get("status"),
@@ -696,7 +699,7 @@ def r_clinical_trials(b):
                        for t in tt])]
     td = b.get("trial_drugs") or []
     if td:
-        out += ["", "**Drugs tested across these trials (top 30):**", "",
+        out += ["", "### Drugs tested across these trials (top 30) {#trial-drugs}", "",
                 table(["Molecule", "Max phase", "Trials referencing"],
                       [(links.maybe_link(d.get("name") or d.get("molecule_id"),
                                          links.drug_url(chembl_id=d.get("molecule_id"), name=d.get("name"))),
@@ -713,11 +716,12 @@ def r_clinical_trials(b):
         etc = b.get("civic_evidence_type_counts") or {}
         extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
         out += ["",
-                (f"**Precision-medicine subtype map — drug × molecular subtype "
-                 f"(CIViC, {_i(b.get('civic_association_total'))} predictive "
-                 f"associations from {_i(b.get('civic_predictive_total'))} curated "
-                 f"evidence items"
-                 + (f"; also {extra}" if extra else "") + "):**"),
+                "### Precision-medicine subtype map (CIViC) {#civic}",
+                "",
+                (f"Drug × molecular subtype: {_i(b.get('civic_association_total'))} "
+                 f"predictive associations from {_i(b.get('civic_predictive_total'))} "
+                 f"curated evidence items"
+                 + (f"; also {extra}" if extra else "") + "."),
                 "",
                 table(["Molecular subtype", "Therapy", "Effect", "Level", "CIViC"],
                       [(r["profile"],
@@ -751,7 +755,7 @@ def r_pathways(b):
             shown = syms[:8]
             extra = gc - len(shown)
             return ", ".join(shown) + (f" (+{extra} more)" if extra > 0 else "")
-        out += ["", "**Top pathways by cohort coverage:**", "",
+        out += ["", "### Top pathways by cohort coverage {#cohort-pathways}", "",
                 table(["Pathway", "Genes", "Sample cohort genes"],  # table() dedups
                       [(p.get("name") or p.get("id") or "",
                         _i(p.get("gene_count")), _samp(p))

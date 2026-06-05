@@ -81,7 +81,20 @@ H4_IDS = {
              "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",
              "pharmgkb-guidelines", "gtopdb", "bindingdb", "chembl-bioactivity",
              "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials"},
-    "disease": set(),
+    "disease": {  # clinical / genetics
+              "prevalence", "hpo-features", "gwas-associations", "gwas-studies",
+              "clinvar-variants", "tier-distribution", "maf-distribution",
+              "consequences", "top-variants",
+              # genes & proteins
+              "dual-evidence", "somatic-drivers", "gencc-validity", "orphanet-linkage",
+              "omim-shared", "evidence-partition", "cohort-genes-full", "cohort-function",
+              "family-distribution", "family-assignment", "breadth-distribution",
+              "cohort-tissues", "per-gene-tissue", "hub-genes", "intra-cohort-edges",
+              "cohort-pdb", "cohort-alphafold",
+              # function / therapeutics / trials
+              "cohort-pathways", "approved-drug-genes", "top-targets", "cohort-drugs",
+              "cohort-bioactivity", "cohort-enzymes", "screening-signal", "cohort-pgx",
+              "trial-phases", "top-trials", "trial-drugs", "civic"},
     "drug": set(),
 }
 
