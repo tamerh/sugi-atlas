@@ -357,7 +357,7 @@ def r_clinical_trials(b):
         L += ["", "**Top trials by phase / activity:**", "",
               table(["NCT", "Phase", "Status", "Title"],
                     [((t.get("id") or ""),
-                      phase_label(t.get("phase")), t.get("status"), (t.get("title") or "")[:65])
+                      phase_label(t.get("phase")), t.get("status"), (t.get("title") or "").strip())
                      for t in tt])]
     return "\n".join(L)
 

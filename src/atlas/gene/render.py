@@ -50,21 +50,6 @@ def _dedup_sentences(text):
     return (". ".join(out) + ".") if out else (text or "")
 
 
-def _cc_trim(text, limit, url):
-    """Trim a long UniProt CC narrative to ~limit chars at a sentence boundary,
-    appending a deep link to the full entry. Short blocks pass through whole."""
-    text = (text or "").strip()
-    if len(text) <= limit:
-        return text
-    cut = text[:limit]
-    i = cut.rfind(". ")
-    if i > limit * 0.5:          # prefer a clean sentence end if one's near
-        cut = cut[:i + 1]
-    cut = cut.rstrip()
-    link = f" … [full annotation on UniProt →]({url})" if url else " …"
-    return cut + link
-
-
 def r_gene_ids(b):
     h = b.get("hgnc", {})
     rows = [("HGNC ID", b.get("hgnc_id")), ("Approved symbol", h.get("symbol")),
@@ -153,10 +138,9 @@ def r_protein_ids(b):
 
     # UniProt CC narratives (curated, evidence-codes stripped at collector layer).
     # The audit's #1 content gap — biobtree's 2026-05-31 refresh shipped these.
-    # UniProt CC narratives — truncated to a few sentences with a deep link
-    # to the full UniProt entry. The full blocks (esp. PTM / subunit / disease)
-    # run to thousands of chars and bloat the page; the lead sentences carry the
-    # high-value gist, and the link covers the rest. Function keeps a longer cap.
+    # Emitted in full: the markdown carries the complete narrative and the frontend
+    # clamps for display (web-team request). A single section-level deep link to
+    # the full UniProt entry remains as the source pointer.
     cc = b.get("cc") or {}
     if cc:
         canon = b.get("canonical_uniprot")
@@ -175,8 +159,10 @@ def r_protein_ids(b):
             # Collapse duplicate period-separated segments.
             if key == "subcellular_location":
                 text = _dedup_sentences(text)
-            limit = 700 if key == "function" else 320
-            L.append(f"**{label}.** {_cc_trim(text, limit, None)}")
+            # Full CC narrative: the section-level UniProt link above is the
+            # source pointer, and display clamping is the frontend's job, so the
+            # markdown carries the complete text (no generator-side truncation).
+            L.append(f"**{label}.** {text.strip()}")
             L.append("")  # blank between paragraphs
 
     # (NCBI-curated gene summary moved to the top-of-page Overview, and the
@@ -755,8 +741,6 @@ def r_drugs(b):
                 doc = ""
                 if s.get("doc_id"):
                     title = (s.get("doc_title") or s["doc_id"]).strip()
-                    if len(title) > 90:
-                        title = title[:87] + "…"
                     doc = (title
                            + (f" — *{s['doc_journal']}*" if s.get("doc_journal") else ""))
                 rows.append((s["id"], s["type"], s["desc"], doc))
@@ -787,7 +771,7 @@ def r_drugs(b):
                    # no interventional phase; render it as 'Not specified', not
                    # a leaked 'nan'/'NAN'.
                    [(t["id"], phase_label(t.get("phase")), t.get("status"),
-                     (t.get("title") or "")[:55]) for t in ct[:40]]))
+                     (t.get("title") or "").strip()) for t in ct[:40]]))
     return "\n".join(L)
 
 

@@ -29,8 +29,11 @@ def _i(n):
 
 
 def _trunc(s, n=80):
-    s = (s or "").strip()
-    return s if len(s) <= n else s[: n - 1].rstrip() + "…"
+    # Display truncation is the frontend's job (CSS ellipsis); the source markdown
+    # must carry the full value. Web-team report: titles/names were arriving
+    # pre-clipped with a baked-in "…". Signature kept so the call sites are
+    # unchanged; `n` is now ignored.
+    return (s or "").strip()
 
 
 # Shared with the dual-evidence on-disease filter (atlas.disease.cohort) so both
