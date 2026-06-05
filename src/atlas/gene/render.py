@@ -685,8 +685,18 @@ def r_drugs(b):
                  f"({b.get('bindingdb_total', 0)} total across all organisms); "
                  f"most potent {len(br)} below. *Values come from heterogeneous "
                  f"assays and are not directly comparable.*\n")
-        L.append(table(["Ligand", "Measure", "Value"],
-                       [(x.get("ligand"), x.get("measure"), x.get("value")) for x in br]))
+        # Patent column only when a displayed compound is patent-extracted (the
+        # source patent, linked) — avoids an all-blank column for named targets.
+        if any(x.get("patent") for x in br):
+            L.append(table(["Ligand", "Measure", "Value", "Patent"],
+                           [(x.get("ligand"), x.get("measure"), x.get("value"),
+                             links.maybe_link(x["patent"],
+                                              f"https://patents.google.com/patent/{x['patent']}")
+                             if x.get("patent") else "")
+                            for x in br]))
+        else:
+            L.append(table(["Ligand", "Measure", "Value"],
+                           [(x.get("ligand"), x.get("measure"), x.get("value")) for x in br]))
 
     # ChEMBL bioactivities (pchembl-ranked). pchembl is the gold potency
     # metric — directly comparable across assay types.

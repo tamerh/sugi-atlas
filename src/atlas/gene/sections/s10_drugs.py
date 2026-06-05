@@ -1,6 +1,7 @@
 """§10 — drugs: ChEMBL targets + phased molecules, PharmGKB, GtoPdb curated
 pharmacology, potency-ranked BindingDB, clinical trials via the DISEASE route
 (gene → MONDO → trials)."""
+import html
 import re
 from collections import Counter
 from atlas.biobtree import map_all, entry, xref_counts
@@ -26,6 +27,36 @@ def _clean_ligand(name):
     parts = [p.strip() for p in str(name).split("::") if p.strip()]
     named = [p for p in parts if not p.upper().startswith("CHEMBL")]
     return (named or parts)[0]
+
+
+_PATENT_ID_RX = re.compile(r"^((?:US|WO|EP|CN|JP)\d+)", re.I)
+
+
+def _patent_id(name):
+    """Leading patent number of a patent-reference ligand name
+    ('US8524722, 5' -> 'US8524722'), else None."""
+    m = _PATENT_ID_RX.match((name or "").strip())
+    return m.group(1).upper() if m else None
+
+
+def _is_patent_ref(name):
+    """True if a ligand name is only a patent reference (a patent-extracted
+    compound with no chemical name in the BindingDB record)."""
+    return _patent_id(name) is not None
+
+
+# Numeric character references in IUPAC ligand names — both the valid form
+# (&#8243; = ″) and BindingDB's mangled form ($#8243;, where the & is corrupted
+# upstream). Decode both to the actual character; html.unescape handles named
+# entities (&amp; etc.) on top.
+_NUM_ENTITY_RX = re.compile(r"[$&]#(\d+);")
+
+
+def _decode_entities(s):
+    if not s:
+        return s
+    s = _NUM_ENTITY_RX.sub(lambda m: chr(int(m.group(1))), s)
+    return html.unescape(s)
 
 
 _MEASURE_NUM = re.compile(r"^(\s*[<>~=]*\s*)([\d.]+)(.*)$")
@@ -218,6 +249,13 @@ def collect(a):
     # slice: filter to the human target, rank by the tightest available measure
     # (Ki/IC50/Kd/EC50 normalized to nM).
     bd = map_all(uni, ">>uniprot>>bindingdb") if uni else []
+    # Recover a chemical name for patent-extracted compounds, whose ligand_name is
+    # only a patent reference. biobtree #35 now projects pubchem_cids on the
+    # bindingdb map, and one >>pubchem call gives cid -> title (IUPAC), so we join
+    # on the cid with no per-row entry() fan-out. The source patent itself is kept
+    # and surfaced in its own column (parsed from the original reference).
+    pc_title = ({p["id"]: p.get("title") for p in map_all(uni, ">>uniprot>>bindingdb>>pubchem")
+                 if p.get("id")} if uni else {})
 
     def _best_measure(r):
         best = None
@@ -231,11 +269,19 @@ def collect(a):
     ranked = []
     for r in human:
         bm = _best_measure(r)
-        if bm:
-            ranked.append({"ligand": _clean_ligand(r.get("ligand_name")), "measure": bm[1],
-                           "value": _round_measure(bm[2]), "nm": round(bm[0], 4)})
+        if not bm:
+            continue
+        name = _clean_ligand(r.get("ligand_name"))
+        patent = _patent_id(name)                 # set only for patent-ref names
+        if patent:
+            cid = (r.get("pubchem_cids") or "").split(",")[0].strip()
+            recovered = pc_title.get(cid)
+            if recovered and not _is_patent_ref(recovered):
+                name = recovered                  # IUPAC from PubChem
+        ranked.append({"ligand": _decode_entities(name), "patent": patent, "measure": bm[1],
+                       "value": _round_measure(bm[2]), "nm": round(bm[0], 4)})
     ranked.sort(key=lambda x: x["nm"])
-    bundle["bindingdb_ranked"] = ranked[:25]
+    bundle["bindingdb_ranked"] = ranked[:50]
     bundle["bindingdb_total"] = len(bd)
     bundle["bindingdb_human"] = len(human)
     bundle["bindingdb_measured"] = len(ranked)
