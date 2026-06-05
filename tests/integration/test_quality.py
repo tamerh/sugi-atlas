@@ -245,3 +245,15 @@ def test_no_unbalanced_bold(pages):
             if line.count("**") % 2 == 1:
                 bad.append(f"{p.entity}/{p.slug}:{i}")
     assert not bad, report(bad)
+
+
+def test_tldr_not_silently_empty(pages):
+    # tldr is extracted from the At-a-glance bullets by a regex coupled to the
+    # '- ' bullet shape (meta_facts._tldr). If that shape drifts (e.g. '-'→'*', or
+    # H4 sub-blocks), the regex empties tldr corpus-wide with no other signal.
+    # Guard the coupling: the vast majority of pages carry At-a-glance bullets, so
+    # a near-total emptying is the failure mode. (audit #16)
+    have = sum(1 for p in pages if (p.fm.get("tldr") or []))
+    frac = have / len(pages) if pages else 1.0
+    assert frac > 0.8, (f"only {have}/{len(pages)} pages have a non-empty tldr — "
+                        f"at_a_glance/_tldr bullet-shape drift?")

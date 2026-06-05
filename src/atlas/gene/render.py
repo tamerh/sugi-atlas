@@ -869,7 +869,7 @@ def r_expression(b):
         if exps:
             L.append(table(["Experiment", "Marker?", "Max mean expression"],
                            [(_scxa_link(e.get("experiment_id")),
-                             "yes" if e.get("is_marker") else "",
+                             "yes" if e.get("is_marker") else "no",
                              e.get("max_expression")) for e in exps[:15]]))
     return "\n".join(L)
 

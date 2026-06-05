@@ -39,7 +39,7 @@ def same_as_urls(bundle):
     if entrez:
         out.append(f"https://www.ncbi.nlm.nih.gov/gene/{entrez}")
     canon = b3.get("canonical_uniprot")
-    if canon:
+    if canon and not bundle.get("_noncoding"):   # ncRNA: a stray inherited UniProt isn't this gene's product (audit #12)
         out.append(f"https://www.uniprot.org/uniprotkb/{canon}")
     ens = b1.get("ensembl_id")
     if ens:
@@ -120,6 +120,12 @@ def _protein_nodes(bundle, gene_page):
     genes (CDKN2A) get a list; single-product a dict; ncRNA None."""
     b3 = bundle.get("3") or {}
     b4 = bundle.get("4") or {}
+    # ncRNA has no protein product; a non-coding gene can carry a stray,
+    # positionally-inherited reviewed UniProt (SCP2D1-AS1 → SCP2D1's Q9BR46).
+    # Emitting a Protein node then contradicts the body's "non-coding, no protein"
+    # (audit #12) — so gate on the same _noncoding flag the body renders from.
+    if bundle.get("_noncoding"):
+        return None
     rev = b3.get("reviewed_uniprot") or []
     if not rev:
         return None

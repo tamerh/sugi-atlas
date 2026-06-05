@@ -18,9 +18,33 @@ Design (see docs/internal/research/05 §6 + NEXT.md cross-entity work):
 
 Gene slug == HGNC symbol. Disease/drug slug == the slug written at build time.
 """
+import contextlib
 import json
 import os
 import re
+
+try:
+    import fcntl
+except ImportError:                      # non-POSIX — batch is single-writer anyway
+    fcntl = None
+
+
+@contextlib.contextmanager
+def _manifest_lock(path):
+    """Serialize manifest read-modify-write across processes (audit #15: ad-hoc
+    parallel per-entity runs lost updates — a concurrent reader/writer clobbered
+    each other; the production batch is single-writer and unaffected). Advisory
+    flock on a sidecar; no-op where fcntl is unavailable."""
+    if fcntl is None:
+        yield
+        return
+    with open(path + ".lock", "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lk, fcntl.LOCK_UN)
+
 
 # Process-global manifest. {entity_type: {resolvable_key: slug}}.
 _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
@@ -138,26 +162,29 @@ def upsert(dist_root, entity, slug, id_keys=(), name_keys=(), canonical=None):
         return
     path = _manifest_path(dist_root)
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    try:
-        with open(path) as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        data = {}
-    for k in ("gene", "disease", "drug"):
-        data.setdefault(k, {})
-    data.setdefault("canon", {}).setdefault(entity, {})
-    bucket = data[entity]
-    for k in id_keys:
-        if k:
-            bucket[str(k)] = slug
-    for k in name_keys:
-        nk = _norm(k)
-        if nk:
-            bucket[nk] = slug
-    if canonical:
-        data["canon"][entity][slug] = canonical
     from atlas.atomicio import write_json
-    write_json(path, data, indent=0, sort_keys=True)   # atomic — see atomicio
+    # Hold the lock across the whole read-modify-write so concurrent upserts don't
+    # lose each other's keys (atomic write alone only prevents a torn file).
+    with _manifest_lock(path):
+        try:
+            with open(path) as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = {}
+        for k in ("gene", "disease", "drug"):
+            data.setdefault(k, {})
+        data.setdefault("canon", {}).setdefault(entity, {})
+        bucket = data[entity]
+        for k in id_keys:
+            if k:
+                bucket[str(k)] = slug
+        for k in name_keys:
+            nk = _norm(k)
+            if nk:
+                bucket[nk] = slug
+        if canonical:
+            data["canon"][entity][slug] = canonical
+        write_json(path, data, indent=0, sort_keys=True)   # atomic — see atomicio
     # keep the live mesh current
     _MANIFEST.setdefault(entity, {}).update(bucket)
     if canonical:

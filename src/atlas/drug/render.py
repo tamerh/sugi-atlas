@@ -171,7 +171,8 @@ def r_bioactivity(b):
 
 def r_indications(b):
     inds = b.get("indications") or []
-    head = (f"**{_i(b.get('indication_count'))} indications "
+    n_ind = b.get("indication_count") or 0
+    head = (f"**{_i(n_ind)} indication{'s' if n_ind != 1 else ''} "
             f"({_i(b.get('approved_count'))} at ChEMBL trial phase 4).**")
     # Keep only rows with a real disease name (drop raw EFO/MeSH/MP ids), then
     # dedup by (name, MONDO) — the source repeats the same disease across xrefs
@@ -206,7 +207,8 @@ def r_indications(b):
         L.append(head)
         if inds:
             L.append(f"\n*The {len(inds)} indication record"
-                     f"{'s' if len(inds) != 1 else ''} carry no mapped disease name "
+                     f"{'s' if len(inds) != 1 else ''} "
+                     f"carr{'y' if len(inds) != 1 else 'ies'} no mapped disease name "
                      "(EFO/MeSH-only); none shown.*")
     return "\n".join(L)
 

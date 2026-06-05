@@ -207,7 +207,12 @@ def collect_all(symbol):
 _NONCODING_SCRUB = {
     "6":  ("clinvar_total", "clinvar_breakdown", "top_pathogenic", "spliceai_total",
            "top_spliceai", "alphamissense_total", "top_alphamissense", "dbsnp_sample"),
-    "10": ("disease_trials", "disease_trial_count"),
+    # disease_trials are positional; civic_evidence_total / molecule_count /
+    # is_drug_target also feed the evidence _SPEC + meta_facts, so clear them too
+    # (audit #14: non-coding genes carried inherited drug/civic counts in the
+    # frontmatter + evidence_score even though the body correctly says "no data").
+    "10": ("disease_trials", "disease_trial_count",
+           "civic_evidence_total", "molecule_count", "is_drug_target"),
     "12": ("gene_omim", "disease_omim", "gencc", "clingen_validity", "mondo",
            "orphanet", "hpo", "hpo_total", "gwas", "gwas_total", "gwas_studies",
            "efo_traits", "mesh_descriptors", "civic", "intogen"),
