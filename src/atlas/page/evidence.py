@@ -46,6 +46,11 @@ _SPEC = {
         ("drug_count",    "10", "phased_count",         1.0),
         ("gwas_count",    "2",  "assoc_total",          0.7),
         ("trial_count",   "13", "trial_count",          0.4),
+        # Orphanet/HPO phenotype count. Weight 0.0 → reported in the frontmatter
+        # (so the corpus-depth stats can tell a symptom-characterized disease from
+        # a truly empty one) but it does NOT enter the evidence_score, leaving the
+        # ranking unchanged.
+        ("phenotype_count", "1", "phenotype_count",     0.0),
     ],
     "drug": [
         ("civic_count",         "10", "civic_evidence_total",   2.0),
