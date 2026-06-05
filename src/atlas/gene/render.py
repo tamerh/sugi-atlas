@@ -685,14 +685,19 @@ def r_drugs(b):
                  f"({b.get('bindingdb_total', 0)} total across all organisms); "
                  f"most potent {len(br)} below. *Values come from heterogeneous "
                  f"assays and are not directly comparable.*\n")
-        # Patent column only when a displayed compound is patent-extracted (the
-        # source patent, linked) — avoids an all-blank column for named targets.
+        # Patent column when a displayed compound carries a source patent — the
+        # hyphenated number (US-8524722) linked to Google Patents, plus the
+        # invention title (more readable than the IUPAC). Blank for the rest.
         if any(x.get("patent") for x in br):
+            def _pat(x):
+                pn = x.get("patent")
+                if not pn:
+                    return ""
+                disp = pn[:2] + "-" + pn[2:] if len(pn) > 2 and pn[:2].isalpha() else pn
+                cell = links.maybe_link(disp, f"https://patents.google.com/patent/{pn}")
+                return f"{cell}: {x['patent_title']}" if x.get("patent_title") else cell
             L.append(table(["Ligand", "Measure", "Value", "Patent"],
-                           [(x.get("ligand"), x.get("measure"), x.get("value"),
-                             links.maybe_link(x["patent"],
-                                              f"https://patents.google.com/patent/{x['patent']}")
-                             if x.get("patent") else "")
+                           [(x.get("ligand"), x.get("measure"), x.get("value"), _pat(x))
                             for x in br]))
         else:
             L.append(table(["Ligand", "Measure", "Value"],

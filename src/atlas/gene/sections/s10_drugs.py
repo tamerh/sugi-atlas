@@ -45,6 +45,28 @@ def _is_patent_ref(name):
     return _patent_id(name) is not None
 
 
+_PATENT_KINDS = ("B2", "B1", "A1", "A2", "B", "A")
+
+
+def _patent_title(pn):
+    """Invention title of a patent from biobtree's Patent dataset. Our
+    patent_number is plain (US8524722) but the dataset is keyed 'US-8524722-B2'
+    (hyphens + a kind code not in our data), so reformat and try the common kind
+    codes (B2 dominates). None if none resolve."""
+    m = re.match(r"^([A-Z]{2})(\d+)$", (pn or "").strip())
+    if not m:
+        return None
+    base = f"{m.group(1)}-{m.group(2)}"
+    for kc in _PATENT_KINDS:
+        try:
+            a = entry(f"{base}-{kc}", "patent").get("Attributes", {}).get("Patent", {})
+            if a.get("title"):
+                return a["title"]
+        except Exception:
+            pass
+    return None
+
+
 # Numeric character references in IUPAC ligand names — both the valid form
 # (&#8243; = ″) and BindingDB's mangled form ($#8243;, where the & is corrupted
 # upstream). Decode both to the actual character; html.unescape handles named
@@ -285,7 +307,16 @@ def collect(a):
         ranked.append({"ligand": _decode_entities(name), "patent": patent, "measure": bm[1],
                        "value": _round_measure(bm[2]), "nm": round(bm[0], 4)})
     ranked.sort(key=lambda x: x["nm"])
-    bundle["bindingdb_ranked"] = ranked[:50]
+    top = ranked[:50]
+    # Resolve each distinct patent's title (invention name — more readable than the
+    # IUPAC), cached so each patent is fetched once across the shown rows.
+    pat_titles = {}
+    for x in top:
+        pn = x.get("patent")
+        if pn and pn not in pat_titles:
+            pat_titles[pn] = _patent_title(pn)
+        x["patent_title"] = pat_titles.get(pn)
+    bundle["bindingdb_ranked"] = top
     bundle["bindingdb_total"] = len(bd)
     bundle["bindingdb_human"] = len(human)
     bundle["bindingdb_measured"] = len(ranked)
