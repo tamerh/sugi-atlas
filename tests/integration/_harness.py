@@ -63,8 +63,20 @@ H3_IDS = {
              "related-mol"},
 }
 
+# Frozen H4 id allow-list per entity. H4s are the table-block titles inside a
+# section (e.g. gene §drug-data). A page's H4 ids must be a SUBSET of these.
+H4_IDS = {
+    "gene": {"uniprot-cc",
+             "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",
+             "pharmgkb-guidelines", "gtopdb", "bindingdb", "chembl-bioactivity",
+             "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials"},
+    "disease": set(),
+    "drug": set(),
+}
+
 _H2_LINE = re.compile(r"^## (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
 _H3_LINE = re.compile(r"^### (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
+_H4_LINE = re.compile(r"^#### (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
 _ANY_HEADING = re.compile(r"^(#{2,6}) (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
 _TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
 _CELL_SPLIT = re.compile(r"(?<!\\)\|")     # unescaped pipe = real column divider
@@ -105,6 +117,12 @@ class Page:
         return [(m.group(1).strip(), m.group(2))
                 for line in self.body.splitlines()
                 if (m := _H3_LINE.match(line))]
+
+    @property
+    def h4(self):
+        return [(m.group(1).strip(), m.group(2))
+                for line in self.body.splitlines()
+                if (m := _H4_LINE.match(line))]
 
     @property
     def url(self):

@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from ._harness import H2_IDS, H3_IDS, report
+from ._harness import H2_IDS, H3_IDS, H4_IDS, report
 
 pytestmark = pytest.mark.integration
 
@@ -37,13 +37,14 @@ def test_summary_first_related_last(pages):
 
 
 def test_section_h3_have_explicit_ids(pages):
-    """Section H3 headings carry backend-owned {#id}s — never Hugo's
+    """Section H3 and H4 headings carry backend-owned {#id}s — never Hugo's
     prose-derived autoHeadingID (…generif-showing-40 breaks on prose change).
-    (#### sub-sub-headings are exempt — not deep-link targets.)"""
+    H4s are now table-block deep-link targets (gene §drug-data), so they need
+    explicit ids too."""
     bad = []
     for p in pages:
         for line in p.body.splitlines():
-            if line.startswith("### ") and "{#" not in line:
+            if (line.startswith("### ") or line.startswith("#### ")) and "{#" not in line:
                 bad.append(f"{p.entity}/{p.slug}: '{line.strip()[:55]}'")
     assert not bad, report(bad)
 
@@ -55,6 +56,18 @@ def test_section_h3_ids_match_contract(pages):
     for p in pages:
         ids = {i for _l, i in p.h3 if i}
         extra = ids - H3_IDS[p.entity]
+        if extra:
+            bad.append(f"{p.entity}/{p.slug}: not in contract → {sorted(extra)}")
+    assert not bad, report(bad)
+
+
+def test_section_h4_ids_match_contract(pages):
+    """H4 table-block ids (e.g. gene §drug-data: #bindingdb, #civic) stay within
+    the frozen set — a new/renamed anchor fails here, not silently in the wild."""
+    bad = []
+    for p in pages:
+        ids = {i for _l, i in p.h4 if i}
+        extra = ids - H4_IDS[p.entity]
         if extra:
             bad.append(f"{p.entity}/{p.slug}: not in contract → {sorted(extra)}")
     assert not bad, report(bad)

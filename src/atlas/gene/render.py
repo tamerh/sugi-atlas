@@ -149,6 +149,7 @@ def r_protein_ids(b):
         head = "### UniProt curated annotations"
         if uurl:
             head += f" — [full annotation on UniProt →]({uurl})"
+        head += " {#uniprot-cc}"
         L.append("\n" + head + "\n")
         for key, label in _CC_ORDER:
             text = cc.get(key)
@@ -567,8 +568,9 @@ def r_drugs(b):
                        f"(via chembl_molecule>>patent_compound — counts attach to the compound, "
                        f"not the gene–compound relationship, so off-target/promiscuous "
                        f"molecules can dominate). " if pt else "")
-        L.append(f"\n**Molecules with ChEMBL bioactivity (phase ≥1): {mc}**, "
-                 f"by development phase (incl. off-target/promiscuous compounds).{patent_note}\n")
+        L.append("\n### Molecules with ChEMBL bioactivity {#chembl-molecules}\n")
+        L.append(f"{mc} molecules (phase ≥1), by development phase (incl. off-target/"
+                 f"promiscuous compounds).{patent_note}\n")
         L.append(table(["Molecule", "Name", "Phase", "Patents"],
                        [(m["id"],
                          links.maybe_link(m.get("name"), links.drug_url(chembl_id=m["id"], name=m.get("name"))),
@@ -586,11 +588,10 @@ def r_drugs(b):
     if ce:
         etc = b.get("civic_evidence_type_counts") or {}
         extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
-        L.append(f"\n**Clinical evidence — drug × variant × indication "
-                 f"(CIViC, {b.get('civic_association_total', 0)} predictive "
-                 f"associations from {b.get('civic_predictive_total', 0)} curated "
-                 f"evidence items"
-                 + (f"; also {extra}" if extra else "") + "):**\n")
+        L.append("\n### Clinical evidence (CIViC) {#civic}\n")
+        L.append(f"Drug × variant × indication: {b.get('civic_association_total', 0)} "
+                 f"predictive associations from {b.get('civic_predictive_total', 0)} curated "
+                 f"evidence items" + (f"; also {extra}" if extra else "") + ".\n")
         L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
                        [(r["profile"],
                          links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
@@ -613,7 +614,8 @@ def r_drugs(b):
     # with PharmGKB's evidence-level rating (1A strongest → 4 weakest).
     pgc = b.get("pharmgkb_clinical") or []
     if pgc:
-        L.append(f"\n**PharmGKB clinical annotations ({len(pgc)}):**\n")
+        L.append("\n### PharmGKB clinical annotations {#pharmgkb-clinical}\n")
+        L.append(f"{len(pgc)} annotations.\n")
         L.append(table(
             ["Variant", "Type", "Level", "Drugs", "Phenotypes"],
             [(c.get("variant"), c.get("type"), c.get("level_of_evidence"),
@@ -625,7 +627,8 @@ def r_drugs(b):
     # composite score + count of clinical annotations.
     pgv = b.get("pharmgkb_variant") or []
     if pgv:
-        L.append(f"\n**PharmGKB variants ({len(pgv)}):**\n")
+        L.append("\n### PharmGKB variants {#pharmgkb-variants}\n")
+        L.append(f"{len(pgv)} variants.\n")
         L.append(table(
             ["Variant", "Genes", "Level", "Score", "#Clin annots", "Drugs"],
             [(v.get("name"),
@@ -644,7 +647,8 @@ def r_drugs(b):
         order = {"CPIC": 0, "DPWG": 1, "CPNDS": 2}
         pgg_sorted = sorted(pgg, key=lambda g: (order.get(g.get("source"), 99),
                                                  g.get("chemical_names") or ""))
-        L.append(f"\n**PharmGKB dosing guidelines ({len(pgg)}):**\n")
+        L.append("\n### PharmGKB dosing guidelines {#pharmgkb-guidelines}\n")
+        L.append(f"{len(pgg)} guidelines.\n")
         L.append(table(
             ["Source", "Drug", "Guideline", "Dosing?", "Recommendation?"],
             [(g.get("source"),
@@ -751,8 +755,9 @@ def r_drugs(b):
     # High AI value: every claim is anchored by literature counts.
     ctd = b.get("ctd_interactions") or []
     if ctd:
-        L.append(f"\n**CTD chemical–gene interactions (human, "
-                 f"{b.get('ctd_interaction_total', 0)} total), top 30 by PubMed support:**\n")
+        L.append("\n### CTD chemical–gene interactions {#ctd}\n")
+        L.append(f"{b.get('ctd_interaction_total', 0)} total (human), top {len(ctd)} by "
+                 f"PubMed support.\n")
         L.append(table(["Chemical", "Actions (top 5)", "PubMed papers"],
                        [(r["chemical"], _ctd_actions(r["actions"]),
                          r["pmids"]) for r in ctd]))
@@ -788,7 +793,8 @@ def r_drugs(b):
     if cct:
         cats = b.get("cellosaurus_category_counts") or {}
         breakdown = ", ".join(f"{n:,} {k.lower()}" for k, n in cats.items())
-        L.append(f"\n**Cellosaurus cell lines ({cct:,}):** {breakdown}")
+        L.append("\n### Cellosaurus cell lines {#cellosaurus}\n")
+        L.append(f"{cct:,} cell lines: {breakdown}")
         cs = b.get("cellosaurus_samples") or []
         if cs:
             L.append("\nFirst 10 cell lines (id-ordered, not curated):\n")
@@ -797,8 +803,9 @@ def r_drugs(b):
                             for c in cs]))
 
     ct = b.get("disease_trials", [])
-    L.append(f"\n**Clinical trials for the gene's associated diseases "
-             f"({b.get('disease_trial_count', 0)}, via MONDO — disease-level, not drug-specific):**\n")
+    L.append("\n### Clinical trials (associated diseases) {#gene-trials}\n")
+    L.append(f"{b.get('disease_trial_count', 0)} trials via MONDO — disease-level, not "
+             f"drug-specific.\n")
     L.append(table(["Trial", "Phase", "Status", "Title"],
                    # phase_label (audit #8): biobtree emits 'NaN' for trials with
                    # no interventional phase; render it as 'Not specified', not
