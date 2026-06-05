@@ -8,12 +8,22 @@
 #
 #   ./atlas.sh test [int|all]
 #   ./atlas.sh prod
+#   ./atlas.sh release vX.Y.Z
 #   ./atlas.sh help
 #
 #   test          Unit suite only — fast, no build. The default.
 #   test int      Integration suite over ./dist (must already be built).
 #   test all      Pre-production check: build the dense set into ./dist, then
 #                 run unit + integration against it. Run this before `prod`.
+#
+#   release vX.Y.Z  Tag + GitHub release of the PIPELINE (code only — the corpus
+#                 is never attached; we share the generator, not our outputs).
+#                 Gate is `test all`; then `git tag` + push (over the existing SSH
+#                 key). gh is OPTIONAL: if present it runs `gh release create`
+#                 --generate-notes; if absent the tag is still pushed and the gh
+#                 command is printed to run elsewhere (no token needed on prod).
+#                 Requires a committed tree. Build the corpus off the tag (`prod`)
+#                 to stamp pages with vX.Y.Z.
 #
 #   prod          Production build, detached via nohup (logs → dist/logs/):
 #                   1. pre-production check  (== test all: dense build + tests)
@@ -59,6 +69,17 @@ usage() { sed -n '3,/^set -euo/p' "$0" | sed '$d;s/^# \{0,1\}//'; }
 workers() { [ -n "$WORKERS" ] && { echo "$WORKERS"; return; }; local n=$(( $(nproc) - 2 )); [ "$n" -lt 1 ] && n=1; echo "$n"; }
 count()   { grep -cvE '^\s*#|^\s*$' "$1" 2>/dev/null || echo 0; }
 
+# Capture the pipeline version + commit ONCE at build start (git-derived,
+# enju-style) and export them so the batch stamps every page with the code that
+# actually built it, and the archive name matches. A tagged commit → a clean
+# "vX.Y.Z"; between tags → "vX.Y.Z-N-gSHA"; no git → "dev"/"nogit". Idempotent
+# (`:=` only sets when unset), so all phases of one run share the same stamp.
+stamp_version() {
+  : "${ATLAS_BUILD_VERSION:=$(git describe --tags --always 2>/dev/null || echo dev)}"
+  : "${ATLAS_BUILD_COMMIT:=$(git rev-parse --short HEAD 2>/dev/null || echo nogit)}"
+  export ATLAS_BUILD_VERSION ATLAS_BUILD_COMMIT
+}
+
 preflight() {
   if ! curl -fsS -o /dev/null --max-time 10 "$BIOBTREE/ws/?i=TP53&mode=lite" 2>/dev/null; then
     die "biobtree unreachable at $BIOBTREE — start it or set ATLAS_BIOBTREE"
@@ -71,6 +92,7 @@ build() {
   local label="$1" g="$2" s="$3" r="$4" w
   for f in "$g" "$s" "$r"; do [ -f "$f" ] || die "missing list $f"; done
   w=$(workers)
+  stamp_version                       # version/commit captured at build start
   # Start every build from a clean slate so pages from a prior phase/run can't
   # linger as orphans. This matters in `prod`: the [1/4] dense check populates
   # dist/atlas, then [2/4] full corpus must NOT inherit those dense-only pages
@@ -101,9 +123,9 @@ integration() {
 }
 
 archive() {
-  local sha stamp out
-  sha=$(git rev-parse --short HEAD 2>/dev/null || echo nogit)
-  stamp=$(date +%Y%m%d-%H%M%S); out="$DIST/atlas-corpus-$stamp-$sha.tar.gz"
+  local stamp out
+  stamp_version                       # same stamp as the build (not archive-time HEAD)
+  stamp=$(date +%Y%m%d-%H%M%S); out="$DIST/atlas-corpus-$stamp-$ATLAS_BUILD_VERSION.tar.gz"
   say "archiving $DIST/atlas → $out"
   tar -C "$DIST" -czf "$out" atlas
   ok "$(du -h "$out" | cut -f1)  $out"
@@ -153,6 +175,45 @@ cmd_prod() {
   prod_run                                              # worker: run the pipeline
 }
 
+# release vX.Y.Z — tag + GitHub release of the PIPELINE (code only; the corpus is
+# never attached — we share the generator, not our outputs). Gate is `test all`
+# (dense build + unit + integration) so a release provably builds end-to-end. The
+# version flows from the tag: a subsequent `prod` off this commit stamps pages
+# with the clean tag (see atlas_version() — no version-bump commit moves HEAD off
+# the tag, so the corpus reads a pristine vX.Y.Z).
+cmd_release() {
+  local version="${1:-}"
+  [ -n "$version" ] || die "usage: ./atlas.sh release <version>   (e.g. v1.0.0)"
+  [[ "$version" == v* ]] || version="v$version"
+  # gh is OPTIONAL: the tag + push (what actually versions the corpus) runs here
+  # with the existing SSH key, so no GitHub token needs to live on this box. The
+  # GitHub-release publish can run on any machine that has gh (e.g. a laptop).
+  # The tag captures HEAD, so the tree must be committed. The untracked tmp
+  # working doc (corpus-stats.tmp.md) is allowed to stay dirty.
+  local dirty; dirty=$(git status --porcelain | grep -vE 'corpus-stats\.tmp\.md' || true)
+  [ -z "$dirty" ] || die "uncommitted changes (commit before releasing — the tag captures HEAD):
+$dirty"
+  git rev-parse "$version" >/dev/null 2>&1 && die "tag $version already exists"
+  say "RELEASE $version — gate: test all (dense build + unit + integration)"
+  preflight; build_dense; echo; unit; echo; integration
+  ok "gate green"
+  echo; say "tagging $version at $(git rev-parse --short HEAD)"
+  git tag -a "$version" -m "Sugi Atlas pipeline $version"
+  git push origin "$version"
+  ok "tag $version pushed to origin"
+  echo
+  if command -v gh >/dev/null 2>&1; then
+    say "creating GitHub release (pipeline source only)"
+    gh release create "$version" --title "$version" --generate-notes
+    ok "RELEASE $version published — pipeline only, no corpus attached"
+  else
+    local repo; repo=$(git remote get-url origin 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#\.git$##')
+    warn "gh not installed here — the tag is pushed; publish the GitHub release from a gh machine:"
+    printf "%s\n" "    ${B}gh release create $version --repo ${repo:-OWNER/REPO} --title $version --generate-notes${N}"
+  fi
+  echo; say "build the corpus off this tag (./atlas.sh prod) to stamp pages with $version"
+}
+
 # ---- arg parse --------------------------------------------------------------
 [ $# -ge 1 ] || { usage; exit 0; }
 CMD="$1"; shift
@@ -172,6 +233,7 @@ set -- "${POS[@]:-}"
 case "$CMD" in
   test)           cmd_test "${1:-}" ;;
   prod)           cmd_prod ;;
+  release)        cmd_release "${1:-}" ;;
   help|-h|--help) usage ;;
   *)              die "unknown command: $CMD  (run './atlas.sh help')" ;;
 esac

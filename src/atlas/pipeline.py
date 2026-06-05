@@ -54,6 +54,48 @@ def biobtree_version():
         _BIOBTREE_VERSION = "unknown"
     return _BIOBTREE_VERSION
 
+
+_ATLAS_VERSION = None
+_ATLAS_COMMIT = None
+
+
+def _git(*args):
+    """Stripped stdout of a git command in the repo, or None on any failure."""
+    try:
+        import subprocess
+        out = subprocess.check_output(["git", *args], cwd=os.path.dirname(__file__),
+                                      stderr=subprocess.DEVNULL).decode().strip()
+        return out or None
+    except Exception:
+        return None
+
+
+def atlas_version():
+    """Pipeline version stamped on every page. Prefers the build-time stamp set
+    by atlas.sh (ATLAS_BUILD_VERSION = `git describe --tags --always`, captured at
+    build START so the corpus is labelled with the code that actually built it);
+    falls back to a live git describe, then the packaged __version__. A build off
+    a tag reads a clean 'vX.Y.Z'; between tags, 'vX.Y.Z-N-gSHA'. Cached per
+    process (every batch worker inherits ATLAS_BUILD_VERSION, so no git per page)."""
+    global _ATLAS_VERSION
+    if _ATLAS_VERSION is None:
+        _ATLAS_VERSION = (os.environ.get("ATLAS_BUILD_VERSION")
+                          or _git("describe", "--tags", "--always")
+                          or ATLAS_VERSION)
+    return _ATLAS_VERSION
+
+
+def atlas_commit():
+    """Short git SHA of the building code (ATLAS_BUILD_COMMIT from atlas.sh,
+    captured at build start), else a live lookup, else 'nogit'. Cached."""
+    global _ATLAS_COMMIT
+    if _ATLAS_COMMIT is None:
+        _ATLAS_COMMIT = (os.environ.get("ATLAS_BUILD_COMMIT")
+                         or _git("rev-parse", "--short", "HEAD")
+                         or "nogit")
+    return _ATLAS_COMMIT
+
+
 GENERATED_BY = "Sugi Atlas"  # attribution stamp; details on the /methods page
 
 # Page filename. "index.md" makes each <entity>/<slug>/ a Hugo leaf page-bundle,
@@ -86,7 +128,8 @@ def build_meta(entity_type, slug, title, datasets, generated_at=None, bundle=Non
         "entity_type": entity_type,
         "generated_at": (generated_at
                          or datetime.now(timezone.utc).isoformat(timespec="seconds")),
-        "atlas_version": ATLAS_VERSION,
+        "atlas_version": atlas_version(),
+        "atlas_commit": atlas_commit(),
         "biobtree_version": biobtree_version(),
         "generated_by": GENERATED_BY,
         "datasets": datasets,
@@ -246,7 +289,8 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     legacy callers that don't pass it get the prior (no-lead) layout."""
     fm = ["---"]
     for k in ("title", "identifier", "symbol", "entity_type", "description",
-              "generated_at", "atlas_version", "biobtree_version", "generated_by"):
+              "generated_at", "atlas_version", "atlas_commit", "biobtree_version",
+              "generated_by"):
         if meta.get(k):
             fm.append(f'{k}: "{_yaml_escape(meta[k])}"')
     # Search aliases (P2) — NOT Hugo-reserved `aliases:` (that emits 301s).
