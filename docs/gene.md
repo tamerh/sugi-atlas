@@ -152,6 +152,15 @@ product"*).
   (`>>uniprot>>string_interaction`), not `>>…>>uniprot` (which collapses to bare
   partner IDs and loses the scores). True totals come from the entry xref count
   (TP53's 14,764 STRING partners: ~3 calls, not ~150 pages).
+- **Interaction-partner enrichment** (`#interactome-enrichment`) — Reactome / GO
+  biological processes **over-represented among the gene's IntAct physical
+  partners** (a functional readout of the neighbourhood), via the same ORA helper
+  as the disease cohort. Reuses the precomputed membership table so it costs no
+  extra biobtree calls at build. The interactome is study/hub-biased, so it uses
+  the standard gene-set-size band (15≤K≤500, which excludes umbrella *and* tiny-K
+  noise), `k≥5`, FDR<0.01, ranked by fold; counts/members kept; labelled as
+  "themes not proof" and distinct from the gene's own pathway/GO list. Elides for
+  sparse genes or when no theme clears the band (we don't fabricate one).
 
 ### Disease & clinical
 Elides for non-coding genes.
