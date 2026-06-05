@@ -31,28 +31,34 @@ from atlas.biobtree import CALLS
 
 DEFAULT_SUMMARY_MODEL = os.environ.get("ATLAS_SUMMARY_MODEL", "qwen/qwen3-235b-a22b-2507|Together")
 
-_BIOBTREE_VERSION = None  # cached per process — /api/meta is the same all run
+_BIOBTREE_META = None  # cached per process — /ws/meta appparams is stable per run
+
+
+def _biobtree_meta():
+    """The `appparams` block from biobtree's /ws/meta (biobtree_version,
+    biobtree_commit, biobtree_build_date), fetched once per process. Empty dict
+    if the endpoint or block is unavailable (older biobtree)."""
+    global _BIOBTREE_META
+    if _BIOBTREE_META is None:
+        from atlas.biobtree import API
+        try:
+            d = json.loads(urllib.request.urlopen(f"{API}/ws/meta", timeout=5).read())
+            _BIOBTREE_META = d.get("appparams") or {}
+        except Exception:
+            _BIOBTREE_META = {}
+    return _BIOBTREE_META
 
 
 def biobtree_version():
-    """biobtree exposes no version/build field in /api/meta, so we stamp a
-    dataset-integration fingerprint instead — labelled so it doesn't read as a
-    build/version number. (`generated_at` is the actual reproducibility anchor.)
-    Cached per process so a batch doesn't hit /api/meta once per page."""
-    global _BIOBTREE_VERSION
-    if _BIOBTREE_VERSION is not None:
-        return _BIOBTREE_VERSION
-    from atlas.biobtree import API
-    try:
-        d = json.loads(urllib.request.urlopen(f"{API}/meta", timeout=5).read())
-        if d.get("version"):
-            _BIOBTREE_VERSION = d["version"]
-        else:
-            n = len(d.get("datasets") or {})
-            _BIOBTREE_VERSION = f"{n}-dataset integration" if n else "unknown"
-    except Exception:
-        _BIOBTREE_VERSION = "unknown"
-    return _BIOBTREE_VERSION
+    """biobtree's own version (appparams.biobtree_version, e.g. 'v2.0.0') — the
+    data-snapshot anchor for reproducibility. 'unknown' if unavailable."""
+    return _biobtree_meta().get("biobtree_version") or "unknown"
+
+
+def biobtree_commit():
+    """biobtree's build commit (appparams.biobtree_commit), pinning the exact data
+    snapshot alongside biobtree_version. 'unknown' if unavailable."""
+    return _biobtree_meta().get("biobtree_commit") or "unknown"
 
 
 _ATLAS_VERSION = None
@@ -131,6 +137,7 @@ def build_meta(entity_type, slug, title, datasets, generated_at=None, bundle=Non
         "atlas_version": atlas_version(),
         "atlas_commit": atlas_commit(),
         "biobtree_version": biobtree_version(),
+        "biobtree_commit": biobtree_commit(),
         "generated_by": GENERATED_BY,
         "datasets": datasets,
     }
@@ -290,7 +297,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     fm = ["---"]
     for k in ("title", "identifier", "symbol", "entity_type", "description",
               "generated_at", "atlas_version", "atlas_commit", "biobtree_version",
-              "generated_by"):
+              "biobtree_commit", "generated_by"):
         if meta.get(k):
             fm.append(f'{k}: "{_yaml_escape(meta[k])}"')
     # Search aliases (P2) — NOT Hugo-reserved `aliases:` (that emits 301s).
