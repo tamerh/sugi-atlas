@@ -95,7 +95,9 @@ H4_IDS = {
               "cohort-pathways", "approved-drug-genes", "top-targets", "cohort-drugs",
               "cohort-bioactivity", "cohort-enzymes", "screening-signal", "cohort-pgx",
               "trial-phases", "top-trials", "trial-drugs", "civic"},
-    "drug": set(),
+    # drug pages are flat (one table per H3 section); only the two multi-table
+    # sections (Target pathways, Clinical trials) carry H4s.
+    "drug": {"target-reactome", "target-go", "trial-phases", "top-trials"},
 }
 
 _H2_LINE = re.compile(r"^## (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")

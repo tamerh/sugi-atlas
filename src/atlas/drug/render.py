@@ -258,15 +258,15 @@ def r_target_pathways(b):
     tg_md = ", ".join(links.maybe_link(g, links.gene_url(symbol=g)) for g in tg)
     L.append(f"**Aggregated over {len(tg)} target gene(s): {tg_md}.**")
     if tp:
-        L += ["", f"**Top Reactome pathways ({_i(b.get('pathway_count'))} total), "
-              f"by targets touching each:**", "",
+        L += ["", "### Top Reactome pathways {#target-reactome}", "",
+              f"{_i(b.get('pathway_count'))} total, by targets touching each:", "",
               table(["Pathway", "Targets", "Genes"],
                     [(p.get("name") or p.get("id") or "",
                       p.get("gene_count"),
                       ", ".join(links.maybe_link(g, links.gene_url(symbol=g)) for g in (p.get("genes") or [])))
                      for p in tp])]
     if go:
-        L += ["", "**Dominant GO biological processes:**", "",
+        L += ["", "### Dominant GO biological processes {#target-go}", "",
               table(["GO term", "Targets"],
                     [(g.get("name") or g.get("id") or "",
                       g.get("target_count")) for g in go])]
@@ -349,12 +349,13 @@ def r_clinical_trials(b):
         note = (f" (phase/status distribution below is over {_i(sampled)} sampled "
                 f"trials of the {_i(total)} total)" if total and sampled and total > sampled
                 else "")
-        L += ["", f"**Phase distribution{note}:**", "",
+        L += ["", "### Phase distribution {#trial-phases}", "",
+              *([note.strip() + ".", ""] if note else []),
               table(["Phase", "Trials"],
                     [(k, _i(v)) for k, v in sorted(pc.items(), key=lambda kv: -kv[1])])]
     tt = b.get("top_trials") or []
     if tt:
-        L += ["", "**Top trials by phase / activity:**", "",
+        L += ["", "### Top trials by phase / activity {#top-trials}", "",
               table(["NCT", "Phase", "Status", "Title"],
                     [((t.get("id") or ""),
                       phase_label(t.get("phase")), t.get("status"), (t.get("title") or "").strip())
