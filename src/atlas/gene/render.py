@@ -208,7 +208,7 @@ def r_protein_ids(b):
         kin = b.get("brenda_kinetics") or []
         if kin:
             L.append(f"\n**Substrate kinetics (BRENDA, {b.get('brenda_kinetics_total', 0)} "
-                     f"substrates with measured Km), best-characterized {len(kin)}. "
+                     f"substrates with measured Km), best-characterized {len(kin)}.** "
                      f"*Km ranges are aggregated across organisms/conditions.*\n")
 
             def _km(r):
@@ -308,7 +308,9 @@ def r_generifs(b):
         return ""
     L = [f"## Literature-anchored findings (GeneRIF, showing {len(rifs)})", ""]
     for r in rifs:
-        text = (r.get("text") or "").strip()
+        # Escape asterisks: GeneRIF prose occasionally has literal '**' (e.g.
+        # "-Leu**Pro-"), which Markdown would read as an (unbalanced) bold marker.
+        text = (r.get("text") or "").strip().replace("*", r"\*")
         pmid = r.get("pmid")
         cite = f" (PMID:{pmid})" if pmid else ""
         L.append(f"- {text}{cite}")
@@ -724,7 +726,7 @@ def r_drugs(b):
     if pba:
         L.append(f"\n**PubChem BioAssay actives ({b.get('pubchem_bioassay_active_count', 0)} "
                  f"with measured affinity, of {b.get('pubchem_bioassay_total', 0)} total), "
-                 f"{len(pba)} most potent distinct compounds. *Largely complementary to "
+                 f"{len(pba)} most potent distinct compounds.** *Largely complementary to "
                  f"BindingDB; screening values are coarse (µM, 4 dp), so sub-nM hits tie at "
                  f"the floor.*\n")
         L.append(table(["Compound", "Assay", "Type", "Value", "Unit"],

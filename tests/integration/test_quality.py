@@ -232,3 +232,16 @@ def test_no_fragment_alt_names(pages):
             elif p.entity == "drug" and _ALT_FRAGMENT.match(s):
                 bad.append(f"{p.entity}/{p.slug}: {a!r} (chem fragment)")
     assert not bad, report(bad)
+
+
+def test_no_unbalanced_bold(pages):
+    # Every '**' (Markdown bold) must be closed on its line; an unbalanced one
+    # leaves a literal '**' in the rendered HTML. Web-team report: the PubChem /
+    # Substrate-kinetics headers opened bold then an italic without closing, and
+    # GeneRIF prose carried literal '**' (now escaped). Catches the whole class.
+    bad = []
+    for p in pages:
+        for i, line in enumerate(p.body.splitlines(), 1):
+            if line.count("**") % 2 == 1:
+                bad.append(f"{p.entity}/{p.slug}:{i}")
+    assert not bad, report(bad)
