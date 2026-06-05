@@ -361,9 +361,13 @@ def related_targets(entity_type, bundle):
 
     # Disease links resolve by name and a synonym can land on a differently-named
     # page (audit #13: "schizoaffective disorder" → /schizophrenia/). Relabel to
-    # the destination's canonical name so the text matches the page it opens.
-    groups["Diseases"] = [(canonical_label(url) or lbl, url)
-                          for lbl, url in groups["Diseases"]]
+    # the destination's canonical name so the text matches the page it opens; drop
+    # un-named pages whose only label is a raw ontology accession (never link a
+    # bare MONDO id as a name).
+    from atlas.render_common import is_ontology_id
+    groups["Diseases"] = [(lbl2, url) for lbl, url in groups["Diseases"]
+                          for lbl2 in (canonical_label(url) or lbl,)
+                          if not is_ontology_id(lbl2)]
 
     return groups
 
@@ -403,6 +407,7 @@ def _reverse_groups(my_url, forward_urls):
     """Incoming edges for `my_url` from the reverse index, grouped by predicate,
     deduped against this page's own outgoing links (`forward_urls`) and across
     reverse groups. Returns [(label, [(src_label, src_url)])] in display order."""
+    from atlas.render_common import is_ontology_id
     by_label = {}
     placed = set()                     # a url shows under one reverse label only
     # These reverse relationships are DISTINCT from any forward edge of the same
@@ -419,7 +424,13 @@ def _reverse_groups(my_url, forward_urls):
             continue
         if lab not in _coexist and src_url in forward_urls:
             continue                   # already surfaced as a forward edge of this page
-        by_label.setdefault(lab, []).append((str(src_label), src_url))
+        # Render the destination's canonical name; skip un-named pages whose only
+        # label is a raw ontology accession (e.g. a cohort disease that resolves to
+        # MONDO:0014866) — never surface a bare id as a link label (test guard).
+        label = canonical_label(src_url) or src_label
+        if is_ontology_id(label):
+            continue
+        by_label.setdefault(lab, []).append((str(label), src_url))
         placed.add(src_url)
     return [(lab, by_label[lab]) for lab in _REVERSE_ORDER if by_label.get(lab)]
 
