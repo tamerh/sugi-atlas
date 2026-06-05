@@ -20,14 +20,14 @@ import math
 import os
 
 
-@functools.lru_cache(maxsize=1)
-def reactome_background():
-    """(universe_n, {pathway_id: genome_wide_gene_count}) from the precomputed
-    background (data/background/reactome.json, built by atlas.build_background).
+@functools.lru_cache(maxsize=8)
+def background(name):
+    """(universe_n, {category_id: genome_wide_gene_count}) from the precomputed
+    background data/background/<name>.json (built by atlas.build_background).
     (0, {}) when absent — callers then fall back to raw-count ranking."""
     here = os.path.dirname(os.path.abspath(__file__))
-    for path in ("data/background/reactome.json",
-                 os.path.join(here, "..", "..", "data", "background", "reactome.json")):
+    for path in (f"data/background/{name}.json",
+                 os.path.join(here, "..", "..", "data", "background", f"{name}.json")):
         try:
             with open(path) as f:
                 d = json.load(f)
@@ -35,6 +35,10 @@ def reactome_background():
         except (OSError, json.JSONDecodeError, ValueError):
             continue
     return 0, {}
+
+
+def reactome_background():
+    return background("reactome")
 
 
 def _log_choose(n, k):

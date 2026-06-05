@@ -477,9 +477,31 @@ def r_protein_families(b):
            f"Druggable fraction: {b.get('druggable_fraction')}**"]
     fc = b.get("family_counts") or {}
     if fc:
-        out += ["", "### Family distribution {#family-distribution}", ""]
-        rows = sorted(fc.items(), key=lambda kv: -kv[1])
-        out.append(table(["Family", "Genes"], [(k, _i(v)) for k, v in rows]))
+        fe = b.get("family_enrichment") or {}
+
+        def _fdr(q):
+            return "—" if q is None else (f"{q:.0e}" if q < 1e-3 else f"{q:.3f}")
+
+        if fe and any((fe.get(k) or {}).get("fdr") is not None for k in fc):
+            def _fkey(kv):                       # enriched (lowest FDR) first
+                e = fe.get(kv[0]) or {}
+                tested = e.get("fdr") is not None
+                return (0 if tested else 1, e.get("fdr") if tested else 0.0,
+                        -(e.get("fold") or 0.0), -kv[1], kv[0])
+            out += ["", "### Family distribution {#family-distribution}", "",
+                    "Cohort families vs a genome-wide background (hypergeometric, "
+                    "BH-FDR; fold = observed/expected). Counts kept; sorted by "
+                    "enrichment, so the catch-all Other/Unknown bucket no longer leads.",
+                    "",
+                    table(["Family", "Genes", "Fold", "FDR"],
+                          [(k, _i(v),
+                            f"{(fe.get(k) or {}).get('fold'):.1f}×" if (fe.get(k) or {}).get("fold") else "—",
+                            _fdr((fe.get(k) or {}).get("fdr")))
+                           for k, v in sorted(fc.items(), key=_fkey)])]
+        else:
+            out += ["", "### Family distribution {#family-distribution}", ""]
+            rows = sorted(fc.items(), key=lambda kv: -kv[1])
+            out.append(table(["Family", "Genes"], [(k, _i(v)) for k, v in rows]))
     fa = b.get("family_assignments") or []
     if fa:
         out += ["", "### Per-gene assignment {#family-assignment}", "",
@@ -747,41 +769,44 @@ def r_pathways(b):
     out = ["## Pathway analysis", "",
            f"**Distinct Reactome pathways touched by cohort: "
            f"{_i(b.get('pathway_count'))}.**{over}"]
-    tp = b.get("top_pathways") or []
-    if tp:
-        def _samp(p):  # reconcile the sample with the Genes count (audit: 8 vs 9)
-            syms = p.get("gene_symbols") or []
-            gc = p.get("gene_count") or len(syms)
-            shown = syms[:8]
-            extra = gc - len(shown)
-            return ", ".join(shown) + (f" (+{extra} more)" if extra > 0 else "")
 
-        def _fdr(q):
-            if q is None:
-                return "—"
-            return f"{q:.0e}" if q < 1e-3 else f"{q:.3f}"
+    def _samp(p):  # reconcile the sample with the Genes count (audit: 8 vs 9)
+        syms = p.get("gene_symbols") or []
+        gc = p.get("gene_count") or len(syms)
+        shown = syms[:8]
+        extra = gc - len(shown)
+        return ", ".join(shown) + (f" (+{extra} more)" if extra > 0 else "")
 
-        # ORA-ranked when the Reactome background is present (fold + FDR columns,
-        # sorted by enrichment); count-only fallback otherwise. Counts + members
-        # are kept either way (ground-truth for human/agent consumers).
-        if any(p.get("fdr") is not None for p in tp):
-            out += ["", "### Pathways by enrichment {#cohort-pathways}", "",
-                    "Over-representation of cohort genes vs the genome-wide Reactome "
+    def _fdr(q):
+        return "—" if q is None else (f"{q:.0e}" if q < 1e-3 else f"{q:.3f}")
+
+    def _ora_block(rows, anchor, heading, col0, n_annot):
+        """ORA-ranked table (fold + FDR, sorted by enrichment) when the background
+        is present; count-only fallback otherwise. Counts + members kept either
+        way (ground-truth for human/agent consumers)."""
+        if not rows:
+            return []
+        if any(p.get("fdr") is not None for p in rows):
+            return ["", f"### {heading} {{#{anchor}}}", "",
+                    "Over-representation of cohort genes vs the genome-wide "
                     "background (hypergeometric test, Benjamini-Hochberg FDR; fold = "
-                    f"observed/expected over {_i(gp)} annotated cohort genes). Counts "
-                    "and members are kept as ground-truth; sorted by enrichment.", "",
-                    table(["Pathway", "Cohort genes", "Fold", "FDR", "Sample cohort genes"],
-                          [(p.get("name") or p.get("id") or "",
-                            _i(p.get("gene_count")),
+                    f"observed/expected over {_i(n_annot)} annotated cohort genes). "
+                    "Counts and members are kept as ground-truth; sorted by enrichment.",
+                    "",
+                    table([col0, "Cohort genes", "Fold", "FDR", "Sample cohort genes"],
+                          [(p.get("name") or p.get("id") or "", _i(p.get("gene_count")),
                             f"{p['fold']:.1f}×" if p.get("fold") else "—",
-                            _fdr(p.get("fdr")), _samp(p))
-                           for p in tp[:30]])]
-        else:
-            out += ["", "### Top pathways by cohort coverage {#cohort-pathways}", "",
-                    table(["Pathway", "Genes", "Sample cohort genes"],  # table() dedups
-                          [(p.get("name") or p.get("id") or "",
-                            _i(p.get("gene_count")), _samp(p))
-                           for p in tp[:30]])]
+                            _fdr(p.get("fdr")), _samp(p)) for p in rows[:30]])]
+        return ["", f"### {heading} {{#{anchor}}}", "",
+                table([col0, "Genes", "Sample cohort genes"],
+                      [(p.get("name") or p.get("id") or "", _i(p.get("gene_count")), _samp(p))
+                       for p in rows[:30]])]
+
+    out += _ora_block(b.get("top_pathways") or [], "cohort-pathways",
+                      "Pathways by enrichment", "Pathway", gp)
+    out += _ora_block(b.get("top_go") or [], "go-enrichment",
+                      "GO biological processes by enrichment", "GO term",
+                      b.get("genes_with_go") or 0)
     return "\n".join(out)
 
 

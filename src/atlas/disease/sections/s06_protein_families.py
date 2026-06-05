@@ -8,6 +8,7 @@ from collections import Counter
 from atlas.section import Section
 from atlas.disease.cohort import fan
 from atlas.gene.sections import s03_protein_ids
+from atlas.ora import enrich, background
 
 CHAINS   = (">>uniprot>>interpro",)  # reused via gene §3
 DATASETS = ("uniprot", "interpro", "pfam")
@@ -117,11 +118,23 @@ def collect(a):
     total = len(assignments)
     druggable_fraction = round(druggable_count / total, 2) if total else 0.0
 
+    # Over-representation vs a genome-wide family background (same _classify over
+    # all protein-coding genes): surfaces that the cohort is enriched for e.g.
+    # Kinases, and demotes the uninformative catch-all Other/Unknown bucket that
+    # otherwise leads a raw-count table. Counts are kept; fold + FDR added.
+    fam_universe_n, fam_sizes = background("family")
+    family_enrichment = {it["id"]: {"fold": it["fold"], "fdr": it["fdr"], "K": it["K"]}
+                         for it in enrich(
+                             [{"id": fam, "k": cnt, "K": fam_sizes.get(fam, 0)}
+                              for fam, cnt in family_counts.items()],
+                             cohort_n=total, universe_n=fam_universe_n)}
+
     return {
         "section": "06_protein_families",
         "mondo_id": a.mondo_id,
         "family_assignments": assignments,
         "family_counts": family_counts,
+        "family_enrichment": family_enrichment,
         "druggable_count": druggable_count,
         "difficult_count": difficult_count,
         "unknown_count": unknown_count,
@@ -135,7 +148,7 @@ SECTION = Section(
                  "Ion channel, Nuclear receptor, Protease, Phosphatase, Enzyme, "
                  "TF, Scaffold) via InterPro. Druggable vs difficult split."),
     needs=("cohort",),
-    produces=("family_assignments", "family_counts", "druggable_count",
-              "difficult_count"),
+    produces=("family_assignments", "family_counts", "family_enrichment",
+              "druggable_count", "difficult_count"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

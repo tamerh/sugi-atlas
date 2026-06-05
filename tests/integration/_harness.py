@@ -92,7 +92,7 @@ H4_IDS = {
               "cohort-tissues", "per-gene-tissue", "hub-genes", "intra-cohort-edges",
               "cohort-pdb", "cohort-alphafold",
               # function / therapeutics / trials
-              "cohort-pathways", "approved-drug-genes", "top-targets", "cohort-drugs",
+              "cohort-pathways", "go-enrichment", "approved-drug-genes", "top-targets", "cohort-drugs",
               "cohort-bioactivity", "cohort-enzymes", "screening-signal", "cohort-pgx",
               "trial-phases", "top-trials", "trial-drugs", "civic"},
     # drug pages are flat (one table per H3 section); only the two multi-table
