@@ -141,14 +141,24 @@ new chains of their own, they reuse the gene mining:
 - **§5 genes→proteins** — gene IDs + protein IDs; cohort partitioned by evidence
   bucket (GWAS-only, GWAS+GenCC, multi-evidence…).
 - **§6 protein families** — InterPro classification → druggable / difficult /
-  unknown split.
+  unknown split; the family distribution is **ORA-ranked** (enriched families such
+  as Kinase rise; the catch-all Other/Unknown sinks despite the largest raw count).
 - **§7 expression context** — Bgee/single-cell, bucketed by expression breadth.
 - **§8 interactions** — the intra-cohort interaction graph and hub genes.
 - **§9 structural data** — PDB / AlphaFold coverage across the cohort.
 
 ### Function (§14)
-Distinct Reactome pathways the cohort touches, by fanning the gene pathway
-collector and aggregating pathway → cohort-gene count.
+Reactome pathways and GO biological processes the cohort touches, ranked by
+**over-representation analysis** (ORA): a hypergeometric test of the cohort's
+overlap against a genome-wide background, Benjamini-Hochberg FDR, sorted by
+enrichment — so size-biased umbrella categories (Signal Transduction, Immune
+System) no longer float to the top by raw count, and disease-specific pathways
+surface. The raw cohort-gene count and gene members are kept (consumer
+ground-truth); a fold-enrichment + FDR column is added. The background sizes are
+counted via the SAME chain/classifier the cohort uses over all protein-coding
+genes (`atlas.build_background` → `data/background/{reactome,go,family}.json`,
+refreshed per biobtree data release); the statistics are pure + deterministic
+(`atlas.ora`, no scipy).
 
 ### Therapeutics
 - **Disease-direct indicated drugs (`#indicated`)** — drugs with a registered

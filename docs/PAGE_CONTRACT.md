@@ -38,7 +38,7 @@ The full frozen H3 and H4 anchor sets live in `tests/integration/_harness.py`
 `test_section_h4_ids_match_contract`, plus the explicit-id and no-duplicate-anchor
 checks). Same stable-API discipline as the H2 IDs. Examples:
 - gene: `#bindingdb #chembl-bioactivity #pubchem-bioassay #civic #isoforms #pdb #spliceai #gwas-assoc …`
-- disease: `#prevalence #gwas-associations #cohort-genes-full #cohort-drugs #trial-phases #civic …`
+- disease: `#prevalence #gwas-associations #cohort-genes-full #cohort-pathways #go-enrichment #cohort-drugs #trial-phases #civic …`
 - drug (flat; only multi-table sections): `#target-reactome #target-go #trial-phases #top-trials`
 
 ## GENE (8 H2)

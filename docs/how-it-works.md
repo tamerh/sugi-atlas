@@ -19,7 +19,10 @@ biobtree ──► collect ──► render ──► body ──► (LLM summar
 The deterministic body, the one-line lead sentence, the JSON-LD, and the
 cross-entity mesh are all pure functions of the biobtree bundle. The lead
 sentence in particular is assembled from collected fields — *not* written by a
-model — so it has no hallucination surface. The **only** model touch is an
+model — so it has no hallucination surface. Even the statistics are deterministic
+code, not heuristics: disease cohort enrichment (Reactome / GO / protein-family)
+is real over-representation analysis — a hypergeometric test against a precomputed
+genome-wide background with Benjamini-Hochberg FDR (`atlas.ora`, no scipy). The **only** model touch is an
 optional executive summary, which is **off by default**, fenced by an
 adversarial faithfulness gate when on, and always disclosed as
 *"Summary written by {model} from the deterministic data below."*
