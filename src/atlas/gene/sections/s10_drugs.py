@@ -295,19 +295,36 @@ def collect(a):
     # itself encodes CID_AID_VERSION so we surface those without per-row entry
     # fetches (PMID enrichment would require entries — deferred to scale-out).
     pa = map_all(uni, ">>uniprot>>pubchem_activity") if uni else []
+    # Compound names for the CIDs (PubChem title / IUPAC), one bulk hop. PubChem
+    # BioAssay is largely COMPLEMENTARY to BindingDB (tiny overlap — it contributes
+    # ~25-30% of the compound union that BindingDB lacks), so it adds real chemical
+    # matter and is worth showing identifiably rather than as bare CIDs.
+    pc_names = ({p["id"]: p.get("title") for p in map_all(uni, ">>uniprot>>pubchem_activity>>pubchem")
+                 if p.get("id") and p.get("title")} if uni else {})
+    # Keep value==0 rows: PubChem rounds to 4-decimal µM, so the MOST potent
+    # (sub-0.1 nM) round to 0.0000 — excluding them dropped the actual top.
     actives = [r for r in pa if r.get("activity_outcome") == "Active"
                and (r.get("activity_type") or "").lower() in _AFFINITY_TYPES
-               and _f(r.get("value")) not in (0.0, float("inf"))]
-    actives.sort(key=lambda r: _f(r.get("value")))
-    bioassays = []
-    for r in actives[:30]:
+               and r.get("value") not in (None, "")
+               and _f(r.get("value")) != float("inf")]
+    actives.sort(key=lambda r: _f(r.get("value")))     # most potent first
+    bioassays, seen = [], set()
+    for r in actives:
+        if len(bioassays) >= 50:
+            break
+        cid = (r.get("id") or "").split("_")[0] or None
+        if cid in seen:                                # distinct compounds
+            continue
+        seen.add(cid)
         parts = (r.get("id") or "").split("_")
-        cid = parts[0] if parts else None
         aid = parts[1] if len(parts) > 1 else None
+        v = r.get("value")
         bioassays.append({
             "id": r["id"], "cid": cid, "aid": aid,
+            "name": pc_names.get(cid),
             "activity_type": r.get("activity_type"),
-            "value": r.get("value"), "unit": r.get("unit"),
+            "value": "<0.0001" if _f(v) == 0.0 else v,   # below the 4-decimal µM floor
+            "unit": r.get("unit"),
         })
     bundle["pubchem_bioassay"] = bioassays
     bundle["pubchem_bioassay_total"] = len(pa)

@@ -718,10 +718,16 @@ def r_drugs(b):
     pba = b.get("pubchem_bioassay") or []
     if pba:
         L.append(f"\n**PubChem BioAssay actives ({b.get('pubchem_bioassay_active_count', 0)} "
-                 f"Active w/ measured affinity, of {b.get('pubchem_bioassay_total', 0)} total "
-                 f"PubChem activities), top 30 by potency:**\n")
-        L.append(table(["CID", "AID", "Type", "Value", "Unit"],
-                       [(p.get('cid') or '', p.get('aid') or '',
+                 f"with measured affinity, of {b.get('pubchem_bioassay_total', 0)} total), "
+                 f"{len(pba)} most potent distinct compounds. *Largely complementary to "
+                 f"BindingDB; screening values are coarse (µM, 4 dp), so sub-nM hits tie at "
+                 f"the floor.*\n")
+        L.append(table(["Compound", "Assay", "Type", "Value", "Unit"],
+                       [((p.get("name") or
+                          (links.maybe_link(p["cid"], f"https://pubchem.ncbi.nlm.nih.gov/compound/{p['cid']}/")
+                           if p.get("cid") else "")),
+                         links.maybe_link(p["aid"], f"https://pubchem.ncbi.nlm.nih.gov/bioassay/{p['aid']}/")
+                         if p.get("aid") else "",
                          p.get("activity_type"), p.get("value"), p.get("unit"))
                         for p in pba]))
 
