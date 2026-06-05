@@ -151,6 +151,11 @@ Distinct Reactome pathways the cohort touches, by fanning the gene pathway
 collector and aggregating pathway → cohort-gene count.
 
 ### Therapeutics
+- **Disease-direct indicated drugs (`#indicated`)** — drugs with a registered
+  ChEMBL indication *for this disease*, independent of the gene cohort (so
+  cohort-less / autoimmune conditions still surface real drugs). Tiered so it
+  never overstates: phase ≥3 (approved + late-stage) tabled as indicated, phase 2
+  listed separately as investigational.
 - **§10 drug-target analysis** — fans the gene drug collector over the cohort:
   per-gene max development phase, approved/phased/undrugged buckets, and a
   cross-gene drug aggregation (deduped by molecule).

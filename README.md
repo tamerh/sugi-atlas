@@ -60,11 +60,15 @@ gitignored `./dist`.
 ./atlas.sh test all      # dense build + unit + integration (the pre-prod gate)
 ./atlas.sh prod          # full corpus, detached (nohup → dist/logs/): pre-prod check
                          #   → corpus from seeds → integration sweep → tar.gz
+./atlas.sh release X.Y.Z         # gate (test all) → annotated tag vX.Y.Z → push
+./atlas.sh release-publish vX.Y.Z # publish the GitHub release for a pushed tag (needs gh)
 ```
 
 `prod` refuses to build the corpus unless the pre-production check is green, and
-returns immediately with a PID + log path (`dist/logs/prod-<stamp>.log`). Run
-`./atlas.sh help` for options (`--dist`, `--workers`, `--limit`).
+returns immediately with a PID + log path (`dist/logs/prod-<stamp>.log`).
+`release` versions the **pipeline only** (the corpus is never attached); each
+build stamps `atlas_version`/`atlas_commit` + the `biobtree_version` into every
+page's frontmatter. Run `./atlas.sh help` for options (`--dist`, `--workers`, `--limit`).
 
 ## Two-stage testing
 

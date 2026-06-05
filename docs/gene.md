@@ -180,6 +180,9 @@ clinical evidence. Key curation:
 - **Clinical trials are reached through the disease route**
   (`>>hgnc>>gencc>>mondo>>clinical_trials`), never `chembl_molecule>>
   clinical_trials`, which would pull in off-target drugs.
+- Opaque IDs are resolved to **readable identities**: BindingDB patent-extracted
+  ligands carry the patent's invention title, ChEMBL bioactivity rows the molecule
+  name, and PubChem BioAssay rows the compound name + what the assay measured.
 
 ### Related Atlas pages
 The human-facing cross-entity links (associated diseases, drugs that target the

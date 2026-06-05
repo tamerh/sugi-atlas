@@ -1,9 +1,10 @@
 # Atlas page output contract — H2 taxonomy & anchor IDs
 
-**Status: FROZEN 2026-06-02** (ratified by backend + web team). Treat the anchor
-IDs as a **stable API** — same discipline as a public REST endpoint. Rename only
-via deprecation + redirect, **never silently** (this is what breaks deep links
-in the wild — the GeneRIF "(showing 40)→(showing 50)" class of bug).
+**Status: FROZEN 2026-06-02** (ratified by backend + web team); **H4 sub-table
+tier added 2026-06-05** (see "Heading tiers" below). Treat the anchor IDs as a
+**stable API** — same discipline as a public REST endpoint. Rename only via
+deprecation + redirect, **never silently** (this is what breaks deep links in the
+wild — the GeneRIF "(showing 40)→(showing 50)" class of bug).
 
 ## Rules
 - Each entity emits its canonical H2 set **in the fixed order below** — never
@@ -21,7 +22,24 @@ in the wild — the GeneRIF "(showing 40)→(showing 50)" class of bug).
 - Shared IDs mean the same concept across types → cross-entity nav
   ("Same section on EGFR / KRAS →"). Shared: `#summary #identifiers #function
   #disease #drugs #trials #related`. Labels may differ per type; **IDs stay shared**.
-- Sub-tables/blocks within a section are H3 with their own stable kebab IDs.
+- Data tables within a section are **H4** (`#### Label {#id}`) with their own
+  stable kebab IDs; single-table sections stay flat (the H3 already titles the
+  table). Inline facts, summary leads, ID lists, and italic subtitles stay bold,
+  not headings.
+
+## Heading tiers below H2
+
+H2 zones (tables below) are the frozen taxonomy. Within them:
+- **H3** = one section per renderer (`## …` in a `r_*` fn, demoted on assembly).
+- **H4** = the data-table blocks inside a section.
+
+The full frozen H3 and H4 anchor sets live in `tests/integration/_harness.py`
+(`H3_IDS`, `H4_IDS`) and are enforced on every build (`test_section_h3_ids_match_contract`,
+`test_section_h4_ids_match_contract`, plus the explicit-id and no-duplicate-anchor
+checks). Same stable-API discipline as the H2 IDs. Examples:
+- gene: `#bindingdb #chembl-bioactivity #pubchem-bioassay #civic #isoforms #pdb #spliceai #gwas-assoc …`
+- disease: `#prevalence #gwas-associations #cohort-genes-full #cohort-drugs #trial-phases #civic …`
+- drug (flat; only multi-table sections): `#target-reactome #target-go #trial-phases #top-trials`
 
 ## GENE (8 H2)
 | Order | Label | `{#id}` | Absorbs (current renderers) |
@@ -34,8 +52,6 @@ in the wild — the GeneRIF "(showing 40)→(showing 50)" class of bug).
 | 6 | Disease & clinical | `#disease` | **Cancer significance** (intOGen+CIViC, folded here — NOT in Summary), §6 clinical variants, §12 disease associations |
 | 7 | Drugs & pharmacology | `#drugs` | §10 drugs (GtoPdb, BindingDB, ChEMBL, PharmGKB) |
 | 8 | Related Atlas pages | `#related` | cross-entity mesh (forward + reverse) |
-
-H3 IDs: `#transcripts #expression #regulation #generif #residue-map #pathways #interactions #variants #gtopdb`
 
 ## DISEASE (8 H2 — consolidates the current 18)
 | Order | Label | `{#id}` | Absorbs |
@@ -51,8 +67,6 @@ H3 IDs: `#transcripts #expression #regulation #generif #residue-map #pathways #i
 | 9 | Clinical trials & evidence | `#trials` | Clinical trials, CIViC |
 | 10 | Related Atlas pages | `#related` | mesh |
 
-H3 IDs: `#epidemiology #symptoms #gwas #variant-tiers #gencc #cohort-genes #tractability #civic`
-
 ## DRUG (7 H2)
 | Order | Label | `{#id}` | Absorbs |
 |---|---|---|---|
@@ -63,8 +77,6 @@ H3 IDs: `#epidemiology #symptoms #gwas #variant-tiers #gencc #cohort-genes #trac
 | 5 | Pharmacology | `#pharmacology` | pharmacogenomics, pharmacology |
 | 6 | Related molecules | `#related-molecules` | §7 related molecules |
 | 7 | Related Atlas pages | `#related` | mesh |
-
-H3 IDs: `#bioactivity #indications #trials #civic #pharmacogenomics`
 
 > Drug uses `#indications` (not the shared `#disease`) — reads naturally in a
 > shared URL and in Google "Jump to" sitelinks; cross-entity nav uses a

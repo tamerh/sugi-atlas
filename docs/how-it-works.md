@@ -87,7 +87,9 @@ corpus by the integration tests. Three helpers implement it:
 - `with_heading_id` stamps an explicit `{#anchor}` on each sub-section's
   heading — a **backend-owned** id, never Hugo's prose-derived auto-id (which
   would break a deep link the moment a heading count changed).
-- `demote` nests sub-sections as `### H3` under their canonical H2.
+- `demote` nests each renderer's section as `### H3` under its canonical H2; the
+  data tables inside a section are `#### H4` with their own stable anchors (the
+  `H4_IDS` contract), so the TOC nests H2 → H3 → H4 and any table is deep-linkable.
 
 The anchor ids are treated as a **stable public API**: external links and the
 JSON-LD `@id`s depend on them, so they don't drift.
@@ -151,6 +153,11 @@ The everyday loop is wrapped by `atlas.sh` — `test all` builds the dense
 reference set and runs the gates; `prod` builds the full corpus. See the
 [README](../README.md).
 
+Each build stamps its provenance into every page's frontmatter — `atlas_version`
++ `atlas_commit` (from `git describe`, captured at build start) and the
+`biobtree_version` it read from `/ws/meta`. `atlas.sh release` tags and publishes
+the **pipeline** only — the corpus is never attached to a release.
+
 ## Validation
 
 Three layers guard correctness:
@@ -165,7 +172,8 @@ Three layers guard correctness:
   both passes flag count, and `--strict-summary` refuses to publish them.
 - **Test gates.** Hermetic **unit** tests (transport stubbed, no network) guard
   the logic; **integration** tests run over the *built corpus* — the frozen
-  contract, mesh integrity, JSON-LD validity, frontmatter schema, and
-  data-quality (no `nan`, no float32 noise, no HTML entities, no duplicate rows,
-  no raw ontology ids as labels). The release rule is: dense build → integration
-  green → only then the full corpus.
+  contract (H2 order + the frozen H3/H4 anchor sets), mesh integrity, JSON-LD
+  validity, frontmatter schema, and data-quality (no `nan`, no float32 noise, no
+  HTML entities, no duplicate rows, no raw ontology ids as labels, no unbalanced
+  bold markers). The release rule is: dense build → integration green → only then
+  the full corpus.
