@@ -1,6 +1,6 @@
 """§5 — clinical trials for the drug (>>chembl_molecule>>clinical_trials,
 direct). Total count + true phase/status distribution over all retrieved
-trials + top 20 by phase."""
+trials + top 100 by phase."""
 from collections import Counter
 from atlas.biobtree import map_all, entry, xref_counts
 from atlas.render_common import phase_label
@@ -17,7 +17,7 @@ def _phase_key(t):
 
 
 def collect(a):
-    trials = map_all(a.chembl_id, ">>chembl_molecule>>clinical_trials", cap=15)
+    trials = map_all(a.chembl_id, ">>chembl_molecule>>clinical_trials", cap=25)
     # True total from the molecule's xref counts — the fetch is capped at 15
     # pages (~1,600), so len(trials) under-reports high-trial drugs (metformin,
     # gemcitabine both hit exactly 1,600). The phase/status distribution + top
@@ -33,7 +33,7 @@ def collect(a):
     top = sorted(trials,
                  key=lambda t: (-_phase_key(t),
                                 0 if (t.get("overall_status") or "").upper() in _ACTIVE else 1,
-                                t.get("id") or ""))[:40]
+                                t.get("id") or ""))[:100]
     return {
         "section": "05_clinical_trials",
         "trial_count": total,
@@ -49,7 +49,7 @@ def collect(a):
 SECTION = Section(
     id="5", name="clinical_trials",
     description=("Clinical trials for the drug (chembl_molecule→clinical_trials); "
-                 "count, phase/status distribution, top 20 by phase"),
+                 "count, phase/status distribution, top 100 by phase"),
     needs=("chembl_id",),
     produces=("trial_count", "sampled_trials", "phase_counts", "status_counts", "top_trials"),
     datasets=("chembl_molecule", "clinical_trials"),

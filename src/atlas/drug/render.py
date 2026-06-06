@@ -145,7 +145,7 @@ def r_targets(b):
     bc = b.get("bioactivity_target_count") or 0
     if bc:
         names = ", ".join(t.get("name") or t.get("chembl_target_id")
-                          for t in (b.get("bioactivity_targets") or [])[:10])
+                          for t in (b.get("bioactivity_targets") or [])[:20])
         L.append(f"\n**Broader ChEMBL bioactivity targets: {bc}** "
                  f"(assay-derived). Sample: {names}.")
     if not pt and not bc:
@@ -161,7 +161,7 @@ def r_bioactivity(b):
                  "(expected for biologics / antibodies).*")
         return "\n".join(L)
     L.append(f"**ChEMBL activities: {_i(b.get('potent_count'))} potent at "
-             f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top 30 by "
+             f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top 50 by "
              f"potency (10 = 0.1 nM, 6 = 1 µM):**\n")
     L.append(table(["Target", "pChembl", "Type", "Value", "Unit", "Activity ID"],
                    [(r.get("target") or "", fnum(r.get("pchembl")), r.get("type"),
