@@ -42,17 +42,20 @@ def is_cancer_disease(name):
     return any(kw in n for kw in _CANCER_KW)
 
 
-def approved_indication(atc_codes, phase, disease_name):
+def approved_indication(atc_codes, phase, disease_name, molecule_approved):
     """True if this drug→disease indication counts as an APPROVED indication.
 
-    phase 4 is always approved. A phase-3 indication is upgraded to approved
-    only for an anticancer drug (ATC L01/L02) against a cancer — the one place
-    ChEMBL's phase-3 reliably means an approved labelled use rather than an
-    ongoing trial. Phase <3 is never approved.
+    A phase-4 indication is always approved. A phase-3 indication is upgraded to
+    approved only when ALL of: the molecule is FDA-approved (PubChem
+    is_fda_approved, or ChEMBL molecule max_phase 4), it is an anticancer drug
+    (ATC L01/L02), and the disease is a cancer. The molecule-approval gate is
+    load-bearing: without it an *experimental* anticancer drug in phase-3 cancer
+    trials would be falsely marked approved. Phase <3 is never approved.
     """
     p = phase or 0
     if p >= 4:
         return True
-    if p >= 3 and is_oncology_drug(atc_codes) and is_cancer_disease(disease_name):
+    if (p >= 3 and molecule_approved and is_oncology_drug(atc_codes)
+            and is_cancer_disease(disease_name)):
         return True
     return False

@@ -12,10 +12,13 @@ def collect(a):
     # indication index — phase 4, or an anticancer drug at phase 3 vs a cancer
     # (ChEMBL logs imatinib→CML at phase 3 though FDA-approved). See atlas.indication.
     atc = list(a.atc_codes)
+    # Molecule-level FDA approval (PubChem is_fda_approved, or ChEMBL max_phase 4)
+    # gates the anticancer phase-3 upgrade — see atlas.indication.
+    mol_approved = bool(a.is_fda_approved) or (a.max_phase or 0) >= 4
     inds = [{
         "name": i.name, "efo_id": i.efo_id, "mesh_id": i.mesh_id,
         "mondo_id": i.mondo_id, "slug": i.slug, "max_phase": i.max_phase,
-        "approved": approved_indication(atc, i.max_phase, i.name),
+        "approved": approved_indication(atc, i.max_phase, i.name, mol_approved),
     } for i in a.indications]
     approved = [i for i in inds if i["approved"]]
     return {
