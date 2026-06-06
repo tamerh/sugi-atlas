@@ -351,16 +351,19 @@ def related_targets(entity_type, bundle):
         # trial). The disease side renders these as a dedicated "Drugs indicated"
         # section from the indication index, NOT the generic reverse block (the
         # ("drug","Diseases") reverse label is intentionally absent below).
-        # Tier the drug→disease mesh by development phase: phase-4 (FDA-approved)
-        # are real indications; phase 2-3 are investigational TRIALS, kept navigable
-        # but under a distinct label so "in trials for cancer" never reads as
-        # "treats cancer" (the aspirin-chemoprevention class). Phase ≤1 omitted.
+        # Tier the drug→disease mesh on the per-indication `approved` flag (set in
+        # s04 via atlas.indication): approved indications vs investigational trials,
+        # kept navigable but distinctly labelled so "in trials for cancer" never
+        # reads as "treats cancer" (aspirin), while a real approval logged at phase 3
+        # (imatinib→CML, an anticancer drug) is NOT demoted. Phase ≤1 omitted.
         for i in (b4.get("indications") or []):
             ph = i.get("max_phase") or 0
+            if ph < 2:
+                continue
             url = disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))
-            if ph >= 4:
+            if i.get("approved"):
                 add("Diseases", i.get("name"), url)
-            elif ph >= 2:
+            else:
                 add("Trial diseases", i.get("name"), url)
         for r in (b7.get("related_molecules") or []):
             add("Drugs", _drug_display(r.get("name")), drug_url(name=r.get("name")))

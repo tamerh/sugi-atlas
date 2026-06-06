@@ -5,6 +5,7 @@ import re
 import pytest
 
 from ._harness import report
+from atlas.indication import is_cancer_disease
 
 pytestmark = pytest.mark.integration
 
@@ -257,3 +258,30 @@ def test_tldr_not_silently_empty(pages):
     frac = have / len(pages) if pages else 1.0
     assert frac > 0.8, (f"only {have}/{len(pages)} pages have a non-empty tldr — "
                         f"at_a_glance/_tldr bullet-shape drift?")
+
+
+def test_anticancer_phase3_cancer_indication_is_approved_not_in_trials(pages):
+    # Regression for the imatinib pattern: ChEMBL logs an anticancer drug's
+    # approved indication at phase 3 (imatinib→CML), so a naive "phase 4 =
+    # approved" tier filed real approvals under "in clinical trials". For an
+    # anticancer drug (ATC L01/L02), a cancer indication at phase ≥3 must sit in
+    # the APPROVED block, never the in-trials one. A corpus sanity check caught
+    # this; this guards it at corpus scale. (atlas.indication.approved_indication)
+    atc_re = re.compile(r"\| ATC \| ([^|\n]+) \|")
+    row_re = re.compile(r"^\| \[([^\]]+)\][^|]*\| (\d) \|", re.M)
+    bad = []
+    for p in pages:
+        if p.entity != "drug":
+            continue
+        m = atc_re.search(p.body)
+        if not (m and re.search(r"\bL0[12]", m.group(1))):
+            continue                                   # not an anticancer drug
+        trials = re.search(r"diseases in clinical trials.*?(?=\n#{1,6} |\Z)",
+                           p.body, re.S)
+        if not trials:
+            continue
+        for name, phase in row_re.findall(trials.group(0)):
+            if int(phase) >= 3 and is_cancer_disease(name):
+                bad.append(f"{p.entity}/{p.slug}: anticancer (ATC {m.group(1).strip()}) "
+                           f"but '{name}' (phase {phase}, cancer) is in-trials, not approved")
+    assert not bad, report(bad)

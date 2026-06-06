@@ -1009,30 +1009,32 @@ def r_drugs_indicated(bundles):
     / clinical-only diseases (anti-NMDA aside — off-label drugs aren't ChEMBL
     indications) can still surface real registered drugs.
 
-    TIERED so "indicated" never overstates: phase ≥3 (approved + late-stage) in
-    the main table, approved first; phase 2 listed separately as investigational
-    candidates (efficacy unproven, ~70% never reach approval). Phase ≤1 is
-    excluded upstream. Empty → '' so the Therapeutics zone elides cleanly."""
+    TIERED so "indicated" never overstates: approved indications (phase 4, or an
+    anticancer drug at phase 3 vs a cancer — see atlas.indication) in the main
+    table; the rest (phase 2-3) listed separately as investigational candidates
+    (efficacy unproven). Phase ≤1 is excluded upstream. Empty → '' so the
+    Therapeutics zone elides cleanly."""
     rows = bundles.get("_indicated_drugs") or []
     if not rows:
         return ""
-    # Tier: only FDA-approved (phase 4) is an INDICATION; phase 2-3 are
-    # investigational trials, shown but clearly disclaimed (the aspirin-vs-cancer
-    # class). Phase ≤1 isn't in the index.
-    approved = [r for r in rows if (r.get("max_phase") or 0) >= 4]
-    trials = [r for r in rows if (r.get("max_phase") or 0) in (2, 3)]
+    # Tier on the index's `approved` flag (atlas.indication.approved_indication):
+    # phase 4, or an anticancer drug at phase 3 vs this cancer (ChEMBL logs
+    # imatinib→CML at phase 3 though approved). Everything else is investigational
+    # (the aspirin-vs-cancer class). Phase ≤1 isn't in the index.
+    approved = [r for r in rows if r.get("approved")]
+    trials = [r for r in rows if not r.get("approved") and (r.get("max_phase") or 0) in (2, 3)]
 
     out = ["## Drugs indicated or in trials for this disease", ""]
     if approved:
         out += [f"**{_i(len(approved))} approved drug{'s' if len(approved) != 1 else ''}** "
-                "(FDA phase 4) — disease-direct ChEMBL indications, not inferred from the "
-                "associated-gene cohort below.", "",
+                "— disease-direct ChEMBL indications, not inferred from the associated-gene "
+                "cohort below.", "",
                 table(["Drug", "Status"],
-                      [(links.maybe_link(r.get("name"), r.get("url")), "Approved (phase 4)")
-                       for r in approved])]
+                      [(links.maybe_link(r.get("name"), r.get("url")),
+                        f"Approved (phase {r.get('max_phase')})") for r in approved])]
     else:
-        out += ["No drug is approved (FDA phase 4) with a disease-direct ChEMBL "
-                "indication for this disease.", ""]
+        out += ["No drug has an approved disease-direct ChEMBL indication for this "
+                "disease.", ""]
     if trials:
         out += ["",
                 f"**{_i(len(trials))} drug{'s' if len(trials) != 1 else ''} in clinical "

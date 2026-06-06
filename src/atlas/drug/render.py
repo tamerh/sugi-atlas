@@ -183,11 +183,16 @@ def r_indications(b):
             continue
         seen.add(key)
         named.append(i)
-    # Tier: FDA-approved (phase 4) are real indications; phase 1-3 are
-    # investigational trials (a heavily-trialed drug like aspirin accumulates
-    # dozens — they must NOT read as approved indications).
-    approved = [i for i in named if (i.get("max_phase") or 0) >= 4]
-    trials = [i for i in named if 1 <= (i.get("max_phase") or 0) <= 3]
+    # Tier on the per-indication `approved` flag (computed in s04 via
+    # atlas.indication): phase 4, or an anticancer drug at phase 3 vs a cancer
+    # (imatinib→CML). Heavily-trialed drugs (aspirin's phase-2/3 cancers) stay
+    # investigational — they must NOT read as approved.
+    approved, trials = [], []
+    for i in named:
+        if i.get("approved"):
+            approved.append(i)
+        elif 1 <= (i.get("max_phase") or 0) <= 3:
+            trials.append(i)
 
     def _tbl(items, col0):
         return table([col0, "Phase", "MONDO", "EFO"],
@@ -199,13 +204,15 @@ def r_indications(b):
     L = ["## Indications", ""]
     if approved:
         L += [f"**{_i(len(approved))} approved indication"
-              f"{'s' if len(approved) != 1 else ''}** (FDA phase 4).", "",
+              f"{'s' if len(approved) != 1 else ''}.** FDA phase 4, plus an anticancer "
+              "drug's labelled cancer uses (which ChEMBL often logs at phase 3).", "",
               _tbl(approved, "Indication")]
     if trials:
         L += ["",
               f"**{_i(len(trials))} disease{'s' if len(trials) != 1 else ''} in clinical "
               f"trials** (phase 1–3, investigational — *not* approved indications). Highest "
-              "ChEMBL trial phase recorded for this drug against each disease.", "",
+              "ChEMBL trial phase per disease; a non-cancer approved use is occasionally "
+              "logged at phase 3 here.", "",
               _tbl(trials, "Disease (in trials)")]
     if not named:
         n = b.get("indication_count") or 0

@@ -164,39 +164,42 @@ def test_r_drugs_indicated_empty_elides():
     assert r_drugs_indicated({"_indicated_drugs": []}) == ""
 
 
-def test_r_drugs_indicated_only_phase4_is_indicated_phase3_is_in_trials():
+def test_r_drugs_indicated_uses_approved_flag_incl_oncology_phase3():
+    # `approved` is precomputed (s04 / atlas.indication): phase-4, AND anticancer
+    # phase-3 (imatinib→CML) — the latter shown honestly as "Approved (phase 3)".
+    # A phase-3 indication NOT flagged approved stays in the trials block.
     md = r_drugs_indicated({"_indicated_drugs": [
-        {"name": "Rituximab", "url": "/atlas/drug/rituximab/", "max_phase": 4},
-        {"name": "Belimumab", "url": "/atlas/drug/belimumab/", "max_phase": 3},
+        {"name": "Rituximab", "url": "/atlas/drug/rituximab/", "max_phase": 4, "approved": True},
+        {"name": "Imatinib", "url": "/atlas/drug/imatinib/", "max_phase": 3, "approved": True},
+        {"name": "Belimumab", "url": "/atlas/drug/belimumab/", "max_phase": 3, "approved": False},
     ]})
     assert "Drugs indicated or in trials for this disease" in md
-    # ONLY phase-4 is an approved indication; phase-3 is investigational (in trials)
-    assert "1 approved drug" in md and "Approved (phase 4)" in md
-    assert "in clinical trials for this disease" in md and "Phase 3" in md
-    assert "not* an indication" in md
-    assert "/atlas/drug/rituximab/" in md and "/atlas/drug/belimumab/" in md
+    assert "2 approved drug" in md
+    assert "Approved (phase 4)" in md and "Approved (phase 3)" in md   # imatinib upgraded
+    assert "in clinical trials for this disease" in md and "not* an indication" in md
     approved_part, trials_part = md.split("in clinical trials for this disease")
-    assert "Rituximab" in approved_part and "Belimumab" not in approved_part
+    assert "Rituximab" in approved_part and "Imatinib" in approved_part
+    assert "Belimumab" not in approved_part and "Belimumab" in trials_part
 
 
 def test_r_drugs_indicated_tiers_investigational_separately():
     md = r_drugs_indicated({"_indicated_drugs": [
-        {"name": "Belimumab", "url": "/atlas/drug/belimumab/", "max_phase": 4},
-        {"name": "Atorvastatin", "url": "/atlas/drug/atorvastatin/", "max_phase": 2},
+        {"name": "Belimumab", "url": "/atlas/drug/belimumab/", "max_phase": 4, "approved": True},
+        {"name": "Atorvastatin", "url": "/atlas/drug/atorvastatin/", "max_phase": 2, "approved": False},
     ]})
-    # phase-4 approved table; phase-2 in the investigational block, never "indicated"
+    # approved table; phase-2 in the investigational block, never "indicated"
     assert "Approved (phase 4)" in md
     approved_part, trials_part = md.split("in clinical trials for this disease")
     assert "Belimumab" in approved_part and "Atorvastatin" not in approved_part
     assert "Atorvastatin" in trials_part
 
 
-def test_r_drugs_indicated_phase2_only_does_not_claim_indicated():
+def test_r_drugs_indicated_unapproved_only_does_not_claim_indicated():
     md = r_drugs_indicated({"_indicated_drugs": [
-        {"name": "Atorvastatin", "url": "/atlas/drug/atorvastatin/", "max_phase": 2},
+        {"name": "Atorvastatin", "url": "/atlas/drug/atorvastatin/", "max_phase": 2, "approved": False},
     ]})
-    # no approved indication → explicit disclaimer; shown only as an investigational trial
-    assert "No drug is approved" in md
+    # nothing approved → explicit disclaimer; shown only as an investigational trial
+    assert "No drug has an approved" in md
     assert "in clinical trials for this disease" in md and "not* an indication" in md
     assert "Atorvastatin" in md
-    assert "Approved (phase 4)" not in md
+    assert "Approved (phase" not in md

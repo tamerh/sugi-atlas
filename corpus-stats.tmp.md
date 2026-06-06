@@ -76,6 +76,54 @@ explicit rather than hiding it. State this as a design property.
 
 ---
 
+## Table 2b — Disease content depth (the "is it empty?" distribution)
+
+Of 18,616 disease pages (full corpus f20d676), by how much content resolves:
+
+| Disease page | Count | Share |
+|---|---:|---:|
+| **Rich** — associated-gene cohort → full molecular sections | 10,278 | 55% |
+| **Clinical / genetic only** — GWAS, variants, trials, or symptoms but no gene cohort (antibody-mediated / autoimmune, e.g. anti-NMDA) | 3,837 | 21% |
+| **Thin** — identifiers + ontology family only (understudied rare terms / grouping nodes) | 4,501 | 24% |
+
+Even the "thin" 24% aren't blank — **4,274 / 4,501 still carry parent/subtype
+links** (Disease family ontology navigation). Disease *molecular & therapeutic*
+content is gene-cohort-derived (resolve disease → associated genes via
+GWAS/GenCC/ClinVar/CIViC → aggregate); a disease with no cohort therefore has no
+molecular sections, by design. Cohort-empty pages now carry an explicit note
+explaining this.
+
+---
+
+## Scope & framing — the no-overclaim statement (review tomorrow)
+
+The honest, defensible claim — Atlas maps the entire entity space at *variable
+depth* (like a geographic atlas: every region mapped, cities dense, deserts
+sparse). Coverage tracks primary-database curation; **absence is marked
+explicitly, never inferred; no content is LLM-generated.** Draft paper wording:
+
+> *Sugi Atlas provides a deterministic reference page for every gene, Mondo
+> disease, and ChEMBL drug passing admission gates (52,657 pages). Content depth
+> tracks primary-database curation: 55% of disease pages carry an associated-gene
+> cohort with full molecular content; 21% are clinically/genetically characterized
+> without a gene cohort (e.g. antibody-mediated / autoimmune conditions); 24% are
+> understudied terms with identifiers and ontology context only. Therapeutic and
+> molecular content is gene-mediated — there is no direct disease→drug edge — so
+> non-gene-defined diseases surface clinical features, GWAS susceptibility, and
+> trials but limited molecular detail. Absence is rendered as an explicit "no
+> data" state rather than omitted or inferred.*
+
+**Avoid** marketing-style claims like "comprehensive molecular profiles for all
+diseases" — that would overclaim (45% have no molecular cohort). The strength to
+lead with is **faithfulness + complete entity coverage + determinism**, not depth
+uniformity.
+
+Open decision for tomorrow: whether the 24% "thin" terms (ids + ontology only)
+should stay (completeness, no dead-ends, ontology nav) or be gated out (tighten
+the signal_score admission threshold). Currently kept.
+
+---
+
 ## Table 3 — Validation suite (100% pass over all 52,657 pages)
 
 | Suite | Tests | Verifies |
