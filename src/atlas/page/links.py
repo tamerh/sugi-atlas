@@ -292,7 +292,7 @@ def related_targets(entity_type, bundle):
     deduped by path (e.g. "/atlas/gene/TP53/"). Single source of truth for both
     related_block (markdown) and the JSON-LD cross-entity edges."""
     from atlas.civic import therapy_label
-    groups = {"Genes": [], "Diseases": [], "Drugs": []}
+    groups = {"Genes": [], "Diseases": [], "Trial diseases": [], "Drugs": []}
     seen = set()
 
     def add(grp, label, url):
@@ -351,9 +351,17 @@ def related_targets(entity_type, bundle):
         # trial). The disease side renders these as a dedicated "Drugs indicated"
         # section from the indication index, NOT the generic reverse block (the
         # ("drug","Diseases") reverse label is intentionally absent below).
+        # Tier the drug→disease mesh by development phase: phase-4 (FDA-approved)
+        # are real indications; phase 2-3 are investigational TRIALS, kept navigable
+        # but under a distinct label so "in trials for cancer" never reads as
+        # "treats cancer" (the aspirin-chemoprevention class). Phase ≤1 omitted.
         for i in (b4.get("indications") or []):
-            if (i.get("max_phase") or 0) >= 3:
-                add("Diseases", i.get("name"), disease_url(mondo_id=i.get("mondo_id"), name=i.get("name")))
+            ph = i.get("max_phase") or 0
+            url = disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))
+            if ph >= 4:
+                add("Diseases", i.get("name"), url)
+            elif ph >= 2:
+                add("Trial diseases", i.get("name"), url)
         for r in (b7.get("related_molecules") or []):
             add("Drugs", _drug_display(r.get("name")), drug_url(name=r.get("name")))
         for r in (b10.get("civic_evidence") or []):        # name-tier
@@ -454,6 +462,8 @@ def related_block(entity_type, bundle, slug=None):
         label = {"Genes": "Cohort genes"}
     elif entity_type == "gene":                      # forward gene edges: name the relationship precisely
         label = {"Diseases": "Associated diseases", "Drugs": "Biomarker drugs (CIViC)"}
+    elif entity_type == "drug":                      # tier drug→disease: approved vs investigational
+        label = {"Diseases": "Indicated for", "Trial diseases": "In clinical trials for"}
     else:
         label = {}
     forward_urls = {url for items in groups.values() for _lbl, url in items}
@@ -470,8 +480,8 @@ def related_block(entity_type, bundle, slug=None):
         head = f"**{lbl_text}** *({cap})*:" if cap else f"**{lbl_text}:**"
         lines.append(f"- {head} {row}")
 
-    for grp in ("Genes", "Diseases", "Drugs"):
-        if groups[grp]:
+    for grp in ("Genes", "Diseases", "Trial diseases", "Drugs"):
+        if groups.get(grp):
             _row(label.get(grp, grp), groups[grp])
     # Reverse edges (incoming) — corpus builds only; _REVERSE is empty otherwise.
     if slug:

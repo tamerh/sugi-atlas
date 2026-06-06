@@ -1016,30 +1016,32 @@ def r_drugs_indicated(bundles):
     rows = bundles.get("_indicated_drugs") or []
     if not rows:
         return ""
-    indicated = [r for r in rows if (r.get("max_phase") or 0) >= 3]
-    early = [r for r in rows if (r.get("max_phase") or 0) == 2]
+    # Tier: only FDA-approved (phase 4) is an INDICATION; phase 2-3 are
+    # investigational trials, shown but clearly disclaimed (the aspirin-vs-cancer
+    # class). Phase ≤1 isn't in the index.
+    approved = [r for r in rows if (r.get("max_phase") or 0) >= 4]
+    trials = [r for r in rows if (r.get("max_phase") or 0) in (2, 3)]
 
-    out = ["## Drugs indicated for this disease", ""]
-    if indicated:
-        approved = sum(1 for r in indicated if (r.get("max_phase") or 0) >= 4)
-        late = len(indicated) - approved
-        out += [
-            f"**{_i(approved)} approved" + (f", {_i(late)} in late-stage (phase 3) "
-            "trials" if late else "") + ".** Disease-direct ChEMBL indications, not "
-            "inferred from the associated-gene cohort below.", "",
-            table(["Drug", "Development status"],
-                  [(links.maybe_link(r.get("name"), r.get("url")),
-                    "Approved (phase 4)" if (r.get("max_phase") or 0) >= 4
-                    else "Phase 3 (in late-stage trials)")
-                   for r in indicated]),
-        ]
+    out = ["## Drugs indicated or in trials for this disease", ""]
+    if approved:
+        out += [f"**{_i(len(approved))} approved drug{'s' if len(approved) != 1 else ''}** "
+                "(FDA phase 4) — disease-direct ChEMBL indications, not inferred from the "
+                "associated-gene cohort below.", "",
+                table(["Drug", "Status"],
+                      [(links.maybe_link(r.get("name"), r.get("url")), "Approved (phase 4)")
+                       for r in approved])]
     else:
-        out += ["No approved or late-stage (phase ≥3) drug is indicated for this "
-                "disease; the following are in earlier-phase trials only.", ""]
-    if early:
-        names = ", ".join(links.maybe_link(r.get("name"), r.get("url")) for r in early)
-        out += ["", f"*Earlier-phase candidates (phase 2, investigational — efficacy "
-                f"not yet established): {names}.*"]
+        out += ["No drug is approved (FDA phase 4) with a disease-direct ChEMBL "
+                "indication for this disease.", ""]
+    if trials:
+        out += ["",
+                f"**{_i(len(trials))} drug{'s' if len(trials) != 1 else ''} in clinical "
+                "trials for this disease (phase 2–3, investigational):** efficacy not "
+                "established — a trial record, *not* an indication.", "",
+                table(["Drug", "Highest phase"],
+                      [(links.maybe_link(r.get("name"), r.get("url")),
+                        f"Phase {r.get('max_phase')}")
+                       for r in sorted(trials, key=lambda r: -(r.get("max_phase") or 0))])]
     return "\n".join(out)
 
 

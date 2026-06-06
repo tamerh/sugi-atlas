@@ -171,13 +171,8 @@ def r_bioactivity(b):
 
 def r_indications(b):
     inds = b.get("indications") or []
-    n_ind = b.get("indication_count") or 0
-    head = (f"**{_i(n_ind)} indication{'s' if n_ind != 1 else ''} "
-            f"({_i(b.get('approved_count'))} at ChEMBL trial phase 4).**")
     # Keep only rows with a real disease name (drop raw EFO/MeSH/MP ids), then
-    # dedup by (name, MONDO) — the source repeats the same disease across xrefs
-    # (gemcitabine/metformin showed 'neoplasm/MONDO:…' twice). All mapped rows
-    # are shown (no silent 40-cap); the count line reconciles via the note.
+    # dedup by (name, MONDO) — the source repeats the same disease across xrefs.
     named, seen = [], set()
     for i in inds:
         nm = (i.get("name") or "").strip()
@@ -188,28 +183,41 @@ def r_indications(b):
             continue
         seen.add(key)
         named.append(i)
+    # Tier: FDA-approved (phase 4) are real indications; phase 1-3 are
+    # investigational trials (a heavily-trialed drug like aspirin accumulates
+    # dozens — they must NOT read as approved indications).
+    approved = [i for i in named if (i.get("max_phase") or 0) >= 4]
+    trials = [i for i in named if 1 <= (i.get("max_phase") or 0) <= 3]
+
+    def _tbl(items, col0):
+        return table([col0, "Phase", "MONDO", "EFO"],
+                     [(links.maybe_link(i.get("name"),
+                                        links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
+                       i.get("max_phase"), i.get("mondo_id") or "", i.get("efo_id") or "")
+                      for i in sorted(items, key=lambda i: -(i.get("max_phase") or 0))])
+
     L = ["## Indications", ""]
-    if named:
-        L += [head + " Phase below is the highest clinical-trial phase recorded "
-              "for this drug against each disease — not the molecule's overall "
-              "approval status (that is in the Summary).", "",
-              table(["Indication", "Trial phase", "MONDO", "EFO"],
-                    [(links.maybe_link(i.get("name"),
-                                       links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
-                      i.get("max_phase"), i.get("mondo_id") or "",
-                      i.get("efo_id") or "") for i in named])]
+    if approved:
+        L += [f"**{_i(len(approved))} approved indication"
+              f"{'s' if len(approved) != 1 else ''}** (FDA phase 4).", "",
+              _tbl(approved, "Indication")]
+    if trials:
+        L += ["",
+              f"**{_i(len(trials))} disease{'s' if len(trials) != 1 else ''} in clinical "
+              f"trials** (phase 1–3, investigational — *not* approved indications). Highest "
+              "ChEMBL trial phase recorded for this drug against each disease.", "",
+              _tbl(trials, "Disease (in trials)")]
+    if not named:
+        n = b.get("indication_count") or 0
+        L.append(f"**{_i(n)} indication record{'s' if n != 1 else ''}** "
+                 f"carr{'y' if n != 1 else 'ies'} no mapped disease name "
+                 "(EFO/MeSH-only); none shown.")
+    else:
         dropped = len(inds) - len(named)
         if dropped > 0:
             L.append(f"\n*{dropped} further indication record"
                      f"{'s' if dropped != 1 else ''} had no mapped disease name "
                      "(EFO/MeSH-only) or were duplicates, and are omitted.*")
-    else:
-        L.append(head)
-        if inds:
-            L.append(f"\n*The {len(inds)} indication record"
-                     f"{'s' if len(inds) != 1 else ''} "
-                     f"carr{'y' if len(inds) != 1 else 'ies'} no mapped disease name "
-                     "(EFO/MeSH-only); none shown.*")
     return "\n".join(L)
 
 
