@@ -373,9 +373,10 @@ def related_targets(entity_type, bundle):
     # un-named pages whose only label is a raw ontology accession (never link a
     # bare MONDO id as a name).
     from atlas.render_common import is_ontology_id
-    groups["Diseases"] = [(lbl2, url) for lbl, url in groups["Diseases"]
-                          for lbl2 in (canonical_label(url) or lbl,)
-                          if not is_ontology_id(lbl2)]
+    for grp in ("Diseases", "Trial diseases"):
+        groups[grp] = [(lbl2, url) for lbl, url in groups[grp]
+                       for lbl2 in (canonical_label(url) or lbl,)
+                       if not is_ontology_id(lbl2)]
 
     return groups
 
