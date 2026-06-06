@@ -276,6 +276,11 @@ def test_anticancer_phase3_cancer_indication_is_approved_not_in_trials(pages):
         m = atc_re.search(p.body)
         if not (m and re.search(r"\bL0[12]", m.group(1))):
             continue                                   # not an anticancer drug
+        # The upgrade is gated on molecule FDA-approval: an UNapproved anticancer
+        # drug (aclarubicin, fotemustine — EU/Japan-only) correctly keeps phase-3
+        # cancers in-trials. Only an FDA-approved one must show them as approved.
+        if "| FDA approved | yes |" not in p.body and "| Max phase | 4 |" not in p.body:
+            continue
         trials = re.search(r"diseases in clinical trials.*?(?=\n#{1,6} |\Z)",
                            p.body, re.S)
         if not trials:
