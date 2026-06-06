@@ -38,7 +38,7 @@ def collect(a):
         "top_pathways": [{"id": pid, "name": e["name"],
                           "gene_count": len(e["genes"]),
                           "genes": sorted(g for g in e["genes"] if g)}
-                         for pid, e in top_pathways[:30]],
+                         for pid, e in top_pathways[:50]],
         "top_go_bp": [{"id": gid, "name": go_names.get(gid), "target_count": n}
                       for gid, n in go_bp.most_common(15)],
     }

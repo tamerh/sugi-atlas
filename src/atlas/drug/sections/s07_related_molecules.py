@@ -125,7 +125,7 @@ def collect(a):
                                "sources": sorted(d["sources"]),
                                "shared_targets": sorted(d["shared"]),
                                "shared_count": len(d["shared"])}
-                              for d in ranked[:60]],
+                              for d in ranked[:100]],
     }
 
 

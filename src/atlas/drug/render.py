@@ -161,7 +161,7 @@ def r_bioactivity(b):
                  "(expected for biologics / antibodies).*")
         return "\n".join(L)
     L.append(f"**ChEMBL activities: {_i(b.get('potent_count'))} potent at "
-             f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top 50 by "
+             f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top 100 by "
              f"potency (10 = 0.1 nM, 6 = 1 µM):**\n")
     L.append(table(["Target", "pChembl", "Type", "Value", "Unit", "Activity ID"],
                    [(r.get("target") or "", fnum(r.get("pchembl")), r.get("type"),
