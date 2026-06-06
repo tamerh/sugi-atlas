@@ -122,9 +122,25 @@ collector over the (small) set of target genes.
 - **§4 indications** — labelled/clinical disease uses from the ChEMBL molecule
   record, cross-walked EFO/MeSH→MONDO so each links to its Atlas disease page.
   Unmapped rows (e.g. a raw `MP:` mouse-phenotype id) are dropped, not rendered
-  as fake diseases.
-- **§5 trials** — `>>chembl_molecule>>clinical_trials`, with phases normalised
-  (biobtree's `NaN` → "Not specified").
+  as fake diseases. **Tiered into approved indications vs in-trials** (phase 1–3).
+  The split can't be read off the per-indication phase alone: ChEMBL records the
+  highest *clinical-trial* phase, which caps at 3 for ~20% of approved drugs —
+  imatinib is FDA-approved for CML yet logged phase 3. So an indication counts as
+  approved at phase 4, **or** when an anticancer drug (ATC `L01`/`L02`,
+  FDA-approved per PubChem `is_fda_approved`) sits at phase ≥3 against a cancer —
+  the one place phase-3 reliably means an approved labelled use, not an ongoing
+  trial. The molecule-approval gate stops an *experimental* anticancer drug's
+  phase-3 trial from being promoted. This `approved` flag is computed once in §4
+  (`atlas.indication.approved_indication`) and read by the drug page, the disease
+  page, and the mesh, so all three agree. Non-cancer approvals logged at phase 3
+  read honestly as "in trials" — never falsely approved (aspirin's chemoprevention
+  cancers stay investigational), never falsely demoted (imatinib's CML shows
+  approved). Beyond oncology the data can't resolve "approved for *this* disease";
+  PubChem confirms molecule approval but carries no per-disease indications.
+- **§5 trials** — `>>chembl_molecule>>clinical_trials` (sampled 25 pages, top 100
+  shown by phase), with phases normalised (biobtree's `NaN` → "Not specified").
+  Drug display caps are generous (bioactivity 100, related molecules 100) — the
+  corpus is only ~4,700 drugs, so headroom is cheap.
 - **§10 CIViC** — the drug-anchored variant × indication × effect triples, via the
   ID-join `>>chembl_molecule>>civic_evidence` (not therapy-name matching), ranked
   by evidence level. Heavy for targeted therapies, absent for non-precision drugs.

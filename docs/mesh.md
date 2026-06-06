@@ -57,7 +57,11 @@ Only curated sources feed it:
   drugs from title-validated trial drugs + CIViC therapies. *Not* the bioactivity
   drug cloud.
 - **drug** → genes from GtoPdb-curated primary targets only; diseases from
-  labelled indications + CIViC.
+  labelled indications + CIViC. The disease edges are **tiered** by the `approved`
+  flag (drug §4): approved indications render under **Indicated for**, phase-2–3
+  trials under **In clinical trials for** (a separate group) — so "in trials for
+  cancer" never reads as "treats cancer", while an approval ChEMBL logs at phase 3
+  (imatinib→CML) is not demoted.
 
 ## The four reverse directions
 
@@ -70,7 +74,7 @@ Only directions whose source edge is curated are inverted:
 | gene → drug (CIViC) | **Biomarker genes** | genes whose variants associate this drug — shown on drug pages |
 | drug → gene (GtoPdb) | **Targeted by drugs** | drugs that curatedly target this gene — shown on gene pages |
 | gene → disease | **Associated genes** | genes asserting association — shown on disease pages |
-| drug → disease | **Drugs indicated** | drugs whose indication is this disease — shown on disease pages |
+| drug → disease | **Drugs indicated / in trials** | drugs indicated for (or in phase-2–3 trials for) this disease — tiered, shown on disease pages |
 
 Note the asymmetry: **"Biomarker genes" ≠ "Targeted by drugs"** is the encoded
 discipline — being a biomarker for a drug is not the same as being its target.

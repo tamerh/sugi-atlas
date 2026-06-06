@@ -164,8 +164,11 @@ refreshed per biobtree data release); the statistics are pure + deterministic
 - **Disease-direct indicated drugs (`#indicated`)** — drugs with a registered
   ChEMBL indication *for this disease*, independent of the gene cohort (so
   cohort-less / autoimmune conditions still surface real drugs). Tiered so it
-  never overstates: phase ≥3 (approved + late-stage) tabled as indicated, phase 2
-  listed separately as investigational.
+  never overstates: **approved** drugs (phase 4, or an anticancer drug at phase 3
+  vs this cancer — see [drug §4](drug.md)) tabled as indicated; phase 2–3 listed
+  separately as **in clinical trials** (investigational — a trial record, not an
+  indication). The `approved` decision is the same flag the drug §4 collector
+  computes, so the two pages can't disagree.
 - **§10 drug-target analysis** — fans the gene drug collector over the cohort:
   per-gene max development phase, approved/phased/undrugged buckets, and a
   cross-gene drug aggregation (deduped by molecule).

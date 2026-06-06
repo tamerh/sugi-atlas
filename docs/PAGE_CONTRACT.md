@@ -63,7 +63,7 @@ checks). Same stable-API discipline as the H2 IDs. Examples:
 | 5 | Genetics & variants | `#genetics` | GWAS landscape, Variant details & tiers |
 | 6 | Genes & proteins | `#genes` | Mendelian/GenCC overlap & somatic drivers, Cohort genes→proteins, Protein-family classification, Interactions among cohort, Structural data, Expression context |
 | 7 | Function | `#function` | Pathway analysis |
-| 8 | Therapeutics | `#drugs` | Drugs indicated for this disease (`#indicated`, disease-direct ChEMBL indications — phase ≥3 tabled as indicated, phase 2 listed separately as investigational), Drug-target analysis, Bioactivity/enzyme, Pharmacogenomics, Chemical tractability, Druggability pyramid, Undrugged target profiles |
+| 8 | Therapeutics | `#drugs` | Drugs indicated or in trials for this disease (`#indicated`, disease-direct ChEMBL indications — approved tabled as indicated, phase 2–3 listed separately as in-trials), Drug-target analysis, Bioactivity/enzyme, Pharmacogenomics, Chemical tractability, Druggability pyramid, Undrugged target profiles |
 | 9 | Clinical trials & evidence | `#trials` | Clinical trials, CIViC |
 | 10 | Related Atlas pages | `#related` | mesh |
 
