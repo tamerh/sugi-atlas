@@ -18,18 +18,20 @@ _TGT_CACHE = {}
 
 
 def _activity_target(act_id):
-    """Resolve a ChEMBL activity → (gene_symbol, protein_name, uniprot_acc), any
-    of which may be None. The activity links to one UniProt — that's the assayed
-    PROTEIN (accession + name); the gene symbol (when it maps) is the encoding
-    gene, used to link the Atlas gene page. Protein and gene are kept as distinct
-    fields rather than conflated into one cell. Cached per UniProt."""
+    """Resolve a ChEMBL activity → (gene_symbol, protein_name, uniprot_acc,
+    organism), any of which may be None. The activity links to one UniProt —
+    that's the assayed PROTEIN (accession + name); the gene symbol (when it maps)
+    is the encoding gene, used to link the Atlas gene page. `organism` is the
+    species common name and is set ONLY for NON-human targets (no HGNC symbol) —
+    many assays run on animal orthologs (sheep/cattle COX-1), which correctly have
+    no human gene; labelling the species explains the blank gene cell. Cached."""
     if not act_id:
-        return (None, None, None)
+        return (None, None, None, None)
     try:
         u = map_all(act_id, ">>chembl_activity>>uniprot")
         uni = u[0].get("id") if u else None
         if not uni:
-            return (None, None, None)
+            return (None, None, None, None)
         if uni in _TGT_CACHE:
             return _TGT_CACHE[uni]
         # the assayed protein's name, from the UniProt entry
@@ -43,11 +45,16 @@ def _activity_target(act_id):
             syms = ((he.get("Attributes") or {}).get("Hgnc") or {}).get("symbols") or []
             if syms:
                 symbol = syms[0]
-        result = (symbol, pname, uni)
+        organism = None
+        if symbol is None:                       # non-human ortholog → label the species
+            tx = map_all(uni, ">>uniprot>>taxonomy")
+            if tx:
+                organism = tx[0].get("common_name") or tx[0].get("name") or None
+        result = (symbol, pname, uni, organism)
         _TGT_CACHE[uni] = result
         return result
     except Exception:
-        return (None, None, None)
+        return (None, None, None, None)
 
 
 def collect(a):
@@ -63,7 +70,7 @@ def collect(a):
     for r in potent[:200]:
         if len(acts) >= 100:
             break
-        symbol, pname, uni = _activity_target(r.get("id"))
+        symbol, pname, uni, organism = _activity_target(r.get("id"))
         key = (uni, r.get("standard_type"), r.get("standard_value"), r.get("standard_units"))
         if key in seen:
             continue
@@ -73,6 +80,7 @@ def collect(a):
             "target_symbol": symbol,
             "protein_name": pname,
             "uniprot": uni,
+            "organism": organism,
             "type": r.get("standard_type"),
             "value": r.get("standard_value"),
             "unit": r.get("standard_units"),
@@ -92,7 +100,7 @@ SECTION = Section(
                  "pchembl-ranked, ≥5 (real binding), top 100 by potency"),
     needs=("chembl_id",),
     produces=("activity_total", "potent_count", "activities"),
-    datasets=("chembl_molecule", "chembl_activity"),
+    datasets=("chembl_molecule", "chembl_activity", "uniprot", "hgnc", "taxonomy"),
     chains=(">>chembl_molecule>>chembl_activity",),
     collect_fn=collect,
 )

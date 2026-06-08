@@ -171,8 +171,13 @@ def r_bioactivity(b):
     # resolves at the ChEMBL API to the assay + source paper).
     def _val(r):
         return f"{fnum(r.get('value'))} {r.get('unit') or ''}".strip()
+    def _protein(r):
+        # non-human targets carry an organism (sheep/cattle COX-1 orthologs) —
+        # label it so the blank Gene cell reads as "ortholog", not a missing map.
+        nm, org = r.get("protein_name") or "", r.get("organism")
+        return f"{nm} ({org})" if (nm and org) else nm
     L.append(table(["Protein", "UniProt", "Gene", "pChembl", "Type", "Value", "Activity ID"],
-                   [(r.get("protein_name") or "",
+                   [(_protein(r),
                      links.maybe_link(r.get("uniprot") or "",
                                       f"https://www.uniprot.org/uniprotkb/{r['uniprot']}" if r.get("uniprot") else None),
                      links.maybe_link(r.get("target_symbol") or "",
