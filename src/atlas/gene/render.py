@@ -658,18 +658,28 @@ def r_drugs(b):
              + (f" (CPIC guideline: {'yes' if pg[0].get('cpic_guideline') == 'true' else 'no'})"
                 if pg else ""))
 
-    # PharmGKB clinical annotations — variant + drug + phenotype tuples
-    # with PharmGKB's evidence-level rating (1A strongest → 4 weakest).
+    def _variant_link(v):
+        return f"https://www.ncbi.nlm.nih.gov/snp/{v}" if v and v.startswith("rs") else None
+
+    # PharmGKB clinical annotations — variant × association × phenotype × drug,
+    # ranked by PharmGKB evidence level (1 strongest → 4). Same dataset and
+    # presentation as the drug page's clinical-annotations table, mirrored from
+    # the gene's side (here the gene is fixed and we list the drugs).
     pgc = b.get("pharmgkb_clinical") or []
     if pgc:
+        pgc = sorted(pgc, key=lambda c: str(c.get("level_of_evidence") or "9"))
         L.append("\n### PharmGKB clinical annotations {#pharmgkb-clinical}\n")
-        L.append(f"{len(pgc)} annotations.\n")
+        L.append(f"{len(pgc)} annotations — variant × association × phenotype × drug, "
+                 f"ranked by PharmGKB evidence level (1 strongest → 4).\n")
         L.append(table(
-            ["Variant", "Type", "Level", "Drugs", "Phenotypes"],
-            [(c.get("variant"), c.get("type"), c.get("level_of_evidence"),
+            ["Variant", "Association", "Level", "Drugs", "Phenotypes"],
+            [(links.maybe_link(c.get("variant") or "", _variant_link(c.get("variant"))),
+              c.get("type"), c.get("level_of_evidence"),
               links.link_csv(c.get("chemicals"), lambda s: links.drug_url(name=s)),
               c.get("phenotypes"))
              for c in pgc[:40]]))
+        if len(pgc) > 40:
+            L.append(f"\n*+{len(pgc) - 40} more (showing top 40 by evidence level).*")
 
     # PharmGKB variant pages — variant-level aggregations with PharmGKB's
     # composite score + count of clinical annotations.
@@ -679,12 +689,14 @@ def r_drugs(b):
         L.append(f"{len(pgv)} variants.\n")
         L.append(table(
             ["Variant", "Genes", "Level", "Score", "#Clin annots", "Drugs"],
-            [(v.get("name"),
+            [(links.maybe_link(v.get("name") or "", _variant_link(v.get("name"))),
               links.link_csv(v.get("gene_symbols"), lambda s: links.gene_url(symbol=s)),
               v.get("level_of_evidence"),
               v.get("score"), v.get("clinical_annotation_count"),
               links.link_csv(v.get("associated_drugs"), lambda s: links.drug_url(name=s)))
              for v in pgv[:40]]))
+        if len(pgv) > 40:
+            L.append(f"\n*+{len(pgv) - 40} more (showing top 40).*")
 
     # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
     # gene+drug pair. Canonical pharmacogenes have tens of guidelines
