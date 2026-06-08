@@ -111,7 +111,9 @@ def _drugs(bundle: dict) -> list:
         mid = d.get("molecule_id")
         if not name and not mid:
             continue
-        rec = {"@type": "Drug", "name": name or mid}
+        # Substance, not Drug — Drug ⊂ Product trips Google's product validator
+        # (see drug_jsonld.py). Substance reads naturally as a treatment reference.
+        rec = {"@type": "Substance", "name": name or mid}
         sameas = []
         if mid:
             rec["identifier"] = mid

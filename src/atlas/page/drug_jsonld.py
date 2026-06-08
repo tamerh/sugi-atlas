@@ -103,7 +103,13 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
     roles = (b6 or {}).get("chebi_roles") or []
     out = {
         "@context": "https://schema.org",
-        "@type": "Drug",
+        # MolecularEntity, not Drug: schema.org Drug is dual-parented under Product,
+        # so Google's product validator flags every Drug object as missing
+        # offers/review/aggregateRating (Search Console "invalid items"). We carry
+        # inChIKey/smiles/molecularFormula/molecularWeight — native MolecularEntity
+        # (BioChemEntity) properties — so this is also more correct, and keeps every
+        # sameAs/identifier intact while clearing the (unwanted) product check.
+        "@type": "MolecularEntity",
         "@id": page,
         "name": name,
         "identifier": b1.get("chembl_id"),

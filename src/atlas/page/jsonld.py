@@ -219,7 +219,7 @@ def _reverse_edges(bundle, base_url):
     rev = {}
     dz = [{"@type": "MedicalCondition", "name": n, "url": host + p}
           for n, p in groups.get("Diseases", [])[:20]]
-    dr = [{"@type": "Drug", "name": n, "url": host + p}
+    dr = [{"@type": "Substance", "name": n, "url": host + p}  # not Drug: Drug ⊂ Product trips Google's product validator
           for n, p in groups.get("Drugs", [])[:20]]
     if dz:
         rev["associatedGene"] = dz if len(dz) > 1 else dz[0]
