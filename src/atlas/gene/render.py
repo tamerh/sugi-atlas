@@ -458,12 +458,16 @@ def r_variants(b):
                    [(v["id"], v.get("hgvs"), v.get("classification")) for v in b.get("top_pathogenic", [])]))
     L.append("\n### SpliceAI {#spliceai}\n")
     L.append(f"{b.get('spliceai_total', 0)} predictions. Top by Δscore:\n")
+    _spl = b.get("top_spliceai", [])
     L.append(table(["Variant", "Effect", "Δscore"],
-                   [(v["id"], v.get("effect"), v.get("score")) for v in b.get("top_spliceai", [])]))
+                   [(v["id"], v.get("effect"), v.get("score")) for v in _spl]))
+    L.append(more_line(b.get("spliceai_total"), len(_spl), "by Δscore"))
     L.append("\n### AlphaMissense {#alphamissense}\n")
     L.append(f"{b.get('alphamissense_total', 0)} scored. Top likely-pathogenic:\n")
+    _am = b.get("top_alphamissense", [])
     L.append(table(["Variant", "Protein change", "am_pathogenicity"],
-                   [(v["id"], v.get("variant"), v.get("am_pathogenicity")) for v in b.get("top_alphamissense", [])]))
+                   [(v["id"], v.get("variant"), v.get("am_pathogenicity")) for v in _am]))
+    L.append(more_line(b.get("alphamissense_total"), len(_am)))
     ds = b.get("dbsnp_sample", [])
     if ds:
         L.append(f"\n**dbSNP variants (sampled {b.get('dbsnp_sampled', 0)} via entrez):** "
@@ -990,16 +994,24 @@ def r_diseases(b):
     # Collapse to one row per disease (audit #13: GenCC has many submissions per
     # gene–disease pair — FANCB ×4); keep the strongest classification.
     from atlas.render_common import gencc_rank
-    _gc = {}
+    _gc, _gc_n = {}, {}
     for g in b.get("gencc", []):
         d = g.get("disease") or ""
-        if d and (d not in _gc or gencc_rank(g.get("classification")) > gencc_rank(_gc[d].get("classification"))):
+        if not d:
+            continue
+        _gc_n[d] = _gc_n.get(d, 0) + 1     # submissions per disease (surfaced as Records)
+        if d not in _gc or gencc_rank(g.get("classification")) > gencc_rank(_gc[d].get("classification")):
             _gc[d] = g
     _gc_rows = sorted(_gc.values(),
                       key=lambda g: -gencc_rank(g.get("classification")))
-    L.append(table(["Disease", "Classification", "Inheritance"],
+    # "Records" mirrors the disease-page GenCC table (submission count after the
+    # one-row-per-disease dedup), so both sides are transparent about the collapse.
+    L.append(table(["Disease", "Classification", "Inheritance", "Records"],
                    [(links.maybe_link(g.get("disease"), links.disease_url(name=g.get("disease"))),
-                     g.get("classification"), g.get("inheritance")) for g in _gc_rows[:40]]))
+                     g.get("classification"), g.get("inheritance"),
+                     str(_gc_n.get(g.get("disease") or "", 0)) if _gc_n.get(g.get("disease") or "", 0) > 1 else "")
+                    for g in _gc_rows[:40]]))
+    L.append(more_line(len(_gc_rows), 40))
 
     # ClinGen Gene-Disease Validity — expert-panel curated relationship strength.
     # Distinct from GenCC: ClinGen is the canonical authority for gene-disease
@@ -1013,11 +1025,14 @@ def r_diseases(b):
                        [(links.maybe_link(c.get("disease"), links.disease_url(name=c.get("disease"))),
                          c.get("classification"), c.get("moi"))
                         for c in cgv[:40]]))
+        L.append(more_line(len(cgv), 40))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
              + ", ".join(f"{links.maybe_link(m.get('name'), links.disease_url(mondo_id=m['id'], name=m.get('name')))} ({m['id']})"
                          for m in b.get("mondo", [])[:15]))
+    L.append(more_line(len(b.get("mondo", [])), 15))
     L.append(f"\n**Orphanet ({len(b.get('orphanet', []))}):** "
              + ", ".join(f"{o.get('name') or ''} ({o['id']})" for o in b.get("orphanet", [])[:15]))
+    L.append(more_line(len(b.get("orphanet", [])), 15))
     # No relevance/frequency ordering on the gene→HPO route, so don't claim
     # "(top)" — these are the first 30 by HPO id. (Frequency-ranked clinical
     # features live on the disease pages.)
@@ -1030,6 +1045,7 @@ def r_diseases(b):
     L.append(f"{b.get('gwas_total', 0)} associations (top):\n")
     L.append(table(["Study", "Trait", "p-value"],
                    [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]]))
+    L.append(more_line(b.get("gwas_total"), 30))
 
     # EFO canonical trait names — normalized vocabulary for the free-text
     # GWAS-catalog traits above. The same disease can appear under multiple
@@ -1040,6 +1056,7 @@ def r_diseases(b):
         L.append(f"\n### EFO canonical traits ({len(efo)}, from GWAS) {{#efo}}\n")
         L.append(table(["EFO ID", "Trait name"],
                        [(e["id"], e.get("name")) for e in efo[:30]]))
+        L.append(more_line(len(efo), 30))
 
     # MeSH disease descriptors — NLM's controlled disease vocabulary.
     # Tree numbers (e.g. C04.700.600) classify into MeSH categories
@@ -1055,6 +1072,7 @@ def r_diseases(b):
                          m["name"] + (" *(supp.)*" if m.get("is_supplementary") else ""),
                          "; ".join(m.get("tree_numbers") or []))
                         for m in mesh[:30]]))
+        L.append(more_line(len(mesh), 30))
     return "\n".join(L)
 
 
