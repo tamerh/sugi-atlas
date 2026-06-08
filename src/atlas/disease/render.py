@@ -12,8 +12,8 @@ dict and are called explicitly by render_all().
 """
 import re
 from collections import Counter
-from atlas.render_common import table, fnum, gencc_rank, phase_label
-from atlas.civic import therapy_label
+from atlas.render_common import table, fnum, gencc_rank, phase_label, more_line
+from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
 # Shared formatting helpers --------------------------------------------------
@@ -34,6 +34,19 @@ def _trunc(s, n=80):
     # pre-clipped with a baked-in "…". Signature kept so the call sites are
     # unchanged; `n` is now ignored.
     return (s or "").strip()
+
+
+def _glink(sym):
+    """A cohort gene symbol as an internal /atlas/gene/ link (plain text if no
+    page). Used everywhere a gene symbol appears so the disease page links genes
+    consistently — §4/§5/§10 used to link while §6–§17 showed plain text."""
+    return links.maybe_link(sym or "", links.gene_url(symbol=sym))
+
+
+def _vlink(rs):
+    """An rsID as a dbSNP link (plain text if not rs-prefixed). Matches the
+    gene/drug PGx tables so variants link consistently across all page types."""
+    return links.maybe_link(rs or "", links.variant_link(rs))
 
 
 # Shared with the dual-evidence on-disease filter (atlas.disease.cohort) so both
@@ -289,9 +302,10 @@ def r_gwas_landscape(b):
                       # fnum on odds_ratio only (audit #7: float32 artifacts like
                       # 1.4348061); p-value is exponent-form (3e-67) and must NOT
                       # be rounded — fnum(3e-67, 2) would collapse it to 0.
-                      [(r.get("rsid"), r.get("pvalue"), r.get("gene_symbol"),
+                      [(_vlink(r.get("rsid")), r.get("pvalue"), _glink(r.get("gene_symbol")),
                         r.get("risk_allele"), fnum(r.get("odds_ratio")))
-                       for r in ta[:30]])]
+                       for r in ta[:30]]),
+                more_line(b.get("assoc_total"), 30, "by p-value")]
     studies = b.get("studies") or []
     if studies:
         out += ["", "### Top studies (by case count) {#gwas-studies}", "",
@@ -339,7 +353,7 @@ def r_variant_details(b):
             bl.append("\n" + ", ".join(f"{_i(v)} {k.lower()}" for k, v in order))
         bl += ["", table(["ClinVar", "Variant (HGVS)", "Gene", "Classification", "Review"],
                          [(v.get("id") or "",
-                           v.get("hgvs"), v.get("gene"), v.get("classification"),
+                           v.get("hgvs"), _glink(v.get("gene")), v.get("classification"),
                            v.get("review_status")) for v in cv])]
         return bl
 
@@ -356,17 +370,19 @@ def r_variant_details(b):
         out.append(table(["Bucket", "Variants"], [(k, _i(v)) for k, v in md.items()]))
     if any(cd.values()):
         out += ["", "### Functional consequences {#consequences}", ""]
-        rows = sorted(cd.items(), key=lambda kv: -kv[1])[:15]
-        out.append(table(["Consequence", "Count"], [(k, _i(v)) for k, v in rows]))
+        rows = sorted(cd.items(), key=lambda kv: -kv[1])
+        out.append(table(["Consequence", "Count"], [(k, _i(v)) for k, v in rows[:15]]))
+        out.append(more_line(len(rows), 15))
     if tv:
         out += ["", "### Top variants {#top-variants}", "",
                 table(["rsID", "Chr", "Pos", "Alleles", "MAF",
                        "Consequence", "Gene", "p-value", "Tier"],
-                      [(r.get("rsid") or "",
+                      [(_vlink(r.get("rsid")),
                         r.get("chrom"), r.get("pos"), r.get("alleles"),
                         fnum(r.get("maf"), 3), r.get("consequence"),
-                        r.get("gene_symbol"), r.get("pvalue"), r.get("tier"))
-                       for r in tv[:30]])]
+                        _glink(r.get("gene_symbol")), r.get("pvalue"), r.get("tier"))
+                       for r in tv[:30]]),
+                more_line(len(tv), 30)]
     if cv:  # both GWAS and ClinVar present → ClinVar after the GWAS tiers
         out += ["", *_clinvar_block()]
     return "\n".join(out)
@@ -396,21 +412,23 @@ def r_mendelian_overlap(b):
             if sym in omim_set:  r.append("OMIM")
             return ", ".join(r)
         out += ["", "### Dual-evidence genes (GWAS + Mendelian — highest-confidence targets) {#dual-evidence}", "",
-                table(["Gene", "HGNC", "Evidence routes"],
-                      [(sym, sym, _routes(sym))
-                       for sym in dual[:50]])]
+                table(["Gene", "Evidence routes"],
+                      [(_glink(sym), _routes(sym))
+                       for sym in dual[:50]]),
+                more_line(len(dual), 50)]
     sg = b.get("somatic_driver_genes") or []
     if sg:
         # CIViC's `name` field equals the gene symbol — we surface the CIViC
         # gene ID (plain text) as the actual value-add.
         out += ["", "### Somatic driver evidence (intOGen + CIViC, cohort fanout) {#somatic-drivers}", "",
                 table(["Gene", "intOGen role", "Cancer types", "CIViC"],
-                      [(g.get("symbol"),
+                      [(_glink(g.get("symbol")),
                         (g.get("intogen") or {}).get("role"),
                         _trunc((g.get("intogen") or {}).get("cancer_types") or "", 50),
                         (f"CIViC #{(g.get('civic') or {}).get('id')}"
                          if (g.get("civic") or {}).get("id") else ""))
-                       for g in sg[:30]])]
+                       for g in sg[:30]]),
+                more_line(len(sg), 30)]
     gc = b.get("gencc_genes") or []
     if gc:
         # Collapse to one row per gene (audit #13: cohort fan-out pulls every
@@ -421,24 +439,27 @@ def r_mendelian_overlap(b):
                 "*the Disease column is the GenCC-asserted condition — a cohort gene's "
                 "strongest validity may be for a related predisposition syndrome.*", "",
                 table(["Gene", "Classification", "Inheritance", "Disease", "Records"],
-                      [(g.get("symbol"), g.get("gencc_classification"),
+                      [(_glink(g.get("symbol")), g.get("gencc_classification"),
                         g.get("mode_of_inheritance"),
                         _trunc(g.get("mondo_disease"), 50),
-                        str(n) if n > 1 else "") for g, n, _on in ded[:30]])]
+                        str(n) if n > 1 else "") for g, n, _on in ded[:30]]),
+                more_line(len(ded), 30)]
     og = b.get("orphanet_genes") or []
     if og:
         out += ["", "### Orphanet rare-disease linkage (cohort genes) {#orphanet-linkage}", "",
                 table(["Gene", "Orphanet ID", "Rare disease"],
-                      [(g.get("symbol"),
+                      [(_glink(g.get("symbol")),
                         g.get("orphanet_id") or "",
                         _trunc(g.get("orphanet_name"), 65))
-                       for g in og[:50]])]
+                       for g in og[:50]]),
+                more_line(len(og), 50)]
     omg = b.get("omim_genes") or []
     if omg:
         out += ["", "### OMIM-shared genes (cohort gene's MIM ids overlap the disease's) {#omim-shared}", "",
                 table(["Gene", "MIM ids"],
-                      [(g.get("symbol"), ", ".join(g.get("mim_ids") or []))
-                       for g in omg[:30]])]
+                      [(_glink(g.get("symbol")), ", ".join(g.get("mim_ids") or []))
+                       for g in omg[:30]]),
+                more_line(len(omg), 30)]
     return "\n".join(out)
 
 
@@ -455,14 +476,15 @@ def r_genes_proteins(b):
                          [(k, _i(v)) for k, v in ev.items() if v]))
     genes = b.get("genes") or []
     if genes:
-        out += ["", "### Cohort genes (full) {#cohort-genes-full}", "",
+        out += ["", "### Cohort genes {#cohort-genes-full}", "",
                 table(["Symbol", "HGNC", "Ensembl", "UniProt", "Name", "Evidence"],
                       [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"), hgnc_id=g.get("hgnc_id"))),
                         g.get("hgnc_id"), g.get("ensembl_id"),
-                        g.get("canonical_uniprot"),
+                        links.maybe_link(g.get("canonical_uniprot"), links.uniprot_url(g.get("canonical_uniprot"))),
                         _trunc(g.get("protein_name") or g.get("hgnc_name"), 50),
                         ",".join(k for k, v in (g.get("evidence") or {}).items() if v))
-                       for g in genes[:50]])]
+                       for g in genes[:50]]),
+                more_line(b.get("gene_count"), 50)]
 
     # Cohort function summary — one-sentence UniProt FUNCTION per gene.
     # Surfaces "what each cohort gene actually does" at a glance, not just
@@ -472,9 +494,10 @@ def r_genes_proteins(b):
         out += ["", "### Cohort function summary {#cohort-function}", "",
                 "Lead sentence per gene, UniProt-curated.", "",
                 table(["Symbol", "Protein name", "Function (lead sentence)"],
-                      [(f["symbol"], _trunc(f.get("protein_name"), 40),
+                      [(_glink(f["symbol"]), _trunc(f.get("protein_name"), 40),
                         f.get("function_lead", ""))
-                       for f in fns[:50]])]
+                       for f in fns[:50]]),
+                more_line(len(fns), 50)]
     return "\n".join(out)
 
 
@@ -517,11 +540,12 @@ def r_protein_families(b):
     if fa:
         out += ["", "### Per-gene assignment {#family-assignment}", "",
                 table(["Symbol", "Family", "Druggable?", "EC", "InterPro (top 3)"],
-                      [(g.get("symbol"), g.get("assigned_family"),
+                      [(_glink(g.get("symbol")), g.get("assigned_family"),
                         "yes" if g.get("druggable") else "no",
                         g.get("ec") or "",
                         ", ".join((g.get("interpro_names") or [])[:3]))
-                       for g in fa[:50]])]
+                       for g in fa[:50]]),
+                more_line(len(fa), 50)]
     return "\n".join(out)
 
 
@@ -548,19 +572,21 @@ def r_expression_context(b):
             items = list(tt.items())
         else:
             items = list(tt)
-        items = sorted(items, key=lambda kv: -kv[1])[:40]
+        items = sorted(items, key=lambda kv: -kv[1])
         out.append(table(["Tissue", "Cohort genes"],
-                         [(k, _i(v)) for k, v in items]))
+                         [(k, _i(v)) for k, v in items[:40]]))
+        out.append(more_line(len(items), 40))
     pge = b.get("per_gene_expression") or []
     if pge:
         out += ["", "### Per-gene tissue summary (top 30) {#per-gene-tissue}", "",
                 table(["Symbol", "Bgee breadth", "FANTOM5 breadth", "SCXA", "Top tissues"],
-                      [(g.get("symbol"), g.get("bgee_breadth"),
+                      [(_glink(g.get("symbol")), g.get("bgee_breadth"),
                         g.get("fantom5_breadth"),
                         ("marker" if g.get("scxa_marker")
                          else "yes" if g.get("scxa_present") else ""),
                         ", ".join((g.get("top_tissues") or [])[:3]))
-                       for g in pge[:30]])]
+                       for g in pge[:30]]),
+                more_line(len(pge), 30)]
     return "\n".join(out)
 
 
@@ -573,13 +599,14 @@ def r_protein_interactions(b):
     if hubs:
         out += ["", "### Hub genes (top 10 by interactor count) {#hub-genes}", "",
                 table(["Symbol", "Interactor count"],
-                      [(h.get("symbol"), _i(h.get("interactor_count"))) for h in hubs])]
+                      [(_glink(h.get("symbol")), _i(h.get("interactor_count"))) for h in hubs])]
     edges = b.get("cohort_edges") or []
     if edges:
         out += ["", "### Intra-cohort edges {#intra-cohort-edges}", "",
                 table(["A", "B", "Sources"],
-                      [(e.get("a"), e.get("b"), ", ".join(e.get("sources") or []))
-                       for e in edges[:50]])]
+                      [(_glink(e.get("a")), _glink(e.get("b")), ", ".join(e.get("sources") or []))
+                       for e in edges[:50]]),
+                more_line(len(edges), 50)]
     return "\n".join(out)
 
 
@@ -594,16 +621,18 @@ def r_structural_data(b):
     if pdb:
         out += ["", "### Cohort genes with PDB structures (top 30) {#cohort-pdb}", "",
                 table(["Symbol", "UniProt", "PDB entries"],
-                      [(g.get("symbol"),
-                        g.get("uniprot") or "",
-                        _i(g.get("pdb_count"))) for g in pdb[:30]])]
+                      [(_glink(g.get("symbol")),
+                        links.maybe_link(g.get("uniprot") or "", links.uniprot_url(g.get("uniprot"))),
+                        _i(g.get("pdb_count"))) for g in pdb[:30]]),
+                more_line(len(pdb), 30)]
     af = b.get("alphafold_only_genes") or []
     if af:
         out += ["", "### AlphaFold-only cohort genes (top 30 by pLDDT) {#cohort-alphafold}", "",
                 table(["Symbol", "UniProt", "pLDDT"],
-                      [(g.get("symbol"),
-                        g.get("uniprot") or "",
-                        g.get("plddt")) for g in af[:30]])]
+                      [(_glink(g.get("symbol")),
+                        links.maybe_link(g.get("uniprot") or "", links.uniprot_url(g.get("uniprot"))),
+                        g.get("plddt")) for g in af[:30]]),
+                more_line(len(af), 30)]
     return "\n".join(out)
 
 
@@ -634,7 +663,7 @@ def r_drug_targets(b):
     if tt:
         out += ["", "### Top cohort targets by molecule count {#top-targets}", "",
                 table(["Symbol", "Molecules", "Max phase"],
-                      [(t.get("symbol"), _i(t.get("molecule_count")),
+                      [(_glink(t.get("symbol")), _i(t.get("molecule_count")),
                         t.get("max_phase")) for t in tt])]
     drugs = b.get("drugs") or []
     if drugs:
@@ -643,8 +672,9 @@ def r_drug_targets(b):
                       [(links.maybe_link(d.get("name") or d.get("id") or "",
                                          links.drug_url(chembl_id=d.get("id"), name=d.get("name"))),
                         d.get("max_phase"),
-                        ", ".join((d.get("gene_targets") or [])[:6]))
-                       for d in drugs[:30]])]
+                        ", ".join(_glink(s) for s in (d.get("gene_targets") or [])[:6]))
+                       for d in drugs[:30]]),
+                more_line(len(drugs), 30)]
     return "\n".join(out)
 
 
@@ -662,17 +692,19 @@ def r_bioactivity_enzyme(b):
     if studied_all:
         out += ["", "### Cohort genes with ChEMBL bioactivity (full, sorted by assay count) {#cohort-bioactivity}", "",
                 table(["Symbol", "Assays", "Type breakdown"],
-                      [(g.get("symbol"), _i(g.get("chembl_assay_total")),
+                      [(_glink(g.get("symbol")), _i(g.get("chembl_assay_total")),
                         ", ".join(f"{k}:{v}" for k, v in (g.get("chembl_assay_types") or {}).items()))
-                       for g in studied_all[:50]])]
+                       for g in studied_all[:50]]),
+                more_line(len(studied_all), 50)]
     eg = b.get("enzyme_genes") or []
     if eg:
         out += ["", "### Cohort enzymes (BRENDA EC) {#cohort-enzymes}", "",
                 table(["Symbol", "EC numbers", "Names"],
-                      [(g.get("symbol"),
+                      [(_glink(g.get("symbol")),
                         ", ".join(g.get("ec_numbers") or []),
                         _trunc(", ".join(g.get("ec_names") or []), 60))
-                       for g in eg[:50]])]
+                       for g in eg[:50]]),
+                more_line(len(eg), 50)]
     usp = b.get("undrugged_starting_points") or []
     if usp:
         # NB: this is a studied-ness signal, NOT a drugged/undrugged claim — the
@@ -683,8 +715,9 @@ def r_bioactivity_enzyme(b):
                 "≥100 ChEMBL assays — a studied-ness signal; see Therapeutics for "
                 "approved-drug status.", "",
                 table(["Symbol", "ChEMBL assays"],
-                      [(g.get("symbol"), _i(g.get("chembl_assay_total")))
-                       for g in usp[:30]])]
+                      [(_glink(g.get("symbol")), _i(g.get("chembl_assay_total")))
+                       for g in usp[:30]]),
+                more_line(len(usp), 30)]
     return "\n".join(out)
 
 
@@ -704,7 +737,8 @@ def r_pharmacogenomics(b):
     if pg:
         out += ["", "### Cohort genes with a CPIC/DPWG dosing guideline {#cohort-pgx}", "",
                 table(["Symbol", "CPIC guidelines"],
-                      [(g.get("symbol"), _i(g.get("cpic_count"))) for g in pg[:30]])]
+                      [(_glink(g.get("symbol")), _i(g.get("cpic_count"))) for g in pg[:30]]),
+                more_line(len(pg), 30)]
     elif not cpic:
         out += ["", "*No cohort gene has a CPIC/DPWG genotype-guided dosing "
                 "guideline (PharmGKB).*"]
@@ -729,7 +763,8 @@ def r_clinical_trials(b):
                       [(t.get("id") or "",
                         phase_label(t.get("phase")), t.get("status"),
                         _trunc(t.get("title"), 65))
-                       for t in tt])]
+                       for t in tt]),
+                more_line(b.get("trial_count"), len(tt))]
     td = b.get("trial_drugs") or []
     if td:
         out += ["", "### Drugs tested across these trials (top 30) {#trial-drugs}", "",
@@ -737,7 +772,8 @@ def r_clinical_trials(b):
                       [(links.maybe_link(d.get("name") or d.get("molecule_id"),
                                          links.drug_url(chembl_id=d.get("molecule_id"), name=d.get("name"))),
                         d.get("max_phase"), _i(d.get("trial_count")))
-                       for d in td[:30]])]
+                       for d in td[:30]]),
+                more_line(len(td), 30)]
 
     # CIViC precision-subtype map — the drug × molecular subtype × indication
     # triple. Predictive associations only, ranked by CIViC evidence level
@@ -754,7 +790,7 @@ def r_clinical_trials(b):
                 (f"Drug × molecular subtype: {_i(b.get('civic_association_total'))} "
                  f"predictive associations from {_i(b.get('civic_predictive_total'))} "
                  f"curated evidence items"
-                 + (f"; also {extra}" if extra else "") + "."),
+                 + (f"; also {extra}" if extra else "") + ". " + CIVIC_LEGEND),
                 "",
                 table(["Molecular subtype", "Therapy", "Effect", "Level", "CIViC"],
                       [(r["profile"],
@@ -763,11 +799,11 @@ def r_clinical_trials(b):
                         f"CIViC {r['level']}" if r.get("level") else "",
                         f"EID{r['evidence_id']}"
                         + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
-                       for r in ce])]
-        more = (b.get("civic_association_total") or 0) - len(ce)
-        if more > 0:
-            out += ["", (f"*+{more} more predictive associations (showing top "
-                         f"{len(ce)} by evidence level).*")]
+                       for r in ce]),
+                more_line(b.get("civic_association_total", 0), len(ce), "by evidence level")]
+        if any(r.get("n", 1) > 1 for r in ce):
+            out += ["", ("*CIViC column: a representative evidence item (EID); "
+                         "+N = additional CIViC items supporting the same association.*")]
     return "\n".join(out)
 
 
@@ -807,11 +843,13 @@ def r_pathways(b):
                     table([col0, "Cohort genes", "Fold", "FDR", "Sample cohort genes"],
                           [(p.get("name") or p.get("id") or "", _i(p.get("gene_count")),
                             f"{p['fold']:.1f}×" if p.get("fold") else "—",
-                            _fdr(p.get("fdr")), _samp(p)) for p in rows[:30]])]
+                            _fdr(p.get("fdr")), _samp(p)) for p in rows[:30]]),
+                    more_line(len(rows), 30, "by enrichment")]
         return ["", f"### {heading} {{#{anchor}}}", "",
                 table([col0, "Genes", "Sample cohort genes"],
                       [(p.get("name") or p.get("id") or "", _i(p.get("gene_count")), _samp(p))
-                       for p in rows[:30]])]
+                       for p in rows[:30]]),
+                more_line(len(rows), 30)]
 
     out += _ora_block(b.get("top_pathways") or [], "cohort-pathways",
                       "Pathways by enrichment", "Pathway", gp)
@@ -864,10 +902,12 @@ def r_drug_repurposing(bundles):
     out = [title, "", lead]
     if repurposable:
         out += ["", table(["Compound", "Max phase", "Cohort target (bioactivity)"],
-                          [(d.get("name") or d.get("id"),
+                          [(links.maybe_link(d.get("name") or d.get("id") or "",
+                                             links.drug_url(chembl_id=d.get("id"), name=d.get("name"))),
                             d.get("max_phase"),
-                            ", ".join((d.get("gene_targets") or [])[:6]))
-                           for d in repurposable[:30]])]
+                            ", ".join(_glink(s) for s in (d.get("gene_targets") or [])[:6]))
+                           for d in repurposable[:30]]),
+                more_line(len(repurposable), 30)]
     return "\n".join(out)
 
 
@@ -924,8 +964,8 @@ def r_druggability_pyramid(bundles):
         if not m:
             return ""
         if len(m) <= 10:
-            return ", ".join(m)
-        return ", ".join(m[:10]) + f" (+{len(m) - 10} more)"
+            return ", ".join(_glink(s) for s in m)
+        return ", ".join(_glink(s) for s in m[:10]) + f" (+{len(m) - 10} more)"
 
     out = ["## Druggability pyramid", "",
            "Cohort genes binned by druggability tier (high → low):", "",
@@ -967,9 +1007,10 @@ def r_undrugged_target_profiles(bundles):
            "Ranked by 'starting-point quality' (assay depth + drugged-partner adjacency)."]
     if rows:
         out += ["", table(["Symbol", "ChEMBL assays", "Drugged partners (top 3)"],
-                          [(r["symbol"], _i(r["assays"]),
-                            ", ".join(r["drugged_partners"]) or "—")
-                           for r in rows[:30]])]
+                          [(_glink(r["symbol"]), _i(r["assays"]),
+                            ", ".join(_glink(s) for s in r["drugged_partners"]) or "—")
+                           for r in rows[:30]]),
+                more_line(len(rows), 30)]
     return "\n".join(out)
 
 

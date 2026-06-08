@@ -11,8 +11,8 @@ reserved for the synthesis/executive-summary layer, not this.
 """
 import sys, os, html
 from atlas.gene import collect as C
-from atlas.render_common import table, phase_label, fnum
-from atlas.civic import therapy_label
+from atlas.render_common import table, phase_label, fnum, more_line
+from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
 
@@ -442,6 +442,7 @@ def r_orthologs(b):
     if para:
         L.append(f"\n**Paralogs ({b.get('paralog_count', 0)}):** "
                  + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:40]))
+        L.append(more_line(b.get("paralog_count"), 40))
     return "\n".join(L)
 
 
@@ -475,6 +476,7 @@ def r_pathways(b):
          "### Reactome pathways {#reactome}", "",
          f"{b.get('reactome_count', 0)} pathways\n"]
     L.append(table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:30]]))
+    L.append(more_line(b.get("reactome_count"), 30))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
     L.append(", ".join(f"`{m['name']}`" for m in b.get("msigdb", [])[:15]))
     go = b.get("go", {})
@@ -482,6 +484,7 @@ def r_pathways(b):
         terms = go.get(cat, [])
         L.append(f"\n**GO {cat.replace('_', ' ').title()} ({len(terms)}):**")
         L.append(", ".join(f"{t['name']} ({t['id']})" for t in terms[:40]))
+        L.append(more_line(len(terms), 40))
 
     # Top-level parent rollups — give the page a hierarchical-navigation view.
     # Reactome's hierarchy is tight (1-2 parents per pathway); GO's is broader.
@@ -491,12 +494,14 @@ def r_pathways(b):
         L.append(f"Rollup of top-{len(rp)} pathways:\n")
         L.append(table(["Category", "Pathways"],
                        [(p.get("name") or p["id"], p.get("pathway_count")) for p in rp[:15]]))
+        L.append(more_line(len(rp), 15))
     gp = b.get("go_parent_rollup") or []
     if gp:
         L.append("\n### GO top-level categories {#go-categories}\n")
         L.append("Rollup of top GO terms by namespace:\n")
         L.append(table(["Category", "Terms"],
                        [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:40]]))
+        L.append(more_line(len(gp), 40))
     return "\n".join(L)
 
 
@@ -510,10 +515,12 @@ def r_interactions(b):
     L.append(table(["Protein A", "Protein B", "Partner UniProt", "Score"],
                    [(self_sym, s.get("partner_symbol") or s.get("partner"),
                      s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]]))
+    L.append(more_line(b.get("string_count"), 40, "by confidence"))
     L.append("\n### IntAct {#intact}\n")
     L.append(f"{b.get('intact_count', 0)} interactions, top by confidence:\n")
     L.append(table(["A", "B", "Type", "Score"],
                    [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]]))
+    L.append(more_line(b.get("intact_count"), 40, "by confidence"))
     L.append(_labeled(f"BioGRID ({b.get('biogrid_count', 0)})",
                       (f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15])))
     L.append(_labeled("ESM2 similar proteins", (f"`{p}`" for p in b.get("esm2_similar", [])[:40])))
@@ -522,6 +529,7 @@ def r_interactions(b):
     L.append(f"{b.get('signor_count', 0)} interactions.\n")
     L.append(table(["A", "Effect", "B", "Mechanism"],
                    [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:30]]))
+    L.append(more_line(b.get("signor_count"), 30))
     L.extend(_interactome_enrichment(b))
     return "\n".join(L)
 
@@ -565,6 +573,7 @@ def r_tf_regulation(b):
         L.append(f"{b.get('downstream_count', 0)} targets.\n")
         L.append(table(["Target", "Regulation"],
                        [(t.get("target"), t.get("regulation")) for t in dt[:30]]))
+        L.append(more_line(b.get("downstream_count"), 30))
     # JASPAR motifs — only render when present (most non-TF genes have none,
     # which would otherwise leave an empty header-only table).
     motifs = b.get("jaspar_motifs") or []
@@ -621,6 +630,7 @@ def r_drugs(b):
                          m.get("phase"),
                          f"{m['patent_count']:,}" if m.get("patent_count") else "")
                         for m in mols[:30]]))
+        L.append(more_line(mc, 30, "by phase"))
     # CIViC clinical evidence — drug × variant × indication (the precision-
     # medicine triple). Predictive associations only, deduped + ranked by CIViC
     # evidence level (A validated → E inferential). The Effect column separates
@@ -635,7 +645,8 @@ def r_drugs(b):
         L.append("\n### Clinical evidence (CIViC) {#civic}\n")
         L.append(f"Drug × variant × indication: {b.get('civic_association_total', 0)} "
                  f"predictive associations from {b.get('civic_predictive_total', 0)} curated "
-                 f"evidence items" + (f"; also {extra}" if extra else "") + ".\n")
+                 f"evidence items" + (f"; also {extra}" if extra else "") + ". "
+                 + CIVIC_LEGEND + "\n")
         L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
                        [(r["profile"],
                          links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
@@ -645,10 +656,10 @@ def r_drugs(b):
                          f"EID{r['evidence_id']}"
                          + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
                         for r in ce]))
-        more = b.get("civic_association_total", 0) - len(ce)
-        if more > 0:
-            L.append(f"\n*+{more} more predictive associations (showing top "
-                     f"{len(ce)} by evidence level).*")
+        L.append(more_line(b.get("civic_association_total", 0), len(ce), "by evidence level"))
+        if any(r.get("n", 1) > 1 for r in ce):
+            L.append("\n*CIViC column: a representative evidence item (EID); "
+                     "+N = additional CIViC items supporting the same association.*")
 
     pg = b.get("pharmgkb", [])
     # Don't surface is_vip: it's broken upstream (always true — ACTB/GAPDH/TTN
@@ -658,8 +669,7 @@ def r_drugs(b):
              + (f" (CPIC guideline: {'yes' if pg[0].get('cpic_guideline') == 'true' else 'no'})"
                 if pg else ""))
 
-    def _variant_link(v):
-        return f"https://www.ncbi.nlm.nih.gov/snp/{v}" if v and v.startswith("rs") else None
+    _variant_link = links.variant_link
 
     # PharmGKB clinical annotations — variant × association × phenotype × drug,
     # ranked by PharmGKB evidence level (1 strongest → 4). Same dataset and
@@ -871,12 +881,13 @@ def r_drugs(b):
     L.append("\n### Clinical trials (associated diseases) {#gene-trials}\n")
     L.append(f"{b.get('disease_trial_count', 0)} trials via MONDO — disease-level, not "
              f"drug-specific.\n")
-    L.append(table(["Trial", "Phase", "Status", "Title"],
+    L.append(table(["NCT", "Phase", "Status", "Title"],
                    # phase_label (audit #8): biobtree emits 'NaN' for trials with
                    # no interventional phase; render it as 'Not specified', not
                    # a leaked 'nan'/'NAN'.
                    [(t["id"], phase_label(t.get("phase")), t.get("status"),
                      (t.get("title") or "").strip()) for t in ct[:40]]))
+    L.append(more_line(b.get("disease_trial_count"), 40))
     return "\n".join(L)
 
 
@@ -910,6 +921,7 @@ def r_expression(b):
                    [(t.get("tissue") or "", t.get("anatomy_id") or "",
                      t.get("score"), t.get("quality"))
                     for t in b.get("top_tissues", [])[:30]]))
+    L.append(more_line(b.get("tissue_count"), 30, "by expression score"))
     # Single-cell (SCXA) — per-gene marker status + max expression across
     # single-cell experiments (biobtree #31: via the scxa_expression node).
     sc = b.get("single_cell") or {}

@@ -2,8 +2,8 @@
 """Deterministic markdown renderer for drug-section bundles — NO model.
 Mirrors gene/render.py + disease/render.py: one r_* fn per section + a RENDER
 dict. Every fact comes verbatim from the bundle."""
-from atlas.render_common import table, fnum, is_ontology_id, display_name, phase_label
-from atlas.civic import therapy_label
+from atlas.render_common import table, fnum, is_ontology_id, display_name, phase_label, more_line
+from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
 
@@ -179,7 +179,7 @@ def r_bioactivity(b):
     L.append(table(["Protein", "UniProt", "Gene", "pChembl", "Type", "Value", "Activity ID"],
                    [(_protein(r),
                      links.maybe_link(r.get("uniprot") or "",
-                                      f"https://www.uniprot.org/uniprotkb/{r['uniprot']}" if r.get("uniprot") else None),
+                                      links.uniprot_url(r.get("uniprot"))),
                      links.maybe_link(r.get("target_symbol") or "",
                                       links.gene_url(symbol=r["target_symbol"]) if r.get("target_symbol") else None),
                      fnum(r.get("pchembl")), r.get("type"), _val(r), r.get("id")) for r in ca]))
@@ -204,11 +204,15 @@ def r_indications(b):
     # atlas.indication): phase 4, or an anticancer drug at phase 3 vs a cancer
     # (imatinib→CML). Heavily-trialed drugs (aspirin's phase-2/3 cancers) stay
     # investigational — they must NOT read as approved.
+    # Investigational tier floors at phase 2 to match the disease-side indication
+    # index (batch._build_indication_index drops phase ≤1 as exploratory noise —
+    # 90% fail). Keeping the same floor on both sides means a drug↔disease trial
+    # link shown here also appears on that disease's page, and vice-versa.
     approved, trials = [], []
     for i in named:
         if i.get("approved"):
             approved.append(i)
-        elif 1 <= (i.get("max_phase") or 0) <= 3:
+        elif 2 <= (i.get("max_phase") or 0) <= 3:
             trials.append(i)
 
     def _tbl(items, col0):
@@ -227,7 +231,7 @@ def r_indications(b):
     if trials:
         L += ["",
               f"**{_i(len(trials))} disease{'s' if len(trials) != 1 else ''} in clinical "
-              f"trials** (phase 1–3, investigational — *not* approved indications). Highest "
+              f"trials** (phase 2–3, investigational — *not* approved indications). Highest "
               "ChEMBL trial phase per disease; a non-cancer approved use is occasionally "
               "logged at phase 3 here.", "",
               _tbl(trials, "Disease (in trials)")]
@@ -369,22 +373,25 @@ def r_clinical_evidence(b):
         return "\n".join(L)
     etc = b.get("civic_evidence_type_counts") or {}
     extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
-    L.append(f"**Variant × indication × effect "
+    L.append(f"**Variant × therapy × indication "
              f"({_i(b.get('civic_association_total'))} predictive associations from "
              f"{_i(b.get('civic_predictive_total'))} curated evidence items"
-             + (f"; also {extra}" if extra else "") + "):**\n")
-    L.append(table(["Variant", "Indication", "Effect", "Therapy", "Level", "CIViC"],
+             + (f"; also {extra}" if extra else "") + "):** " + CIVIC_LEGEND + "\n")
+    # Same column order as the gene page (Variant | Therapy | Indication | Effect);
+    # the therapy is linked too (it's often a partner drug, not this one).
+    L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
                    [(r["profile"],
+                     links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
                      links.maybe_link(r["disease"], links.disease_url(name=r["disease"])),
                      r["significance"],
-                     therapy_label(r["therapy"]),
                      f"CIViC {r['level']}" if r.get("level") else "",
                      f"EID{r['evidence_id']}"
                      + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
                     for r in ce]))
-    more = (b.get("civic_association_total") or 0) - len(ce)
-    if more > 0:
-        L.append(f"\n*+{more} more predictive associations (showing top {len(ce)} by level).*")
+    L.append(more_line(b.get("civic_association_total", 0), len(ce), "by evidence level"))
+    if any(r.get("n", 1) > 1 for r in ce):
+        L.append("\n*CIViC column: a representative evidence item (EID); "
+                 "+N = additional CIViC items supporting the same association.*")
     return "\n".join(L)
 
 
