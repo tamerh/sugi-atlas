@@ -324,19 +324,32 @@ def r_pharmacogenomics(b):
                          links.link_csv(r.get("genes"), lambda s: links.gene_url(symbol=s)),
                          "yes" if r.get("has_dosing") else "",
                          "yes" if r.get("has_recommendation") else "") for r in g]))
-    # Coverage line — gene-keyed clinical/variant annotations live on the gene
-    # pages; surface the counts + a link to the PharmGKB chemical record. Only
-    # emit the "but PharmGKB curates…:" framing when counts actually follow
-    # (otherwise the colon dangles with nothing after it).
-    if pa and (ca or va):
+    # Per-variant CLINICAL annotations for this drug — surfaced directly now, not
+    # just counted: variant × gene × association type × phenotype × evidence level
+    # (resolved via the drug's PGx genes; see s09). The more granular variant-level
+    # annotations stay a count + PharmGKB link.
+    cl = b.get("clinical_annotations") or []
+
+    def _variant_link(v):
+        return f"https://www.ncbi.nlm.nih.gov/snp/{v}" if v and v.startswith("rs") else None
+
+    if cl:
+        L += ["", f"**Pharmacogenomic clinical annotations ({_i(len(cl))})** — variant × "
+              "gene × association × phenotype, ranked by PharmGKB evidence level "
+              "(1 strongest → 4):", "",
+              table(["Gene", "Variant", "Association", "Phenotype", "Level"],
+                    [(links.maybe_link(r.get("gene") or "",
+                                       links.gene_url(symbol=r["gene"]) if r.get("gene") else None),
+                      links.maybe_link(r.get("variant") or "", _variant_link(r.get("variant"))),
+                      r.get("type"), r.get("phenotypes"), r.get("level")) for r in cl])]
+        if va:
+            L.append(f"\n*Plus {_i(va)} more granular variant-level annotations for this "
+                     f"drug — see [PharmGKB](https://www.pharmgkb.org/chemical/{pa}).*")
+    elif pa and (ca or va):
         counts = (f"{_i(ca) or 0} clinical and {_i(va) or 0} variant annotation(s) "
-                  f"for this drug (gene-keyed; see "
-                  f"[PharmGKB](https://www.pharmgkb.org/chemical/{pa}))")
-        if g:
-            L.append(f"\nPharmGKB also curates {counts}.")
-        else:
-            L.append(f"*No CPIC/DPWG dosing guideline, but PharmGKB curates "
-                     f"{counts}.*")
+                  f"for this drug (see [PharmGKB](https://www.pharmgkb.org/chemical/{pa}))")
+        L.append(f"\nPharmGKB also curates {counts}." if g else
+                 f"*No CPIC/DPWG dosing guideline, but PharmGKB curates {counts}.*")
     elif not g and pa:
         L.append("*No CPIC/DPWG dosing guideline or drug-level clinical/variant "
                  "annotations in PharmGKB for this molecule.*")
