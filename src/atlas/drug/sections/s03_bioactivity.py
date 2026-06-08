@@ -54,12 +54,15 @@ def collect(a):
     rows = map_all(a.chembl_id, ">>chembl_molecule>>chembl_activity")
     potent = [r for r in rows if _pchembl(r) >= 5.0]
     potent.sort(key=_pchembl, reverse=True)
-    # Resolve + dedup the top 100 by potency: ChEMBL carries many activities for
-    # the same drug↔target↔value (different assays), which rendered as identical
-    # repeated rows. Collapse by (target, type, value, unit), keeping the first
-    # (most potent) seen.
+    # Fill to 100 DISTINCT rows by potency. ChEMBL carries many activities for the
+    # same drug↔target↔value (different assays) that rendered as identical repeats;
+    # we dedup by (target, type, value, unit) AND resolve past the top 100 to
+    # backfill what dedup drops — up to 100 distinct or a 200-row safety cap
+    # (heavy-dup drugs simply show fewer).
     acts, seen = [], set()
-    for r in potent[:100]:
+    for r in potent[:200]:
+        if len(acts) >= 100:
+            break
         symbol, label = _activity_target(r.get("id"))
         key = (label, r.get("standard_type"), r.get("standard_value"), r.get("standard_units"))
         if key in seen:
