@@ -316,14 +316,20 @@ def r_pharmacogenomics(b):
         L.append("*No PharmGKB pharmacogenomic data curated for this drug.*")
         return "\n".join(L)
     if g:
+        # Sort CPIC > DPWG > CPNDS > others, then by name — same ordering the gene
+        # page uses for its mirror of this table.
+        order = {"CPIC": 0, "DPWG": 1, "CPNDS": 2}
+        g = sorted(g, key=lambda r: (order.get(r.get("source"), 99), r.get("name") or ""))
         L.append(f"**PharmGKB dosing guidelines ({b.get('guideline_count')}) — CPIC / "
                  f"DPWG genotype-guided dosing for this drug (drug × pharmacogene):**\n")
-        L.append(table(["Guideline", "Source", "Gene(s)", "Dosing", "Recommendation"],
+        L.append(table(["Guideline", "Source", "Gene(s)", "Dosing?", "Recommendation?"],
                        [((r.get("name") or r.get("id") or "")[:70],
                          r.get("source"),
                          links.link_csv(r.get("genes"), lambda s: links.gene_url(symbol=s)),
                          "yes" if r.get("has_dosing") else "",
-                         "yes" if r.get("has_recommendation") else "") for r in g]))
+                         "yes" if r.get("has_recommendation") else "") for r in g[:30]]))
+        if len(g) > 30:
+            L.append(f"\n*+{len(g) - 30} more (showing top 30).*")
     # Per-variant CLINICAL annotations for this drug — surfaced directly now, not
     # just counted: variant × gene × association type × phenotype × evidence level
     # (resolved via the drug's PGx genes; see s09). We don't tease the deeper

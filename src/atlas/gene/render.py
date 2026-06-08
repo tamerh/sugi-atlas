@@ -708,15 +708,20 @@ def r_drugs(b):
         pgg_sorted = sorted(pgg, key=lambda g: (order.get(g.get("source"), 99),
                                                  g.get("chemical_names") or ""))
         L.append("\n### PharmGKB dosing guidelines {#pharmgkb-guidelines}\n")
-        L.append(f"{len(pgg)} guidelines.\n")
+        L.append(f"{len(pgg)} guidelines — CPIC / DPWG genotype-guided dosing for this "
+                 f"gene (drug × pharmacogene).\n")
+        # Same column structure as the drug page's mirror of this table; only the
+        # partner column differs (there it's Gene(s), here it's Drug).
         L.append(table(
-            ["Source", "Drug", "Guideline", "Dosing?", "Recommendation?"],
-            [(g.get("source"),
+            ["Guideline", "Source", "Drug", "Dosing?", "Recommendation?"],
+            [((g.get("name") or "")[:70],
+              g.get("source"),
               links.link_csv(g.get("chemical_names"), lambda s: links.drug_url(name=s)),
-              g.get("name"),
               "yes" if g.get("has_dosing_info") else "",
               "yes" if g.get("has_recommendation") else "")
              for g in pgg_sorted[:30]]))
+        if len(pgg) > 30:
+            L.append(f"\n*+{len(pgg) - 30} more (showing top 30).*")
     # GtoPdb / IUPHAR — hand-curated pharmacology (Tier 1: leads, plainly).
     gt = b.get("gtopdb_target")
     gi = b.get("gtopdb_interactions") or []
