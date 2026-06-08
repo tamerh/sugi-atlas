@@ -144,10 +144,12 @@ def r_targets(b):
                          _dep(t), t.get("uniprot") or "") for t in pt]))
     bc = b.get("bioactivity_target_count") or 0
     if bc:
-        names = ", ".join(t.get("name") or t.get("chembl_target_id")
-                          for t in (b.get("bioactivity_targets") or [])[:20])
-        L.append(f"\n**Broader ChEMBL bioactivity targets: {bc}** "
-                 f"(assay-derived). Sample: {names}.")
+        # Count only — the sample of names dumped unsorted, off-target screening
+        # hits (aspirin → estrogen receptor) with duplicates; the same targets
+        # appear, deduped + with potencies, in the ChEMBL bioactivities table.
+        L.append(f"\n**Broader ChEMBL bioactivity targets: {_i(bc)}** "
+                 "(assay-derived screening hits — not curated targets; per-target "
+                 "potencies are in the ChEMBL bioactivities table below).")
     if not pt and not bc:
         L.append("*No target linkage available.*")
     return "\n".join(L)
@@ -161,10 +163,12 @@ def r_bioactivity(b):
                  "(expected for biologics / antibodies).*")
         return "\n".join(L)
     L.append(f"**ChEMBL activities: {_i(b.get('potent_count'))} potent at "
-             f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top 100 by "
-             f"potency (10 = 0.1 nM, 6 = 1 µM):**\n")
+             f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top {_i(len(ca))} "
+             f"distinct by potency (10 = 0.1 nM, 6 = 1 µM):**\n")
     L.append(table(["Target", "pChembl", "Type", "Value", "Unit", "Activity ID"],
-                   [(r.get("target") or "", fnum(r.get("pchembl")), r.get("type"),
+                   [(links.maybe_link(r.get("target") or "",
+                                      links.gene_url(symbol=r["target_symbol"]) if r.get("target_symbol") else None),
+                     fnum(r.get("pchembl")), r.get("type"),
                      fnum(r.get("value")), r.get("unit"), r.get("id")) for r in ca]))
     return "\n".join(L)
 

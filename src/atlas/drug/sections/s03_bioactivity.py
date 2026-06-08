@@ -18,47 +18,67 @@ _TGT_CACHE = {}
 
 
 def _activity_target(act_id):
-    """Resolve a ChEMBL activity → its target gene symbol. The chembl_activity
-    map row omits the target, but the activity links to one UniProt — resolve
-    that to an HGNC symbol (so the potency table says WHAT each row is against,
-    instead of being target-agnostic). Cached; falls back to the accession."""
+    """Resolve a ChEMBL activity → (gene_symbol_or_None, display_label). The
+    activity row omits the target but links to one UniProt; resolve that to an
+    HGNC symbol when possible (so the symbol can link to its gene page), else
+    fall back to the UniProt protein NAME — never a bare accession, so every
+    potency row reads as a real target. Cached."""
     if not act_id:
-        return None
+        return (None, None)
     try:
         u = map_all(act_id, ">>chembl_activity>>uniprot")
         uni = u[0].get("id") if u else None
         if not uni:
-            return None
+            return (None, None)
         if uni in _TGT_CACHE:
             return _TGT_CACHE[uni]
-        sym = uni
+        symbol, label = None, uni
         h = map_all(uni, ">>uniprot>>hgnc")
         if h:
             he = entry(h[0]["id"], "hgnc")
             syms = ((he.get("Attributes") or {}).get("Hgnc") or {}).get("symbols") or []
-            sym = syms[0] if syms else uni
-        _TGT_CACHE[uni] = sym
-        return sym
+            if syms:
+                symbol = label = syms[0]
+        if symbol is None:                       # no gene symbol → protein name, not the bare accession
+            ue = entry(uni, "uniprot")
+            nm = ((ue.get("Attributes") or {}).get("Uniprot") or {}).get("name")
+            if nm:
+                label = nm
+        _TGT_CACHE[uni] = (symbol, label)
+        return (symbol, label)
     except Exception:
-        return None
+        return (None, None)
 
 
 def collect(a):
     rows = map_all(a.chembl_id, ">>chembl_molecule>>chembl_activity")
     potent = [r for r in rows if _pchembl(r) >= 5.0]
     potent.sort(key=_pchembl, reverse=True)
-    return {
-        "section": "03_bioactivity",
-        "activity_total": len(rows),
-        "potent_count": len(potent),
-        "activities": [{
+    # Resolve + dedup the top 100 by potency: ChEMBL carries many activities for
+    # the same drug↔target↔value (different assays), which rendered as identical
+    # repeated rows. Collapse by (target, type, value, unit), keeping the first
+    # (most potent) seen.
+    acts, seen = [], set()
+    for r in potent[:100]:
+        symbol, label = _activity_target(r.get("id"))
+        key = (label, r.get("standard_type"), r.get("standard_value"), r.get("standard_units"))
+        if key in seen:
+            continue
+        seen.add(key)
+        acts.append({
             "id": r.get("id"),
-            "target": _activity_target(r.get("id")),
+            "target": label,
+            "target_symbol": symbol,
             "type": r.get("standard_type"),
             "value": r.get("standard_value"),
             "unit": r.get("standard_units"),
             "pchembl": r.get("pchembl"),
-        } for r in potent[:100]],
+        })
+    return {
+        "section": "03_bioactivity",
+        "activity_total": len(rows),
+        "potent_count": len(potent),
+        "activities": acts,
     }
 
 

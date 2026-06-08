@@ -29,33 +29,6 @@ purely presentation. *(parked from the v1.1.4 session)*
 
 ---
 
-### P2 · Disease-family "Related subtypes" — bloat + relevance
-**Status:** open · **Priority:** P2
-
-The Disease-family section enumerates **all** sibling co-subtypes uncapped. For a disease
-under a broad Mondo parent ("hereditary disease" → 1,922 children) that's a single
-**~174 KB markdown line** of 1,922 links — both page-weight bloat and noise (broad-parent
-co-subtypes aren't meaningfully related to *this* disease).
-
-Decide: **drop siblings** (keep the classification path + this term's own children), or
-cap. If capping, align the number to an existing convention (the mesh caps inline
-cross-links at **12/row**) — not an arbitrary pick. Code: `s01_disease_ids` collects
-`siblings` = parent's children − self; `r_family` enumerates them all. *(parked from the
-v1.1.4 session)*
-
----
-
-### P3 · Drug "Broader ChEMBL bioactivity targets" sample ordering
-**Status:** open · **Priority:** P3
-
-The drug §Targets line *"Broader ChEMBL bioactivity targets: N — Sample: …"* shows the
-first N assay-hit names, surfacing off-target screening hits (aspirin → estrogen /
-thyrotropin receptor) ahead of on-mechanism targets (COX / prostaglandin). Labelled
-"assay-derived" + unlinked, so no false claim — cosmetic. Order the sample by assay count
-/ on-mechanism family, or drop the sample and keep just the count.
-
----
-
 ### P4 · Non-oncology approved indications logged at phase 3
 **Status:** open · **Priority:** P3
 
