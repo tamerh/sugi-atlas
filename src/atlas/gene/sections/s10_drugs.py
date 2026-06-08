@@ -204,7 +204,9 @@ def collect(a):
         mol["patent_compound_ids"] = pcids
     bundle["patent_total"] = sum(m.get("patent_count", 0) for m in bundle["molecules"][:20])
 
-    bundle["pharmgkb"] = [{"id": t["id"], "vip": t.get("is_vip"),
+    # is_vip is dropped on purpose: it's broken upstream (always true, even for
+    # ACTB/GAPDH/TTN), so it's noise. has_cpic_guideline is real — keep that.
+    bundle["pharmgkb"] = [{"id": t["id"],
                            "cpic_guideline": t.get("has_cpic_guideline")}
                           for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_gene")]
 

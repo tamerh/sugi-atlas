@@ -651,8 +651,12 @@ def r_drugs(b):
                      f"{len(ce)} by evidence level).*")
 
     pg = b.get("pharmgkb", [])
+    # Don't surface is_vip: it's broken upstream (always true — ACTB/GAPDH/TTN
+    # all report VIP=true alongside CYP2D6), so it carries no signal. CPIC is
+    # real and discriminates, so keep it.
     L.append(f"\n**PharmGKB:** {len(pg)} entr{'y' if len(pg)==1 else 'ies'}"
-             + (f" (VIP={pg[0].get('vip')}, CPIC={pg[0].get('cpic_guideline')})" if pg else ""))
+             + (f" (CPIC guideline: {'yes' if pg[0].get('cpic_guideline') == 'true' else 'no'})"
+                if pg else ""))
 
     # PharmGKB clinical annotations — variant + drug + phenotype tuples
     # with PharmGKB's evidence-level rating (1A strongest → 4 weakest).
