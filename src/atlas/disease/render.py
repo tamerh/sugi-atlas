@@ -244,14 +244,24 @@ def r_disease_family(b1, b5):
         crumb = " › ".join(_dl(t) for t in reversed(ancestors))
         cur = b1.get("canonical_name") or b1.get("name") or "this disease"
         out.append(f"**Classification path:** {crumb} › **{cur}**")
-    # Siblings (co-subtypes under the same parent) — lateral navigation.
+    # Siblings (co-subtypes under the same parent) + this term's own subtypes,
+    # capped at 300 shown (s01 stores the cap) + "(+N more)" — a broad umbrella
+    # parent ("hereditary disease") has ~1,900 co-subtypes that bloat the page
+    # (a 174 KB line). The header keeps the TRUE count.
+    sibling_count = b1.get("sibling_count") or len(siblings)
+    child_count = b1.get("child_count") or len(children)
     if siblings:
-        out.append(f"\n**Related subtypes ({len(siblings)}):** "
-                   + ", ".join(_dl(t) for t in siblings))
-    # Children (this term's own subtypes).
+        line = f"\n**Related subtypes ({_i(sibling_count)}):** " + ", ".join(_dl(t) for t in siblings)
+        if sibling_count > len(siblings):
+            ptxt = (links.maybe_link(parent.get("name"), parent_url)
+                    if (parent and parent_url) else "the parent term")
+            line += f", … (+{_i(sibling_count - len(siblings))} more under {ptxt})"
+        out.append(line)
     if children:
-        out.append(f"\n**Subtypes ({len(children)}):** "
-                   + ", ".join(_dl(t) for t in children))
+        line = f"\n**Subtypes ({_i(child_count)}):** " + ", ".join(_dl(t) for t in children)
+        if child_count > len(children):
+            line += f", … (+{_i(child_count - len(children))} more)"
+        out.append(line)
     return "\n".join(out)
 
 

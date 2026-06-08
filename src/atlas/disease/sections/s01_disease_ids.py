@@ -8,6 +8,12 @@ import re
 from atlas.section import Section
 from atlas.biobtree import map_all
 
+# Cap stored ontology-family lists (children/siblings). A disease under a broad
+# Mondo parent ("hereditary disease") has ~1,900 co-subtypes; storing/rendering
+# all of them bloats the page (a 174 KB line). 300 keeps the list useful while
+# trimming the extreme tail — true counts are kept separately.
+_FAMILY_CAP = 300
+
 # biobtree/Orphanet returns the HPO frequency band with the percentages in
 # descending order — "Very frequent (99-80%)". Normalize to the conventional
 # low→high reading ("80-99%"). Generic (any "N-M%" → ascending), so it also
@@ -77,7 +83,8 @@ def collect(a):
             except Exception:
                 pass
     parent = ancestors[0] if ancestors else None
-    child_count = len(children)
+    child_count, sibling_count = len(children), len(siblings)
+    children, siblings = children[:_FAMILY_CAP], siblings[:_FAMILY_CAP]
 
     bundle = {
         "section": "01_disease_ids",
@@ -106,6 +113,7 @@ def collect(a):
         "phenotype_count": oa.get("phenotype_count") or len(phenotypes),
         "is_cancer": a.is_cancer,
         "child_count": child_count,
+        "sibling_count": sibling_count,
         "parent": parent,
         "ancestors": ancestors,
         "children": children,
