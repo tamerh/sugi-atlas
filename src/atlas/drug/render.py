@@ -326,8 +326,9 @@ def r_pharmacogenomics(b):
                          "yes" if r.get("has_recommendation") else "") for r in g]))
     # Per-variant CLINICAL annotations for this drug — surfaced directly now, not
     # just counted: variant × gene × association type × phenotype × evidence level
-    # (resolved via the drug's PGx genes; see s09). The more granular variant-level
-    # annotations stay a count + PharmGKB link.
+    # (resolved via the drug's PGx genes; see s09). We don't tease the deeper
+    # per-publication variant-annotation count: those records aren't accessible in
+    # biobtree yet, and our aim is to aggregate data, not point users elsewhere.
     cl = b.get("clinical_annotations") or []
 
     def _variant_link(v):
@@ -342,9 +343,6 @@ def r_pharmacogenomics(b):
                                        links.gene_url(symbol=r["gene"]) if r.get("gene") else None),
                       links.maybe_link(r.get("variant") or "", _variant_link(r.get("variant"))),
                       r.get("type"), r.get("phenotypes"), r.get("level")) for r in cl])]
-        if va:
-            L.append(f"\n*Plus {_i(va)} more granular variant-level annotations for this "
-                     f"drug — see [PharmGKB](https://www.pharmgkb.org/chemical/{pa}).*")
     elif pa and (ca or va):
         counts = (f"{_i(ca) or 0} clinical and {_i(va) or 0} variant annotation(s) "
                   f"for this drug (see [PharmGKB](https://www.pharmgkb.org/chemical/{pa}))")
