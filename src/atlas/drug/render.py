@@ -6,6 +6,11 @@ from atlas.render_common import table, fnum, is_ontology_id, display_name, phase
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
+# Display cap for curated, naturally bounded tables (see the gene renderer's note).
+# The bioactivity table is collector-capped at the same 100; CIViC / indications /
+# clinical annotations render in full (already collector-bounded).
+ROW_CAP = 100
+
 
 def _i(n):
     return f"{n:,}" if isinstance(n, int) else (n if n is not None else "")
@@ -331,9 +336,8 @@ def r_pharmacogenomics(b):
                          r.get("source"),
                          links.link_csv(r.get("genes"), lambda s: links.gene_url(symbol=s)),
                          "yes" if r.get("has_dosing") else "",
-                         "yes" if r.get("has_recommendation") else "") for r in g[:30]]))
-        if len(g) > 30:
-            L.append(f"\n*+{len(g) - 30} more (showing top 30).*")
+                         "yes" if r.get("has_recommendation") else "") for r in g[:ROW_CAP]]))
+        L.append(more_line(len(g), ROW_CAP))
     # Per-variant CLINICAL annotations for this drug — surfaced directly now, not
     # just counted: variant × gene × association type × phenotype × evidence level
     # (resolved via the drug's PGx genes; see s09). We don't tease the deeper

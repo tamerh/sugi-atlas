@@ -15,6 +15,13 @@ from atlas.render_common import table, phase_label, fnum, more_line
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
+# Display cap for "curated, naturally bounded" tables (cohort/pathway/GenCC/etc.):
+# most pages show everything; the cap only bites rare outliers, and the "+N more"
+# line discloses when it does. NOT used for score-ranked firehose tables (STRING,
+# IntAct, GWAS, SpliceAI, AlphaMissense, CollecTRI targets, miRNA, tissues) — those
+# keep their own literal caps pending a confidence/significance-threshold redesign.
+ROW_CAP = 100
+
 
 def _cap(n):
     return ""  # pagination works (p= param) — counts are real, not capped at 100
@@ -441,8 +448,8 @@ def r_orthologs(b):
     para = b.get("paralogs", [])
     if para:
         L.append(f"\n**Paralogs ({b.get('paralog_count', 0)}):** "
-                 + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:40]))
-        L.append(more_line(b.get("paralog_count"), 40))
+                 + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:ROW_CAP]))
+        L.append(more_line(b.get("paralog_count"), ROW_CAP))
     return "\n".join(L)
 
 
@@ -479,16 +486,16 @@ def r_pathways(b):
     L = ["## Pathways and Gene Ontology", "",
          "### Reactome pathways {#reactome}", "",
          f"{b.get('reactome_count', 0)} pathways\n"]
-    L.append(table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:30]]))
-    L.append(more_line(b.get("reactome_count"), 30))
+    L.append(table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:ROW_CAP]]))
+    L.append(more_line(b.get("reactome_count"), ROW_CAP))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
     L.append(", ".join(f"`{m['name']}`" for m in b.get("msigdb", [])[:15]))
     go = b.get("go", {})
     for cat in ("biological_process", "molecular_function", "cellular_component"):
         terms = go.get(cat, [])
         L.append(f"\n**GO {cat.replace('_', ' ').title()} ({len(terms)}):**")
-        L.append(", ".join(f"{t['name']} ({t['id']})" for t in terms[:40]))
-        L.append(more_line(len(terms), 40))
+        L.append(", ".join(f"{t['name']} ({t['id']})" for t in terms[:ROW_CAP]))
+        L.append(more_line(len(terms), ROW_CAP))
 
     # Top-level parent rollups — give the page a hierarchical-navigation view.
     # Reactome's hierarchy is tight (1-2 parents per pathway); GO's is broader.
@@ -497,15 +504,15 @@ def r_pathways(b):
         L.append("\n### Reactome top-level categories {#reactome-categories}\n")
         L.append(f"Rollup of top-{len(rp)} pathways:\n")
         L.append(table(["Category", "Pathways"],
-                       [(p.get("name") or p["id"], p.get("pathway_count")) for p in rp[:15]]))
-        L.append(more_line(len(rp), 15))
+                       [(p.get("name") or p["id"], p.get("pathway_count")) for p in rp[:ROW_CAP]]))
+        L.append(more_line(len(rp), ROW_CAP))
     gp = b.get("go_parent_rollup") or []
     if gp:
         L.append("\n### GO top-level categories {#go-categories}\n")
         L.append("Rollup of top GO terms by namespace:\n")
         L.append(table(["Category", "Terms"],
-                       [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:40]]))
-        L.append(more_line(len(gp), 40))
+                       [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:ROW_CAP]]))
+        L.append(more_line(len(gp), ROW_CAP))
     return "\n".join(L)
 
 
@@ -532,8 +539,8 @@ def r_interactions(b):
     L.append("\n### SIGNOR signaling {#signor}\n")
     L.append(f"{b.get('signor_count', 0)} interactions.\n")
     L.append(table(["A", "Effect", "B", "Mechanism"],
-                   [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:30]]))
-    L.append(more_line(b.get("signor_count"), 30))
+                   [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:ROW_CAP]]))
+    L.append(more_line(b.get("signor_count"), ROW_CAP))
     L.extend(_interactome_enrichment(b))
     return "\n".join(L)
 
@@ -633,8 +640,8 @@ def r_drugs(b):
                          links.maybe_link(m.get("name"), links.drug_url(chembl_id=m["id"], name=m.get("name"))),
                          m.get("phase"),
                          f"{m['patent_count']:,}" if m.get("patent_count") else "")
-                        for m in mols[:30]]))
-        L.append(more_line(mc, 30, "by phase"))
+                        for m in mols[:ROW_CAP]]))
+        L.append(more_line(mc, ROW_CAP, "by phase"))
     # CIViC clinical evidence — drug × variant × indication (the precision-
     # medicine triple). Predictive associations only, deduped + ranked by CIViC
     # evidence level (A validated → E inferential). The Effect column separates
@@ -691,9 +698,8 @@ def r_drugs(b):
               c.get("type"), c.get("level_of_evidence"),
               links.link_csv(c.get("chemicals"), lambda s: links.drug_url(name=s)),
               c.get("phenotypes"))
-             for c in pgc[:40]]))
-        if len(pgc) > 40:
-            L.append(f"\n*+{len(pgc) - 40} more (showing top 40 by evidence level).*")
+             for c in pgc[:ROW_CAP]]))
+        L.append(more_line(len(pgc), ROW_CAP, "by evidence level"))
 
     # PharmGKB variant pages — variant-level aggregations with PharmGKB's
     # composite score + count of clinical annotations.
@@ -708,9 +714,8 @@ def r_drugs(b):
               v.get("level_of_evidence"),
               v.get("score"), v.get("clinical_annotation_count"),
               links.link_csv(v.get("associated_drugs"), lambda s: links.drug_url(name=s)))
-             for v in pgv[:40]]))
-        if len(pgv) > 40:
-            L.append(f"\n*+{len(pgv) - 40} more (showing top 40).*")
+             for v in pgv[:ROW_CAP]]))
+        L.append(more_line(len(pgv), ROW_CAP))
 
     # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
     # gene+drug pair. Canonical pharmacogenes have tens of guidelines
@@ -733,9 +738,8 @@ def r_drugs(b):
               links.link_csv(g.get("chemical_names"), lambda s: links.drug_url(name=s)),
               "yes" if g.get("has_dosing_info") else "",
               "yes" if g.get("has_recommendation") else "")
-             for g in pgg_sorted[:30]]))
-        if len(pgg) > 30:
-            L.append(f"\n*+{len(pgg) - 30} more (showing top 30).*")
+             for g in pgg_sorted[:ROW_CAP]]))
+        L.append(more_line(len(pgg), ROW_CAP))
     # GtoPdb / IUPHAR — hand-curated pharmacology (Tier 1: leads, plainly).
     gt = b.get("gtopdb_target")
     gi = b.get("gtopdb_interactions") or []
@@ -890,8 +894,8 @@ def r_drugs(b):
                    # no interventional phase; render it as 'Not specified', not
                    # a leaked 'nan'/'NAN'.
                    [(t["id"], phase_label(t.get("phase")), t.get("status"),
-                     (t.get("title") or "").strip()) for t in ct[:40]]))
-    L.append(more_line(b.get("disease_trial_count"), 40))
+                     (t.get("title") or "").strip()) for t in ct[:ROW_CAP]]))
+    L.append(more_line(b.get("disease_trial_count"), ROW_CAP))
     return "\n".join(L)
 
 
@@ -1010,8 +1014,8 @@ def r_diseases(b):
                    [(links.maybe_link(g.get("disease"), links.disease_url(name=g.get("disease"))),
                      g.get("classification"), g.get("inheritance"),
                      str(_gc_n.get(g.get("disease") or "", 0)) if _gc_n.get(g.get("disease") or "", 0) > 1 else "")
-                    for g in _gc_rows[:40]]))
-    L.append(more_line(len(_gc_rows), 40))
+                    for g in _gc_rows[:ROW_CAP]]))
+    L.append(more_line(len(_gc_rows), ROW_CAP))
 
     # ClinGen Gene-Disease Validity — expert-panel curated relationship strength.
     # Distinct from GenCC: ClinGen is the canonical authority for gene-disease
@@ -1024,23 +1028,23 @@ def r_diseases(b):
         L.append(table(["Disease", "Classification", "Inheritance"],
                        [(links.maybe_link(c.get("disease"), links.disease_url(name=c.get("disease"))),
                          c.get("classification"), c.get("moi"))
-                        for c in cgv[:40]]))
-        L.append(more_line(len(cgv), 40))
+                        for c in cgv[:ROW_CAP]]))
+        L.append(more_line(len(cgv), ROW_CAP))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
              + ", ".join(f"{links.maybe_link(m.get('name'), links.disease_url(mondo_id=m['id'], name=m.get('name')))} ({m['id']})"
-                         for m in b.get("mondo", [])[:15]))
-    L.append(more_line(len(b.get("mondo", [])), 15))
+                         for m in b.get("mondo", [])[:ROW_CAP]))
+    L.append(more_line(len(b.get("mondo", [])), ROW_CAP))
     L.append(f"\n**Orphanet ({len(b.get('orphanet', []))}):** "
-             + ", ".join(f"{o.get('name') or ''} ({o['id']})" for o in b.get("orphanet", [])[:15]))
-    L.append(more_line(len(b.get("orphanet", [])), 15))
+             + ", ".join(f"{o.get('name') or ''} ({o['id']})" for o in b.get("orphanet", [])[:ROW_CAP]))
+    L.append(more_line(len(b.get("orphanet", [])), ROW_CAP))
     # No relevance/frequency ordering on the gene→HPO route, so don't claim
     # "(top)" — these are the first 30 by HPO id. (Frequency-ranked clinical
     # features live on the disease pages.)
     _hpo = b.get("hpo", [])
     L.append("\n### HPO phenotypes {#hpo}\n")
-    L.append(f"{b.get('hpo_total', 0)} total ({min(30, len(_hpo))} of "
+    L.append(f"{b.get('hpo_total', 0)} total ({min(ROW_CAP, len(_hpo))} of "
              f"{b.get('hpo_total', 0)} shown, HPO-id order):\n")
-    L.append(table(["HPO", "Term"], [(h["id"], h.get("name")) for h in _hpo[:30]]))
+    L.append(table(["HPO", "Term"], [(h["id"], h.get("name")) for h in _hpo[:ROW_CAP]]))
     L.append("\n### GWAS associations {#gwas-assoc}\n")
     L.append(f"{b.get('gwas_total', 0)} associations (top):\n")
     L.append(table(["Study", "Trait", "p-value"],
@@ -1055,8 +1059,8 @@ def r_diseases(b):
     if efo:
         L.append(f"\n### EFO canonical traits ({len(efo)}, from GWAS) {{#efo}}\n")
         L.append(table(["EFO ID", "Trait name"],
-                       [(e["id"], e.get("name")) for e in efo[:30]]))
-        L.append(more_line(len(efo), 30))
+                       [(e["id"], e.get("name")) for e in efo[:ROW_CAP]]))
+        L.append(more_line(len(efo), ROW_CAP))
 
     # MeSH disease descriptors — NLM's controlled disease vocabulary.
     # Tree numbers (e.g. C04.700.600) classify into MeSH categories
@@ -1071,8 +1075,8 @@ def r_diseases(b):
                        [(m["id"],
                          m["name"] + (" *(supp.)*" if m.get("is_supplementary") else ""),
                          "; ".join(m.get("tree_numbers") or []))
-                        for m in mesh[:30]]))
-        L.append(more_line(len(mesh), 30))
+                        for m in mesh[:ROW_CAP]]))
+        L.append(more_line(len(mesh), ROW_CAP))
     return "\n".join(L)
 
 
