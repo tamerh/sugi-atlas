@@ -11,21 +11,23 @@ Close = delete the entry; keep the file to what's still open.
 
 ## Content & rendering
 
-### P1 · Thin disease pages — condense the data-less ~25%
-**Status:** open · **Priority:** P2
+### P1 · Thin disease pages — enrich first, then decide on the remainder
+**Status:** partly addressed · **Priority:** P2
 
-~4,601 disease pages (25%) have identifiers + ontology placement but **no molecular
-evidence** — no associated gene, variant, trial, or drug exists for them in the
-integrated sources (verified: `MONDO:0009056` "cutis verticis gyrata and intellectual
-disability" has 5 xrefs, none to a gene). They render all six H2 zones, each with a
-"No X" placeholder, so they read as broken/empty.
+~4,601 disease pages (25%) looked empty — all six H2 zones as "No X" placeholders.
+But "empty" was partly **us not surfacing data we had**: clinical features were
+pulled from Orphanet only, missing OMIM→HPO (and Mondo→HPO) annotations. Fixed in
+`74ad9e8` (v1.1.6) — `MONDO:0009056` went 0→2 HPO features; corpus-wide lift TBD.
 
-Decide presentation: keep the honest all-zones layout, or **condense** the empty
-molecular zones into one cross-reference-stub line (identifiers + synonyms +
-OMIM/Orphanet links + "no curated molecular evidence in integrated sources"). Leaning
-condense — make it read as a deliberate stub, not a broken page. The page is genuinely
-useful as a cross-reference hub; only the empty-zone clutter is the problem. Not a bug —
-purely presentation. *(parked from the v1.1.4 session)*
+**Before any condensing, re-check the same way for other under-surfaced data:**
+- **OMIM→gene** — does the cohort miss Mendelian genes that hang off the OMIM entry
+  rather than GenCC/ClinVar? (cutis's OMIM had no gene, but others may.)
+- Re-measure after the v1.1.6 regen: how many pages are *still* genuinely empty
+  (no HPO, no gene, no anything)?
+
+Only for that genuinely-data-less remainder, decide presentation: keep the honest
+all-zones layout, or **condense** into a cross-reference stub. Not a bug — the
+lesson (from the v1.1.5/6 session) is to surface what we have *before* hiding zones.
 
 ---
 
