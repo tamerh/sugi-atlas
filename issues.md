@@ -68,6 +68,29 @@ secondary xref. Worth one systematic pass rather than ad-hoc discovery.
 
 ---
 
+### P3 · Score-ranked "firehose" tables need a threshold, not a row cap
+**Status:** open · **Priority:** P3
+
+The curated tables now cap at `ROW_CAP = 100` (gene/disease/drug render). But a
+family of tables is score/significance-ranked with totals in the thousands, where
+*any* row cap is arbitrary (row 400 by raw rank is meaningless): **STRING** (EGFR:
+11,600), **IntAct**, gene/disease **GWAS associations**, disease **tiered variants**,
+**CollecTRI** targets (master regulators), **ESM2/Diamond** homologs, **SpliceAI**,
+**AlphaMissense**, cohort/expression **tissues**. These keep their literal caps for
+now (40/30) with honest `*+N more*` disclosure.
+
+The real fix is a **meaningful threshold**, then a generous bounded cap:
+- STRING → combined score ≥ 700 (high confidence; ≥900 highest)
+- IntAct → MI confidence threshold
+- SpliceAI → Δscore ≥ 0.5 · AlphaMissense → ≥ 0.564 (likely-pathogenic)
+- GWAS → p ≤ 5e-8 (genome-wide significance)
+
+Mostly a render-side filter (score is in the bundle) + a band-count line
+("412 interactions: N≥900, M≥700…"). STRING is the flagship to design first.
+Not urgent — flagged during the v1.1.8 consistency pass.
+
+---
+
 ## To consolidate (currently in the web tracker)
 
 The web repo's `issues.md` still has a "sugi-atlas (generator / pipeline)" section —
