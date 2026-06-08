@@ -43,6 +43,31 @@ per-disease approval signal beyond oncology. Honest as-is — an enhancement, no
 
 ---
 
+### P5 · OMIM→gene as a cohort source (+ a broader "what are we under-surfacing?" audit)
+**Status:** open · **Priority:** P3 · **feasibility checked**
+
+Came out of the v1.1.6 session: the HPO win (clinical features were hiding in OMIM, not
+just Orphanet) suggests we may under-surface **genes** too. The disease gene cohort is
+built from GenCC + ClinVar + GWAS + CIViC — **not** OMIM's phenotype→gene link.
+
+**Feasibility (measured):** `>>mim>>uniprot>>hgnc` resolves (CF 219700 → CFTR). But the
+coverage gain is small: of 40 sampled thin (gene_count 0) diseases with an OMIM id, only
+**3 (~7.5%)** gain a gene → ~**96 of 1,284** corpus-wide. Most thin diseases are
+*genuinely geneless* old OMIM clinical syndromes (cutis-style), so OMIM correctly adds
+nothing there. Real but long-tail.
+
+**Why it's parked, not dropped:** even a small addition is worth it (those ~96 pages go
+0→1 gene → full molecular sections unlock), but the cohort is the page's **core** — a new
+source must integrate with the evidence ranking (OMIM gene = curated, rank near GenCC),
+apply to non-thin diseases too (does it add genes they miss?), and be well-tested. Deserves
+a comprehensive design pass, not a rushed add.
+
+**Broader framing:** do a deliberate audit of *all* under-surfaced data — the pattern
+(HPO via OMIM, genes via OMIM) suggests other sources may be sitting unused behind a
+secondary xref. Worth one systematic pass rather than ad-hoc discovery.
+
+---
+
 ## To consolidate (currently in the web tracker)
 
 The web repo's `issues.md` still has a "sugi-atlas (generator / pipeline)" section —
