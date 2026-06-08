@@ -18,36 +18,36 @@ _TGT_CACHE = {}
 
 
 def _activity_target(act_id):
-    """Resolve a ChEMBL activity → (gene_symbol_or_None, display_label). The
-    activity row omits the target but links to one UniProt; resolve that to an
-    HGNC symbol when possible (so the symbol can link to its gene page), else
-    fall back to the UniProt protein NAME — never a bare accession, so every
-    potency row reads as a real target. Cached."""
+    """Resolve a ChEMBL activity → (gene_symbol, protein_name, uniprot_acc), any
+    of which may be None. The activity links to one UniProt — that's the assayed
+    PROTEIN (accession + name); the gene symbol (when it maps) is the encoding
+    gene, used to link the Atlas gene page. Protein and gene are kept as distinct
+    fields rather than conflated into one cell. Cached per UniProt."""
     if not act_id:
-        return (None, None)
+        return (None, None, None)
     try:
         u = map_all(act_id, ">>chembl_activity>>uniprot")
         uni = u[0].get("id") if u else None
         if not uni:
-            return (None, None)
+            return (None, None, None)
         if uni in _TGT_CACHE:
             return _TGT_CACHE[uni]
-        symbol, label = None, uni
+        # the assayed protein's name, from the UniProt entry
+        ue = entry(uni, "uniprot")
+        pname = ((ue.get("Attributes") or {}).get("Uniprot") or {}).get("name") or None
+        # the encoding gene's HGNC symbol (for the Atlas gene link), when it maps
+        symbol = None
         h = map_all(uni, ">>uniprot>>hgnc")
         if h:
             he = entry(h[0]["id"], "hgnc")
             syms = ((he.get("Attributes") or {}).get("Hgnc") or {}).get("symbols") or []
             if syms:
-                symbol = label = syms[0]
-        if symbol is None:                       # no gene symbol → protein name, not the bare accession
-            ue = entry(uni, "uniprot")
-            nm = ((ue.get("Attributes") or {}).get("Uniprot") or {}).get("name")
-            if nm:
-                label = nm
-        _TGT_CACHE[uni] = (symbol, label)
-        return (symbol, label)
+                symbol = syms[0]
+        result = (symbol, pname, uni)
+        _TGT_CACHE[uni] = result
+        return result
     except Exception:
-        return (None, None)
+        return (None, None, None)
 
 
 def collect(a):
@@ -55,23 +55,24 @@ def collect(a):
     potent = [r for r in rows if _pchembl(r) >= 5.0]
     potent.sort(key=_pchembl, reverse=True)
     # Fill to 100 DISTINCT rows by potency. ChEMBL carries many activities for the
-    # same drug↔target↔value (different assays) that rendered as identical repeats;
-    # we dedup by (target, type, value, unit) AND resolve past the top 100 to
-    # backfill what dedup drops — up to 100 distinct or a 200-row safety cap
-    # (heavy-dup drugs simply show fewer).
+    # same drug↔protein↔value (different assays) that rendered as identical repeats;
+    # dedup by (uniprot, type, value, unit) AND resolve past the top 100 to backfill
+    # what dedup drops — up to 100 distinct or a 200-row safety cap (heavy-dup drugs
+    # simply show fewer).
     acts, seen = [], set()
     for r in potent[:200]:
         if len(acts) >= 100:
             break
-        symbol, label = _activity_target(r.get("id"))
-        key = (label, r.get("standard_type"), r.get("standard_value"), r.get("standard_units"))
+        symbol, pname, uni = _activity_target(r.get("id"))
+        key = (uni, r.get("standard_type"), r.get("standard_value"), r.get("standard_units"))
         if key in seen:
             continue
         seen.add(key)
         acts.append({
             "id": r.get("id"),
-            "target": label,
             "target_symbol": symbol,
+            "protein_name": pname,
+            "uniprot": uni,
             "type": r.get("standard_type"),
             "value": r.get("standard_value"),
             "unit": r.get("standard_units"),

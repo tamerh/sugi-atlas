@@ -165,11 +165,19 @@ def r_bioactivity(b):
     L.append(f"**ChEMBL activities: {_i(b.get('potent_count'))} potent at "
              f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top {_i(len(ca))} "
              f"distinct by potency (10 = 0.1 nM, 6 = 1 µM):**\n")
-    L.append(table(["Target", "pChembl", "Type", "Value", "Unit", "Activity ID"],
-                   [(links.maybe_link(r.get("target") or "",
+    # Three target columns — the assayed PROTEIN (name + UniProt, linked) and its
+    # encoding GENE (symbol, linked to the Atlas page) kept distinct, not conflated.
+    # value+unit merged. Activity ID retained as machine-readable provenance (it
+    # resolves at the ChEMBL API to the assay + source paper).
+    def _val(r):
+        return f"{fnum(r.get('value'))} {r.get('unit') or ''}".strip()
+    L.append(table(["Protein", "UniProt", "Gene", "pChembl", "Type", "Value", "Activity ID"],
+                   [(r.get("protein_name") or "",
+                     links.maybe_link(r.get("uniprot") or "",
+                                      f"https://www.uniprot.org/uniprotkb/{r['uniprot']}" if r.get("uniprot") else None),
+                     links.maybe_link(r.get("target_symbol") or "",
                                       links.gene_url(symbol=r["target_symbol"]) if r.get("target_symbol") else None),
-                     fnum(r.get("pchembl")), r.get("type"),
-                     fnum(r.get("value")), r.get("unit"), r.get("id")) for r in ca]))
+                     fnum(r.get("pchembl")), r.get("type"), _val(r), r.get("id")) for r in ca]))
     return "\n".join(L)
 
 
