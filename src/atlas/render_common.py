@@ -129,6 +129,22 @@ def _cell(c):
     return s.replace("|", "\\|")
 
 
+def more_line(total, shown, by=None):
+    """The standard truncation-disclosure line for a capped table: when `total`
+    exceeds `shown`, return a `*+N more (showing top X…)*` italic note, else "".
+    Every capped table uses this so the corpus never prints a full count above a
+    table that silently stops short. `by` optionally names the sort key
+    ("by evidence level", "by phase") for the parenthetical."""
+    try:
+        total, shown = int(total), int(shown)
+    except (TypeError, ValueError):
+        return ""
+    if total <= shown:
+        return ""
+    tail = f" {by}" if by else ""
+    return f"\n*+{total - shown} more (showing top {shown}{tail}).*"
+
+
 def table(headers, rows):
     """GitHub-flavored markdown table. Empty cells blank; literal pipes in
     values escaped (no column shift); identical data rows collapsed (source

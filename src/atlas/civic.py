@@ -23,6 +23,12 @@ LEVEL_RANK = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4}
 SIG_RANK = {"Sensitivity/Response": 0, "Reduced Sensitivity": 1,
             "Resistance": 2, "Adverse Response": 3}
 
+# One-line legend for the A→E scale, shown under every CIViC table on every page
+# type (mirrors the PharmGKB "1 strongest → 4" legend) so the level column the
+# rows are sorted by is actually explained to the reader.
+LEGEND = ("CIViC evidence level: A (validated) → B (clinical) → C (case study) "
+          "→ D (preclinical) → E (inferential).")
+
 
 def clean_profile(p):
     """biobtree prefixes some fusion/expression molecular profiles with

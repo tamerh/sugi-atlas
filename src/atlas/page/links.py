@@ -232,6 +232,23 @@ def drug_url(chembl_id=None, name=None):
     return _url("drug", _lookup("drug", chembl_id, name))
 
 
+def uniprot_url(acc):
+    """UniProtKB entry URL for an accession, else None. Shared so UniProt
+    accessions link consistently across page types (the drug bioactivity table
+    linked them; gene/disease cohort tables showed them as plain text)."""
+    acc = (acc or "").strip()
+    return f"https://www.uniprot.org/uniprotkb/{acc}/entry" if acc else None
+
+
+def variant_link(v):
+    """dbSNP URL for an rs-prefixed variant id, else None. Shared by every page
+    type that renders variants (gene/drug PGx tables, disease GWAS/variant
+    tables) so rsIDs link consistently. Non-rs identifiers (star-alleles,
+    HGVS, ClinVar names) stay plain text."""
+    v = (v or "").strip()
+    return f"https://www.ncbi.nlm.nih.gov/snp/{v}" if v.startswith("rs") else None
+
+
 def maybe_link(text, url):
     """Markdown link to an internal Atlas page when `url` is set, else plain
     text. `text` is shown verbatim (already the display name/id)."""
