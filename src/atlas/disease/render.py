@@ -198,10 +198,11 @@ def r_symptoms(b):
     return "\n".join(
         ["## Signs & symptoms", "",
          "### Clinical features (HPO) {#hpo-features}", "",
-         f"{total} HPO clinical features (Orphanet curated; top "
-         f"{min(50, len(phs))} by frequency):", "",
+         f"{total} HPO clinical feature{'s' if total != 1 else ''} (curated from "
+         f"Orphanet + OMIM/Mondo; top {min(50, len(phs))} shown, Orphanet "
+         "frequencies first):", "",
          table(["HPO ID", "Term", "Frequency"],
-               [(p.get("hpo_id"), p.get("hpo_term"), p.get("frequency"))
+               [(p.get("hpo_id"), p.get("hpo_term"), p.get("frequency") or "—")
                 for p in phs[:50]])])
 
 

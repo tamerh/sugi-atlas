@@ -32,19 +32,45 @@ CHAINS   = (">>mondo>>efo", ">>mondo>>mesh", ">>mondo>>mim", ">>mondo>>orphanet"
             ">>mondo>>doid", ">>mondo>>sctid", ">>mondo>>umls", ">>mondo>>ncit",
             ">>mondo>>medgen", ">>mondo>>icd10cm", ">>mondo>>icd11",
             ">>mondo>>gard", ">>mondo>>meddra", ">>mondo>>nord",
-            ">>mondo>>uberon", ">>mondo>>mondochild")
+            ">>mondo>>uberon", ">>mondo>>mondochild",
+            ">>mim>>hpo", ">>mondo>>hpo")
 DATASETS = ("mondo", "efo", "mesh", "mim", "orphanet",
             "doid", "sctid", "umls", "ncit", "medgen",
-            "icd10cm", "icd11", "gard", "meddra", "nord", "uberon", "mondochild")
+            "icd10cm", "icd11", "gard", "meddra", "nord", "uberon", "mondochild", "hpo")
 
 def collect(a):
-    # HPO phenotypes from primary Orphanet entry — frequency-sorted desc so
-    # render can slice the most clinically-relevant features first.
+    # HPO clinical features. Orphanet's curated list (with frequency bands) is the
+    # primary source, but many diseases — especially Mendelian/rare ones with an
+    # OMIM entry but no Orphanet phenotype list — carry HPO annotations only via
+    # OMIM (and sometimes Mondo). Pull those too and merge (deduped by HPO id), so
+    # the Clinical-features section isn't falsely empty: e.g. MONDO:0009056 ("cutis
+    # verticis gyrata and intellectual disability") has no Orphanet phenotypes but
+    # 2 HPO features via OMIM 219300 (intellectual disability, cutis gyrata).
     oa = a.orphanet_attrs or {}
     # New dicts (don't mutate the shared anchor) with the frequency band in
     # ascending percentage order.
     phenotypes = [{**p, "frequency": _ascending_freq(p.get("frequency"))}
                   for p in (oa.get("phenotypes") or [])]
+    seen_hpo = {p.get("hpo_id") for p in phenotypes if p.get("hpo_id")}
+
+    def _add_hpo(term_id, chain):
+        # OMIM/Mondo HPO carry id + name + definition but no frequency.
+        try:
+            for r in map_all(term_id, chain):
+                hid = r.get("id")
+                if hid and hid not in seen_hpo:
+                    seen_hpo.add(hid)
+                    phenotypes.append({"hpo_id": hid, "hpo_term": r.get("name"),
+                                       "frequency": "", "frequency_value": 0,
+                                       "definition": r.get("definition")})
+        except Exception:
+            pass
+
+    for oid in (a.omim_ids or ()):
+        _add_hpo(oid, ">>mim>>hpo")
+    if a.mondo_id:
+        _add_hpo(a.mondo_id, ">>mondo>>hpo")
+    # Orphanet (with frequency) sorts first; OMIM/Mondo extras (no frequency) after.
     phenotypes.sort(key=lambda p: float(p.get("frequency_value") or 0), reverse=True)
 
     # Mondo ontology family — the local neighborhood that drives the Disease
@@ -110,7 +136,7 @@ def collect(a):
         "orphanet_disorder_type": oa.get("disorder_type") or "",
         "prevalences": list(oa.get("prevalences") or []),
         "phenotypes": phenotypes,
-        "phenotype_count": oa.get("phenotype_count") or len(phenotypes),
+        "phenotype_count": len(phenotypes),   # merged Orphanet + OMIM/Mondo HPO
         "is_cancer": a.is_cancer,
         "child_count": child_count,
         "sibling_count": sibling_count,
