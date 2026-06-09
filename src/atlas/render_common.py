@@ -139,7 +139,10 @@ def more_line(total, shown, by=None):
         total, shown = int(total), int(shown)
     except (TypeError, ValueError):
         return ""
-    if total <= shown:
+    # shown <= 0 means the table rendered no rows (e.g. a collector that has a
+    # count but an empty sample) — there's nothing to be "more than", so don't
+    # emit a degenerate "(showing top 0)" line; the count already sits in the caption.
+    if shown <= 0 or total <= shown:
         return ""
     tail = f" {by}" if by else ""
     return f"\n*+{total - shown} more (showing top {shown}{tail}).*"
