@@ -21,7 +21,7 @@ from atlas.page import links
 # bites the largest. NOT used for score-ranked firehose tables (GWAS associations,
 # tiered variants, cohort tissue distribution) — those keep literal caps pending a
 # significance-threshold redesign. See the gene renderer's note.
-ROW_CAP = 100
+ROW_CAP = 60
 
 # Shared formatting helpers --------------------------------------------------
 

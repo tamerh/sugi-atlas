@@ -7,9 +7,9 @@ from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
 # Display cap for curated, naturally bounded tables (see the gene renderer's note).
-# The bioactivity table is collector-capped at the same 100; CIViC / indications /
-# clinical annotations render in full (already collector-bounded).
-ROW_CAP = 100
+# The bioactivity table is collector-capped (top 100 distinct by potency); CIViC /
+# indications / clinical annotations render in full (already collector-bounded).
+ROW_CAP = 60
 
 
 def _i(n):

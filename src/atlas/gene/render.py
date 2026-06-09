@@ -20,7 +20,7 @@ from atlas.page import links
 # line discloses when it does. NOT used for score-ranked firehose tables (STRING,
 # IntAct, GWAS, SpliceAI, AlphaMissense, CollecTRI targets, miRNA, tissues) — those
 # keep their own literal caps pending a confidence/significance-threshold redesign.
-ROW_CAP = 100
+ROW_CAP = 60
 
 
 def _cap(n):
