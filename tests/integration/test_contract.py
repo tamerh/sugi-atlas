@@ -66,7 +66,10 @@ def test_section_h4_ids_match_contract(pages):
     the frozen set — a new/renamed anchor fails here, not silently in the wild."""
     bad = []
     for p in pages:
-        ids = {i for _l, i in p.h4 if i}
+        # residue-* anchors (Functional residue map sub-blocks) vary per gene and
+        # per product, so they're exempt from the frozen set — they still carry an
+        # explicit backend-owned id (enforced by test_section_h3_have_explicit_ids).
+        ids = {i for _l, i in p.h4 if i and not i.startswith("residue-")}
         extra = ids - H4_IDS[p.entity]
         if extra:
             bad.append(f"{p.entity}/{p.slug}: not in contract → {sorted(extra)}")

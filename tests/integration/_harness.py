@@ -69,7 +69,7 @@ H3_IDS = {
 H4_IDS = {
     "gene": {  # §transcripts / §protein-ids / §structure
              "canonical-exons", "isoforms", "domains", "uniprot-cc", "brenda",
-             "pdb", "alphafold",
+             "enzyme-ec", "rhea", "pdb", "alphafold", "sabdab",
              # §variants
              "clinvar", "top-pathogenic", "spliceai", "alphamissense",
              # §pathways / §interactions / §regulation

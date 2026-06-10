@@ -115,11 +115,15 @@ def test_residue_map_categorizes_and_orders():
     ]}
     md = R.r_residue_map(b)
     assert "## Functional residue map" in md
-    assert "**Catalytic / active sites (1):** **837** (proton acceptor)" in md
-    assert "**Ligand- & substrate-binding residues (1):** **718–726**" in md
-    assert "Post-translational modifications (1)" in md
-    assert "Disulfide bonds (1)" in md
-    assert "Mutagenesis-validated functional residues (1)" in md
+    # each residue category is now its own H4 sub-section (count kept in heading),
+    # with the residue body underneath (web renderer wraps each into a collapsible)
+    assert "### Catalytic / active sites (1)" in md
+    assert "**837** (proton acceptor)" in md
+    assert "### Ligand- & substrate-binding residues (1)" in md
+    assert "**718–726**" in md
+    assert "### Post-translational modifications (1)" in md
+    assert "### Disulfide bonds (1)" in md
+    assert "### Mutagenesis-validated functional residues (1)" in md
     assert "strand" not in md                  # secondary structure not surfaced
 
 
@@ -131,9 +135,11 @@ def test_residue_map_per_product_skips_empty():
             _feat("P2", "chain", 1, 99),        # only a non-residue feature
          ]}
     md = R.r_residue_map(b)
-    assert "**P0 (canonical)**" in md           # two products with residues → headers
-    assert "**P1**" in md
-    assert "**P2**" not in md                    # empty product gets no orphan header
+    # two products with residues → each category H4 carries a product suffix
+    # (no separate per-product bold header — keeps the heading hierarchy flat)
+    assert "### Catalytic / active sites (1) — P0 (canonical)" in md
+    assert "### Ligand- & substrate-binding residues (1) — P1" in md
+    assert "P2" not in md                        # residue-less product gets no heading
 
 
 def test_residue_map_single_product_no_header():

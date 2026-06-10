@@ -205,7 +205,7 @@ def r_protein_ids(b):
     # Non-enzyme proteins (TFs, inhibitors) have empty brenda_ec; block elides.
     brenda = b.get("brenda_ec") or []
     if brenda:
-        L.append(f"\n**Enzyme classification (BRENDA):**\n")
+        L.append("\n### Enzyme classification (BRENDA) {#enzyme-ec}\n")
         for e in brenda:
             ec = e.get("ec") or ""
             L.append(f"- EC {ec} — "
@@ -242,7 +242,7 @@ def r_protein_ids(b):
     # EC row). biobtree now projects the human-readable equation (#29).
     rhea = b.get("rhea_reactions") or []
     if rhea:
-        L.append(f"\n**Catalyzed reactions (Rhea), {len(rhea)} shown:**\n")
+        L.append("\n### Catalyzed reactions (Rhea) {#rhea}\n")
         for r in rhea:
             rid = (r.get("id") or "").replace("RHEA:", "")
             L.append(f"- {r.get('equation')}" + (f" *(RHEA:{rid})*" if rid else ""))
@@ -330,12 +330,12 @@ def r_generifs(b):
 # regroup UniProt sequence features into a drug-discovery view. (group label,
 # feature types, show per-residue description?)
 _RESIDUE_GROUPS = [
-    ("Catalytic / active sites", ("active site", "site"), True),
-    ("Ligand- & substrate-binding residues", ("binding site",), True),
+    ("Catalytic / active sites", ("active site", "site"), True, "residue-catalytic"),
+    ("Ligand- & substrate-binding residues", ("binding site",), True, "residue-binding"),
     ("Post-translational modifications", ("modified residue",
-     "lipid moiety-binding region", "cross-link"), False),
-    ("Disulfide bonds", ("disulfide bond",), False),
-    ("Glycosylation sites", ("glycosylation site",), False),
+     "lipid moiety-binding region", "cross-link"), False, "residue-ptm"),
+    ("Disulfide bonds", ("disulfide bond",), False, "residue-disulfide"),
+    ("Glycosylation sites", ("glycosylation site",), False, "residue-glycosylation"),
 ]
 
 
@@ -352,48 +352,48 @@ def r_residue_map(b):
     feats = b.get("ufeatures") or []
     canon = b.get("canonical_uniprot")
 
-    def _product_block(ufe):
-        """Residue-group lines for one product; [] when it has no mappable
-        residues (avoids an orphan product header)."""
+    def _product_block(ufe, u="", multi=False):
+        """Residue-group sub-sub-sections (H4) for one product; [] when it has no
+        mappable residues. Each category is its own H4 heading (the web renderer
+        wraps each into a collapsible sub-block) with the body underneath; the
+        count stays in the heading. For dual-product genes the visible suffix and
+        the {#id} both carry the product (' — P04637' / '-p04637') so the repeated
+        category headings stay unique. The residue-* anchor prefix is exempt from
+        the frozen H4 contract (the set varies per gene/product)."""
+        suffix = f" — {u}{' (canonical)' if u == canon else ''}" if multi else ""
+        asuf = f"-{u.lower()}" if multi else ""
         lines = []
-        for label, types, show_desc in _RESIDUE_GROUPS:
+        for label, types, show_desc, anchor in _RESIDUE_GROUPS:
             rows = [f for f in ufe if f.get("type") in types]
             if not rows:
                 continue
             if show_desc:
-                items = "; ".join(
+                body = "; ".join(
                     f"**{_res_loc(f)}**" + (f" ({f['description']})" if f.get("description") else "")
-                    for f in rows[:12])
-                more = " …" if len(rows) > 12 else ""
-                lines.append(f"\n**{label} ({len(rows)}):** {items}{more}")
+                    for f in rows[:12]) + (" …" if len(rows) > 12 else "")
             else:
-                locs = ", ".join(_res_loc(f) for f in rows[:20])
-                more = " …" if len(rows) > 20 else ""
-                lines.append(f"\n**{label} ({len(rows)}):** {locs}{more}")
+                body = ", ".join(_res_loc(f) for f in rows[:20]) + (" …" if len(rows) > 20 else "")
+            lines.append(f"\n### {label} ({len(rows)}){suffix} {{#{anchor}{asuf}}}\n\n{body}")
         mut = [f for f in ufe if f.get("type") == "mutagenesis site"]
         if mut:
-            lines.append(f"\n**Mutagenesis-validated functional residues ({len(mut)}):**\n")
+            lines.append(f"\n### Mutagenesis-validated functional residues ({len(mut)}){suffix} "
+                         f"{{#residue-mutagenesis{asuf}}}\n")
             lines.append(table(["Position", "Phenotype"],
                                [(_res_loc(f), (f.get("description") or "")[:120]) for f in mut[:25]]))
         return lines
 
-    blocks = []
-    for u in (b.get("reviewed_uniprot") or []):
-        ufe = [f for f in feats if f.get("uniprot") == u]
-        body = _product_block(ufe)
-        if body:
-            blocks.append((u, body))
-    if not blocks:
+    prods = [(u, [f for f in feats if f.get("uniprot") == u])
+             for u in (b.get("reviewed_uniprot") or [])]
+    prods = [(u, ufe) for u, ufe in prods if _product_block(ufe)]   # drop residue-less products
+    if not prods:
         return ""
     L = ["## Functional residue map", "",
          "Curated UniProt residues grouped by drug-discovery relevance — "
          "catalytic, ligand-binding, modification, and mutation-validated "
          "positions. *Source: UniProtKB sequence features.*"]
-    multi = len(blocks) > 1
-    for u, body in blocks:
-        if multi:
-            L.append(f"\n**{u}{' (canonical)' if u == canon else ''}**")
-        L.extend(body)
+    multi = len(prods) > 1
+    for u, ufe in prods:
+        L.extend(_product_block(ufe, u, multi))
     return "\n".join(L)
 
 
@@ -410,13 +410,11 @@ def r_structure(b):
         except (TypeError, ValueError):
             return float("inf")
     pdb_sorted = sorted(pdb, key=_res)
-    shown = pdb_sorted[:30]
-    note = f", top {len(shown)} by resolution" if len(pdb) > len(shown) else ""
     L.append("\n### Experimental structures (PDB) {#pdb}\n")
-    L.append(f"{n} structures{note}.\n")
-    L.append(table(["PDB", "Method", "Resolution (Å)"],
-                   [(p["id"], p.get("method"), fnum(p.get("resolution")))  # 2-dp; raw is 1.83549
-                    for p in shown]))
+    L.append(capped_table(["PDB", "Method", "Resolution (Å)"],
+                          [(p["id"], p.get("method"), fnum(p.get("resolution")))  # 2-dp; raw is 1.83549
+                           for p in pdb_sorted],
+                          30, total=n, noun="structures by resolution"))
     L.append("\n### Predicted structure (AlphaFold) {#alphafold}\n")
     afs = b.get("alphafold", []) or []
     present_rows = [a for a in afs if a.get("present", True) and a.get("id")]
@@ -435,7 +433,8 @@ def r_structure(b):
     # necessarily therapeutic) antibodies.
     ab = b.get("antibody_structures") or []
     if ab:
-        L.append(f"\n**Antibody-complex structures (SAbDab): {len(ab)}** — "
+        L.append("\n### Antibody-complex structures (SAbDab) {#sabdab}\n")
+        L.append(f"{len(ab)} antibodies co-crystallized with this protein: "
                  + ", ".join(f"`{p}`" for p in ab[:25])
                  + (f" (+{len(ab) - 25} more)" if len(ab) > 25 else ""))
     return "\n".join(L)
