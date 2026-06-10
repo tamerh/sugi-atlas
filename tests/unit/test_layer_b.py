@@ -116,15 +116,36 @@ def test_residue_map_categorizes_and_orders():
     md = R.r_residue_map(b)
     assert "## Functional residue map" in md
     # each residue category is now its own H4 sub-section (count kept in heading),
-    # with the residue body underneath (web renderer wraps each into a collapsible)
+    # with a residue table underneath (web renderer wraps each into a collapsible)
     assert "### Catalytic / active sites (1)" in md
-    assert "**837** (proton acceptor)" in md
+    assert "| 837 | proton acceptor |" in md    # perres: Position | Role table
     assert "### Ligand- & substrate-binding residues (1)" in md
-    assert "**718–726**" in md
+    assert "| 718–726 |" in md
     assert "### Post-translational modifications (1)" in md
     assert "### Disulfide bonds (1)" in md
     assert "### Mutagenesis-validated functional residues (1)" in md
     assert "strand" not in md                  # secondary structure not surfaced
+
+
+def test_residue_map_labels_modifications_by_type():
+    """PTM / glycosylation positions are grouped by modification identity (from
+    the UniProt feature description) into a `Type | Positions` table instead of a
+    bare, meaningless number list. Unlabeled features (most intrachain disulfide
+    bonds) collapse onto one row tagged with the group's singular noun."""
+    b = {"reviewed_uniprot": ["P0"], "canonical_uniprot": "P0", "ufeatures": [
+        _feat("P0", "modified residue", 229, d="phosphoserine"),
+        _feat("P0", "modified residue", 695, d="phosphoserine"),
+        _feat("P0", "modified residue", 869, d="phosphotyrosine; by src"),
+        _feat("P0", "glycosylation site", 56, d="n-linked (glcnac...) asparagine"),
+        _feat("P0", "disulfide bond", 31, 58),     # no description
+    ]}
+    md = R.r_residue_map(b)
+    assert "| Phosphoserine | 229, 695 |" in md    # grouped, ordered, no kinase tail
+    assert "| Phosphotyrosine | 869 |" in md        # '; by src' tail dropped
+    assert "| N-linked (glcnac...) asparagine | 56 |" in md
+    assert "### Disulfide bonds (1)" in md
+    # the disulfide bond carries no description → falls onto a 'Disulfide bond' row
+    assert "| Disulfide bond | 31–58 |" in md
 
 
 def test_residue_map_per_product_skips_empty():

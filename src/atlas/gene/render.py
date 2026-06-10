@@ -328,20 +328,52 @@ def r_generifs(b):
 
 # Functional-residue map (audit-enrichment #1 / MOLECULAR_ENRICHMENT layer B):
 # regroup UniProt sequence features into a drug-discovery view. (group label,
-# feature types, show per-residue description?)
+# feature types, display mode, anchor). Display modes:
+#   "perres" — one entry per residue with its inline description (catalytic /
+#              ligand-binding: each position carries a distinct description).
+#   "bytype" — group positions by modification identity (PTM / disulfide /
+#              glycosylation: many residues share a few modification types, so
+#              "Phosphoserine — 229, 695" beats a bare, meaningless number list).
 _RESIDUE_GROUPS = [
-    ("Catalytic / active sites", ("active site", "site"), True, "residue-catalytic"),
-    ("Ligand- & substrate-binding residues", ("binding site",), True, "residue-binding"),
+    ("Catalytic / active sites", ("active site", "site"), "perres", "residue-catalytic"),
+    ("Ligand- & substrate-binding residues", ("binding site",), "perres", "residue-binding"),
     ("Post-translational modifications", ("modified residue",
-     "lipid moiety-binding region", "cross-link"), False, "residue-ptm"),
-    ("Disulfide bonds", ("disulfide bond",), False, "residue-disulfide"),
-    ("Glycosylation sites", ("glycosylation site",), False, "residue-glycosylation"),
+     "lipid moiety-binding region", "cross-link"), "bytype", "residue-ptm"),
+    ("Disulfide bonds", ("disulfide bond",), "bytype", "residue-disulfide"),
+    ("Glycosylation sites", ("glycosylation site",), "bytype", "residue-glycosylation"),
 ]
 
 
 def _res_loc(f):
     b, e = f.get("begin"), f.get("end")
     return str(b) if (e in (None, "", b)) else f"{b}–{e}"
+
+
+def _mod_label(desc):
+    """The modification identity from a UniProt feature description — the part
+    before the first ';' (drops the '; by <kinase>' / evidence tail), with the
+    leading letter capitalized to UniProt's display convention. '' when the
+    feature carries no description (most intrachain disulfide bonds)."""
+    head = (desc or "").split(";")[0].strip()
+    return head[:1].upper() + head[1:] if head else ""
+
+
+def _join_locs(locs, cap=40):
+    """Comma-join residue positions for a table cell, capped so one modification
+    type can't blow out the cell; the H4 heading still carries the true count."""
+    return ", ".join(locs[:cap]) + (f" … (+{len(locs) - cap})" if len(locs) > cap else "")
+
+
+def _residue_type_table(rows, fallback):
+    """Positions grouped by modification identity → a `| Type | Positions |`
+    table. e.g. 'Phosphoserine | 229, 695'. Features with no description
+    (unlabeled intrachain disulfide bonds) collapse onto one `fallback`-labelled
+    row, so the table never has a blank Type cell."""
+    groups = {}                              # label -> [locs], insertion order
+    for f in rows:
+        groups.setdefault(_mod_label(f.get("description")) or fallback, []).append(_res_loc(f))
+    return table(["Type", "Positions"],
+                 [(lab, _join_locs(locs)) for lab, locs in groups.items()])
 
 
 def r_residue_map(b):
@@ -363,16 +395,18 @@ def r_residue_map(b):
         suffix = f" — {u}{' (canonical)' if u == canon else ''}" if multi else ""
         asuf = f"-{u.lower()}" if multi else ""
         lines = []
-        for label, types, show_desc, anchor in _RESIDUE_GROUPS:
+        for label, types, mode, anchor in _RESIDUE_GROUPS:
             rows = [f for f in ufe if f.get("type") in types]
             if not rows:
                 continue
-            if show_desc:
-                body = "; ".join(
-                    f"**{_res_loc(f)}**" + (f" ({f['description']})" if f.get("description") else "")
-                    for f in rows[:12]) + (" …" if len(rows) > 12 else "")
-            else:
-                body = ", ".join(_res_loc(f) for f in rows[:20]) + (" …" if len(rows) > 20 else "")
+            if mode == "perres":             # one row per residue, with its role
+                body = table(["Position", "Role"],
+                             [(_res_loc(f), f.get("description") or "") for f in rows[:ROW_CAP]])
+                if len(rows) > ROW_CAP:      # heading carries the true count; flag the hidden tail
+                    body += f"\n\n*…and {len(rows) - ROW_CAP} more — see UniProt.*"
+            else:                            # bytype — positions grouped by modification identity
+                singular = label[:-1] if label.endswith("s") else label
+                body = _residue_type_table(rows, singular)
             lines.append(f"\n### {label} ({len(rows)}){suffix} {{#{anchor}{asuf}}}\n\n{body}")
         mut = [f for f in ufe if f.get("type") == "mutagenesis site"]
         if mut:
