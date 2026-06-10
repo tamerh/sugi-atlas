@@ -31,6 +31,32 @@ lesson (from the v1.1.5/6 session) is to surface what we have *before* hiding zo
 
 ---
 
+### P3 · Common diseases have no clinical features (HPO covers rare disease only)
+**Status:** open · **Priority:** P3
+
+Common multifactorial diseases show an empty "Clinical features" zone even when the
+rest of the page is rich. Example: knee osteoarthritis (MONDO:0005416) has **0 HPO
+features** (all routes empty — Orphanet, OMIM, Mondo→HPO; the Mondo node has no
+xrefs) yet **760 GWAS associations, 144 trial drugs, 121 indicated drugs**. Same
+for type 2 diabetes, hypertension, etc. — even the parent "osteoarthritis" has 1
+HPO term.
+
+**Why:** HPO is a *rare/Mendelian-disease* phenotype ontology — it annotates
+gene→phenotype links for rare syndromes, not the everyday symptoms (pain,
+stiffness) of common conditions. So "No curated clinical features" is correct for
+the source; it's a coverage limitation, NOT the "thin page" problem above (those
+were data-less; these are data-rich everywhere except HPO).
+
+**If we want clinical features for common diseases**, HPO won't deliver them —
+need a different source (MeSH scope notes, DO/EFO descriptions, or a common-disease
+symptom resource). An enhancement, not a fix. Honest as-is.
+
+Minor adjacent cleanup: the placeholder reads "No curated clinical features
+(Orphanet)" but since v1.1.6 we pull HPO from Orphanet **+ OMIM + Mondo** — reword
+to "(HPO via Orphanet/OMIM/Mondo)" for accuracy.
+
+---
+
 ### P4 · Non-oncology approved indications logged at phase 3
 **Status:** open · **Priority:** P3
 
