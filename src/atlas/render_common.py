@@ -148,17 +148,28 @@ def more_line(total, shown, by=None):
     return f"\n*+{total - shown} more (showing top {shown}{tail}).*"
 
 
-def capped_table(headers, rows, total, by=None):
-    """A markdown table followed by its truncation disclosure, where the
-    "showing top N" count is the ACTUAL number of rows rendered — computed AFTER
-    table()'s identical-row dedup — so it can never over-claim. `rows` is already
-    sliced to the display cap; `total` is the full available count. Pass this
-    instead of a separate table()+more_line() whenever the table can dedup or the
-    collector may provide fewer rows than the display cap (the source of the
-    'showing top 60' over a 30-row table bug)."""
-    md = table(headers, rows)
-    shown = max(0, md.count("\n") - 1) if md else 0   # lines = N data + header + sep
-    return md + more_line(total, shown, by)
+def capped_table(headers, rows, cap, total=None, noun=""):
+    """The one-stop capped table — the single source of truth for "this table is
+    truncated" across the corpus. Slices `rows` to `cap`, renders, and prefixes
+    ONE top caption: "showing N of T {noun}:" when truncated, else "T {noun}:".
+
+    N is the ACTUAL number of rows rendered (computed AFTER table()'s identical-
+    row dedup), so the count can never over-claim — and it lives in exactly one
+    place (above the table), not split between a top description and a trailing
+    "+N more". T is `total` (the full available count) or len(rows). Returns the
+    markdown block, or "" when the table is empty so the sub-block elides.
+
+    Callers pass the FULL row list + the cap; the helper owns the slice, the
+    dedup-aware count, and the caption format."""
+    t = len(rows) if total is None else (total or 0)
+    md = table(headers, rows[:cap] if cap is not None else rows)
+    if not md:
+        return ""
+    shown = max(0, md.count("\n") - 1)               # lines = N data + header + sep
+    noun = (noun or "").strip()
+    lead = f"showing {shown:,} of {t:,}" if t > shown else f"{t:,}"
+    head = f"{lead} {noun}".rstrip()
+    return f"{head}:\n\n{md}"
 
 
 def table(headers, rows):

@@ -135,37 +135,38 @@ def test_gwas_disease_pages_link_rsids(pages):
                           "disease pages link rsIDs to dbSNP")
 
 
-_SHOWING_TOP = re.compile(r"\(showing top (\d+)")
+_SHOWING_OF = re.compile(r"showing ([\d,]+) of ([\d,]+)")
 
 
 def test_disclosure_matches_table_rows(pages):
-    """A "*+N more (showing top K)*" line under a table must actually have ~K
-    rows in that table. Guards the bug where the render cap (60) was passed to
-    more_line while the collector only provided 30 — so "showing top 60" sat
-    over a 30-row Bgee table. Only checks disclosures DIRECTLY under a table
-    (blank lines between are fine); inline-list disclosures invalidate the link.
-    A small tolerance absorbs table()'s identical-row dedup."""
+    """capped_table() emits a SINGLE top caption "showing N of T …:" directly
+    above the table — N must equal the table's real row count. Guards the bug
+    where the render cap was used as N while the table actually had fewer rows
+    (collector cap below the render cap, or table()'s identical-row dedup). A
+    small tolerance absorbs residual dedup."""
     bad = []
     for p in pages:
-        last_rows, cur = None, 0
+        pending, cur = None, 0          # pending = N claimed by a caption awaiting its table
         for ln in p.body.splitlines():
             s = ln.strip()
             if s.startswith("|"):
                 cur += 1
                 continue
             if cur:                                  # a table just ended
-                last_rows, cur = max(0, cur - 2), 0  # minus header + separator
+                if pending is not None:
+                    rows = max(0, cur - 2)           # minus header + separator
+                    if rows < pending - max(2, pending // 10):
+                        bad.append(f"{p.entity}/{p.slug}: 'showing {pending}' "
+                                   f"over a {rows}-row table")
+                    pending = None
+                cur = 0
             if not s:
                 continue                             # blank lines keep the link
-            m = _SHOWING_TOP.search(s)
-            if m and last_rows is not None:
-                claimed = int(m.group(1))
-                if last_rows < claimed - max(2, claimed // 10):
-                    bad.append(f"{p.entity}/{p.slug}: 'showing top {claimed}' "
-                               f"over a {last_rows}-row table")
-                last_rows = None
-            elif not m:
-                last_rows = None                     # non-table content breaks adjacency
+            m = _SHOWING_OF.search(s)
+            if m:
+                pending = int(m.group(1).replace(",", ""))
+            elif pending is not None:
+                pending = None                       # caption not followed by a table
     assert not bad, report(bad)
 
 

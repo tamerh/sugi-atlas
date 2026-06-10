@@ -2,7 +2,7 @@
 """Deterministic markdown renderer for drug-section bundles — NO model.
 Mirrors gene/render.py + disease/render.py: one r_* fn per section + a RENDER
 dict. Every fact comes verbatim from the bundle."""
-from atlas.render_common import table, fnum, is_ontology_id, display_name, phase_label, more_line
+from atlas.render_common import table, fnum, is_ontology_id, display_name, phase_label, more_line, capped_table
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
@@ -328,15 +328,15 @@ def r_pharmacogenomics(b):
         # page uses for its mirror of this table.
         order = {"CPIC": 0, "DPWG": 1, "CPNDS": 2}
         g = sorted(g, key=lambda r: (order.get(r.get("source"), 99), r.get("name") or ""))
-        L.append(f"**PharmGKB dosing guidelines ({b.get('guideline_count')}) — CPIC / "
-                 f"DPWG genotype-guided dosing for this drug (drug × pharmacogene):**\n")
-        L.append(table(["Guideline", "Source", "Gene(s)", "Dosing?", "Recommendation?"],
-                       [((r.get("name") or r.get("id") or "")[:70],
-                         r.get("source"),
-                         links.link_csv(r.get("genes"), lambda s: links.gene_url(symbol=s)),
-                         "yes" if r.get("has_dosing") else "",
-                         "yes" if r.get("has_recommendation") else "") for r in g[:ROW_CAP]]))
-        L.append(more_line(len(g), ROW_CAP))
+        L.append("**PharmGKB dosing guidelines** — CPIC / DPWG genotype-guided dosing "
+                 "for this drug (drug × pharmacogene):\n")
+        L.append(capped_table(["Guideline", "Source", "Gene(s)", "Dosing?", "Recommendation?"],
+                              [((r.get("name") or r.get("id") or "")[:70],
+                                r.get("source"),
+                                links.link_csv(r.get("genes"), lambda s: links.gene_url(symbol=s)),
+                                "yes" if r.get("has_dosing") else "",
+                                "yes" if r.get("has_recommendation") else "") for r in g],
+                              ROW_CAP, noun="guidelines"))
     # Two PharmGKB evidence layers, surfaced directly (not teased):
     #   clinical_annotations  — the SCORED summary (variant × gene × type × level)
     #   variant_annotations   — the per-publication findings beneath it, each a
@@ -357,19 +357,19 @@ def r_pharmacogenomics(b):
                       links.maybe_link(r.get("variant") or "", vlink(r.get("variant"))),
                       r.get("type"), r.get("phenotypes"), r.get("level")) for r in cl])]
     if vr:
-        L += ["", f"**Published variant annotations ({_i(len(vr))})** — per-publication "
-              "pharmacogenomic findings for this drug (significant associations only), "
-              "each from a curated PharmGKB literature annotation:", "",
-              table(["Gene", "Variant", "Category", "Finding", "PMID"],
-                    [(links.maybe_link(r.get("gene") or "",
-                                       links.gene_url(symbol=r["gene"]) if r.get("gene") else None),
-                      links.maybe_link(r.get("variant") or "", vlink(r.get("variant"))),
-                      r.get("category"), r.get("sentence"),
-                      links.maybe_link(f"PMID:{r['pmid']}",
-                                       f"https://pubmed.ncbi.nlm.nih.gov/{r['pmid']}/")
-                      if r.get("pmid") else "")
-                     for r in vr[:ROW_CAP]]),
-              more_line(len(vr), ROW_CAP)]
+        L += ["", "**Published variant annotations** — per-publication pharmacogenomic "
+              "findings for this drug (significant associations only), each from a curated "
+              "PharmGKB literature annotation:", "",
+              capped_table(["Gene", "Variant", "Category", "Finding", "PMID"],
+                           [(links.maybe_link(r.get("gene") or "",
+                                              links.gene_url(symbol=r["gene"]) if r.get("gene") else None),
+                             links.maybe_link(r.get("variant") or "", vlink(r.get("variant"))),
+                             r.get("category"), r.get("sentence"),
+                             links.maybe_link(f"PMID:{r['pmid']}",
+                                              f"https://pubmed.ncbi.nlm.nih.gov/{r['pmid']}/")
+                             if r.get("pmid") else "")
+                            for r in vr],
+                           ROW_CAP, noun="published findings")]
     if not g and not cl and not vr and pa:
         L.append("*No CPIC/DPWG dosing guideline or resolvable clinical / variant "
                  "annotations in PharmGKB for this molecule.*")
@@ -385,22 +385,22 @@ def r_clinical_evidence(b):
         return "\n".join(L)
     etc = b.get("civic_evidence_type_counts") or {}
     extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
-    L.append(f"**Variant × therapy × indication "
-             f"({_i(b.get('civic_association_total'))} predictive associations from "
+    L.append(f"**Variant × therapy × indication** — from "
              f"{_i(b.get('civic_predictive_total'))} curated evidence items"
-             + (f"; also {extra}" if extra else "") + "):** " + CIVIC_LEGEND + "\n")
+             + (f"; also {extra}" if extra else "") + ". " + CIVIC_LEGEND + "\n")
     # Same column order as the gene page (Variant | Therapy | Indication | Effect);
     # the therapy is linked too (it's often a partner drug, not this one).
-    L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
-                   [(r["profile"],
-                     links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
-                     links.maybe_link(r["disease"], links.disease_url(name=r["disease"])),
-                     r["significance"],
-                     f"CIViC {r['level']}" if r.get("level") else "",
-                     f"EID{r['evidence_id']}"
-                     + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
-                    for r in ce]))
-    L.append(more_line(b.get("civic_association_total", 0), len(ce), "by evidence level"))
+    L.append(capped_table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
+                          [(r["profile"],
+                            links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
+                            links.maybe_link(r["disease"], links.disease_url(name=r["disease"])),
+                            r["significance"],
+                            f"CIViC {r['level']}" if r.get("level") else "",
+                            f"EID{r['evidence_id']}"
+                            + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
+                           for r in ce],
+                          None, total=b.get("civic_association_total", 0),
+                          noun="predictive associations by evidence level"))
     if any(r.get("n", 1) > 1 for r in ce):
         L.append("\n*CIViC column: a representative evidence item (EID); "
                  "+N = additional CIViC items supporting the same association.*")

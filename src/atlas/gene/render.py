@@ -464,17 +464,13 @@ def r_variants(b):
     L.append(table(["Variant ID", "HGVS", "Classification"],
                    [(v["id"], v.get("hgvs"), v.get("classification")) for v in b.get("top_pathogenic", [])]))
     L.append("\n### SpliceAI {#spliceai}\n")
-    L.append(f"{b.get('spliceai_total', 0)} predictions. Top by Δscore:\n")
-    _spl = b.get("top_spliceai", [])
-    L.append(table(["Variant", "Effect", "Δscore"],
-                   [(v["id"], v.get("effect"), v.get("score")) for v in _spl]))
-    L.append(more_line(b.get("spliceai_total"), len(_spl), "by Δscore"))
+    L.append(capped_table(["Variant", "Effect", "Δscore"],
+                          [(v["id"], v.get("effect"), v.get("score")) for v in b.get("top_spliceai", [])],
+                          None, total=b.get("spliceai_total"), noun="predictions by Δscore"))
     L.append("\n### AlphaMissense {#alphamissense}\n")
-    L.append(f"{b.get('alphamissense_total', 0)} scored. Top likely-pathogenic:\n")
-    _am = b.get("top_alphamissense", [])
-    L.append(table(["Variant", "Protein change", "am_pathogenicity"],
-                   [(v["id"], v.get("variant"), v.get("am_pathogenicity")) for v in _am]))
-    L.append(more_line(b.get("alphamissense_total"), len(_am)))
+    L.append(capped_table(["Variant", "Protein change", "am_pathogenicity"],
+                          [(v["id"], v.get("variant"), v.get("am_pathogenicity")) for v in b.get("top_alphamissense", [])],
+                          None, total=b.get("alphamissense_total"), noun="scored, likely-pathogenic"))
     ds = b.get("dbsnp_sample", [])
     if ds:
         L.append(f"\n**dbSNP variants (sampled {b.get('dbsnp_sampled', 0)} via entrez):** "
@@ -484,10 +480,9 @@ def r_variants(b):
 
 def r_pathways(b):
     L = ["## Pathways and Gene Ontology", "",
-         "### Reactome pathways {#reactome}", "",
-         f"{b.get('reactome_count', 0)} pathways\n"]
-    L.append(capped_table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:ROW_CAP]],
-                          b.get("reactome_count")))
+         "### Reactome pathways {#reactome}", ""]
+    L.append(capped_table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])],
+                          ROW_CAP, total=b.get("reactome_count"), noun="pathways"))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
     L.append(", ".join(f"`{m['name']}`" for m in b.get("msigdb", [])[:15]))
     go = b.get("go", {})
@@ -502,45 +497,40 @@ def r_pathways(b):
     rp = b.get("reactome_parent_rollup") or []
     if rp:
         L.append("\n### Reactome top-level categories {#reactome-categories}\n")
-        L.append(f"Rollup of top-{len(rp)} pathways:\n")
-        L.append(table(["Category", "Pathways"],
-                       [(p.get("name") or p["id"], p.get("pathway_count")) for p in rp[:ROW_CAP]]))
-        L.append(more_line(len(rp), ROW_CAP))
+        L.append(capped_table(["Category", "Pathways"],
+                              [(p.get("name") or p["id"], p.get("pathway_count")) for p in rp],
+                              ROW_CAP, noun="top-level categories"))
     gp = b.get("go_parent_rollup") or []
     if gp:
         L.append("\n### GO top-level categories {#go-categories}\n")
-        L.append("Rollup of top GO terms by namespace:\n")
-        L.append(table(["Category", "Terms"],
-                       [(p.get("name") or p["id"], p.get("term_count")) for p in gp[:ROW_CAP]]))
-        L.append(more_line(len(gp), ROW_CAP))
+        L.append(capped_table(["Category", "Terms"],
+                              [(p.get("name") or p["id"], p.get("term_count")) for p in gp],
+                              ROW_CAP, noun="GO namespaces"))
     return "\n".join(L)
 
 
 def r_interactions(b):
     L = ["## Protein interactions and networks", ""]
     L.append("\n### STRING {#string}\n")
-    L.append(f"{b.get('string_count', 0)} interactions, top by confidence (×1000):\n")
     # Show both sides of each interaction (this protein ↔ partner) + the partner's
     # UniProt accession. Partner is the non-query side (biobtree #34 workaround).
     self_sym = b.get("symbol") or "—"
     L.append(capped_table(["Protein A", "Protein B", "Partner UniProt", "Score"],
                           [(self_sym, s.get("partner_symbol") or s.get("partner"),
-                            s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]],
-                          b.get("string_count"), "by confidence"))
+                            s.get("partner"), s.get("score")) for s in b.get("string", [])],
+                          40, total=b.get("string_count"), noun="interactions by confidence (×1000)"))
     L.append("\n### IntAct {#intact}\n")
-    L.append(f"{b.get('intact_count', 0)} interactions, top by confidence:\n")
     L.append(capped_table(["A", "B", "Type", "Score"],
-                          [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]],
-                          b.get("intact_count"), "by confidence"))
+                          [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])],
+                          40, total=b.get("intact_count"), noun="interactions by confidence"))
     L.append(_labeled(f"BioGRID ({b.get('biogrid_count', 0)})",
                       (f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15])))
     L.append(_labeled("ESM2 similar proteins", (f"`{p}`" for p in b.get("esm2_similar", [])[:40])))
     L.append(_labeled("Diamond homologs", (f"`{p}`" for p in b.get("diamond_similar", [])[:40])))
     L.append("\n### SIGNOR signaling {#signor}\n")
-    L.append(f"{b.get('signor_count', 0)} interactions.\n")
     L.append(capped_table(["A", "Effect", "B", "Mechanism"],
-                          [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:ROW_CAP]],
-                          b.get("signor_count")))
+                          [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])],
+                          ROW_CAP, total=b.get("signor_count"), noun="signaling interactions"))
     L.extend(_interactome_enrichment(b))
     return "\n".join(L)
 
@@ -581,10 +571,9 @@ def r_tf_regulation(b):
     dt = b.get("downstream_targets") or []
     if dt:                                          # elide when no CollecTRI targets
         L.append("\n### Downstream targets (CollecTRI) {#collectri}\n")
-        L.append(f"{b.get('downstream_count', 0)} targets.\n")
         L.append(capped_table(["Target", "Regulation"],
-                              [(t.get("target"), t.get("regulation")) for t in dt[:30]],
-                              b.get("downstream_count")))
+                              [(t.get("target"), t.get("regulation")) for t in dt],
+                              30, total=b.get("downstream_count"), noun="targets"))
     # JASPAR motifs — only render when present (most non-TF genes have none,
     # which would otherwise leave an empty header-only table).
     motifs = b.get("jaspar_motifs") or []
@@ -605,12 +594,12 @@ def r_tf_regulation(b):
     n_mir = b.get("mirna_count", 0)
     if n_mir:
         L.append("\n### miRNA regulators (miRDB) {#mirdb}\n")
-        L.append(f"{n_mir} targeting {b.get('symbol')}, top 30 by miRDB confidence "
-                 f"(max_score; target_count = how many genes the miRNA targets in total "
-                 f"— lower means more specific):\n")
-        L.append(table(["miRNA", "Max score", "Avg score", "miRNA target_count"],
-                       [(m["id"], m.get("max_score"), m.get("avg_score"),
-                         m.get("target_count")) for m in b.get("mirna_regulators", [])]))
+        L.append(f"Targeting {b.get('symbol')} by miRDB confidence (max_score; target_count "
+                 f"= how many genes the miRNA targets in total — lower means more specific).\n")
+        L.append(capped_table(["miRNA", "Max score", "Avg score", "miRNA target_count"],
+                              [(m["id"], m.get("max_score"), m.get("avg_score"),
+                                m.get("target_count")) for m in b.get("mirna_regulators", [])],
+                              None, total=n_mir, noun="miRNAs"))
     return "\n".join(L)
 
 
@@ -633,15 +622,15 @@ def r_drugs(b):
                        f"not the gene–compound relationship, so off-target/promiscuous "
                        f"molecules can dominate). " if pt else "")
         L.append("\n### Molecules with ChEMBL bioactivity {#chembl-molecules}\n")
-        L.append(f"{mc} molecules (phase ≥1), by development phase (incl. off-target/"
-                 f"promiscuous compounds).{patent_note}\n")
+        L.append(f"Phase ≥1, by development phase (incl. off-target/promiscuous "
+                 f"compounds).{patent_note}\n")
         L.append(capped_table(["Molecule", "Name", "Phase", "Patents"],
                               [(m["id"],
                                 links.maybe_link(m.get("name"), links.drug_url(chembl_id=m["id"], name=m.get("name"))),
                                 m.get("phase"),
                                 f"{m['patent_count']:,}" if m.get("patent_count") else "")
-                               for m in mols[:ROW_CAP]],
-                              mc, "by phase"))
+                               for m in mols],
+                              ROW_CAP, total=mc, noun="molecules by phase"))
     # CIViC clinical evidence — drug × variant × indication (the precision-
     # medicine triple). Predictive associations only, deduped + ranked by CIViC
     # evidence level (A validated → E inferential). The Effect column separates
@@ -654,20 +643,20 @@ def r_drugs(b):
         etc = b.get("civic_evidence_type_counts") or {}
         extra = ", ".join(f"{n} {k.lower()}" for k, n in etc.items() if k != "Predictive")
         L.append("\n### Clinical evidence (CIViC) {#civic}\n")
-        L.append(f"Drug × variant × indication: {b.get('civic_association_total', 0)} "
-                 f"predictive associations from {b.get('civic_predictive_total', 0)} curated "
-                 f"evidence items" + (f"; also {extra}" if extra else "") + ". "
+        L.append(f"Drug × variant × indication, from {b.get('civic_predictive_total', 0)} "
+                 f"curated evidence items" + (f"; also {extra}" if extra else "") + ". "
                  + CIVIC_LEGEND + "\n")
-        L.append(table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
-                       [(r["profile"],
-                         links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
-                         links.maybe_link(r["disease"], links.disease_url(name=r["disease"])),
-                         r["significance"],
-                         f"CIViC {r['level']}" if r.get("level") else "",
-                         f"EID{r['evidence_id']}"
-                         + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
-                        for r in ce]))
-        L.append(more_line(b.get("civic_association_total", 0), len(ce), "by evidence level"))
+        L.append(capped_table(["Variant", "Therapy", "Indication", "Effect", "Level", "CIViC"],
+                              [(r["profile"],
+                                links.maybe_link(therapy_label(r["therapy"]), links.drug_url(name=therapy_label(r["therapy"]))),
+                                links.maybe_link(r["disease"], links.disease_url(name=r["disease"])),
+                                r["significance"],
+                                f"CIViC {r['level']}" if r.get("level") else "",
+                                f"EID{r['evidence_id']}"
+                                + (f" +{r['n']-1}" if r.get("n", 1) > 1 else ""))
+                               for r in ce],
+                              None, total=b.get("civic_association_total", 0),
+                              noun="predictive associations by evidence level"))
         if any(r.get("n", 1) > 1 for r in ce):
             L.append("\n*CIViC column: a representative evidence item (EID); "
                      "+N = additional CIViC items supporting the same association.*")
@@ -690,41 +679,38 @@ def r_drugs(b):
     if pgc:
         pgc = sorted(pgc, key=lambda c: str(c.get("level_of_evidence") or "9"))
         L.append("\n### PharmGKB clinical annotations {#pharmgkb-clinical}\n")
-        L.append(f"{len(pgc)} annotations — variant × association × phenotype × drug, "
-                 f"ranked by PharmGKB evidence level (1 strongest → 4).\n")
-        L.append(table(
+        L.append(capped_table(
             ["Variant", "Association", "Level", "Drugs", "Phenotypes"],
             [(links.maybe_link(c.get("variant") or "", _variant_link(c.get("variant"))),
               c.get("type"), c.get("level_of_evidence"),
               links.link_csv(c.get("chemicals"), lambda s: links.drug_url(name=s)),
               c.get("phenotypes"))
-             for c in pgc[:ROW_CAP]]))
-        L.append(more_line(len(pgc), ROW_CAP, "by evidence level"))
+             for c in pgc],
+            ROW_CAP, noun="annotations by evidence level (1 strongest → 4)"))
 
     # PharmGKB variant pages — variant-level aggregations with PharmGKB's
     # composite score + count of clinical annotations.
     pgv = b.get("pharmgkb_variant") or []
     if pgv:
         L.append("\n### PharmGKB variants {#pharmgkb-variants}\n")
-        L.append(f"{len(pgv)} variants.\n")
-        L.append(table(
+        L.append(capped_table(
             ["Variant", "Genes", "Level", "Score", "#Clin annots", "Drugs"],
             [(links.maybe_link(v.get("name") or "", _variant_link(v.get("name"))),
               links.link_csv(v.get("gene_symbols"), lambda s: links.gene_url(symbol=s)),
               v.get("level_of_evidence"),
               v.get("score"), v.get("clinical_annotation_count"),
               links.link_csv(v.get("associated_drugs"), lambda s: links.drug_url(name=s)))
-             for v in pgv[:ROW_CAP]]))
-        L.append(more_line(len(pgv), ROW_CAP))
+             for v in pgv],
+            ROW_CAP, noun="variants"))
 
     # PharmGKB per-publication variant annotations — the raw evidence layer
     # (one finding per row, each a plain-English sentence + PMID), keyed by drug.
     pva = b.get("pharmgkb_var_annotation") or []
     if pva:
         L.append("\n### PharmGKB variant annotations {#pharmgkb-var-annotations}\n")
-        L.append(f"{len(pva)} published findings (significant associations) — "
-                 "per-publication pharmacogenomic annotations for this gene:\n")
-        L.append(table(
+        L.append("Per-publication pharmacogenomic findings for this gene "
+                 "(significant associations).\n")
+        L.append(capped_table(
             ["Variant", "Drug(s)", "Category", "Finding", "PMID"],
             [(links.maybe_link(v.get("variant") or "", _variant_link(v.get("variant"))),
               links.link_csv((v.get("drugs") or "").replace(";", ", "),
@@ -733,8 +719,8 @@ def r_drugs(b):
               links.maybe_link(f"PMID:{v['pmid']}",
                                f"https://pubmed.ncbi.nlm.nih.gov/{v['pmid']}/")
               if v.get("pmid") else "")
-             for v in pva[:ROW_CAP]]))
-        L.append(more_line(len(pva), ROW_CAP))
+             for v in pva],
+            ROW_CAP, noun="published findings"))
 
     # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
     # gene+drug pair. Canonical pharmacogenes have tens of guidelines
@@ -746,19 +732,18 @@ def r_drugs(b):
         pgg_sorted = sorted(pgg, key=lambda g: (order.get(g.get("source"), 99),
                                                  g.get("chemical_names") or ""))
         L.append("\n### PharmGKB dosing guidelines {#pharmgkb-guidelines}\n")
-        L.append(f"{len(pgg)} guidelines — CPIC / DPWG genotype-guided dosing for this "
-                 f"gene (drug × pharmacogene).\n")
+        L.append("CPIC / DPWG genotype-guided dosing for this gene (drug × pharmacogene).\n")
         # Same column structure as the drug page's mirror of this table; only the
         # partner column differs (there it's Gene(s), here it's Drug).
-        L.append(table(
+        L.append(capped_table(
             ["Guideline", "Source", "Drug", "Dosing?", "Recommendation?"],
             [((g.get("name") or "")[:70],
               g.get("source"),
               links.link_csv(g.get("chemical_names"), lambda s: links.drug_url(name=s)),
               "yes" if g.get("has_dosing_info") else "",
               "yes" if g.get("has_recommendation") else "")
-             for g in pgg_sorted[:ROW_CAP]]))
-        L.append(more_line(len(pgg), ROW_CAP))
+             for g in pgg_sorted],
+            ROW_CAP, noun="dosing guidelines"))
     # GtoPdb / IUPHAR — hand-curated pharmacology (Tier 1: leads, plainly).
     gt = b.get("gtopdb_target")
     gi = b.get("gtopdb_interactions") or []
@@ -906,15 +891,14 @@ def r_drugs(b):
 
     ct = b.get("disease_trials", [])
     L.append("\n### Clinical trials (associated diseases) {#gene-trials}\n")
-    L.append(f"{b.get('disease_trial_count', 0)} trials via MONDO — disease-level, not "
-             f"drug-specific.\n")
+    L.append("Via MONDO — disease-level, not drug-specific.\n")
     L.append(capped_table(["NCT", "Phase", "Status", "Title"],
                           # phase_label (audit #8): biobtree emits 'NaN' for trials with
                           # no interventional phase; render it as 'Not specified', not
                           # a leaked 'nan'/'NAN'.
                           [(t["id"], phase_label(t.get("phase")), t.get("status"),
-                            (t.get("title") or "").strip()) for t in ct[:ROW_CAP]],
-                          b.get("disease_trial_count")))
+                            (t.get("title") or "").strip()) for t in ct],
+                          ROW_CAP, total=b.get("disease_trial_count"), noun="trials"))
     return "\n".join(L)
 
 
@@ -931,9 +915,10 @@ def r_expression(b):
                  f"expressed in {f5.get('samples_expressed')} samples.")
     fp = b.get("fantom5_promoters") or []
     if fp:
-        L.append(f"\n### FANTOM5 promoters ({len(fp)} alternative TSS) {{#fantom5-promoters}}\n")
-        L.append(table(["Promoter ID", "TPM avg", "Samples expressed"],
-                       [(p["id"], p.get("tpm_average"), p.get("samples_expressed")) for p in fp[:10]]))
+        L.append("\n### FANTOM5 promoters {#fantom5-promoters}\n")
+        L.append(capped_table(["Promoter ID", "TPM avg", "Samples expressed"],
+                              [(p["id"], p.get("tpm_average"), p.get("samples_expressed")) for p in fp],
+                              10, noun="alternative TSS"))
     # Tissue name as plain text — the UBERON/CL id is shown in its own column;
     # we don't link every id (consistency: links are reserved for primary
     # targets, not decorative on every row).
@@ -942,17 +927,13 @@ def r_expression(b):
     # redundant with the score and the pair reads as a contradiction (high score
     # next to a mid-looking rank) when it isn't.
     L.append("\n### Top tissues by expression {#tissue-expression}\n")
-    L.append(f"{b.get('tissue_count', 0)} total, by Bgee expression score (0-100, higher "
-             f"= more expressed):\n")
     # Bgee tissues are score-ranked with a long tail (median gene ~243 entities);
-    # show the top 100 by expression score. The disclosure uses the ACTUAL row
-    # count (len of the slice), never the cap — passing the cap when the collector
-    # provided fewer rows is what made "showing top 60" lie over a 30-row table.
-    _tt = b.get("top_tissues", [])[:100]
-    L.append(table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
-                   [(t.get("tissue") or "", t.get("anatomy_id") or "",
-                     t.get("score"), t.get("quality")) for t in _tt]))
-    L.append(more_line(b.get("tissue_count"), len(_tt), "by expression score"))
+    # show the top 100 by expression score.
+    L.append(capped_table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
+                          [(t.get("tissue") or "", t.get("anatomy_id") or "",
+                            t.get("score"), t.get("quality")) for t in b.get("top_tissues", [])],
+                          100, total=b.get("tissue_count"),
+                          noun="tissues by Bgee expression score (0-100, higher = more expressed)"))
     # Single-cell (SCXA) — per-gene marker status + max expression across
     # single-cell experiments (biobtree #31: via the scxa_expression node).
     sc = b.get("single_cell") or {}
@@ -1033,26 +1014,26 @@ def r_diseases(b):
                       key=lambda g: -gencc_rank(g.get("classification")))
     # "Records" mirrors the disease-page GenCC table (submission count after the
     # one-row-per-disease dedup), so both sides are transparent about the collapse.
-    L.append(table(["Disease", "Classification", "Inheritance", "Records"],
-                   [(links.maybe_link(g.get("disease"), links.disease_url(name=g.get("disease"))),
-                     g.get("classification"), g.get("inheritance"),
-                     str(_gc_n.get(g.get("disease") or "", 0)) if _gc_n.get(g.get("disease") or "", 0) > 1 else "")
-                    for g in _gc_rows[:ROW_CAP]]))
-    L.append(more_line(len(_gc_rows), ROW_CAP))
+    L.append(capped_table(["Disease", "Classification", "Inheritance", "Records"],
+                          [(links.maybe_link(g.get("disease"), links.disease_url(name=g.get("disease"))),
+                            g.get("classification"), g.get("inheritance"),
+                            str(_gc_n.get(g.get("disease") or "", 0)) if _gc_n.get(g.get("disease") or "", 0) > 1 else "")
+                           for g in _gc_rows],
+                          ROW_CAP, noun="curated gene-disease records"))
 
     # ClinGen Gene-Disease Validity — expert-panel curated relationship strength.
     # Distinct from GenCC: ClinGen is the canonical authority for gene-disease
     # validity classifications used by clinical variant labs (ACMG/AMP guidelines).
     cgv = b.get("clingen_validity") or []
     if cgv:
-        L.append(f"\n### ClinGen Gene-Disease Validity ({len(cgv)}) {{#clingen}}\n")
+        L.append("\n### ClinGen Gene-Disease Validity {#clingen}\n")
         L.append("Expert-panel classifications — Definitive > Strong > Moderate > "
                  "Limited > Disputed > Refuted.\n")
-        L.append(table(["Disease", "Classification", "Inheritance"],
-                       [(links.maybe_link(c.get("disease"), links.disease_url(name=c.get("disease"))),
-                         c.get("classification"), c.get("moi"))
-                        for c in cgv[:ROW_CAP]]))
-        L.append(more_line(len(cgv), ROW_CAP))
+        L.append(capped_table(["Disease", "Classification", "Inheritance"],
+                              [(links.maybe_link(c.get("disease"), links.disease_url(name=c.get("disease"))),
+                                c.get("classification"), c.get("moi"))
+                               for c in cgv],
+                              ROW_CAP, noun="validity classifications"))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
              + ", ".join(f"{links.maybe_link(m.get('name'), links.disease_url(mondo_id=m['id'], name=m.get('name')))} ({m['id']})"
                          for m in b.get("mondo", [])[:ROW_CAP]))
@@ -1063,16 +1044,13 @@ def r_diseases(b):
     # No relevance/frequency ordering on the gene→HPO route, so don't claim
     # "(top)" — these are the first 30 by HPO id. (Frequency-ranked clinical
     # features live on the disease pages.)
-    _hpo = b.get("hpo", [])
     L.append("\n### HPO phenotypes {#hpo}\n")
-    L.append(f"{b.get('hpo_total', 0)} total ({min(ROW_CAP, len(_hpo))} of "
-             f"{b.get('hpo_total', 0)} shown, HPO-id order):\n")
-    L.append(table(["HPO", "Term"], [(h["id"], h.get("name")) for h in _hpo[:ROW_CAP]]))
+    L.append(capped_table(["HPO", "Term"], [(h["id"], h.get("name")) for h in b.get("hpo", [])],
+                          ROW_CAP, total=b.get("hpo_total"), noun="phenotypes (HPO-id order)"))
     L.append("\n### GWAS associations {#gwas-assoc}\n")
-    L.append(f"{b.get('gwas_total', 0)} associations (top):\n")
     L.append(capped_table(["Study", "Trait", "p-value"],
-                          [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]],
-                          b.get("gwas_total")))
+                          [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])],
+                          30, total=b.get("gwas_total"), noun="associations"))
 
     # EFO canonical trait names — normalized vocabulary for the free-text
     # GWAS-catalog traits above. The same disease can appear under multiple
@@ -1080,10 +1058,10 @@ def r_diseases(b):
     # AI agents doing cross-resource joins on trait IDs.
     efo = b.get("efo_traits") or []
     if efo:
-        L.append(f"\n### EFO canonical traits ({len(efo)}, from GWAS) {{#efo}}\n")
-        L.append(table(["EFO ID", "Trait name"],
-                       [(e["id"], e.get("name")) for e in efo[:ROW_CAP]]))
-        L.append(more_line(len(efo), ROW_CAP))
+        L.append("\n### EFO canonical traits (from GWAS) {#efo}\n")
+        L.append(capped_table(["EFO ID", "Trait name"],
+                              [(e["id"], e.get("name")) for e in efo],
+                              ROW_CAP, noun="canonical traits"))
 
     # MeSH disease descriptors — NLM's controlled disease vocabulary.
     # Tree numbers (e.g. C04.700.600) classify into MeSH categories
@@ -1093,13 +1071,13 @@ def r_diseases(b):
     # no name (e.g. `C538339`); a row with a bare id misleads LLMs.
     mesh = [m for m in (b.get("mesh_descriptors") or []) if (m.get("name") or "").strip()]
     if mesh:
-        L.append(f"\n### MeSH disease descriptors ({len(mesh)}) {{#mesh}}\n")
-        L.append(table(["Descriptor", "Name", "Tree numbers"],
-                       [(m["id"],
-                         m["name"] + (" *(supp.)*" if m.get("is_supplementary") else ""),
-                         "; ".join(m.get("tree_numbers") or []))
-                        for m in mesh[:ROW_CAP]]))
-        L.append(more_line(len(mesh), ROW_CAP))
+        L.append("\n### MeSH disease descriptors {#mesh}\n")
+        L.append(capped_table(["Descriptor", "Name", "Tree numbers"],
+                              [(m["id"],
+                                m["name"] + (" *(supp.)*" if m.get("is_supplementary") else ""),
+                                "; ".join(m.get("tree_numbers") or []))
+                               for m in mesh],
+                              ROW_CAP, noun="disease descriptors"))
     return "\n".join(L)
 
 
@@ -1146,18 +1124,17 @@ def r_hpa_expression(bundle):
         return ""
     spec = (b.get("hpa") or {}).get("rna_tissue_specificity")
     L = ["## HPA expression {#hpa-expression}", ""]
-    lead = f"{b.get('hpa_expression_total', len(exp))} HPA entities (nTPM)"
     if spec:
-        lead += f"; RNA tissue specificity: **{spec}**"
-    L.append(lead + ", top by nTPM:\n")
+        L.append(f"RNA tissue specificity: **{spec}**\n")
     if any(r.get("protein_level") for r in exp):
-        L.append(table(["Tissue / cell", "Axis", "nTPM", "Protein (IHC)"],
-                       [(r.get("entity"), r.get("axis"), r.get("ntpm"), r.get("protein_level"))
-                        for r in exp[:ROW_CAP]]))
+        L.append(capped_table(["Tissue / cell", "Axis", "nTPM", "Protein (IHC)"],
+                              [(r.get("entity"), r.get("axis"), r.get("ntpm"), r.get("protein_level"))
+                               for r in exp],
+                              ROW_CAP, total=b.get("hpa_expression_total"), noun="HPA entities by nTPM"))
     else:
-        L.append(table(["Tissue / cell", "Axis", "nTPM"],
-                       [(r.get("entity"), r.get("axis"), r.get("ntpm")) for r in exp[:ROW_CAP]]))
-    L.append(more_line(len(exp), ROW_CAP, "by nTPM"))
+        L.append(capped_table(["Tissue / cell", "Axis", "nTPM"],
+                              [(r.get("entity"), r.get("axis"), r.get("ntpm")) for r in exp],
+                              ROW_CAP, total=b.get("hpa_expression_total"), noun="HPA entities by nTPM"))
     return "\n".join(L)
 
 
@@ -1174,13 +1151,12 @@ def r_hpa_cancer(bundle):
     if spec:
         L.append(f"**RNA cancer specificity:** {spec}\n")
     if path:
-        L.append(f"Prognostic in {len(path)} cancer type(s) (Human Protein Atlas "
-                 "survival analysis — favorable = higher expression predicts better "
-                 "survival):\n")
-        L.append(table(["Cancer", "Prognostic", "p-value"],
-                       [(p.get("cancer"), p.get("prognostic_type"), p.get("p_value"))
-                        for p in sorted(path, key=lambda p: _pv(p.get("p_value")))[:ROW_CAP]]))
-        L.append(more_line(len(path), ROW_CAP))
+        L.append("Human Protein Atlas survival analysis — favorable = higher "
+                 "expression predicts better survival.\n")
+        L.append(capped_table(["Cancer", "Prognostic", "p-value"],
+                              [(p.get("cancer"), p.get("prognostic_type"), p.get("p_value"))
+                               for p in sorted(path, key=lambda p: _pv(p.get("p_value")))],
+                              ROW_CAP, noun="prognostic cancer types"))
     return "\n".join(L)
 
 
