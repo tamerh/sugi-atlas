@@ -7,10 +7,15 @@
 # a local, gitignored ./dist — nothing is pushed to a separate dist repo.
 #
 #   ./atlas.sh test [int|all]
+#   ./atlas.sh sample
 #   ./atlas.sh prod
 #   ./atlas.sh release vX.Y.Z
 #   ./atlas.sh release-publish vX.Y.Z
 #   ./atlas.sh help
+#
+#   sample        Small curated corpus (~100 pages incl. TP53/BRCA2) for the web
+#                 team — built into dist/sample/ + archived as
+#                 atlas-corpus-sample-<stamp>-<version>.tar.gz. Mesh is sample-local.
 #
 #   test          Unit suite only — fast, no build. The default.
 #   test int      Integration suite over ./dist (must already be built).
@@ -61,6 +66,7 @@ LIMIT="${ATLAS_LIMIT:-}"
 BIOBTREE="${ATLAS_BIOBTREE:-http://127.0.0.1:9291}"
 DENSE_DIR="data/corpus/dense"
 SEED_DIR="data/corpus/seeds"
+SAMPLE_DIR="data/corpus/sample"
 
 # ---- pretty -----------------------------------------------------------------
 if [ -t 1 ]; then B=$'\e[1m'; G=$'\e[32m'; Y=$'\e[33m'; R=$'\e[31m'; D=$'\e[2m'; N=$'\e[0m'
@@ -129,12 +135,25 @@ integration() {
 }
 
 archive() {
-  local stamp out
+  local infix="${1:+$1-}" stamp out   # optional name infix, e.g. "sample" → atlas-corpus-sample-…
   stamp_version                       # same stamp as the build (not archive-time HEAD)
-  stamp=$(date +%Y%m%d-%H%M%S); out="$DIST/atlas-corpus-$stamp-$ATLAS_BUILD_VERSION.tar.gz"
+  stamp=$(date +%Y%m%d-%H%M%S); out="$DIST/atlas-corpus-${infix}$stamp-$ATLAS_BUILD_VERSION.tar.gz"
   say "archiving $DIST/atlas → $out"
   tar -C "$DIST" -czf "$out" atlas
   ok "$(du -h "$out" | cut -f1)  $out"
+}
+
+# Sample corpus — a small curated set (~100 pages, incl. TP53/BRCA2) for the web
+# team to pull without the full corpus. Built into dist/sample/ and archived as
+# atlas-corpus-sample-<stamp>-<version>.tar.gz. The cross-entity mesh is
+# sample-local (links resolve only among the ~100 pages) — expected for a sample.
+cmd_sample() {
+  preflight
+  local DIST="$DIST/sample"           # build + archive under dist/sample/ (function-scoped)
+  build "sample set" "$SAMPLE_DIR/genes.txt" "$SAMPLE_DIR/diseases.txt" "$SAMPLE_DIR/drugs.txt"
+  echo; integration
+  echo; archive sample
+  ok "sample corpus ready"
 }
 
 # ---- commands ---------------------------------------------------------------
@@ -256,6 +275,7 @@ set -- "${POS[@]:-}"
 
 case "$CMD" in
   test)            cmd_test "${1:-}" ;;
+  sample)          cmd_sample ;;
   prod)            cmd_prod ;;
   release)         cmd_release "${1:-}" ;;
   release-publish) cmd_release_publish "${1:-}" ;;

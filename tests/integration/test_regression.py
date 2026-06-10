@@ -34,6 +34,8 @@ def test_corpus_coverage_floors(pages):
     floor notices."""
     counts = Counter(p.entity for p in pages)
     total = sum(counts.values())
+    if total < 300:                             # a curated sample/smoke build (e.g. atlas.sh sample,
+        pytest.skip("sample/smoke build — coverage floors guard the dense gate + full corpus")
     full = total > 10_000                       # cleanly separates dense (~1k) from full (~52k)
     floors = ({"gene": 27_000, "disease": 17_000, "drug": 4_400} if full
               else {"gene": 400, "disease": 250, "drug": 250})
