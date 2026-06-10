@@ -947,8 +947,8 @@ def r_expression(b):
     L.append(table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
                    [(t.get("tissue") or "", t.get("anatomy_id") or "",
                      t.get("score"), t.get("quality"))
-                    for t in b.get("top_tissues", [])[:30]]))
-    L.append(more_line(b.get("tissue_count"), 30, "by expression score"))
+                    for t in b.get("top_tissues", [])[:ROW_CAP]]))
+    L.append(more_line(b.get("tissue_count"), ROW_CAP, "by expression score"))
     # Single-cell (SCXA) — per-gene marker status + max expression across
     # single-cell experiments (biobtree #31: via the scxa_expression node).
     sc = b.get("single_cell") or {}
@@ -1117,18 +1117,17 @@ def r_hpa_protein(bundle):
         return ""
     L = ["## Human Protein Atlas {#hpa-protein}", ""]
     cls = h.get("protein_classes") or []
-    if cls:
-        L.append(f"**Protein class:** {', '.join(cls[:12])}"
-                 + (f" (+{len(cls) - 12} more)" if len(cls) > 12 else ""))
+    if cls:                                          # noise already filtered (s13) — show all
+        L.append(f"**Protein class:** {', '.join(cls)}")
     if h.get("protein_evidence"):
         L.append(f"\n**Protein evidence:** {h['protein_evidence']}")
-    main, add = h.get("subcellular_main") or [], h.get("subcellular_additional") or []
-    if main or add:
-        loc = "; ".join(main)
-        if add:
-            loc += (f" *(additional: {'; '.join(add[:8])}"
-                    + (" …" if len(add) > 8 else "") + ")*")
-        L.append(f"\n**Subcellular location (HPA, imaging):** {loc or '—'}")
+    loc, seen = [], set()                            # main + additional, one merged list
+    for x in (h.get("subcellular_main") or []) + (h.get("subcellular_additional") or []):
+        if x and x not in seen:
+            seen.add(x)
+            loc.append(x)
+    if loc:
+        L.append(f"\n**Subcellular location (HPA, imaging):** {'; '.join(loc)}")
     if h.get("secretome_location"):
         L.append(f"\n**Secretome:** {h['secretome_location']}")
     return "\n".join(L)

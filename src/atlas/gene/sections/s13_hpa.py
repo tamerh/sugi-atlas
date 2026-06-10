@@ -23,7 +23,12 @@ DATASETS = ("hpa", "hpa_expression", "hpa_pathology")
 # real functional/annotation classes (Kinases, Transporters, Cancer-related, …).
 _CLASS_NOISE = re.compile(
     r"predicted by|MEMSAT|SPOCTOPUS|Phobius|SCAMPI|THUMBUP|TMHMM|DeepSig|SignalP"
-    r"|^COSMIC |Evidence at protein level|neXtProt|Protein evidence \(", re.I)
+    r"|^COSMIC |Evidence at protein level|neXtProt|Protein evidence \("
+    # also drop HPA's verbose cancer-/disease-AREA groupings ("Cancers of the
+    # digestive system", "Head and neck cancers", "Immune system diseases") — the
+    # gene's actual cancer/disease associations live in the Disease zone. Keep the
+    # functional + gene-flag classes (Kinases, FDA approved drug targets, …).
+    r"|^Cancers$|^Cancers of|cancers$|diseases$", re.I)
 
 
 def _num(x):
