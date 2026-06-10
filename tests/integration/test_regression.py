@@ -135,6 +135,40 @@ def test_gwas_disease_pages_link_rsids(pages):
                           "disease pages link rsIDs to dbSNP")
 
 
+_SHOWING_TOP = re.compile(r"\(showing top (\d+)")
+
+
+def test_disclosure_matches_table_rows(pages):
+    """A "*+N more (showing top K)*" line under a table must actually have ~K
+    rows in that table. Guards the bug where the render cap (60) was passed to
+    more_line while the collector only provided 30 — so "showing top 60" sat
+    over a 30-row Bgee table. Only checks disclosures DIRECTLY under a table
+    (blank lines between are fine); inline-list disclosures invalidate the link.
+    A small tolerance absorbs table()'s identical-row dedup."""
+    bad = []
+    for p in pages:
+        last_rows, cur = None, 0
+        for ln in p.body.splitlines():
+            s = ln.strip()
+            if s.startswith("|"):
+                cur += 1
+                continue
+            if cur:                                  # a table just ended
+                last_rows, cur = max(0, cur - 2), 0  # minus header + separator
+            if not s:
+                continue                             # blank lines keep the link
+            m = _SHOWING_TOP.search(s)
+            if m and last_rows is not None:
+                claimed = int(m.group(1))
+                if last_rows < claimed - max(2, claimed // 10):
+                    bad.append(f"{p.entity}/{p.slug}: 'showing top {claimed}' "
+                               f"over a {last_rows}-row table")
+                last_rows = None
+            elif not m:
+                last_rows = None                     # non-table content breaks adjacency
+    assert not bad, report(bad)
+
+
 def test_no_degenerate_truncation_disclosure(pages):
     """A '+N more' / '(showing top K)' disclosure must never be degenerate
     (+0 / top 0 / negative) — that would mean the cap math produced nonsense."""

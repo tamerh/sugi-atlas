@@ -12,7 +12,7 @@ dict and are called explicitly by render_all().
 """
 import re
 from collections import Counter
-from atlas.render_common import table, fnum, gencc_rank, phase_label, more_line
+from atlas.render_common import table, fnum, gencc_rank, phase_label, more_line, capped_table
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
@@ -305,14 +305,14 @@ def r_gwas_landscape(b):
     ta = b.get("top_assocs") or []
     if ta:
         out += ["", "### Top associations by p-value {#gwas-associations}", "",
-                table(["rsID", "p-value", "Gene", "Risk allele", "Odds ratio"],
+                capped_table(["rsID", "p-value", "Gene", "Risk allele", "Odds ratio"],
                       # fnum on odds_ratio only (audit #7: float32 artifacts like
                       # 1.4348061); p-value is exponent-form (3e-67) and must NOT
                       # be rounded — fnum(3e-67, 2) would collapse it to 0.
                       [(_vlink(r.get("rsid")), r.get("pvalue"), _glink(r.get("gene_symbol")),
                         r.get("risk_allele"), fnum(r.get("odds_ratio")))
-                       for r in ta[:30]]),
-                more_line(b.get("assoc_total"), 30, "by p-value")]
+                       for r in ta[:30]],
+                      b.get("assoc_total"), "by p-value")]
     studies = b.get("studies") or []
     if studies:
         out += ["", "### Top studies (by case count) {#gwas-studies}", "",
@@ -484,14 +484,14 @@ def r_genes_proteins(b):
     genes = b.get("genes") or []
     if genes:
         out += ["", "### Cohort genes {#cohort-genes-full}", "",
-                table(["Symbol", "HGNC", "Ensembl", "UniProt", "Name", "Evidence"],
+                capped_table(["Symbol", "HGNC", "Ensembl", "UniProt", "Name", "Evidence"],
                       [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"), hgnc_id=g.get("hgnc_id"))),
                         g.get("hgnc_id"), g.get("ensembl_id"),
                         links.maybe_link(g.get("canonical_uniprot"), links.uniprot_url(g.get("canonical_uniprot"))),
                         _trunc(g.get("protein_name") or g.get("hgnc_name"), 50),
                         ",".join(k for k, v in (g.get("evidence") or {}).items() if v))
-                       for g in genes[:ROW_CAP]]),
-                more_line(b.get("gene_count"), ROW_CAP)]
+                       for g in genes[:ROW_CAP]],
+                      b.get("gene_count"))]
 
     # Cohort function summary — one-sentence UniProt FUNCTION per gene.
     # Surfaces "what each cohort gene actually does" at a glance, not just

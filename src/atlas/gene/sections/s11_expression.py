@@ -43,7 +43,7 @@ def collect(a):
                               "anatomy_id": _anatomy_id(t.get("id")),
                               "score": t.get("expression_score"),
                               "rank": t.get("expression_rank"),
-                              "quality": t.get("call_quality")} for t in tissues[:30]]
+                              "quality": t.get("call_quality")} for t in tissues[:100]]
     bundle["tissue_count"] = len(tissues)
 
     # FANTOM5 CAGE gene-level expression (TPM + breadth).

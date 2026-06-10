@@ -11,7 +11,7 @@ reserved for the synthesis/executive-summary layer, not this.
 """
 import sys, os, html
 from atlas.gene import collect as C
-from atlas.render_common import table, phase_label, fnum, more_line
+from atlas.render_common import table, phase_label, fnum, more_line, capped_table
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
@@ -449,7 +449,7 @@ def r_orthologs(b):
     if para:
         L.append(f"\n**Paralogs ({b.get('paralog_count', 0)}):** "
                  + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:ROW_CAP]))
-        L.append(more_line(b.get("paralog_count"), ROW_CAP))
+        L.append(more_line(b.get("paralog_count"), len(para[:ROW_CAP])))
     return "\n".join(L)
 
 
@@ -486,8 +486,8 @@ def r_pathways(b):
     L = ["## Pathways and Gene Ontology", "",
          "### Reactome pathways {#reactome}", "",
          f"{b.get('reactome_count', 0)} pathways\n"]
-    L.append(table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:ROW_CAP]]))
-    L.append(more_line(b.get("reactome_count"), ROW_CAP))
+    L.append(capped_table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])[:ROW_CAP]],
+                          b.get("reactome_count")))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
     L.append(", ".join(f"`{m['name']}`" for m in b.get("msigdb", [])[:15]))
     go = b.get("go", {})
@@ -523,24 +523,24 @@ def r_interactions(b):
     # Show both sides of each interaction (this protein ↔ partner) + the partner's
     # UniProt accession. Partner is the non-query side (biobtree #34 workaround).
     self_sym = b.get("symbol") or "—"
-    L.append(table(["Protein A", "Protein B", "Partner UniProt", "Score"],
-                   [(self_sym, s.get("partner_symbol") or s.get("partner"),
-                     s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]]))
-    L.append(more_line(b.get("string_count"), 40, "by confidence"))
+    L.append(capped_table(["Protein A", "Protein B", "Partner UniProt", "Score"],
+                          [(self_sym, s.get("partner_symbol") or s.get("partner"),
+                            s.get("partner"), s.get("score")) for s in b.get("string", [])[:40]],
+                          b.get("string_count"), "by confidence"))
     L.append("\n### IntAct {#intact}\n")
     L.append(f"{b.get('intact_count', 0)} interactions, top by confidence:\n")
-    L.append(table(["A", "B", "Type", "Score"],
-                   [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]]))
-    L.append(more_line(b.get("intact_count"), 40, "by confidence"))
+    L.append(capped_table(["A", "B", "Type", "Score"],
+                          [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])[:40]],
+                          b.get("intact_count"), "by confidence"))
     L.append(_labeled(f"BioGRID ({b.get('biogrid_count', 0)})",
                       (f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15])))
     L.append(_labeled("ESM2 similar proteins", (f"`{p}`" for p in b.get("esm2_similar", [])[:40])))
     L.append(_labeled("Diamond homologs", (f"`{p}`" for p in b.get("diamond_similar", [])[:40])))
     L.append("\n### SIGNOR signaling {#signor}\n")
     L.append(f"{b.get('signor_count', 0)} interactions.\n")
-    L.append(table(["A", "Effect", "B", "Mechanism"],
-                   [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:ROW_CAP]]))
-    L.append(more_line(b.get("signor_count"), ROW_CAP))
+    L.append(capped_table(["A", "Effect", "B", "Mechanism"],
+                          [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])[:ROW_CAP]],
+                          b.get("signor_count")))
     L.extend(_interactome_enrichment(b))
     return "\n".join(L)
 
@@ -582,9 +582,9 @@ def r_tf_regulation(b):
     if dt:                                          # elide when no CollecTRI targets
         L.append("\n### Downstream targets (CollecTRI) {#collectri}\n")
         L.append(f"{b.get('downstream_count', 0)} targets.\n")
-        L.append(table(["Target", "Regulation"],
-                       [(t.get("target"), t.get("regulation")) for t in dt[:30]]))
-        L.append(more_line(b.get("downstream_count"), 30))
+        L.append(capped_table(["Target", "Regulation"],
+                              [(t.get("target"), t.get("regulation")) for t in dt[:30]],
+                              b.get("downstream_count")))
     # JASPAR motifs — only render when present (most non-TF genes have none,
     # which would otherwise leave an empty header-only table).
     motifs = b.get("jaspar_motifs") or []
@@ -635,13 +635,13 @@ def r_drugs(b):
         L.append("\n### Molecules with ChEMBL bioactivity {#chembl-molecules}\n")
         L.append(f"{mc} molecules (phase ≥1), by development phase (incl. off-target/"
                  f"promiscuous compounds).{patent_note}\n")
-        L.append(table(["Molecule", "Name", "Phase", "Patents"],
-                       [(m["id"],
-                         links.maybe_link(m.get("name"), links.drug_url(chembl_id=m["id"], name=m.get("name"))),
-                         m.get("phase"),
-                         f"{m['patent_count']:,}" if m.get("patent_count") else "")
-                        for m in mols[:ROW_CAP]]))
-        L.append(more_line(mc, ROW_CAP, "by phase"))
+        L.append(capped_table(["Molecule", "Name", "Phase", "Patents"],
+                              [(m["id"],
+                                links.maybe_link(m.get("name"), links.drug_url(chembl_id=m["id"], name=m.get("name"))),
+                                m.get("phase"),
+                                f"{m['patent_count']:,}" if m.get("patent_count") else "")
+                               for m in mols[:ROW_CAP]],
+                              mc, "by phase"))
     # CIViC clinical evidence — drug × variant × indication (the precision-
     # medicine triple). Predictive associations only, deduped + ranked by CIViC
     # evidence level (A validated → E inferential). The Effect column separates
@@ -908,13 +908,13 @@ def r_drugs(b):
     L.append("\n### Clinical trials (associated diseases) {#gene-trials}\n")
     L.append(f"{b.get('disease_trial_count', 0)} trials via MONDO — disease-level, not "
              f"drug-specific.\n")
-    L.append(table(["NCT", "Phase", "Status", "Title"],
-                   # phase_label (audit #8): biobtree emits 'NaN' for trials with
-                   # no interventional phase; render it as 'Not specified', not
-                   # a leaked 'nan'/'NAN'.
-                   [(t["id"], phase_label(t.get("phase")), t.get("status"),
-                     (t.get("title") or "").strip()) for t in ct[:ROW_CAP]]))
-    L.append(more_line(b.get("disease_trial_count"), ROW_CAP))
+    L.append(capped_table(["NCT", "Phase", "Status", "Title"],
+                          # phase_label (audit #8): biobtree emits 'NaN' for trials with
+                          # no interventional phase; render it as 'Not specified', not
+                          # a leaked 'nan'/'NAN'.
+                          [(t["id"], phase_label(t.get("phase")), t.get("status"),
+                            (t.get("title") or "").strip()) for t in ct[:ROW_CAP]],
+                          b.get("disease_trial_count")))
     return "\n".join(L)
 
 
@@ -944,11 +944,15 @@ def r_expression(b):
     L.append("\n### Top tissues by expression {#tissue-expression}\n")
     L.append(f"{b.get('tissue_count', 0)} total, by Bgee expression score (0-100, higher "
              f"= more expressed):\n")
+    # Bgee tissues are score-ranked with a long tail (median gene ~243 entities);
+    # show the top 100 by expression score. The disclosure uses the ACTUAL row
+    # count (len of the slice), never the cap — passing the cap when the collector
+    # provided fewer rows is what made "showing top 60" lie over a 30-row table.
+    _tt = b.get("top_tissues", [])[:100]
     L.append(table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
                    [(t.get("tissue") or "", t.get("anatomy_id") or "",
-                     t.get("score"), t.get("quality"))
-                    for t in b.get("top_tissues", [])[:ROW_CAP]]))
-    L.append(more_line(b.get("tissue_count"), ROW_CAP, "by expression score"))
+                     t.get("score"), t.get("quality")) for t in _tt]))
+    L.append(more_line(b.get("tissue_count"), len(_tt), "by expression score"))
     # Single-cell (SCXA) — per-gene marker status + max expression across
     # single-cell experiments (biobtree #31: via the scxa_expression node).
     sc = b.get("single_cell") or {}
@@ -1066,9 +1070,9 @@ def r_diseases(b):
     L.append(table(["HPO", "Term"], [(h["id"], h.get("name")) for h in _hpo[:ROW_CAP]]))
     L.append("\n### GWAS associations {#gwas-assoc}\n")
     L.append(f"{b.get('gwas_total', 0)} associations (top):\n")
-    L.append(table(["Study", "Trait", "p-value"],
-                   [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]]))
-    L.append(more_line(b.get("gwas_total"), 30))
+    L.append(capped_table(["Study", "Trait", "p-value"],
+                          [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])[:30]],
+                          b.get("gwas_total")))
 
     # EFO canonical trait names — normalized vocabulary for the free-text
     # GWAS-catalog traits above. The same disease can appear under multiple

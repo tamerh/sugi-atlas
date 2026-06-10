@@ -148,6 +148,19 @@ def more_line(total, shown, by=None):
     return f"\n*+{total - shown} more (showing top {shown}{tail}).*"
 
 
+def capped_table(headers, rows, total, by=None):
+    """A markdown table followed by its truncation disclosure, where the
+    "showing top N" count is the ACTUAL number of rows rendered — computed AFTER
+    table()'s identical-row dedup — so it can never over-claim. `rows` is already
+    sliced to the display cap; `total` is the full available count. Pass this
+    instead of a separate table()+more_line() whenever the table can dedup or the
+    collector may provide fewer rows than the display cap (the source of the
+    'showing top 60' over a 30-row table bug)."""
+    md = table(headers, rows)
+    shown = max(0, md.count("\n") - 1) if md else 0   # lines = N data + header + sep
+    return md + more_line(total, shown, by)
+
+
 def table(headers, rows):
     """GitHub-flavored markdown table. Empty cells blank; literal pipes in
     values escaped (no column shift); identical data rows collapsed (source
