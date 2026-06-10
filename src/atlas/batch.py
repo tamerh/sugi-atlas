@@ -302,10 +302,45 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
     ok = sorted((r for r in collected if r.get("ok")),
                 key=lambda r: (r["entity"], r["slug"]))
     failed = [r for r in collected if not r.get("ok")]
-    for r in failed:
-        print(f"    SKIP {r['entity']}:{r.get('ident')} — {r.get('error')}")
+
+    # Retry pass — a TRANSIENT biobtree failure (timeout / 5xx under full-regen
+    # contention) usually succeeds on a calm low-concurrency retry once the
+    # 30-worker load is gone; this is what dropped TTN/BRCA2 from v1.2.0. TERMINAL
+    # failures (no MONDO/HGNC row — the entity genuinely doesn't resolve) are not
+    # retryable, so they're excluded. Transient ⇔ a BiobtreeError reached us.
+    def _transient(r):
+        return "BiobtreeError" in (r.get("error") or "")
+    retry = [r for r in failed if _transient(r)]
+    if retry:
+        print(f"[A] retrying {len(retry)} transient skip(s) at low concurrency …", flush=True)
+        with Pool(min(4, workers)) as pool:
+            retried = _drain("A-retry", pool, collect_one,
+                             [(r["entity"], r["ident"], dist_dir, cache_dir) for r in retry])
+        recovered = [r for r in retried if r.get("ok")]
+        if recovered:
+            ok = sorted(ok + recovered, key=lambda r: (r["entity"], r["slug"]))
+        failed = ([r for r in failed if not _transient(r)]      # terminal — keep
+                  + [r for r in retried if not r.get("ok")])    # still-failing transient
+        print(f"[A] retry recovered {len(recovered)}/{len(retry)}", flush=True)
+
+    # Classify + report the FINAL skips: terminal (expected — no resolution) vs
+    # transient (UNEXPECTED — survived a calm retry, so probably data lost to
+    # repeated biobtree timeouts; these get a loud flag + the skipped.json report).
+    terminal = [r for r in failed if not _transient(r)]
+    transient_left = [r for r in failed if _transient(r)]
+    write_json(os.path.join(dist_dir, "atlas", "skipped.json"),
+               [{"entity": r["entity"], "ident": r.get("ident"),
+                 "kind": "transient" if _transient(r) else "terminal",
+                 "error": r.get("error")} for r in failed], indent=0, sort_keys=True)
+    for r in terminal:
+        print(f"    SKIP (terminal) {r['entity']}:{r.get('ident')} — {r.get('error')}")
+    for r in transient_left:
+        print(f"    ⚠ SKIP (TRANSIENT, unrecovered) {r['entity']}:{r.get('ident')} — {r.get('error')}")
+    if transient_left:
+        print(f"[A] ⚠ {len(transient_left)} TRANSIENT skip(s) survived retry — likely data loss "
+              f"to repeated biobtree timeouts; investigate (atlas/skipped.json).", flush=True)
     print(f"[A] collected {len(ok)}/{total} in {time.time()-t0:.1f}s "
-          f"({len(failed)} skipped)")
+          f"({len(terminal)} terminal, {len(transient_left)} transient skipped)")
 
     print(f"[B] merge manifest …")
     _merge_manifest(ok, dist_dir)
