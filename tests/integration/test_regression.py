@@ -43,6 +43,24 @@ def test_corpus_coverage_floors(pages):
                      f"\n(total={total}, mode={'full' if full else 'dense'})")
 
 
+# Must-have genes — a transient biobtree timeout under full-regen load dropped
+# TTN and BRCA2 from v1.2.0 (both among the heaviest genes). The count floor
+# above can't see a 2-gene loss; this names specific flagships so a silent drop
+# fails the full-corpus integration sweep (before the archive is cut).
+_FLAGSHIP_GENES = ["TP53", "BRCA1", "BRCA2", "EGFR", "KRAS", "TTN", "CFTR",
+                   "CYP2D6", "APOE", "MTHFR"]
+
+
+def test_flagship_genes_present(pages):
+    """On a full-corpus build, a handful of must-have genes must exist. Skips on
+    the dense gate set (which doesn't include all of them)."""
+    if sum(1 for _ in pages) <= 10_000:
+        pytest.skip("dense build — flagship presence is checked on the full corpus")
+    have = {p.slug for p in pages if p.entity == "gene"}
+    missing = [g for g in _FLAGSHIP_GENES if g not in have]
+    assert not missing, f"flagship genes missing from the corpus: {missing}"
+
+
 # (entity, slug, [(kind, needle)]) — kind is 'contains' or 'absent'. Each needle
 # is a SHAPE marker for a feature we shipped, chosen to survive data refreshes.
 # Pages absent from the current build (a dense subset) are skipped, not failed.

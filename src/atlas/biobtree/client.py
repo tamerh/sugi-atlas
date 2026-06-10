@@ -59,7 +59,12 @@ _POOL = urllib3.PoolManager(
     num_pools=2,
     maxsize=16,
     retries=False,
-    timeout=urllib3.Timeout(connect=5.0, read=15.0),
+    # read=45s (was 15): the genome's heaviest genes (TTN, BRCA2) return large
+    # map payloads that, under full-regen contention (30 workers) plus the added
+    # HPA + variant-annotation calls, exceeded 15s and got skipped — dropping two
+    # flagship genes from the v1.2.0 corpus. 45s gives them headroom; the 4-retry
+    # backoff still bounds a genuinely-stuck request.
+    timeout=urllib3.Timeout(connect=5.0, read=45.0),
     block=False,
 )
 
