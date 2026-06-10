@@ -309,7 +309,8 @@ def related_targets(entity_type, bundle):
     deduped by path (e.g. "/atlas/gene/TP53/"). Single source of truth for both
     related_block (markdown) and the JSON-LD cross-entity edges."""
     from atlas.civic import therapy_label
-    groups = {"Genes": [], "Diseases": [], "Trial diseases": [], "Drugs": []}
+    groups = {"Genes": [], "Diseases": [], "Trial diseases": [], "Drugs": [],
+              "Pharmacogenes": []}
     seen = set()
 
     def add(grp, label, url):
@@ -386,6 +387,15 @@ def related_targets(entity_type, bundle):
             add("Drugs", _drug_display(r.get("name")), drug_url(name=r.get("name")))
         for r in (b10.get("civic_evidence") or []):        # name-tier
             add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
+        # Pharmacogenes — genes with a curated PharmGKB variant/clinical
+        # association for THIS drug (PGx: affects metabolism/response, NOT a drug
+        # target). From the §9 pharmacogenomics bundle. Reverses on gene pages as
+        # "Pharmacogenomically associated drugs".
+        b9 = bundle.get("9") or {}
+        pgx = {r.get("gene") for r in (b9.get("variant_annotations") or [])}
+        pgx |= {r.get("gene") for r in (b9.get("clinical_annotations") or [])}
+        for sym in sorted(s for s in pgx if s):
+            add("Pharmacogenes", sym, gene_url(symbol=sym))
 
     # Disease links resolve by name and a synonym can land on a differently-named
     # page (audit #13: "schizoaffective disorder" → /schizophrenia/). Relabel to
@@ -413,12 +423,14 @@ REVERSE_LABEL = {
     ("drug", "Genes"):    "Targeted by drugs",   # drugs that curatedly target this gene (GtoPdb) → on gene pages
     ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease (GenCC/ClinGen/CIViC) → on disease pages
     ("disease", "Genes"): "Disease cohort memberships",  # diseases whose associated-gene cohort includes this gene → on gene pages. COHORT MEMBERSHIP (GWAS/GenCC/ClinVar/CIViC), NOT a causal claim — shown in full (coexists with the gene's forward Associated diseases; the caption flags the overlap).
+    ("drug", "Pharmacogenes"): "Pharmacogenomically associated drugs",  # drugs with a PharmGKB variant/clinical association for this gene → on gene pages (PGx, not targeting)
     # ("drug","Diseases") deliberately omitted: drug→disease indications are
     # surfaced as the dedicated "Drugs indicated for this disease" Therapeutics
     # section (render r_drugs_indicated, fed by the indicated_drugs.json index),
     # which carries the development phase the flat reverse block can't.
 }
-_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes", "Disease cohort memberships"]
+_REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes",
+                  "Disease cohort memberships", "Pharmacogenomically associated drugs"]
 
 # Italic clarifier rendered after a group label — kills the misread that a
 # predictive/biomarker or cohort-membership edge is a target/causal claim.
@@ -429,6 +441,12 @@ _GROUP_CAPTION = {
     "Disease cohort memberships":
         "association, not causation — diseases whose associated-gene cohort lists "
         "this gene; a subset are also under Associated diseases",
+    "Pharmacogenes":
+        "genes with a PharmGKB pharmacogenomic association for this drug — they "
+        "affect its metabolism/response, they are not its targets",
+    "Pharmacogenomically associated drugs":
+        "drugs whose metabolism/response is associated with variants in this gene "
+        "(PharmGKB) — not drugs that target it",
 }
 
 
@@ -501,7 +519,7 @@ def related_block(entity_type, bundle, slug=None):
         head = f"**{lbl_text}** *({cap})*:" if cap else f"**{lbl_text}:**"
         lines.append(f"- {head} {row}")
 
-    for grp in ("Genes", "Diseases", "Trial diseases", "Drugs"):
+    for grp in ("Genes", "Diseases", "Trial diseases", "Drugs", "Pharmacogenes"):
         if groups.get(grp):
             _row(label.get(grp, grp), groups[grp])
     # Reverse edges (incoming) — corpus builds only; _REVERSE is empty otherwise.

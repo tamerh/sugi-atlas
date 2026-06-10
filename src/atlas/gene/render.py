@@ -717,6 +717,25 @@ def r_drugs(b):
              for v in pgv[:ROW_CAP]]))
         L.append(more_line(len(pgv), ROW_CAP))
 
+    # PharmGKB per-publication variant annotations — the raw evidence layer
+    # (one finding per row, each a plain-English sentence + PMID), keyed by drug.
+    pva = b.get("pharmgkb_var_annotation") or []
+    if pva:
+        L.append("\n### PharmGKB variant annotations {#pharmgkb-var-annotations}\n")
+        L.append(f"{len(pva)} published findings (significant associations) — "
+                 "per-publication pharmacogenomic annotations for this gene:\n")
+        L.append(table(
+            ["Variant", "Drug(s)", "Category", "Finding", "PMID"],
+            [(links.maybe_link(v.get("variant") or "", _variant_link(v.get("variant"))),
+              links.link_csv((v.get("drugs") or "").replace(";", ", "),
+                             lambda s: links.drug_url(name=s)),
+              v.get("category"), v.get("sentence"),
+              links.maybe_link(f"PMID:{v['pmid']}",
+                               f"https://pubmed.ncbi.nlm.nih.gov/{v['pmid']}/")
+              if v.get("pmid") else "")
+             for v in pva[:ROW_CAP]]))
+        L.append(more_line(len(pva), ROW_CAP))
+
     # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
     # gene+drug pair. Canonical pharmacogenes have tens of guidelines
     # (CYP2D6: 69, CYP2C19: 37); non-pharmacogenes have none.

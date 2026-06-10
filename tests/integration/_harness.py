@@ -81,6 +81,7 @@ H4_IDS = {
              "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",
              # §drug-data
              "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",
+             "pharmgkb-var-annotations",
              "pharmgkb-guidelines", "gtopdb", "bindingdb", "chembl-bioactivity",
              "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials"},
     "disease": {  # clinical / genetics

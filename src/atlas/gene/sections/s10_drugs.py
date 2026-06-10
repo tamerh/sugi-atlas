@@ -125,6 +125,7 @@ CHAINS = (
     ">>hgnc>>pharmgkb_gene",
     ">>hgnc>>pharmgkb_clinical",
     ">>hgnc>>pharmgkb_variant",
+    ">>hgnc>>pharmgkb_var_annotation",
     ">>hgnc>>pharmgkb_guideline",
     ">>uniprot>>bindingdb",
     ">>uniprot>>gtopdb",
@@ -138,7 +139,7 @@ CHAINS = (
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
             "chembl_document", "patent_compound", "cellosaurus",
             "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant",
-            "pharmgkb_guideline",
+            "pharmgkb_var_annotation", "pharmgkb_guideline",
             "bindingdb", "gtopdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc",
@@ -231,6 +232,21 @@ def collect(a):
         "clinical_annotation_count": t.get("clinical_annotation_count"),
         "associated_drugs": t.get("associated_drugs"),
     } for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_variant")]
+    # PharmGKB per-publication variant annotations — the raw evidence layer
+    # beneath the clinical annotations (one row per published finding, each a
+    # plain-English sentence + PMID). Keep the SIGNIFICANT findings; heavy
+    # pharmacogenes have hundreds (CYP2D6 ~773), so the renderer caps + discloses.
+    _va = [t for t in map_all(a.hgnc_id, ">>hgnc>>pharmgkb_var_annotation")
+           if t.get("significance") == "yes"]
+    bundle["pharmgkb_var_annotation"] = [{
+        "variant": t.get("variant"),
+        "drugs": t.get("drugs"),
+        "category": t.get("phenotype_category"),
+        "sentence": t.get("sentence"),
+        "pmid": t.get("pmid"),
+    } for t in _va]
+    bundle["pharmgkb_var_annotation_total"] = len(_va)
+
     # PharmGKB guidelines — CPIC / DPWG / CPNDS dosing guidance per
     # gene-drug pair. Many for canonical pharmacogenes (CYP2C19 has 37,
     # CYP2D6 has 69); zero for non-pharmacogenes (most cancer genes).
@@ -553,7 +569,7 @@ SECTION = Section(
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",
               "cellosaurus_samples", "pharmgkb", "pharmgkb_clinical", "pharmgkb_variant",
-              "pharmgkb_guideline",
+              "pharmgkb_var_annotation", "pharmgkb_var_annotation_total", "pharmgkb_guideline",
               "gtopdb_target", "gtopdb_interactions", "gtopdb_interaction_count",
               "bindingdb_ranked", "bindingdb_total", "bindingdb_human",
               "bindingdb_measured", "pubchem_bioassay", "ctd_interactions",
