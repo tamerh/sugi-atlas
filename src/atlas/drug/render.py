@@ -320,7 +320,6 @@ def r_pharmacogenomics(b):
     L = ["## Pharmacogenomics", ""]
     g = b.get("guidelines") or []
     pa = b.get("pharmgkb_chemical_id")
-    ca, va = b.get("clinical_annotation_count"), b.get("variant_annotation_count")
     if not g and not pa:
         L.append("*No PharmGKB pharmacogenomic data curated for this drug.*")
         return "\n".join(L)
@@ -338,15 +337,15 @@ def r_pharmacogenomics(b):
                          "yes" if r.get("has_dosing") else "",
                          "yes" if r.get("has_recommendation") else "") for r in g[:ROW_CAP]]))
         L.append(more_line(len(g), ROW_CAP))
-    # Per-variant CLINICAL annotations for this drug — surfaced directly now, not
-    # just counted: variant × gene × association type × phenotype × evidence level
-    # (resolved via the drug's PGx genes; see s09). We don't tease the deeper
-    # per-publication variant-annotation count: those records aren't accessible in
-    # biobtree yet, and our aim is to aggregate data, not point users elsewhere.
+    # Two PharmGKB evidence layers, surfaced directly (not teased):
+    #   clinical_annotations  — the SCORED summary (variant × gene × type × level)
+    #   variant_annotations   — the per-publication findings beneath it, each a
+    #                           plain-English sentence + PMID (resolved via the
+    #                           drug's PGx genes; see s09). The latter is what the
+    #                           old "see PharmGKB" tease pointed at — now aggregated.
     cl = b.get("clinical_annotations") or []
-
-    def _variant_link(v):
-        return f"https://www.ncbi.nlm.nih.gov/snp/{v}" if v and v.startswith("rs") else None
+    vr = b.get("variant_annotations") or []
+    vlink = links.variant_link
 
     if cl:
         L += ["", f"**Pharmacogenomic clinical annotations ({_i(len(cl))})** — variant × "
@@ -355,15 +354,24 @@ def r_pharmacogenomics(b):
               table(["Gene", "Variant", "Association", "Phenotype", "Level"],
                     [(links.maybe_link(r.get("gene") or "",
                                        links.gene_url(symbol=r["gene"]) if r.get("gene") else None),
-                      links.maybe_link(r.get("variant") or "", _variant_link(r.get("variant"))),
+                      links.maybe_link(r.get("variant") or "", vlink(r.get("variant"))),
                       r.get("type"), r.get("phenotypes"), r.get("level")) for r in cl])]
-    elif pa and (ca or va):
-        counts = (f"{_i(ca) or 0} clinical and {_i(va) or 0} variant annotation(s) "
-                  f"for this drug (see [PharmGKB](https://www.pharmgkb.org/chemical/{pa}))")
-        L.append(f"\nPharmGKB also curates {counts}." if g else
-                 f"*No CPIC/DPWG dosing guideline, but PharmGKB curates {counts}.*")
-    elif not g and pa:
-        L.append("*No CPIC/DPWG dosing guideline or drug-level clinical/variant "
+    if vr:
+        L += ["", f"**Published variant annotations ({_i(len(vr))})** — per-publication "
+              "pharmacogenomic findings for this drug (significant associations only), "
+              "each from a curated PharmGKB literature annotation:", "",
+              table(["Gene", "Variant", "Category", "Finding", "PMID"],
+                    [(links.maybe_link(r.get("gene") or "",
+                                       links.gene_url(symbol=r["gene"]) if r.get("gene") else None),
+                      links.maybe_link(r.get("variant") or "", vlink(r.get("variant"))),
+                      r.get("category"), r.get("sentence"),
+                      links.maybe_link(f"PMID:{r['pmid']}",
+                                       f"https://pubmed.ncbi.nlm.nih.gov/{r['pmid']}/")
+                      if r.get("pmid") else "")
+                     for r in vr[:ROW_CAP]]),
+              more_line(len(vr), ROW_CAP)]
+    if not g and not cl and not vr and pa:
+        L.append("*No CPIC/DPWG dosing guideline or resolvable clinical / variant "
                  "annotations in PharmGKB for this molecule.*")
     return "\n".join(L)
 

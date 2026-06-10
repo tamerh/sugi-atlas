@@ -18,6 +18,7 @@ from atlas.section import Section
 _CHEMICAL_CHAIN = ">>chembl_molecule>>pubchem>>pharmgkb"
 _GUIDELINE_CHAIN = ">>chembl_molecule>>pubchem>>pharmgkb>>pharmgkb_guideline"
 _CLINICAL_CHAIN = ">>hgnc>>pharmgkb_clinical"   # gene → its PharmGKB clinical annotations
+_VARANN_CHAIN = ">>hgnc>>pharmgkb_var_annotation"  # gene → per-publication variant annotations
 
 
 def _int(v):
@@ -69,6 +70,53 @@ def _clinical_annotations(pgx_id, pgx_name):
     return out
 
 
+def _variant_annotations(pgx_id, pgx_name):
+    """The drug's per-publication PharmGKB variant annotations — the raw evidence
+    layer BENEATH the clinical annotations: one row per published finding, each
+    with a plain-English `sentence` + PMID. Same fan-out as _clinical_annotations
+    (read the drug's related PGx genes, fan each through
+    >>hgnc>>pharmgkb_var_annotation), keeping only the SIGNIFICANT rows that name
+    this drug. Deduped by (variant, gene, pmid). This is the data the old
+    'see PharmGKB' tease pointed at — now aggregated."""
+    if not (pgx_id and pgx_name):
+        return []
+    try:
+        ce = entry(pgx_id, "pharmgkb")
+        related = ((ce.get("Attributes") or {}).get("Pharmgkb") or {}).get("related_genes") or []
+    except Exception:
+        return []
+    out, seen = [], set()
+    for g in related:
+        sym = g.get("gene_symbol")
+        if not sym:
+            continue
+        try:
+            rows = map_all(sym, _VARANN_CHAIN)
+        except Exception:
+            continue
+        for r in rows:
+            if r.get("significance") != "yes":          # positive findings only
+                continue
+            drugs = {d.strip().lower()
+                     for d in (r.get("drugs") or "").replace(",", ";").split(";")}
+            if pgx_name not in drugs:
+                continue
+            key = (r.get("variant"), sym, r.get("pmid"))
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append({
+                "variant": r.get("variant"),
+                "gene": sym,
+                "category": r.get("phenotype_category"),
+                "direction": r.get("direction_of_effect"),
+                "sentence": r.get("sentence"),
+                "pmid": r.get("pmid"),
+            })
+    out.sort(key=lambda x: (x.get("gene") or "", x.get("variant") or ""))
+    return out
+
+
 def collect(a):
     chem = map_all(a.chembl_id, _CHEMICAL_CHAIN, cap=1)
     c0 = chem[0] if chem else {}
@@ -88,6 +136,7 @@ def collect(a):
         "clinical_annotation_count": _int(c0.get("clinical_annotation_count")),
         "variant_annotation_count": _int(c0.get("variant_annotation_count")),
         "clinical_annotations": _clinical_annotations(c0.get("id"), pgx_name),
+        "variant_annotations": _variant_annotations(c0.get("id"), pgx_name),
         "guidelines": guidelines,
         "guideline_count": len(guidelines),
     }
@@ -101,9 +150,9 @@ SECTION = Section(
     needs=("chembl_id",),
     produces=("pharmgkb_chemical_id", "clinical_annotation_count",
               "variant_annotation_count", "clinical_annotations",
-              "guidelines", "guideline_count"),
+              "variant_annotations", "guidelines", "guideline_count"),
     datasets=("chembl_molecule", "pubchem", "pharmgkb", "pharmgkb_guideline",
-              "hgnc", "pharmgkb_clinical"),
-    chains=(_CHEMICAL_CHAIN, _GUIDELINE_CHAIN, _CLINICAL_CHAIN),
+              "hgnc", "pharmgkb_clinical", "pharmgkb_var_annotation"),
+    chains=(_CHEMICAL_CHAIN, _GUIDELINE_CHAIN, _CLINICAL_CHAIN, _VARANN_CHAIN),
     collect_fn=collect,
 )
