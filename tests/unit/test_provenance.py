@@ -118,11 +118,11 @@ def test_build_provenance_no_meta_yields_null_meta_fields():
     assert p["atlas_version"] is None
     assert p["biobtree_version"] is None
 
-def test_build_provenance_sections_list_has_all_12():
+def test_build_provenance_sections_list_has_all_sections():
     p = build_provenance(_bundle(), meta=META)
-    assert len(p["sections"]) == 12
+    assert len(p["sections"]) == 13          # §1–§12 + §13 Human Protein Atlas
     ids = [s["id"] for s in p["sections"]]
-    assert ids == [str(n) for n in range(1, 13)]
+    assert ids == [str(n) for n in range(1, 14)]
 
 def test_build_provenance_each_section_has_required_fields():
     p = build_provenance(_bundle(), meta=META)

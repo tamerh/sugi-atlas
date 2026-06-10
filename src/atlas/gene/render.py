@@ -1080,6 +1080,88 @@ def r_diseases(b):
     return "\n".join(L)
 
 
+# --- Human Protein Atlas (§13) — derived renderers reading the shared bundle,
+# slotted by pipeline.render_all into the Protein / Gene-structure / Disease zones.
+
+def _pv(s):
+    try:
+        return float(s)
+    except (TypeError, ValueError):
+        return 9.9
+
+
+def r_hpa_protein(bundle):
+    """HPA protein facts → Protein zone: subcellular location (IHC-imaging, shown
+    alongside the UniProt CC narrative), protein classes, protein-evidence tier."""
+    h = (bundle.get("13") or {}).get("hpa") or {}
+    if not h:
+        return ""
+    L = ["## Human Protein Atlas {#hpa-protein}", ""]
+    cls = h.get("protein_classes") or []
+    if cls:
+        L.append(f"**Protein class:** {', '.join(cls[:12])}"
+                 + (f" (+{len(cls) - 12} more)" if len(cls) > 12 else ""))
+    if h.get("protein_evidence"):
+        L.append(f"\n**Protein evidence:** {h['protein_evidence']}")
+    main, add = h.get("subcellular_main") or [], h.get("subcellular_additional") or []
+    if main or add:
+        loc = "; ".join(main)
+        if add:
+            loc += (f" *(additional: {'; '.join(add[:8])}"
+                    + (" …" if len(add) > 8 else "") + ")*")
+        L.append(f"\n**Subcellular location (HPA, imaging):** {loc or '—'}")
+    if h.get("secretome_location"):
+        L.append(f"\n**Secretome:** {h['secretome_location']}")
+    return "\n".join(L)
+
+
+def r_hpa_expression(bundle):
+    """HPA per-tissue/cell expression (nTPM, + IHC protein level when present) →
+    Gene-structure zone, alongside the Bgee/FANTOM5/SCXA expression."""
+    b = bundle.get("13") or {}
+    exp = b.get("hpa_expression") or []
+    if not exp:
+        return ""
+    spec = (b.get("hpa") or {}).get("rna_tissue_specificity")
+    L = ["## HPA expression {#hpa-expression}", ""]
+    lead = f"{b.get('hpa_expression_total', len(exp))} HPA entities (nTPM)"
+    if spec:
+        lead += f"; RNA tissue specificity: **{spec}**"
+    L.append(lead + ", top by nTPM:\n")
+    if any(r.get("protein_level") for r in exp):
+        L.append(table(["Tissue / cell", "Axis", "nTPM", "Protein (IHC)"],
+                       [(r.get("entity"), r.get("axis"), r.get("ntpm"), r.get("protein_level"))
+                        for r in exp[:ROW_CAP]]))
+    else:
+        L.append(table(["Tissue / cell", "Axis", "nTPM"],
+                       [(r.get("entity"), r.get("axis"), r.get("ntpm")) for r in exp[:ROW_CAP]]))
+    L.append(more_line(len(exp), ROW_CAP, "by nTPM"))
+    return "\n".join(L)
+
+
+def r_hpa_cancer(bundle):
+    """HPA cancer prognostics + RNA cancer specificity → Disease zone, alongside
+    intOGen drivers and CIViC."""
+    b = bundle.get("13") or {}
+    h = b.get("hpa") or {}
+    path = b.get("hpa_pathology") or []
+    spec = h.get("rna_cancer_specificity")
+    if not path and not spec:
+        return ""
+    L = ["## HPA cancer prognostics {#hpa-cancer}", ""]
+    if spec:
+        L.append(f"**RNA cancer specificity:** {spec}\n")
+    if path:
+        L.append(f"Prognostic in {len(path)} cancer type(s) (Human Protein Atlas "
+                 "survival analysis — favorable = higher expression predicts better "
+                 "survival):\n")
+        L.append(table(["Cancer", "Prognostic", "p-value"],
+                       [(p.get("cancer"), p.get("prognostic_type"), p.get("p_value"))
+                        for p in sorted(path, key=lambda p: _pv(p.get("p_value")))[:ROW_CAP]]))
+        L.append(more_line(len(path), ROW_CAP))
+    return "\n".join(L)
+
+
 RENDER = {"1": r_gene_ids, "2": r_transcripts, "3": r_protein_ids,
           "4": r_structure, "5": r_orthologs, "6": r_variants,
           "7": r_pathways, "8": r_interactions, "9": r_tf_regulation,

@@ -80,6 +80,7 @@ UPSTREAM = {
     "pharmgkb_gene":     ("PharmGKB",                              "https://www.pharmgkb.org/"),
     "pharmgkb_clinical": ("PharmGKB Clinical Annotations",         "https://www.pharmgkb.org/clinicalAnnotations"),
     "pharmgkb_variant":  ("PharmGKB Variant Annotations",          "https://www.pharmgkb.org/variantAnnotations"),
+    "pharmgkb_var_annotation": ("PharmGKB Variant Annotations",    "https://www.pharmgkb.org/variantAnnotations"),
     "pharmgkb_guideline": ("PharmGKB / CPIC dosing guidelines",    "https://www.pharmgkb.org/guidelineAnnotations"),
     "pharmgkb":          ("PharmGKB",                              "https://www.pharmgkb.org/"),
     "chebi":             ("ChEBI",                                 "https://www.ebi.ac.uk/chebi/"),
@@ -129,6 +130,9 @@ UPSTREAM = {
     "scxa":              ("EBI Single Cell Expression Atlas",      "https://www.ebi.ac.uk/gxa/sc/"),
     "scxa_expression":   ("EBI Single Cell Expression Atlas",      "https://www.ebi.ac.uk/gxa/sc/"),
     "scxa_gene_experiment": ("EBI Single Cell Expression Atlas",   "https://www.ebi.ac.uk/gxa/sc/"),
+    "hpa":               ("Human Protein Atlas",                   "https://www.proteinatlas.org/"),
+    "hpa_expression":    ("Human Protein Atlas",                   "https://www.proteinatlas.org/"),
+    "hpa_pathology":     ("Human Protein Atlas (Pathology)",       "https://www.proteinatlas.org/humanproteome/pathology"),
 }
 
 def _section_provenance(sec):
