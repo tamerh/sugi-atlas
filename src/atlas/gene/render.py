@@ -400,8 +400,11 @@ def r_residue_map(b):
             if not rows:
                 continue
             if mode == "perres":             # one row per residue, with its role
+                # binding sites carry the ligand in a clean field (ATP, Mg(2+)…);
+                # active sites carry their role in description (proton acceptor).
                 body = table(["Position", "Role"],
-                             [(_res_loc(f), f.get("description") or "") for f in rows[:ROW_CAP]])
+                             [(_res_loc(f), f.get("ligand") or f.get("description") or "")
+                              for f in rows[:ROW_CAP]])
                 if len(rows) > ROW_CAP:      # heading carries the true count; flag the hidden tail
                     body += f"\n\n*…and {len(rows) - ROW_CAP} more — see UniProt.*"
             else:                            # bytype — positions grouped by modification identity
@@ -1145,6 +1148,13 @@ def r_hpa_protein(bundle):
         L.append(f"\n**Subcellular location (HPA, imaging):** {'; '.join(loc)}")
     if h.get("secretome_location"):
         L.append(f"\n**Secretome:** {h['secretome_location']}")
+    # Antibody-staining reliability — qualifies how trustworthy the HPA protein
+    # data above is (IH = immunohistochemistry/tissue, IF = immunofluorescence/
+    # localization; enhanced > supported > approved > uncertain).
+    rel = [f"{lab} {h[k]}" for k, lab in (("reliability_ih", "IH"),
+                                          ("reliability_if", "IF")) if h.get(k)]
+    if rel:
+        L.append(f"\n**Antibody reliability (HPA):** {' · '.join(rel)}")
     return "\n".join(L)
 
 

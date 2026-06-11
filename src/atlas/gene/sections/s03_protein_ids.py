@@ -66,7 +66,11 @@ def collect(a):
             ufeatures.append({"uniprot": u, "id": t["id"], "type": t.get("type"),
                               "description": t.get("description"),
                               "begin": t.get("location_begin"),
-                              "end": t.get("location_end")})
+                              "end": t.get("location_end"),
+                              # binding-site ligand (ATP, Mg(2+), heme…) — biobtree now
+                              # projects it as a clean field (BIOBTREE_ISSUES #38 RESOLVED);
+                              # the residue map's Role column reads it for binding sites.
+                              "ligand": t.get("ligand")})
         # BRENDA enzyme classification — EC number + name + summary stats.
         # Non-enzyme proteins (TFs, inhibitors) return nothing; the bundle
         # list stays empty and the render block elides.

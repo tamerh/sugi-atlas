@@ -58,6 +58,10 @@ def collect(a):
         "rna_tissue_distribution": at.get("rna_tissue_distribution"),
         "rna_cancer_specificity": at.get("rna_cancer_specificity"),
         "secretome_location": at.get("secretome_location"),
+        # antibody-staining reliability tier (enhanced > supported > approved >
+        # uncertain) — how trustworthy HPA's IHC tissue / IF localization data is.
+        "reliability_ih": at.get("reliability_ih"),
+        "reliability_if": at.get("reliability_if"),
         "top_tissues": at.get("top_tissues") or [],   # ["Placenta|61.8", ...]
     }
     # Per-tissue/cell expression — nTPM, highest first; IHC protein_level when present.

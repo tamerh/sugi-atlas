@@ -148,6 +148,34 @@ def test_residue_map_labels_modifications_by_type():
     assert "| Disulfide bond | 31–58 |" in md
 
 
+def test_residue_map_binding_site_shows_ligand():
+    """Binding-site rows show the ligand (ATP, Mg(2+)…) from the clean `ligand`
+    field, not the lowercased description; active sites keep their description."""
+    b = {"reviewed_uniprot": ["P0"], "canonical_uniprot": "P0", "ufeatures": [
+        {"uniprot": "P0", "type": "binding site", "begin": "718", "end": "726",
+         "description": "atp", "ligand": "ATP"},
+        {"uniprot": "P0", "type": "active site", "begin": "837", "end": "837",
+         "description": "proton acceptor", "ligand": None},
+    ]}
+    md = R.r_residue_map(b)
+    assert "| 718–726 | ATP |" in md            # clean ligand casing, not 'atp'
+    assert "| 837 | proton acceptor |" in md     # active site falls back to description
+
+
+def test_hpa_protein_shows_antibody_reliability():
+    """HPA protein block surfaces the antibody-staining reliability tier (IH/IF),
+    omitting whichever field is absent."""
+    md = R.r_hpa_protein({"13": {"hpa": {
+        "subcellular_main": ["Nucleoplasm"],
+        "reliability_ih": "enhanced", "reliability_if": "supported"}}})
+    assert "**Antibody reliability (HPA):** IH enhanced · IF supported" in md
+    # IF absent → only IH shown, no dangling separator
+    md2 = R.r_hpa_protein({"13": {"hpa": {
+        "subcellular_main": ["Cytosol"], "reliability_ih": "enhanced"}}})
+    assert "**Antibody reliability (HPA):** IH enhanced" in md2
+    assert "·" not in md2.split("Antibody reliability")[1]
+
+
 def test_residue_map_per_product_skips_empty():
     b = {"reviewed_uniprot": ["P0", "P1", "P2"], "canonical_uniprot": "P0",
          "ufeatures": [
