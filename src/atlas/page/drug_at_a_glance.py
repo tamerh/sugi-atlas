@@ -10,6 +10,7 @@ Sits directly under the declarative lead as a bold "**At a glance**" intro
 block (not a "## " section). Bullets with no backing data drop; the whole
 block elides if nothing qualifies.
 """
+from atlas.page import evidence
 
 
 def _format_int(n):
@@ -66,13 +67,18 @@ def at_a_glance(bundle) -> str:
     if genes:
         shown = ", ".join(genes[:3])
         extra = f" ({shown}…)" if len(genes) > 3 else f" ({shown})"
-        bullets.append(f"**Targets:** {len(genes)}{extra}")
+        # rank on the broader ChEMBL bioactivity-target breadth (the evidence
+        # component), which is what the corpus distribution is built from.
+        tgt = b2.get("bioactivity_target_count") or len(genes)
+        bullets.append(f"**Targets:** {len(genes)}{extra}"
+                       + evidence.rank_clause("drug", "target_count", tgt))
 
     # Indications (§4).
     ind = b4.get("indication_count") or 0
     if ind:
         bullets.append(f"**Indications:** {_format_int(ind)} condition"
-                       f"{'s' if ind != 1 else ''}")
+                       f"{'s' if ind != 1 else ''}"
+                       + evidence.rank_clause("drug", "indication_count", ind))
 
     # Clinical trials (§5).
     tr = b5.get("trial_count") or 0
@@ -96,6 +102,11 @@ def at_a_glance(bundle) -> str:
         if formula:
             bits.append(formula)
         bullets.append(f"**Chemistry:** {' · '.join(bits)}")
+
+    # Notable callout — substantial trial activity without approval (a drug in
+    # active development, surfaced as a deterministic observation).
+    if tr >= 10 and not (b1.get("is_fda_approved") or b1.get("max_phase") == 4):
+        bullets.append(f"**Notable:** {_format_int(tr)} clinical trials, not yet approved")
 
     if not bullets:
         return ""

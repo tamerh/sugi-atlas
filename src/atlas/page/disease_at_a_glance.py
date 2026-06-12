@@ -10,6 +10,7 @@ Sits directly under the declarative lead as a bold "**At a glance**" intro
 block (not a "## " section). Bullets with no backing data drop; the whole
 block elides if nothing qualifies.
 """
+from atlas.page import evidence
 
 
 def _format_int(n):
@@ -49,6 +50,7 @@ def at_a_glance(bundle) -> str:
     b1  = bundle.get("1")  or {}
     b2  = bundle.get("2")  or {}
     b5  = bundle.get("5")  or {}
+    b10 = bundle.get("10") or {}
     b13 = bundle.get("13") or {}
     xc  = b1.get("xref_counts") or {}
 
@@ -85,12 +87,14 @@ def at_a_glance(bundle) -> str:
     # Cohort genes (§5) — size of the associated-gene set this page aggregates.
     gc = b5.get("gene_count") or 0
     if gc:
-        bullets.append(f"**Cohort genes:** {_format_int(gc)}")
+        bullets.append(f"**Cohort genes:** {_format_int(gc)}"
+                       + evidence.rank_clause("disease", "gene_count", gc))
 
     # GWAS associations (§2) — common-variant genetics.
     ga = b2.get("assoc_total") or 0
     if ga:
-        bullets.append(f"**GWAS associations:** {_format_int(ga)}")
+        bullets.append(f"**GWAS associations:** {_format_int(ga)}"
+                       + evidence.rank_clause("disease", "gwas_count", ga))
 
     # ClinVar variants — accurate xref total from the Mondo entry (§1
     # xref_counts), NOT §3's clinvar_total which is a paginated fetch floor
@@ -108,7 +112,8 @@ def at_a_glance(bundle) -> str:
     # mondo→clinical_trials edge. 0 is a valid answer for a rare disease.
     tr = b13.get("trial_count") or 0
     if tr:
-        bullets.append(f"**Clinical trials:** {_format_int(tr)}")
+        bullets.append(f"**Clinical trials:** {_format_int(tr)}"
+                       + evidence.rank_clause("disease", "trial_count", tr))
 
     # Precision-medicine evidence (CIViC, §13) — subtype–drug associations.
     civ = b13.get("civic_association_total") or 0
@@ -116,6 +121,16 @@ def at_a_glance(bundle) -> str:
         bullets.append(
             f"**Precision-medicine evidence (CIViC):** {_format_int(civ)} "
             f"subtype–drug association{'s' if civ != 1 else ''}")
+
+    # Notable callouts — deterministic anomaly observations across the disease's
+    # own counts (the kind of "what to notice here" line a curator writes).
+    phased = b10.get("phased_count") or 0
+    if tr >= 10 and phased == 0:
+        bullets.append(f"**Notable:** {_format_int(tr)} clinical trials but no "
+                       f"approved drug yet")
+    if hp > 0 and gc == 0:
+        bullets.append(f"**Notable:** clinically characterized "
+                       f"({_format_int(hp)} phenotypes) but no curated causal gene")
 
     if not bullets:
         return ""

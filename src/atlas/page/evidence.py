@@ -99,28 +99,81 @@ def percentiles(raw_by_slug):
             for s, v in raw_by_slug.items()}
 
 
+# Per-component corpus-relative ranking ("top 1% of genes by …"). Only the
+# components worth a headline rank get an entry → (plural noun, min absolute
+# count). The floor matters: most entities score 0 on most components, so a
+# "top 2%" on a count of 3 would be noise — require a real count first.
+_RANK_SPEC = {
+    ("gene", "drug_count"):        ("genes", 10),
+    ("gene", "gwas_count"):        ("genes", 25),
+    ("gene", "variant_count"):     ("genes", 50),
+    ("gene", "interaction_count"): ("genes", 50),
+    ("disease", "trial_count"):    ("diseases", 25),
+    ("disease", "gwas_count"):     ("diseases", 25),
+    ("disease", "gene_count"):     ("diseases", 25),
+    ("drug", "target_count"):      ("drugs", 10),
+    ("drug", "indication_count"):  ("drugs", 5),
+}
+_RANK_FLOOR_PCT = 90              # only surface a rank in the top decile
+
+
 # ---- render-side: load the frozen distribution, look an entity up -----------
 _PROM = {}    # {entity_type: {slug: score}}
 _DIST = {}    # {entity_type: [sorted raw signals]} — for single-entity reuse
+_DIST_COMP = {}   # {entity_type: {component_key: [sorted counts]}} — per-metric rank
 _ROOT = None
 
 
 def load(dist_root):
     """Load <dist>/atlas/evidence.json (idempotent per root)."""
-    global _PROM, _DIST, _ROOT
+    global _PROM, _DIST, _DIST_COMP, _ROOT
     if dist_root == _ROOT:
         return
-    _PROM, _DIST, _ROOT = {}, {}, dist_root
+    _PROM, _DIST, _DIST_COMP, _ROOT = {}, {}, {}, dist_root
     path = os.path.join(dist_root, "atlas", "evidence.json")
     if os.path.exists(path):
         d = json.load(open(path))
         _DIST = d.pop("_dist", {})
+        _DIST_COMP = d.pop("_dist_components", {})
         _PROM = d
 
 
 def reset():
-    global _PROM, _DIST, _ROOT
-    _PROM, _DIST, _ROOT = {}, {}, None
+    global _PROM, _DIST, _DIST_COMP, _ROOT
+    _PROM, _DIST, _DIST_COMP, _ROOT = {}, {}, {}, None
+
+
+def component_percentile(entity_type, key, count):
+    """Percentile rank (0-100) of `count` within the frozen per-component
+    distribution for this entity type. None when no distribution is loaded
+    (no batch has run — e.g. a unit test calling a renderer directly)."""
+    dist = _DIST_COMP.get(entity_type, {}).get(key)
+    if not dist:
+        return None
+    n = len(dist)
+    if n <= 1:
+        return 100
+    return round(100 * bisect.bisect_left(dist, count) / (n - 1))
+
+
+def rank_clause(entity_type, key, count):
+    """A corpus-relative ranking parenthetical for a headline count —
+    ' (top 1% of genes corpus-wide)' — or '' when the metric isn't rank-worthy,
+    the count is below its floor, the rank isn't in the top decile, or no
+    distribution is loaded. Honest by construction: it always names the
+    reference set (the Atlas corpus), never implies completeness of biology."""
+    spec = _RANK_SPEC.get((entity_type, key))
+    if not spec:
+        return ""
+    noun, floor = spec
+    if (count or 0) < floor:
+        return ""
+    pct = component_percentile(entity_type, key, count)
+    if pct is None or pct < _RANK_FLOOR_PCT:
+        return ""
+    gap = 100 - pct
+    band = "top 1%" if gap < 1 else f"top {round(gap)}%"
+    return f" ({band} of {noun} corpus-wide)"
 
 
 def lookup(entity_type, slug, raw):

@@ -12,6 +12,7 @@ sheet you scan, distinct on purpose (no sentence synthesis, just labelled
 facts). Bullets with no backing data are dropped; if nothing qualifies the
 whole block elides (returns "").
 """
+from atlas.page import evidence
 
 # ClinGen dosage score scale (same mapping the §-detail block uses).
 _DOSAGE_SCALE = {
@@ -99,7 +100,8 @@ def at_a_glance(bundle) -> str:
     # gene–disease line above.
     gwas = b12.get("gwas_total") or 0
     if gwas:
-        bullets.append(f"**GWAS associations:** {gwas:,}")
+        bullets.append(f"**GWAS associations:** {gwas:,}"
+                       + evidence.rank_clause("gene", "gwas_count", gwas))
 
     # Clinical variant burden (ClinVar) — total + the pathogenic / likely-
     # pathogenic floor. High clinical signal, populated for most disease genes.
@@ -112,7 +114,8 @@ def at_a_glance(bundle) -> str:
         if bd.get("Likely pathogenic"):
             parts.append(f"{bd['Likely pathogenic']} likely-pathogenic")
         detail = f" — {', '.join(parts)}" if parts else ""
-        bullets.append(f"**Clinical variants (ClinVar):** {cv_total:,} total{detail}")
+        bullets.append(f"**Clinical variants (ClinVar):** {cv_total:,} total{detail}"
+                       + evidence.rank_clause("gene", "variant_count", cv_total))
 
     # Phenotypes (HPO) — clinical feature count across associated conditions.
     hpo = b12.get("hpo_total") or 0
@@ -123,7 +126,8 @@ def at_a_glance(bundle) -> str:
     if _truthy(b10.get("is_drug_target")):
         mc = b10.get("molecule_count") or 0
         extra = f" — {mc:,} molecules with ChEMBL bioactivity" if mc else ""
-        bullets.append(f"**Druggable target:** yes{extra}")
+        bullets.append(f"**Druggable target:** yes{extra}"
+                       + evidence.rank_clause("gene", "drug_count", mc))
 
     # Precision-oncology evidence (CIViC) — curated variant–drug associations.
     civ_total = b10.get("civic_association_total") or 0
@@ -190,6 +194,21 @@ def at_a_glance(bundle) -> str:
     mane = b2.get("mane_select_refseq")
     if mane and mane != "None":
         bullets.append(f"**MANE Select transcript:** `{mane}`")
+
+    # Interaction hub (STRING) — surfaced ONLY when corpus-relatively notable: a
+    # raw partner count means little without the distribution, so the rank IS the
+    # reason for the bullet. Elides for ordinary genes.
+    inter = (bundle.get("8") or {}).get("string_count") or 0
+    hub = evidence.rank_clause("gene", "interaction_count", inter)
+    if hub:
+        bullets.append(f"**Interaction hub:** {inter:,} STRING partners{hub}")
+
+    # Notable callout — deterministic anomaly: heavily sequenced (many ClinVar
+    # variants) yet no curated precision-oncology actionability. A "studied but
+    # not yet actionable" observation no single source states.
+    if cv_total >= 50 and civ_total == 0:
+        bullets.append(f"**Notable:** {cv_total:,} clinical variants but no curated "
+                       f"precision-oncology (CIViC) evidence yet")
 
     if not bullets:
         return ""

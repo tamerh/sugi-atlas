@@ -97,9 +97,11 @@ def collect_one(spec):
         # Raw evidence_score signal (weighted log of evidence counts) — the merge
         # phase ranks these into the 0-100 per-type percentile.
         from atlas.page import evidence
-        ev_raw = evidence.raw_signal(etype, evidence.components(etype, bundle))
+        ev_comps = evidence.components(etype, bundle)
+        ev_raw = evidence.raw_signal(etype, ev_comps)
         return {"ok": True, "entity": etype, "slug": slug, "verdict": verdict,
                 "canonical": canonical, "evidence_raw": ev_raw,
+                "evidence_components": ev_comps,
                 "id_keys": [str(k) for k in id_keys if k],
                 "name_keys": [k for k in name_keys if k]}
     except (Exception, SystemExit) as e:   # SystemExit too — see harden M1
@@ -190,10 +192,21 @@ def _write_evidence(collected, dist_dir):
     entity rebuild ranks against the same frozen corpus."""
     from atlas.page import evidence
     raw_by_type = {}
+    comp_by_type = {}                    # {etype: {component_key: [counts]}}
     for r in collected:
         raw_by_type.setdefault(r["entity"], {})[r["slug"]] = r.get("evidence_raw", 0.0)
+        cd = comp_by_type.setdefault(r["entity"], {})
+        for k, v in (r.get("evidence_components") or {}).items():
+            try:
+                cd.setdefault(k, []).append(int(v or 0))
+            except (TypeError, ValueError):
+                cd.setdefault(k, []).append(0)
     out = {et: evidence.percentiles(m) for et, m in raw_by_type.items()}
     out["_dist"] = {et: sorted(m.values()) for et, m in raw_by_type.items()}
+    # Per-component sorted distributions → corpus-relative "top N%" framing at
+    # render (evidence.rank_clause). Same frozen-distribution contract as _dist.
+    out["_dist_components"] = {et: {k: sorted(vs) for k, vs in cd.items()}
+                               for et, cd in comp_by_type.items()}
     write_json(os.path.join(dist_dir, "atlas", "evidence.json"),
                out, indent=0, sort_keys=True)
     print(f"[B] evidence: scored {sum(len(m) for m in raw_by_type.values())} entities")

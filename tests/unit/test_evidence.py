@@ -40,3 +40,23 @@ def test_lookup_uses_loaded_scores_then_distribution():
     assert P.lookup("gene", "NEW", 0.0) == 0
     assert P.lookup("drug", "X", 1.0) is None              # no dist → omit
     P.reset()
+
+
+def test_component_percentile_and_rank_clause():
+    P.reset()
+    # frozen per-component distribution: 100 genes, drug_count mostly 0 with a
+    # heavy right tail (the real shape — most genes aren't drug targets).
+    P._DIST_COMP = {"gene": {"drug_count": sorted([0] * 90 + list(range(1, 11)))}}
+    # a count of 10 is the max → top of the distribution
+    assert P.component_percentile("gene", "drug_count", 10) == 100
+    assert P.component_percentile("gene", "drug_count", 0) == 0
+    # rank_clause: count clears the floor (10) AND lands in the top decile
+    assert P.rank_clause("gene", "drug_count", 10) == " (top 1% of genes corpus-wide)"
+    # below the absolute floor → no clause even if percentile is high
+    assert P.rank_clause("gene", "drug_count", 3) == ""
+    # an un-ranked component → no clause
+    assert P.rank_clause("gene", "trial_count", 999) == ""
+    # no distribution loaded → graceful empty (unit-test / no-batch path)
+    P.reset()
+    assert P.component_percentile("gene", "drug_count", 10) is None
+    assert P.rank_clause("gene", "drug_count", 10) == ""
