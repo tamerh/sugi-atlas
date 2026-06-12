@@ -247,3 +247,25 @@ def test_parent_evidence_clause(monkeypatch):
     c = DR._parent_evidence_clause({"id": "MONDO:1", "name": "heavy metal poisoning"})
     assert "4 clinical trials" in c and "1 GWAS association" in c and "1 approved drug" in c
     evidence.reset()
+
+
+def test_mechanism_synthesis(monkeypatch):
+    """Cross-entity join: indicated drugs that also target a cohort gene, matched
+    by manifest URL (never by fuzzy name)."""
+    from atlas.disease import render as DR
+    from atlas.page import links
+    monkeypatch.setattr(links, "drug_url",
+                        lambda chembl_id=None, name=None: f"/atlas/drug/{(chembl_id or name or '').lower()}/")
+    bundles = {
+        "5": {"gene_count": 8},
+        "10": {"drugs": [{"id": "CHEMBL1", "name": "Vemurafenib", "gene_targets": ["BRAF"]},
+                         {"id": "CHEMBL2", "name": "OtherDrug", "gene_targets": ["XYZ"]}]},
+        "_indicated_drugs": [{"name": "Vemurafenib", "url": "/atlas/drug/chembl1/"},
+                             {"name": "Aspirin", "url": "/atlas/drug/aspirin/"}],
+    }
+    md = DR.r_mechanism_synthesis(bundles)
+    assert "Mechanistic alignment" in md
+    assert "1 of the 2 drugs indicated" in md
+    assert "Vemurafenib" in md and "BRAF" in md
+    assert "Aspirin" not in md                     # not a cohort drug → not aligned
+    assert DR.r_mechanism_synthesis({"5": {}, "10": {}, "_indicated_drugs": []}) == ""

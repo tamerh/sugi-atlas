@@ -686,6 +686,47 @@ def r_structural_data(b):
 
 # §10 drug_targets ----------------------------------------------------------
 
+def r_mechanism_synthesis(bundles):
+    """Cross-entity synthesis: which disease-DIRECT indicated drugs ALSO target a
+    gene in the disease's associated-gene cohort — a mechanistic rationale linking
+    the indication edge to the genetics. The join (indication ∩ cohort target) is
+    the Atlas's own composition; no single upstream source states it. Matched by
+    the drug's manifest URL (both sides resolve through the same drug page), so a
+    name-spelling mismatch can never produce a false alignment. '' when nothing
+    aligns (no cohort, no indicated drugs, or no overlap)."""
+    b5 = bundles.get("5") or {}
+    b10 = bundles.get("10") or {}
+    indicated = bundles.get("_indicated_drugs") or []
+    gene_count = b5.get("gene_count") or 0
+    cohort_drugs = b10.get("drugs") or []
+    if not (indicated and cohort_drugs and gene_count):
+        return ""
+    by_url = {}                              # drug page url -> cohort gene targets
+    for d in cohort_drugs:
+        url = links.drug_url(chembl_id=d.get("id"), name=d.get("name"))
+        if url and d.get("gene_targets"):
+            by_url[url] = d["gene_targets"]
+    aligned, seen = [], set()
+    for d in indicated:
+        tg = by_url.get(d.get("url"))
+        if tg and d.get("url") not in seen:
+            seen.add(d.get("url"))
+            aligned.append((d, tg))
+    if not aligned:
+        return ""
+    return "\n".join(
+        ["## Mechanistic alignment (indicated drugs × cohort genes)", "",
+         f"{_i(len(aligned))} of the {_i(len(indicated))} drug"
+         f"{'s' if len(indicated) != 1 else ''} indicated for this disease also "
+         f"target a gene in its associated-gene cohort ({_i(gene_count)} genes) — a "
+         "mechanistic rationale linking the disease-direct indication to the "
+         "disease's genetics. *Atlas-derived cross-reference.*", "",
+         table(["Indicated drug", "Cohort targets", "Genes"],
+               [(links.maybe_link(d.get("name"), d.get("url")), _i(len(tg)),
+                 ", ".join(_glink(s) for s in tg[:6]) + (" …" if len(tg) > 6 else ""))
+                for d, tg in aligned[:ROW_CAP]])])
+
+
 def r_drug_targets(b):
     out = ["## Drug target analysis", "",
            f"**Approved (phase 4): {_i(b.get('approved_count'))} · "
@@ -1199,7 +1240,9 @@ def render_all(bundles):
         ("Function", "function", S("14", "pathways") if has_cohort else "",
          "No pathway enrichment — requires an associated-gene cohort."),
         ("Therapeutics", "drugs",
-         join(D(r_drugs_indicated(bundles), "indicated"), cohort_drugs),
+         join(D(r_drugs_indicated(bundles), "indicated"),
+              D(r_mechanism_synthesis(bundles), "mechanism-alignment"),
+              cohort_drugs),
          "No druggable-target or therapeutic data for this disease's cohort."),
         ("Clinical trials & evidence", "trials", S("13", "clinical-trials"),
          "No clinical trials or CIViC evidence naming this disease."),
