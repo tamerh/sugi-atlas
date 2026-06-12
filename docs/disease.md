@@ -20,7 +20,7 @@ resolve(MONDO id) ──► DiseaseAnchors  (IDs + a ranked 4-route gene cohort)
 14 collectors  (disease-level chains + cohort fan-out over the gene collectors)
    │
    ▼
-render_all ──► 6 canonical H2 zones + derived views
+render_all ──► 8 canonical H2 zones + derived views
    │
    ▼
 assemble_page ──► frontmatter · ## Summary · body · ## Related Atlas pages
@@ -87,15 +87,17 @@ genes × ~12 collectors × ~5 chains ≈ 3,000 biobtree calls per disease.)
 
 ---
 
-## 3. The six zones
+## 3. The eight zones
 
-Fourteen collectors plus three render-only derived views fold into six frozen
+Fourteen collectors plus three render-only derived views fold into eight frozen
 `## H2` zones plus Summary and Related (see [PAGE_CONTRACT.md](PAGE_CONTRACT.md)).
 
 | Zone `{#anchor}` | Built from | What it answers |
 |---|---|---|
 | **Summary** `{#summary}` | declarative lead + at-a-glance + JSON-LD | the one-line "what is this disease" |
-| **Identifiers** `{#identifiers}` | §1 IDs | federated ids, synonyms, epidemiology, phenotypes |
+| **Clinical features** `{#clinical}` | §1 epidemiology + HPO signs/symptoms + MeSH clinical description | the clinical presentation (leads the page) |
+| **Identifiers** `{#identifiers}` | §1 IDs | federated ids, synonyms, data availability |
+| **Disease family** `{#family}` | §1 Mondo parent/children | broader term + subtypes; routes a sparse subtype to its parent (with the parent's evidence quantified) |
 | **Genetics & variants** `{#genetics}` | §2 GWAS, §3 variant tiers, §4 Mendelian/somatic overlap | the variant landscape |
 | **Genes & proteins** `{#genes}` | §5–§9 cohort fan-out | the associated-gene cohort, profiled |
 | **Function** `{#function}` | §14 pathways | pathways the cohort touches |
@@ -111,11 +113,26 @@ here are deliberately sourced carefully: the trial count is the **validated** §
 count (never the contaminated raw xref count), and the ClinVar count is the
 accurate xref total (not §3's paginated floor).
 
+### Clinical features (§1)
+The headline clinical presentation, lifted ahead of Identifiers: Orphanet
+epidemiology (prevalences, validated-first), HPO signs & symptoms, and — for
+common multifactorial diseases where HPO (a rare-disease ontology) is empty — a
+**MeSH clinical description** from the descriptor's scope note (main MeSH
+Descriptors only; Supplementary Concept Records and indexing-note fragments are
+filtered out).
+
 ### Identifiers (§1)
-The federated identifier table, synonyms, a data-availability line (excluding
-identity/ontology xrefs and the contaminated raw trial count), epidemiology
-(prevalences, validated-first), and HPO clinical features. No new calls — pure
-shaping of the anchor record.
+The federated identifier table, synonyms, and a data-availability line (excluding
+identity/ontology xrefs and the contaminated raw trial count). No new calls —
+pure shaping of the anchor record.
+
+### Disease family (§1)
+The Mondo neighbourhood — broader term (parent), subtypes (children), and a
+classification breadcrumb. A sparse subtype (no own cohort) is routed to its
+parent with the **parent's evidence quantified** ("the broader term carries 4
+clinical trials, 1 GWAS association — aggregated across all …, not specific to
+this subtype"), read from the parent page's frozen evidence components. Sibling/
+subtype lists are capped to built-page links.
 
 ### Genetics & variants
 - **§2 GWAS** — totals, top hits by p-value, top studies (`>>mondo>>gwas`,
@@ -169,6 +186,11 @@ refreshed per biobtree data release); the statistics are pure + deterministic
   separately as **in clinical trials** (investigational — a trial record, not an
   indication). The `approved` decision is the same flag the drug §4 collector
   computes, so the two pages can't disagree.
+- **Mechanistic alignment** (derived) — which disease-direct indicated drugs
+  *also* target a cohort gene ("2 of the 3 indicated drugs target a cohort gene:
+  Vemurafenib → BRAF…"), and a **druggability snapshot** illumination census over
+  the cohort ("5 of 8 cohort genes are drug-illuminated"). Cross-entity joins over
+  curated edges, labelled Atlas-derived.
 - **§10 drug-target analysis** — fans the gene drug collector over the cohort:
   per-gene max development phase, approved/phased/undrugged buckets, and a
   cross-gene drug aggregation (deduped by molecule).

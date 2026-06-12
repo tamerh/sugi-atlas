@@ -46,10 +46,10 @@ checks). Same stable-API discipline as the H2 IDs. Examples:
 |---|---|---|---|
 | 1 | Summary | `#summary` | lead sentence + RefSeq + At-a-glance (one wrapper; lead stays the most-indexable line) |
 | 2 | Identifiers | `#identifiers` | §1 gene identifiers |
-| 3 | Gene structure | `#gene-structure` | §2 transcripts, §11 expression, §9 regulation, functional-genomics, GeneRIFs |
-| 4 | Protein | `#protein` | §3 protein ids, §4 structure, residue map (dual-product → H3 `{#protein-<acc>}`, matches JSON-LD `@id`) |
-| 5 | Function | `#function` | §7 pathways & GO, §8 interactions |
-| 6 | Disease & clinical | `#disease` | **Cancer significance** (intOGen+CIViC, folded here — NOT in Summary), §6 clinical variants, §12 disease associations |
+| 3 | Gene structure | `#gene-structure` | §2 transcripts, §11 expression, §13 HPA expression, §9 regulation, functional-genomics, GeneRIFs |
+| 4 | Protein | `#protein` | §3 protein ids, §4 structure, residue map (dual-product → H3 `{#protein-<acc>}`, matches JSON-LD `@id`), §13 HPA (location/classes/antibody reliability) |
+| 5 | Function | `#function` | §7 pathways & GO, §8 interactions (incl. CORUM complexes) |
+| 6 | Disease & clinical | `#disease` | **Cancer significance** (intOGen+CIViC, folded here — NOT in Summary), §6 clinical variants (incl. ClinGen expert-panel) + §13 HPA cancer prognostics, §12 disease associations |
 | 7 | Drugs & pharmacology | `#drugs` | §10 drugs (GtoPdb, BindingDB, ChEMBL, PharmGKB) |
 | 8 | Related Atlas pages | `#related` | cross-entity mesh (forward + reverse) |
 
@@ -57,13 +57,13 @@ checks). Same stable-API discipline as the H2 IDs. Examples:
 | Order | Label | `{#id}` | Absorbs |
 |---|---|---|---|
 | 1 | Summary | `#summary` | lead + At-a-glance |
-| 2 | Clinical features | `#clinical` | Epidemiology (prevalence), Signs & symptoms (HPO) — the headline clinical presentation, lifted out of Identifiers |
+| 2 | Clinical features | `#clinical` | Epidemiology (prevalence), Signs & symptoms (HPO), MeSH clinical description — the headline clinical presentation, lifted out of Identifiers |
 | 3 | Identifiers | `#identifiers` | disease identifiers, synonyms, data availability |
 | 4 | Disease family | `#family` | Mondo broader term (parent) + subtypes (children); routes sparse subtype pages to the rich parent. No H3. |
 | 5 | Genetics & variants | `#genetics` | GWAS landscape, Variant details & tiers |
 | 6 | Genes & proteins | `#genes` | Mendelian/GenCC overlap & somatic drivers, Cohort genes→proteins, Protein-family classification, Interactions among cohort, Structural data, Expression context |
 | 7 | Function | `#function` | Pathway analysis |
-| 8 | Therapeutics | `#drugs` | Drugs indicated or in trials for this disease (`#indicated`, disease-direct ChEMBL indications — approved tabled as indicated, phase 2–3 listed separately as in-trials), Drug-target analysis, Bioactivity/enzyme, Pharmacogenomics, Chemical tractability, Druggability pyramid, Undrugged target profiles |
+| 8 | Therapeutics | `#drugs` | Drugs indicated or in trials for this disease (`#indicated`, disease-direct ChEMBL indications — approved tabled as indicated, phase 2–3 listed separately as in-trials), Mechanistic alignment (`#mechanism-alignment`, indicated drugs × cohort genes), Drug-target analysis, Bioactivity/enzyme, Pharmacogenomics, Chemical tractability, Druggability pyramid, Undrugged target profiles |
 | 9 | Clinical trials & evidence | `#trials` | Clinical trials, CIViC |
 | 10 | Related Atlas pages | `#related` | mesh |
 

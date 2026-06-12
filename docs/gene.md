@@ -6,7 +6,7 @@ curation rules that decide what is shown and what is suppressed. For the shared
 machinery (the biobtree transport, the collect→render split, the page contract,
 JSON-LD), see [how-it-works.md](how-it-works.md); this doc is gene-specific.
 
-The build is two passes: **collect** resolves the gene once and runs twelve
+The build is two passes: **collect** resolves the gene once and runs thirteen
 section collectors into a structured bundle (no model, no prose); **render**
 arranges that bundle into eight canonical, frozen page zones.
 
@@ -14,7 +14,7 @@ arranges that bundle into eight canonical, frozen page zones.
 HGNC symbol
    │  resolve()            one set of anchor IDs, shared by all sections
    ▼
-Anchors ─►  12 section collectors  (biobtree chains → structured JSON bundle)
+Anchors ─►  13 section collectors  (biobtree chains → structured JSON bundle)
    │
    ▼
 render_all ─►  8 canonical H2 zones  (sections demoted to H3, stable {#anchors})
@@ -73,17 +73,18 @@ Two of these choices matter downstream:
 The published page is a frozen sequence of eight `## H2` zones (the contract is
 in [PAGE_CONTRACT.md](PAGE_CONTRACT.md)). Each zone always appears — with an
 informative placeholder if empty — so the table of contents is identical on
-every gene page and deep links never break. The twelve collectors map onto the
-zones like this:
+every gene page and deep links never break. The thirteen collectors map onto the
+zones like this (§13 Human Protein Atlas is a shared collector whose facts thread
+into the Gene-structure, Protein, and Disease zones):
 
 | Zone `{#anchor}` | Built from | What it answers |
 |---|---|---|
 | **Summary** `{#summary}` | declarative lead + NCBI summary + JSON-LD | the one-line "what is this gene" |
 | **Identifiers** `{#identifiers}` | §1 gene IDs | core IDs + an xref-count census |
-| **Gene structure** `{#gene-structure}` | §2 transcripts, §11 expression, §9 regulation, §5 orthologs, derived genomics/GeneRIFs | the locus: isoforms, where it's expressed, how it's regulated |
-| **Protein** `{#protein}` | §3 protein IDs, §4 structure, residue map | the product(s): domains, features, structures |
-| **Function** `{#function}` | §7 pathways, §8 interactions | pathways, GO, the interaction network |
-| **Disease & clinical** `{#disease}` | §6 variants, §12 associations, cancer significance | variants, disease links, cancer-driver role |
+| **Gene structure** `{#gene-structure}` | §2 transcripts, §11 expression, §9 regulation, §5 orthologs, §13 HPA expression, derived genomics/GeneRIFs | the locus: isoforms, where it's expressed, how it's regulated |
+| **Protein** `{#protein}` | §3 protein IDs, §4 structure, residue map, §13 HPA (subcellular location, protein classes, antibody reliability) | the product(s): domains, features, structures |
+| **Function** `{#function}` | §7 pathways, §8 interactions (incl. CORUM complexes) | pathways, GO, the interaction network |
+| **Disease & clinical** `{#disease}` | §6 variants (incl. ClinGen expert-panel), §12 associations, §13 HPA cancer prognostics, cancer significance | variants, disease links, cancer-driver role |
 | **Drugs & pharmacology** `{#drugs}` | §10 drugs | targets, molecules, pharmacology, trials |
 | **Related Atlas pages** `{#related}` | cross-entity [mesh](mesh.md) | links to associated diseases & drugs |
 
@@ -98,6 +99,9 @@ sentence, the top CIViC verdict, and a DepMap/ClinGen dependency clause when
 notable. Then the NCBI RefSeq curated summary, an "at a glance" digest, and the
 inline schema.org JSON-LD (a `Gene` node encoding one typed `Protein` per
 reviewed accession — see [how-it-works.md](how-it-works.md#schemaorg-json-ld)).
+The at-a-glance bullets carry **corpus-relative framing** where notable ("top N%
+of genes corpus-wide") and deterministic "Notable:" callouts, computed from the
+batch evidence pre-pass — original content no single source states.
 
 ### Identifiers (§1)
 Core HGNC fields plus an **xref-count census** read from the HGNC entry's xref
@@ -138,17 +142,21 @@ product"*).
   to model (>~2700 aa: ATM, BRCA2, DMD, TTN, MUC16) — honest absence, not a
   broken link.
 - **Residue map** (derived) — a render-only regrouping of UniProt sequence
-  features into a drug-discovery view (active/ligand-binding sites, PTMs,
-  disulfides, mutagenesis-validated residues), per product, each anchored
-  `#protein-<accession>` to match the JSON-LD `@id`.
+  features into a drug-discovery view, per product: catalytic / ligand-binding
+  residues (with the bound ligand — ATP, Mg²⁺ — from the UniProt `ligand` field)
+  and PTM / disulfide / glycosylation residues grouped by modification identity
+  into `Type | Positions` tables (so they read "Phosphoserine — 229, 695", not a
+  bare number list). Each group is an H4 sub-block.
 
 ### Function
 - **§7 pathways** — Reactome and GO, **unioned across every reviewed UniProt and
   the Ensembl gene route**, because per-product annotation diverges (CDKN2A's
   p14ARF mitophagy GO terms are absent from the p16/Ensembl route), plus MSigDB
   gene sets and GO/Reactome parent rollups.
-- **§8 interactions** — STRING, IntAct, BioGRID, SIGNOR, and ESM2/Diamond
-  structural similarity. The chains query the *interaction record*
+- **§8 interactions** — STRING, IntAct, BioGRID, SIGNOR, ESM2/Diamond
+  structural similarity, and **CORUM** named protein complexes (`>>uniprot>>corum`
+  — the curated complement to the score-ranked PPI firehose). The chains query the
+  *interaction record*
   (`>>uniprot>>string_interaction`), not `>>…>>uniprot` (which collapses to bare
   partner IDs and loses the scores). True totals come from the entry xref count
   (TP53's 14,764 STRING partners: ~3 calls, not ~150 pages).
@@ -171,7 +179,10 @@ Elides for non-coding genes.
   (`>>hgnc>>clinvar[germline_classification=="Pathogenic"]`, one chain per
   class), SpliceAI, AlphaMissense **on the canonical transcript**, and a dbSNP
   sample (routed via Entrez because the direct `hgnc>>dbsnp` edge is unbacked).
-  Per-class counts are labelled "(floor)" since they are pagination floors.
+  Per-class counts are labelled "(floor)" since they are pagination floors. A
+  **ClinGen expert-panel** block (`>>hgnc>>clingen_variant`) summarises VCEP-
+  reviewed ACMG interpretations — a higher-authority tier than raw ClinVar
+  submissions.
 - **§12 associations** — the Mendelian/phenotype/complex-disease layer: OMIM,
   GenCC, MONDO, Orphanet, HPO, GWAS, EFO, MeSH, intOGen, CIViC, ClinGen
   Gene-Disease Validity. Disease-phenotype MIMs are reached through MONDO
@@ -207,7 +218,9 @@ genomic overlap, so without this an antisense gene like *TTN-AS1* would inherit
 *TTN*'s 6,528 ClinVar variants — confidently wrong, which is worse than empty.
 The variant, disease and trial keys are cleared, and the Protein / Function /
 Disease / Drugs zones collapse to their placeholders. A non-coding page is
-honestly thin, not falsely full.
+honestly thin, not falsely full. For an antisense transcript (`SYMBOL-AS1`), the
+at-a-glance instead **orients to the sense gene** — quoting *its* biology
+(attributed, never imported into this transcript's evidence).
 
 ---
 

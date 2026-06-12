@@ -88,7 +88,12 @@ Identifiers zone rather than rendered as one-line orphan sections.
 A deterministic lead sentence (no model) — class clause (approved/phase, modality,
 ChEBI-role mechanism, ATC), targets clause (top-3 target gene symbols from the
 curated set), indications clause, and the top CIViC association — followed by an
-at-a-glance digest and the inline JSON-LD.
+at-a-glance digest and the inline JSON-LD. The at-a-glance also carries
+corpus-relative framing ("top N% of drugs corpus-wide") and two cross-entity
+reads over the curated (GtoPdb) targets, off the reverse-edge index:
+**target biology** ("N targets implicated as cohort genes in M diseases corpus-
+wide; indicated for K") and **competitive landscape** ("ABL1 also targeted by 8
+other curated drugs") — Atlas-derived, never overclaiming.
 
 ### Identifiers (§1)
 The identity/classification table (de-SHOUTed name, ChEMBL/PubChem/ChEBI/ATC ids,

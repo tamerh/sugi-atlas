@@ -139,8 +139,11 @@ shared writes:
    the bundle under `<dist>/cache/`, and returns its set of resolvable keys.
    Workers touch only their own files — no races.
 2. **Merge (single writer).** All key-sets combine into the complete
-   `manifest.json`; then every resolved forward edge is inverted into
-   `reverse_edges.json`.
+   `manifest.json`; every resolved forward edge is inverted into
+   `reverse_edges.json`; and `evidence.json` is written — per-entity evidence
+   scores plus the corpus-wide signal distributions and per-slug component counts
+   that power the render-time corpus-relative framing ("top N% corpus-wide") and
+   the cross-entity reads (a thin page quoting a related page's numbers).
 3. **Render (parallel).** Each worker reloads its cached bundle plus the now
    complete, read-only manifest and writes `page.md` + `entity.jsonld`. No
    re-collect; manifest is read-only — no races.
