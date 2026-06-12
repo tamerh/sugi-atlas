@@ -71,7 +71,7 @@ H4_IDS = {
              "canonical-exons", "isoforms", "domains", "uniprot-cc", "brenda",
              "enzyme-ec", "rhea", "pdb", "alphafold", "sabdab",
              # §variants
-             "clinvar", "top-pathogenic", "spliceai", "alphamissense",
+             "clinvar", "top-pathogenic", "clingen-variants", "spliceai", "alphamissense",
              # §pathways / §interactions / §regulation
              "reactome", "reactome-categories", "go-categories",
              "string", "intact", "signor", "interactome-enrichment",

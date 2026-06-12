@@ -499,6 +499,22 @@ def r_variants(b):
     L.append(f"\n### Top pathogenic / likely-pathogenic ({len(b.get('top_pathogenic', []))}) {{#top-pathogenic}}\n")
     L.append(table(["Variant ID", "HGVS", "Classification"],
                    [(v["id"], v.get("hgvs"), v.get("classification")) for v in b.get("top_pathogenic", [])]))
+    # ClinGen VCEP expert-panel interpretations — ACMG calls reviewed by a Variant
+    # Curation Expert Panel; a higher-authority tier than individual ClinVar
+    # submissions. Summary breakdown (not a per-variant dump).
+    cg_total = b.get("clingen_variant_total")
+    if cg_total:
+        L.append(f"\n### ClinGen expert-panel interpretations ({cg_total}) {{#clingen-variants}}\n")
+        vceps = b.get("clingen_variant_vceps") or []
+        dis = b.get("clingen_variant_diseases") or []
+        ctx = "Expert ACMG interpretations"
+        if vceps:
+            ctx += " from " + ", ".join(vceps)
+        if dis:
+            ctx += " for " + "; ".join(dis[:3]) + (" …" if len(dis) > 3 else "")
+        L.append(ctx + " — a higher-authority tier than individual ClinVar "
+                 "submissions.\n")
+        L.append(table(["Assertion", "Variants"], b.get("clingen_variant_breakdown") or []))
     L.append("\n### SpliceAI {#spliceai}\n")
     L.append(capped_table(["Variant", "Effect", "Δscore"],
                           [(v["id"], v.get("effect"), v.get("score")) for v in b.get("top_spliceai", [])],

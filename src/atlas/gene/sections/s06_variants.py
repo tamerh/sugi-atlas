@@ -8,7 +8,8 @@ CHAINS = (
     '>>transcript>>alphamissense[am_class=="likely_pathogenic"]',
     ">>hgnc>>entrez>>dbsnp",  # via entrez (hgnc>>dbsnp empty — BIOBTREE_ISSUES.md)
 )
-DATASETS = ("clinvar", "spliceai", "alphamissense", "dbsnp", "entrez", "transcript", "hgnc")
+DATASETS = ("clinvar", "spliceai", "alphamissense", "dbsnp", "entrez", "transcript",
+            "hgnc", "clingen_variant")
 
 def collect(a):
     bundle = {"section": "06_variants", "symbol": a.symbol, "hgnc_id": a.hgnc_id}
@@ -45,6 +46,25 @@ def collect(a):
         bundle["top_alphamissense"] = [{"id": t["id"], "variant": t.get("protein_variant"),
                                         "am_pathogenicity": t.get("am_pathogenicity")} for t in am[:30]]
 
+    # ClinGen VCEP expert-panel interpretations — ACMG calls reviewed by a
+    # Variant Curation Expert Panel, a higher authority tier than raw ClinVar
+    # submissions (provenance already advertised clingen_variant; this is the
+    # collector that was missing). Schema: id|gene_symbol|disease|assertion|vcep.
+    from collections import Counter
+    cg = map_all(a.hgnc_id, ">>hgnc>>clingen_variant")
+    if cg:
+        order = ["Pathogenic", "Likely Pathogenic", "Uncertain Significance",
+                 "Likely Benign", "Benign"]
+        cnt = Counter((r.get("assertion") or "").strip() for r in cg if r.get("assertion"))
+        bundle["clingen_variant_total"] = len(cg)
+        bundle["clingen_variant_breakdown"] = (
+            [(k, cnt[k]) for k in order if cnt.get(k)]
+            + [(k, n) for k, n in cnt.items() if k not in order])
+        bundle["clingen_variant_vceps"] = sorted(
+            {(r.get("vcep") or "").strip() for r in cg if r.get("vcep")})
+        bundle["clingen_variant_diseases"] = sorted(
+            {(r.get("disease") or "").strip() for r in cg if r.get("disease")})
+
     # dbSNP rsIDs via ENTREZ (direct hgnc>>dbsnp unbacked; see BIOBTREE_ISSUES.md).
     dbs = map_all(a.hgnc_id, ">>hgnc>>entrez>>dbsnp", cap=2)
     bundle["dbsnp_sample"] = [{"id": t["id"], "pos": f"{t.get('chromosome')}:{t.get('position')}",
@@ -57,6 +77,8 @@ SECTION = Section(
     description="ClinVar variants (per-class breakdown), SpliceAI splice impact, AlphaMissense pathogenicity, dbSNP sample",
     needs=("hgnc_id", "hgnc_entry", "canonical_transcript"),
     produces=("clinvar_total", "clinvar_breakdown", "top_pathogenic", "top_spliceai",
-              "alphamissense_total", "top_alphamissense", "dbsnp_sample"),
+              "alphamissense_total", "top_alphamissense", "dbsnp_sample",
+              "clingen_variant_total", "clingen_variant_breakdown",
+              "clingen_variant_vceps", "clingen_variant_diseases"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
