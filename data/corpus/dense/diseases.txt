@@ -298,3 +298,6 @@ amyotrophic lateral sclerosis type 4
 Charcot-Marie-Tooth disease dominant intermediate E
 autoinflammatory syndrome
 glioblastoma
+heavy metal poisoning
+cesium poisoning
+thallium poisoning
