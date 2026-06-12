@@ -57,7 +57,7 @@ H3_IDS = {
     "disease": {"clinical-description", "epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",
                 "cohort-genes", "protein-families", "expression", "interactions",
                 "structural", "pathways", "indicated", "mechanism-alignment",
-                "drug-targets", "bioactivity",
+                "molecular-basis", "drug-targets", "bioactivity",
                 "pharmacogenomics", "tractability", "druggability", "undrugged",
                 "clinical-trials"},
     "drug": {"drug-ids", "primary-targets", "bioactivity", "target-pathways",

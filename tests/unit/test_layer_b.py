@@ -300,3 +300,40 @@ def test_drug_target_landscape(monkeypatch):
     assert land["reach"] == {"/atlas/disease/cml/"}
     assert land["per_target"] == [("ABL1", 1, 2)]       # 1 cohort disease, 2 drugs (incl self)
     links._REVERSE = {}
+
+
+def test_causal_genes_clinvar_fallback():
+    """When GenCC/OMIM are empty, a small ClinVar-route cohort becomes the causal
+    tier; a large (polygenic) cohort does not overclaim."""
+    from atlas.disease.cohort import causal_genes
+    b = {"4": {}, "5": {"genes": [
+        {"symbol": "ARSL", "evidence": {"clinvar": True}},
+        {"symbol": "ARSD", "evidence": {"clinvar": True}},
+        {"symbol": "G", "evidence": {"gwas": True}}]}}
+    assert causal_genes(b) == [("ARSD", "ClinVar-linked"), ("ARSL", "ClinVar-linked")]
+    big = {"4": {}, "5": {"genes": [{"symbol": f"G{i}", "evidence": {"clinvar": True}}
+                                    for i in range(8)]}}
+    assert causal_genes(big) == []                 # >5 → no causal overclaim
+
+
+def test_molecular_basis_block():
+    from atlas.disease import render as DR
+    b = {"4": {}, "5": {
+        "genes": [{"symbol": "ARSL", "evidence": {"clinvar": True}}],
+        "molecular_basis": [{"symbol": "ARSL", "protein_name": "Arylsulfatase L",
+            "uniprot": "P51690", "family": "Belongs to the sulfatase family.",
+            "function": "Exhibits arylsulfatase activity.",
+            "subcellular": "Golgi apparatus.", "cofactor": "Binds 1 Ca(2+) ion.",
+            "disease": "Chondrodysplasia punctata 1 (CDPX1)."}]}}
+    md = DR.r_molecular_basis(b)
+    assert "## Molecular basis" in md and "ARSL — Arylsulfatase L" in md
+    assert "sulfatase family" in md and "Chondrodysplasia punctata 1 (CDPX1)" in md
+    assert "Golgi apparatus; Binds 1 Ca(2+) ion" in md     # cleaned join, no stray period
+    assert DR.r_molecular_basis({"4": {}, "5": {}}) == ""   # no causal genes → elides
+
+
+def test_name_overlap_gate():
+    from atlas.disease.anchors import _name_overlap
+    assert _name_overlap("Chondrodysplasia punctata, brachytelephalangic, autosomal",
+                         "Brachytelephalangic chondrodysplasia punctata") == 1.0
+    assert _name_overlap("Chondrodysplasia punctata", "Cystic fibrosis") == 0.0

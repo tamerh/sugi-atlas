@@ -48,7 +48,9 @@ def collect(a):
                "civic_only": 0, "multi_evidence": 0}
     genes = []
     seen_canonical = set()
-    function_lines = []  # cohort_function_summary: per-gene 1-sentence function
+    from atlas.page.uniprot_cc import first_sentence
+    function_lines = []   # cohort_function_summary: per-gene 1-sentence function
+    molecular_basis = []  # per-gene UniProt CC: function/family/location/disease
     for b1 in g1_bundles:
         sym = b1.get("symbol")
         b3 = g3_by.get(sym, {})
@@ -76,12 +78,26 @@ def collect(a):
             # First sentence per gene — the cohort summary tabulates these
             # so a reader sees "what each disease gene actually does" at a
             # glance, not just HGNC ids.
-            from atlas.page.uniprot_cc import first_sentence
             function_lines.append({
                 "symbol": sym,
                 "protein_name": protein_name or sym,
                 "function_lead": first_sentence(function_text, max_chars=240),
             })
+        # Molecular-basis fields — the rest of the UniProt CC block §3 already
+        # fetched (we used to keep only `function`). Powers the disease's
+        # "Molecular basis" block for its causal gene(s). `disease` is UniProt's
+        # OWN curated gene→disorder statement (reporting, not inference).
+        cc = b3.get("cc") or {}
+        mb = {
+            "symbol": sym, "protein_name": protein_name or sym, "uniprot": canonical,
+            "family": first_sentence(cc.get("similarity") or "", max_chars=140),
+            "function": first_sentence(function_text, max_chars=300),
+            "subcellular": first_sentence(cc.get("subcellular_location") or "", max_chars=120),
+            "cofactor": first_sentence(cc.get("cofactor") or "", max_chars=120),
+            "disease": (cc.get("disease") or "").strip(),
+        }
+        if mb["function"] or mb["disease"] or mb["family"]:
+            molecular_basis.append(mb)
         summary[_classify(ev)] += 1
 
     return {
@@ -92,6 +108,7 @@ def collect(a):
         "protein_count": len(seen_canonical),
         "evidence_summary": summary,
         "cohort_function_summary": function_lines,
+        "molecular_basis": molecular_basis,
     }
 
 
@@ -102,6 +119,6 @@ SECTION = Section(
                  "REUSE wrapper over gene §1/§3."),
     needs=("cohort", "cohort_evidence"),
     produces=("genes", "protein_count", "gene_count", "evidence_summary",
-              "cohort_function_summary"),
+              "cohort_function_summary", "molecular_basis"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

@@ -21,6 +21,20 @@ from typing import Optional, Tuple, Dict, Set
 from atlas.biobtree import search, entry, rows, map_all, xref_counts
 from atlas.gene.anchors import Anchors as GeneAnchors, resolve as resolve_gene_anchors
 
+def _name_overlap(a, b):
+    """Token-overlap of two disease names (significant words, length ≥4), as a
+    fraction of the shorter name's tokens. Order-insensitive, so "Chondrodysplasia
+    punctata, brachytelephalangic, autosomal" and Orphanet's "Brachytelephalangic
+    chondrodysplasia punctata" score 1.0 — but an unrelated sibling form scores
+    low. Used to gate the Orphanet-via-OMIM fallback."""
+    def toks(s):
+        return {w for w in re.findall(r"[a-z0-9]+", (s or "").lower()) if len(w) >= 4}
+    ta, tb = toks(a), toks(b)
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / min(len(ta), len(tb))
+
+
 # Heuristic — used when neither mondo definition nor parent ancestry helps.
 _CANCER_RX = re.compile(
     r"\b(cancer|carcinoma|leukemia|leukaemia|lymphoma|sarcoma|"
@@ -222,6 +236,22 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
     mim_rows  = map_all(mondo_id, ">>mondo>>mim")
     orph_rows = map_all(mondo_id, ">>mondo>>orphanet")
 
+    # Orphanet-via-OMIM fallback (BIOBTREE_ISSUES #41): a Mondo node often lacks
+    # the Orphanet xref while the SAME disease's Orphanet record — the rich HPO
+    # phenotype + prevalence bundle — is reachable through its OMIM id. Pull those
+    # candidates when the direct route is empty. The OMIM→Orphanet hop can land on
+    # a sibling form, so these candidates are name-gated below before their attrs
+    # are trusted (the direct >>mondo>>orphanet rows are curator-asserted, so they
+    # are not gated).
+    orph_from_omim = not orph_rows and bool(mim_rows)
+    if orph_from_omim:
+        seen = set()
+        for mr in mim_rows:
+            for r in map_all(mr["id"], ">>mim>>orphanet"):
+                if r.get("id") and r["id"] not in seen:
+                    seen.add(r["id"])
+                    orph_rows.append(r)
+
     # Cross-ontology xrefs from biobtree's Mondo OBO ingest (2026-06-01).
     # Each is typically 0-1 row per Mondo term; total <30 calls per disease.
     # Only fetched when xref_counts says the dataset has at least one row,
@@ -243,24 +273,36 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
     # full attrs once — carries the per-disease HPO phenotype list with
     # frequencies + multi-region prevalence data. Both drive new content
     # in §1 + JSON-LD (signOrSymptom, epidemiology).
+    def _name_ok(attrs):
+        # Only gate the OMIM-fallback candidates: their name must overlap the
+        # disease's so we never attach a sibling form's phenotypes. Direct Mondo
+        # xrefs are curator-asserted → always accepted.
+        if not orph_from_omim:
+            return True
+        return _name_overlap(canonical_name, attrs.get("name")) >= 0.6
+
     orphanet_attrs = {}
     for r in orph_rows:
         try:
             e = entry(r["id"], "orphanet")
             attrs = (e.get("Attributes") or {}).get("Orphanet") or {}
-            if attrs.get("disorder_type") == "Disease":
+            if attrs.get("disorder_type") == "Disease" and _name_ok(attrs):
                 orphanet_attrs = attrs
                 break
         except Exception:
             continue
     # Fallback: if no "Disease" found but there are entries, take the first
-    # subtype's attrs — better than empty for terms Mondo only links to a subtype.
+    # name-accepted subtype's attrs — better than empty for terms Mondo only
+    # links to a subtype.
     if not orphanet_attrs and orph_rows:
-        try:
-            e = entry(orph_rows[0]["id"], "orphanet")
-            orphanet_attrs = (e.get("Attributes") or {}).get("Orphanet") or {}
-        except Exception:
-            pass
+        for r in orph_rows:
+            try:
+                attrs = (entry(r["id"], "orphanet").get("Attributes") or {}).get("Orphanet") or {}
+            except Exception:
+                continue
+            if _name_ok(attrs):
+                orphanet_attrs = attrs
+                break
 
     cohort_full, evidence = _build_cohort(mondo_id)
 

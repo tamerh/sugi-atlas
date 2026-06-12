@@ -73,6 +73,19 @@ def causal_genes(bundle):
             seen.add(sym)
 
     out.sort(key=lambda t: (-best.get(t[0], (0,))[0], t[0]))  # rank desc, then symbol
+
+    # ClinVar fallback tier — for a gene-defined Mendelian disease with no GenCC/
+    # OMIM record (most rare ClinVar-only syndromes), the genes that reached the
+    # cohort via the ClinVar germline route FOR THIS DISEASE are the causal
+    # candidates. Bounded to a focused set (≤5) so a polygenic / cancer cohort with
+    # many ClinVar genes never claims them all causal; labelled weaker than GenCC.
+    if not out:
+        b5 = bundle.get("5") or {}
+        clinvar_genes = sorted(
+            g.get("symbol") for g in (b5.get("genes") or [])
+            if g.get("symbol") and (g.get("evidence") or {}).get("clinvar"))
+        if 0 < len(clinvar_genes) <= 5:
+            out = [(s, "ClinVar-linked") for s in clinvar_genes]
     return out
 
 

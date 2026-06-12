@@ -239,6 +239,57 @@ def r_symptoms(b):
                 for p in phs[:ROW_CAP]])])
 
 
+def r_molecular_basis(bundles):
+    """Molecular basis — for a gene-defined Mendelian disease, the causal gene(s)'
+    protein function, family, localization and UniProt's own gene→disorder
+    statement. Turns a clinically-empty page into a mechanistic explanation, from
+    UniProt CC §5 already collected (no new fetch). Causal genes only (so a
+    polygenic GWAS cohort can't flood it); '' when none resolve or carry CC."""
+    from atlas.disease.cohort import causal_genes
+    causal = causal_genes(bundles)
+    if not causal:
+        return ""
+    labels = dict(causal)
+    mb_by = {m.get("symbol"): m for m in ((bundles.get("5") or {}).get("molecular_basis") or [])}
+    blocks = []
+    for sym, _lbl in causal[:5]:
+        m = mb_by.get(sym)
+        if not m:
+            continue
+        head = f"**{sym}"
+        if m.get("protein_name"):
+            head += f" — {m['protein_name']}"
+        head += "**"
+        if m.get("uniprot"):
+            head += f" ([{m['uniprot']}]({links.uniprot_url(m['uniprot'])}))"
+        if labels.get(sym):
+            head += f" · {labels[sym]}"
+        if m.get("family"):
+            head += f" · {m['family']}"
+        lines = [head]
+        if m.get("function"):
+            lines.append(f"  *Function:* {m['function']}")
+        loc = "; ".join(p.rstrip(". ") for p in (m.get("subcellular"), m.get("cofactor")) if p)
+        if loc:
+            lines.append(f"  *Localization / cofactor:* {loc}")
+        if m.get("disease"):
+            lines.append(f"  *UniProt gene–disease:* {_clip_cc(m['disease'])}")
+        blocks.append("\n".join(lines))
+    if not blocks:
+        return ""
+    return "\n\n".join([
+        "## Molecular basis",
+        "*The molecular function of this disease's causal gene(s), from UniProt. "
+        "Attributed to the gene/protein — reporting UniProt's curation, not an "
+        "assertion about this disease's clinical phenotype.*",
+        *blocks])
+
+
+def _clip_cc(text, n=260):
+    text = (text or "").strip()
+    return text if len(text) <= n else text[:n].rsplit(" ", 1)[0] + " …"
+
+
 def _parent_evidence_clause(parent):
     """Quantify what a thin subtype's parent term holds, from the parent page's
     frozen evidence components (no new fetch). Returns e.g. '4 clinical trials,
@@ -1252,7 +1303,8 @@ def render_all(bundles):
          join(S("2", "gwas"), S("3", "variant-tiers")),
          "No common-variant (GWAS) or curated variant data for this disease."),
         ("Genes & proteins", "genes",
-         join(_cohort_empty_note(bundles), cohort_genes),
+         join(_cohort_empty_note(bundles),
+              D(r_molecular_basis(bundles), "molecular-basis"), cohort_genes),
          "No associated genes curated for this disease."),
         ("Function", "function", S("14", "pathways") if has_cohort else "",
          "No pathway enrichment — requires an associated-gene cohort."),
