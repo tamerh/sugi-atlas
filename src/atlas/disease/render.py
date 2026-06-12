@@ -308,25 +308,42 @@ def r_disease_family(b1, b5):
         crumb = " › ".join(_dl(t) for t in reversed(ancestors))
         cur = b1.get("canonical_name") or b1.get("name") or "this disease"
         out.append(f"**Classification path:** {crumb} › **{cur}**")
-    # Siblings (co-subtypes under the same parent) + this term's own subtypes,
-    # capped at 300 shown (s01 stores the cap) + "(+N more)" — a broad umbrella
-    # parent ("hereditary disease") has ~1,900 co-subtypes that bloat the page
-    # (a 174 KB line). The header keeps the TRUE count.
+    # Siblings (co-subtypes under the same parent) + this term's own subtypes.
+    # s01 stores up to 300, but dumping all inline produced a 28k-char unwrappable
+    # line (2q13-microdeletion: 337 siblings on a 1-gene page). Show only the first
+    # _FAMILY_SHOW that are BUILT Atlas pages (uniform links, no bare-text mix), with
+    # the TRUE count in the header and "(+N more)" covering the rest.
     sibling_count = b1.get("sibling_count") or len(siblings)
     child_count = b1.get("child_count") or len(children)
-    if siblings:
-        line = f"\n**Related subtypes ({_i(sibling_count)}):** " + ", ".join(_dl(t) for t in siblings)
-        if sibling_count > len(siblings):
-            ptxt = (links.maybe_link(parent.get("name"), parent_url)
-                    if (parent and parent_url) else "the parent term")
-            line += f", … (+{_i(sibling_count - len(siblings))} more under {ptxt})"
-        out.append(line)
-    if children:
-        line = f"\n**Subtypes ({_i(child_count)}):** " + ", ".join(_dl(t) for t in children)
-        if child_count > len(children):
-            line += f", … (+{_i(child_count - len(children))} more)"
-        out.append(line)
+    sib = _family_line("Related subtypes", siblings, sibling_count,
+                       f" under {links.maybe_link(parent.get('name'), parent_url)}"
+                       if (parent and parent_url) else " under the parent term")
+    if sib:
+        out.append(sib)
+    sub = _family_line("Subtypes", children, child_count)
+    if sub:
+        out.append(sub)
     return "\n".join(out)
+
+
+_FAMILY_SHOW = 20      # inline render cap for sibling/subtype lists
+
+
+def _family_line(label, terms, total, tail_suffix=""):
+    """A capped, link-only family list: '**{label} (T):** a, b, c, … (+N more …)'.
+    Keeps only terms that resolve to a built Atlas page (so the line is uniform
+    links, never a jagged links+bare-text mix), capped at _FAMILY_SHOW. '' when no
+    term is a built page."""
+    linked = [(t, links.disease_url(mondo_id=t.get("id"), name=t.get("name")))
+              for t in terms]
+    linked = [(t, u) for t, u in linked if u]
+    shown = linked[:_FAMILY_SHOW]
+    if not shown:
+        return ""
+    body = ", ".join(links.maybe_link(t.get("name"), u) for t, u in shown)
+    hidden = max(0, total - len(shown))
+    more = f", … (+{_i(hidden)} more{tail_suffix})" if hidden else ""
+    return f"\n**{label} ({_i(total)}):** {body}{more}"
 
 
 # §2 gwas_landscape ---------------------------------------------------------

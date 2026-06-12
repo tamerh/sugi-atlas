@@ -349,6 +349,16 @@ def _res_loc(f):
     return str(b) if (e in (None, "", b)) else f"{b}–{e}"
 
 
+def _clip(text, n=140):
+    """Truncate on a word boundary with an ellipsis — never mid-word (a naive
+    [:n] left mutagenesis phenotypes ending '…downstream kinases. reduced tran')."""
+    text = (text or "").strip()
+    if len(text) <= n:
+        return text
+    cut = text[:n].rsplit(" ", 1)[0].rstrip(",;.") or text[:n]
+    return cut + " …"
+
+
 def _mod_label(desc):
     """The modification identity from a UniProt feature description — the part
     before the first ';' (drops the '; by <kinase>' / evidence tail), with the
@@ -416,7 +426,7 @@ def r_residue_map(b):
             lines.append(f"\n### Mutagenesis-validated functional residues ({len(mut)}){suffix} "
                          f"{{#residue-mutagenesis{asuf}}}\n")
             lines.append(table(["Position", "Phenotype"],
-                               [(_res_loc(f), (f.get("description") or "")[:120]) for f in mut[:25]]))
+                               [(_res_loc(f), _clip(f.get("description"))) for f in mut[:25]]))
         return lines
 
     prods = [(u, [f for f in feats if f.get("uniprot") == u])
@@ -525,7 +535,10 @@ def r_variants(b):
                           None, total=b.get("alphamissense_total"), noun="scored, likely-pathogenic"))
     ds = b.get("dbsnp_sample", [])
     if ds:
-        L.append(f"\n**dbSNP variants (sampled {b.get('dbsnp_sampled', 0)} via entrez):** "
+        shown = min(15, len(ds))
+        sampled = b.get("dbsnp_sampled", 0)
+        of = f" of ~{sampled:,} sampled via entrez" if sampled > shown else " via entrez"
+        L.append(f"\n**dbSNP variants (showing {shown}{of}):** "
                  + ", ".join(f"{d['id']} ({d['pos']} {d['change']})" for d in ds[:15]))
     return "\n".join(L)
 

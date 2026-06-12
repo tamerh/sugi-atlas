@@ -28,6 +28,18 @@ def _ascending_freq(s):
         lambda m: "{}-{}%".format(*sorted((int(m.group(1)), int(m.group(2))))), s)
 
 
+# A MeSH note is only a usable clinical description if it reads like prose, not a
+# MeSH indexing/etiology fragment. Even MAIN descriptors carry junk here:
+# "AOMS1 not included" (entry-term indexing note), "mutation in MPZ" (etiology
+# stub). Real scope notes are full sentences (hypertension's is 200+ chars).
+_NOTE_JUNK = re.compile(r"\bnot included\b|^[\w;.\-\s]{0,30}mutation in\b", re.I)
+
+
+def _looks_like_description(note):
+    note = (note or "").strip()
+    return len(note) >= 40 and not _NOTE_JUNK.search(note)
+
+
 CHAINS   = (">>mondo>>efo", ">>mondo>>mesh", ">>mondo>>mim", ">>mondo>>orphanet",
             ">>mondo>>doid", ">>mondo>>sctid", ">>mondo>>umls", ">>mondo>>ncit",
             ">>mondo>>medgen", ">>mondo>>icd10cm", ">>mondo>>icd11",
@@ -136,7 +148,7 @@ def collect(a):
         if str(mat.get("is_supplementary")).lower() == "true":
             continue                          # Supplementary Concept Record — not a description
         note = (mat.get("scope_note") or "").strip()
-        if not note:
+        if not _looks_like_description(note):  # reject indexing/etiology fragments
             continue
         if _norm(mat.get("descriptor_name")) == want:
             mesh_scope_note = note            # exact-name descriptor wins outright

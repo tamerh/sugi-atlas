@@ -95,7 +95,15 @@ def r_drug_ids(b):
     # (assignee + CPC/IPC landscape is gated on a representative sample — needs
     # biobtree #27 date-sort/facets.)
     pt = b.get("patent_total") or 0
-    if pt:
+    fam0 = b.get("patent_family_total") or 0
+    # Reference/ubiquitous compounds (charcoal 4.3M families, oxygen 3.1M) make
+    # the raw 7-digit figure read as broken. Above a sanity threshold, collapse to
+    # a qualitative statement instead of leading with an absurd number.
+    if max(pt, fam0) > 50_000:
+        L.append("\n**Patent coverage:** ubiquitous in the patent literature "
+                 "(a reference / commodity compound named in millions of filings — "
+                 "the raw count carries no drug-specific signal).")
+    elif pt:
         bd = b.get("patent_compound_breakdown") or []
         n_rec = len(bd) or len(b.get("patent_compound_ids") or [])
         fam = b.get("patent_family_total") or 0
@@ -164,8 +172,12 @@ def r_bioactivity(b):
     L = ["## Bioactivity", ""]
     ca = b.get("activities") or []
     if not ca:
-        L.append("*No ChEMBL bioactivity rows at pChembl ≥ 5 "
-                 "(expected for biologics / antibodies).*")
+        # Modality-inclusive reason: the old "(expected for biologics)" hint was
+        # wrong on ~1k small molecules (inorganic salts, imaging/reference
+        # compounds) that simply have no curated potent assays.
+        L.append("*No ChEMBL bioactivity rows at pChembl ≥ 5 — no curated potent "
+                 "assays (common for biologics/antibodies and for inorganic, "
+                 "imaging, or reference compounds).*")
         return "\n".join(L)
     L.append(f"**ChEMBL activities: {_i(b.get('potent_count'))} potent at "
              f"pChembl ≥ 5 of {_i(b.get('activity_total'))} total. Top {_i(len(ca))} "
@@ -220,11 +232,17 @@ def r_indications(b):
         elif 2 <= (i.get("max_phase") or 0) <= 3:
             trials.append(i)
 
+    def _efo(i):
+        # The efo_id field often just repeats the MONDO id (no real EFO xref) —
+        # only show it when it's a genuine EFO: accession, else blank.
+        e = str(i.get("efo_id") or "")
+        return e if e.startswith("EFO:") else ""
+
     def _tbl(items, col0):
         return table([col0, "Phase", "MONDO", "EFO"],
                      [(links.maybe_link(i.get("name"),
                                         links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
-                       i.get("max_phase"), i.get("mondo_id") or "", i.get("efo_id") or "")
+                       i.get("max_phase"), i.get("mondo_id") or "", _efo(i))
                       for i in sorted(items, key=lambda i: -(i.get("max_phase") or 0))])
 
     L = ["## Indications", ""]
