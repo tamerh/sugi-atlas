@@ -120,6 +120,10 @@ def collect(a):
     # A Mondo can map to several MeSH descriptors — prefer the one whose name
     # matches this disease (so we don't surface a tangential descriptor's note),
     # falling back to the first descriptor that carries a note.
+    # ONLY main MeSH Descriptors (D-numbers) carry a real clinical scope note.
+    # Rare diseases map to Supplementary Concept Records (C-numbers) whose same
+    # field holds an indexing/etiology note instead ("Optb2 not included",
+    # "mutation in prohormone convertase-1") — NOT a description, so skip those.
     def _norm(s):
         return re.sub(r"[^a-z0-9]", "", (s or "").lower())
     want = _norm(a.canonical_name or a.name)
@@ -129,6 +133,8 @@ def collect(a):
             mat = (entry(mid, "mesh").get("Attributes") or {}).get("Mesh") or {}
         except Exception:
             continue
+        if str(mat.get("is_supplementary")).lower() == "true":
+            continue                          # Supplementary Concept Record — not a description
         note = (mat.get("scope_note") or "").strip()
         if not note:
             continue
