@@ -206,6 +206,19 @@ def r_epidemiology(b):
                 for p in shown])])
 
 
+def r_clinical_description(b):
+    """MeSH scope note — a curated clinical-description paragraph. Fills the
+    Clinical-features zone for common multifactorial diseases (hypertension,
+    asthma, type 2 diabetes) where HPO — a rare/Mendelian phenotype ontology —
+    is empty. Clearly attributed to MeSH; complements (never replaces) the HPO
+    feature table. '' when the disease has no MeSH descriptor with a scope note."""
+    note = ((b or {}).get("mesh_scope_note") or "").strip()
+    if not note:
+        return ""
+    return "\n".join(["## Clinical description", "", note, "",
+                      "*Source: MeSH descriptor scope note.*"])
+
+
 def r_symptoms(b):
     """Signs & symptoms — Orphanet-curated HPO clinical features, frequency-sorted
     (top 50; full list in the bundle/JSON-LD sidecar). The headline clinical
@@ -1138,9 +1151,11 @@ def render_all(bundles):
 
     spec = [
         ("Clinical features", "clinical",
-         join(D(r_epidemiology(bundles["1"]), "epidemiology"),
+         join(D(r_clinical_description(bundles["1"]), "clinical-description"),
+              D(r_epidemiology(bundles["1"]), "epidemiology"),
               D(r_symptoms(bundles["1"]), "symptoms")),
-         "No curated clinical features (Orphanet) for this disease."),
+         "No curated clinical features (HPO via Orphanet/OMIM/Mondo, or MeSH) "
+         "for this disease."),
         ("Identifiers", "identifiers", S("1", "disease-ids"), None),
         ("Disease family", "family",
          r_disease_family(bundles.get("1"), bundles.get("5")),

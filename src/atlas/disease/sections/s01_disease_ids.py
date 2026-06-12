@@ -6,7 +6,7 @@ record, which already pre-resolved the ID set during resolve(). The work
 here is mostly shaping; no new biobtree calls beyond the anchor."""
 import re
 from atlas.section import Section
-from atlas.biobtree import map_all
+from atlas.biobtree import map_all, entry
 
 # Cap stored ontology-family lists (children/siblings). A disease under a broad
 # Mondo parent ("hereditary disease") has ~1,900 co-subtypes; storing/rendering
@@ -112,6 +112,32 @@ def collect(a):
     child_count, sibling_count = len(children), len(siblings)
     children, siblings = children[:_FAMILY_CAP], siblings[:_FAMILY_CAP]
 
+    # MeSH scope note — a curated clinical-description paragraph. HPO (a rare/
+    # Mendelian phenotype ontology) leaves the Clinical-features zone empty for
+    # common multifactorial diseases (hypertension, asthma, T2D), but those carry
+    # a MeSH descriptor whose scope_note IS that description. We already resolve
+    # the MeSH id (for the xref); the note lives only on the entry, so fetch it.
+    # A Mondo can map to several MeSH descriptors — prefer the one whose name
+    # matches this disease (so we don't surface a tangential descriptor's note),
+    # falling back to the first descriptor that carries a note.
+    def _norm(s):
+        return re.sub(r"[^a-z0-9]", "", (s or "").lower())
+    want = _norm(a.canonical_name or a.name)
+    mesh_scope_note, mesh_note_fallback = "", ""
+    for mid in (a.mesh_ids or ()):
+        try:
+            mat = (entry(mid, "mesh").get("Attributes") or {}).get("Mesh") or {}
+        except Exception:
+            continue
+        note = (mat.get("scope_note") or "").strip()
+        if not note:
+            continue
+        if _norm(mat.get("descriptor_name")) == want:
+            mesh_scope_note = note            # exact-name descriptor wins outright
+            break
+        mesh_note_fallback = mesh_note_fallback or note
+    mesh_scope_note = mesh_scope_note or mesh_note_fallback
+
     bundle = {
         "section": "01_disease_ids",
         "name": a.name,
@@ -137,6 +163,7 @@ def collect(a):
         "prevalences": list(oa.get("prevalences") or []),
         "phenotypes": phenotypes,
         "phenotype_count": len(phenotypes),   # merged Orphanet + OMIM/Mondo HPO
+        "mesh_scope_note": mesh_scope_note,
         "is_cancer": a.is_cancer,
         "child_count": child_count,
         "sibling_count": sibling_count,
@@ -160,7 +187,7 @@ SECTION = Section(
     produces=("mondo_id", "canonical_name", "synonyms", "efo_id", "mesh_ids", "omim_ids",
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_disorder_type",
-              "prevalences", "phenotypes", "phenotype_count",
+              "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",
               "child_count", "parent", "ancestors", "children", "siblings",
               "xref_counts", "is_cancer"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

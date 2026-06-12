@@ -54,7 +54,7 @@ H3_IDS = {
              "structure", "residue-map", "pathways", "interactions", "cancer",
              "variants", "disease-assoc", "drug-data",
              "hpa-protein", "hpa-expression", "hpa-cancer"},
-    "disease": {"epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",
+    "disease": {"clinical-description", "epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",
                 "cohort-genes", "protein-families", "expression", "interactions",
                 "structural", "pathways", "indicated", "drug-targets", "bioactivity",
                 "pharmacogenomics", "tractability", "druggability", "undrugged",

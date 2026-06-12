@@ -77,6 +77,19 @@ DRUG_H2 = [
 ]
 
 
+def test_clinical_description_from_mesh_scope_note():
+    """The MeSH scope note fills the Clinical-features zone for common diseases
+    where HPO is empty; '' when there is no scope note."""
+    from atlas.disease import render as DR
+    md = DR.r_clinical_description({"mesh_scope_note": "Persistently high systemic "
+                                    "arterial BLOOD PRESSURE."})
+    assert "## Clinical description" in md
+    assert "Persistently high systemic arterial BLOOD PRESSURE." in md
+    assert "MeSH descriptor scope note" in md
+    assert DR.r_clinical_description({}) == ""
+    assert DR.r_clinical_description({"mesh_scope_note": "  "}) == ""
+
+
 def test_disease_canonical_h2_set_and_order():
     """Every canonical section always emits, in the frozen order
     (docs/PAGE_CONTRACT.md) — sub-renderers carry their own empty-state text, so
