@@ -123,8 +123,8 @@ def at_a_glance(bundle) -> str:
                     f"({overlap} on both)")
         bullets.append(
             f"**Target biology:** {nt} curated target{'s' if nt != 1 else ''} "
-            f"implicated as cohort genes in {len(reach):,} diseases corpus-wide"
-            f"{tail}")
+            f"implicated as cohort gene{'s' if nt != 1 else ''} in {len(reach):,} "
+            f"disease{'s' if len(reach) != 1 else ''} corpus-wide{tail}")
         comp = sorted(((s, nd - 1) for s, _d, nd in land["per_target"] if nd > 1),
                       key=lambda x: -x[1])
         if comp:

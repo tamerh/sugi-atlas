@@ -139,8 +139,8 @@ def at_a_glance(bundle) -> str:
                     + (f" ({', '.join(undrugged)})" if undrugged else "")) if chars else ""
             bullets.append(
                 f"**Druggability snapshot:** {drugged} of {len(cohort)} cohort genes "
-                f"are drug-illuminated (an approved/clinical drug with curated "
-                f"evidence){tail}. *Atlas-derived.*")
+                f"{'is' if drugged == 1 else 'are'} drug-illuminated (an approved/"
+                f"clinical drug with curated evidence){tail}. *Atlas-derived.*")
 
     # Notable callouts — deterministic anomaly observations across the disease's
     # own counts (the kind of "what to notice here" line a curator writes).
