@@ -411,6 +411,27 @@ def related_targets(entity_type, bundle):
     return groups
 
 
+def drug_target_landscape(bundle):
+    """Reverse-index reads over a drug's curated (GtoPdb) target genes — the basis
+    for the drug page's "target biology reach" and "competitive landscape":
+      reach      — set of corpus DISEASE urls where a target is a cohort gene
+      per_target — [(symbol, n_cohort_diseases, n_drugs_targeting_incl_self)]
+    Corpus build only (returns empty when no reverse index is loaded — single-page
+    rebuilds / unit tests degrade silently, like the other reverse-mesh reads)."""
+    targets = related_targets("drug", bundle).get("Genes") or []
+    reach, per_target = set(), []
+    for sym, gurl in targets:
+        diseases, drugs = set(), set()
+        for src_label, src_url, src_type, group in (_REVERSE.get(gurl) or []):
+            if src_type == "disease" and group == "Genes":
+                diseases.add(src_url)
+            elif src_type == "drug" and group == "Genes":
+                drugs.add(src_url)            # includes this drug (it targets the gene)
+        reach |= diseases
+        per_target.append((sym, len(diseases), len(drugs)))
+    return {"reach": reach, "n_targets": len(targets), "per_target": per_target}
+
+
 # Reverse-edge labels: a forward edge from a source of type `src_type` in its
 # `group` becomes, on the TARGET page, a group of the SOURCE entities under this
 # label. ONLY directions whose SOURCE edge is curated are inverted — a biomarker

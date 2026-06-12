@@ -152,6 +152,23 @@ def components_for(entity_type, slug):
     return _COMP.get(entity_type, {}).get(slug) or {}
 
 
+def illumination(comps):
+    """An Atlas-derived 'illumination level' for a gene from its evidence
+    components: drug-illuminated > chemically-probed > functionally-characterized
+    > understudied. Deterministic, self-contained, with the rule inline. NOT a
+    Pharos TDL clone — the corpus has effectively no truly-dark genes, so we frame
+    it as illumination and never borrow the "Tdark" label."""
+    def g(k):
+        return int((comps or {}).get(k) or 0)
+    if g("drug_count") and g("civic_count"):
+        return "drug-illuminated"          # has a drug AND curated precision evidence
+    if g("drug_count"):
+        return "chemically-probed"         # ChEMBL molecules but no curated actionability
+    if g("gwas_count") or g("variant_count") or g("interaction_count"):
+        return "functionally-characterized"
+    return "understudied"
+
+
 def component_percentile(entity_type, key, count):
     """Percentile rank (0-100) of `count` within the frozen per-component
     distribution for this entity type. None when no distribution is loaded

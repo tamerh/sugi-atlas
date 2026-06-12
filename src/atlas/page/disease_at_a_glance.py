@@ -122,6 +122,26 @@ def at_a_glance(bundle) -> str:
             f"**Precision-medicine evidence (CIViC):** {_format_int(civ)} "
             f"subtype–drug association{'s' if civ != 1 else ''}")
 
+    # Druggability snapshot — an illumination census over the cohort genes: how
+    # many are drug-illuminated vs functionally characterized but not yet drugged.
+    # A "where is the therapeutic opportunity in this cohort" read no source emits.
+    cohort = [g.get("symbol") for g in (b5.get("genes") or []) if g.get("symbol")]
+    if len(cohort) >= 5:
+        from collections import Counter
+        lv = Counter(evidence.illumination(evidence.components_for("gene", s)) for s in cohort)
+        drugged = lv["drug-illuminated"]
+        chars = lv["functionally-characterized"]
+        if drugged or chars:
+            undrugged = [s for s in cohort
+                         if evidence.illumination(evidence.components_for("gene", s))
+                         == "functionally-characterized"][:4]
+            tail = (f"; {chars} functionally characterized but not yet drugged"
+                    + (f" ({', '.join(undrugged)})" if undrugged else "")) if chars else ""
+            bullets.append(
+                f"**Druggability snapshot:** {drugged} of {len(cohort)} cohort genes "
+                f"are drug-illuminated (an approved/clinical drug with curated "
+                f"evidence){tail}. *Atlas-derived.*")
+
     # Notable callouts — deterministic anomaly observations across the disease's
     # own counts (the kind of "what to notice here" line a curator writes).
     phased = b10.get("phased_count") or 0

@@ -280,3 +280,23 @@ def test_clingen_disease_name_dedup():
     assert dd(["Li-Fraumeni syndrome 1"]) == ["Li-Fraumeni syndrome 1"]   # nothing to subsume
     assert dd(["BRCA1-related cancer", "Lynch syndrome"]) == ["BRCA1-related cancer", "Lynch syndrome"]
     assert dd(["", None, "  "]) == []
+
+
+def test_drug_target_landscape(monkeypatch):
+    """Reverse-index reads over a drug's curated targets: disease reach + per-target
+    competitor count (incl. self)."""
+    from atlas.page import links
+    monkeypatch.setattr(links, "gene_url",
+                        lambda symbol=None, hgnc_id=None: f"/atlas/gene/{symbol}/")
+    links._REVERSE = {
+        "/atlas/gene/ABL1/": [["m", "/atlas/disease/cml/", "disease", "Genes"],
+                              ["m", "/atlas/drug/dasatinib/", "drug", "Genes"],
+                              ["m", "/atlas/drug/imatinib/", "drug", "Genes"]],
+    }
+    bundle = {"2": {"primary_targets": [{"gene_symbol": "ABL1", "source": "gtopdb"},
+                                        {"gene_symbol": "OFF", "source": "chembl"}]}}
+    land = links.drug_target_landscape(bundle)
+    assert land["n_targets"] == 1                       # only the GtoPdb target counts
+    assert land["reach"] == {"/atlas/disease/cml/"}
+    assert land["per_target"] == [("ABL1", 1, 2)]       # 1 cohort disease, 2 drugs (incl self)
+    links._REVERSE = {}

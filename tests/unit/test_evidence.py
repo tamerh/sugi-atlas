@@ -69,3 +69,12 @@ def test_components_for_reads_per_slug_map():
     assert P.components_for("gene", "NOPE") == {}     # unknown slug
     assert P.components_for("drug", "X") == {}        # unknown type
     P.reset()
+
+
+def test_illumination_levels():
+    assert P.illumination({"drug_count": 5, "civic_count": 3}) == "drug-illuminated"
+    assert P.illumination({"drug_count": 5}) == "chemically-probed"
+    assert P.illumination({"gwas_count": 2}) == "functionally-characterized"
+    assert P.illumination({"interaction_count": 900}) == "functionally-characterized"
+    assert P.illumination({}) == "understudied"
+    assert P.illumination(None) == "understudied"

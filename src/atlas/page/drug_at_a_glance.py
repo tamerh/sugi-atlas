@@ -103,6 +103,39 @@ def at_a_glance(bundle) -> str:
             bits.append(formula)
         bullets.append(f"**Chemistry:** {' · '.join(bits)}")
 
+    # Cross-entity reach over the curated (GtoPdb) targets — how broadly the
+    # drug's molecular targets touch disease genetics vs where it's actually used,
+    # and how crowded each target is. Reverse-index reads; elide off-corpus.
+    from atlas.page import links
+    land = links.drug_target_landscape(bundle)
+    reach = land["reach"]
+    if reach:
+        ind_urls = set()
+        for i in (b4.get("indications") or []):
+            u = links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))
+            if u:
+                ind_urls.add(u)
+        nt = land["n_targets"]
+        tail = ""
+        if ind_urls:
+            overlap = len(reach & ind_urls)
+            tail = (f"; indicated or in trials for {len(ind_urls)} "
+                    f"({overlap} on both)")
+        bullets.append(
+            f"**Target biology:** {nt} curated target{'s' if nt != 1 else ''} "
+            f"implicated as cohort genes in {len(reach):,} diseases corpus-wide"
+            f"{tail}")
+        comp = sorted(((s, nd - 1) for s, _d, nd in land["per_target"] if nd > 1),
+                      key=lambda x: -x[1])
+        if comp:
+            lead_s, lead_n = comp[0]
+            extra = "; ".join(f"{s}: {n}" for s, n in comp[1:4])
+            more = f" ({extra} others)" if extra else ""
+            bullets.append(
+                f"**Competitive landscape:** target {lead_s} is also targeted by "
+                f"{lead_n} other curated drug{'s' if lead_n != 1 else ''} in the "
+                f"corpus{more}")
+
     # Notable callout — substantial trial activity without approval (a drug in
     # active development, surfaced as a deterministic observation).
     if tr >= 10 and not (b1.get("is_fda_approved") or b1.get("max_phase") == 4):
