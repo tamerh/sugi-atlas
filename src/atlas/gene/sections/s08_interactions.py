@@ -25,7 +25,7 @@ CHAINS = (
     ">>uniprot>>diamond_similarity>>uniprot",
 )
 DATASETS = ("uniprot", "string_interaction", "intact", "biogrid_interaction",
-            "signor", "esm2_similarity", "diamond_similarity")
+            "signor", "esm2_similarity", "diamond_similarity", "corum")
 
 # Page cap for PPI sources. STRING/IntAct are score-desc sorted by biobtree,
 # so first 100 dominates the top-30 we render with comfortable margin.
@@ -138,6 +138,21 @@ def collect(a):
     bundle["signor"] = [{"a": t.get("entity_a"), "b": t.get("entity_b"),
                          "effect": t.get("effect"), "mechanism": t.get("mechanism")} for t in sig]
     bundle["signor_count"] = len(sig)
+
+    # CORUM — named, experimentally-characterized protein complexes this protein
+    # is a subunit of. A curated complement to the score-ranked STRING/IntAct
+    # firehose: a discrete, biologically-defined complex membership. Schema:
+    # id|name|organism|subunit_count|subunit_genes|has_drug_targets. Human only;
+    # largest complexes first.
+    cor = [t for t in (map_all(uni, ">>uniprot>>corum") if uni else [])
+           if (t.get("organism") or "Human").lower() == "human"]
+    cor.sort(key=lambda t: int(t.get("subunit_count") or 0), reverse=True)
+    bundle["corum"] = [{"id": t.get("id"), "name": t.get("name"),
+                        "subunit_count": t.get("subunit_count"),
+                        "subunits": t.get("subunit_genes"),
+                        "has_drug_targets": t.get("has_drug_targets") == "true"}
+                       for t in cor]
+    bundle["corum_count"] = len(cor)
     return bundle
 
 SECTION = Section(
@@ -145,6 +160,6 @@ SECTION = Section(
     description="Protein-protein interactions (STRING/IntAct/BioGRID with scores), SIGNOR signaling, ESM2/Diamond structural similarity",
     needs=("canonical_uniprot",),
     produces=("string", "intact", "biogrid", "signor", "esm2_similar", "diamond_similar",
-              "interaction_partners"),
+              "interaction_partners", "corum", "corum_count"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

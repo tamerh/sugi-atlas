@@ -119,6 +119,7 @@ UPSTREAM = {
     "clingen_gene_validity": ("ClinGen Gene-Disease Validity",     "https://search.clinicalgenome.org/kb/gene-validity"),
     "clingen_dosage":    ("ClinGen Gene Dosage Map",               "https://search.clinicalgenome.org/kb/gene-dosage"),
     "clingen_variant":   ("ClinGen Variant Curation",              "https://erepo.clinicalgenome.org/evrepo/"),
+    "corum":             ("CORUM Protein Complexes",               "https://mips.helmholtz-muenchen.de/corum/"),
     "depmap":            ("DepMap (Cancer Dependency Map)",        "https://depmap.org/portal/"),
     "depmap_dependency": ("DepMap (Cancer Dependency Map)",        "https://depmap.org/portal/"),
     "generif":           ("NCBI GeneRIFs",                         "https://www.ncbi.nlm.nih.gov/gene/about-generif"),

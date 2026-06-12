@@ -583,6 +583,19 @@ def r_interactions(b):
     L.append(capped_table(["A", "Effect", "B", "Mechanism"],
                           [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])],
                           ROW_CAP, total=b.get("signor_count"), noun="signaling interactions"))
+    # CORUM — named, curated protein complexes this protein is a subunit of. A
+    # discrete biological complement to the score-ranked PPI firehose above.
+    cor = b.get("corum") or []
+    if cor:
+        L.append(f"\n### Protein complexes (CORUM) ({b.get('corum_count', len(cor))}) {{#corum}}\n")
+        L.append("Experimentally-characterized complexes this protein is a subunit "
+                 "of (★ = the complex contains a known drug target).\n")
+        L.append(capped_table(["Complex", "Subunits", "Members"],
+                              [("★ " + c["name"] if c.get("has_drug_targets") else c["name"],
+                                c.get("subunit_count"),
+                                (c.get("subunits") or "").replace(";", ", "))
+                               for c in cor],
+                              ROW_CAP, total=b.get("corum_count"), noun="complexes by size"))
     L.extend(_interactome_enrichment(b))
     return "\n".join(L)
 
