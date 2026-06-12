@@ -1,6 +1,24 @@
 """§6 — variants: ClinVar (per-class breakdown + top pathogenic), SpliceAI, AlphaMissense, dbSNP sample."""
+import re
+
 from atlas.biobtree import entry, map_all, xref_counts
 from atlas.gene.sections.base import Section
+
+
+def _dedup_disease_names(names):
+    """Collapse condition labels that differ only by a trailing numeric subtype
+    suffix — 'Li-Fraumeni syndrome' subsumes 'Li-Fraumeni syndrome 1' (two
+    ontology granularities for the same entity). Keep the shortest representative
+    per base; order preserved by base name."""
+    by_base = {}
+    for n in names:
+        n = (n or "").strip()
+        if not n:
+            continue
+        base = re.sub(r"\s+\d+$", "", n).lower()      # drop a trailing " 1"/" 2"…
+        if base not in by_base or len(n) < len(by_base[base]):
+            by_base[base] = n
+    return sorted(by_base.values())
 
 CHAINS = (
     '>>hgnc>>clinvar[germline_classification=="<class>"]',  # 5 classes
@@ -62,8 +80,8 @@ def collect(a):
             + [(k, n) for k, n in cnt.items() if k not in order])
         bundle["clingen_variant_vceps"] = sorted(
             {(r.get("vcep") or "").strip() for r in cg if r.get("vcep")})
-        bundle["clingen_variant_diseases"] = sorted(
-            {(r.get("disease") or "").strip() for r in cg if r.get("disease")})
+        bundle["clingen_variant_diseases"] = _dedup_disease_names(
+            r.get("disease") for r in cg if r.get("disease"))
 
     # dbSNP rsIDs via ENTREZ (direct hgnc>>dbsnp unbacked; see BIOBTREE_ISSUES.md).
     dbs = map_all(a.hgnc_id, ">>hgnc>>entrez>>dbsnp", cap=2)

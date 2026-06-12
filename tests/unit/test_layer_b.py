@@ -269,3 +269,14 @@ def test_mechanism_synthesis(monkeypatch):
     assert "Vemurafenib" in md and "BRAF" in md
     assert "Aspirin" not in md                     # not a cohort drug → not aligned
     assert DR.r_mechanism_synthesis({"5": {}, "10": {}, "_indicated_drugs": []}) == ""
+
+
+def test_clingen_disease_name_dedup():
+    """ClinGen condition labels differing only by a trailing numeric subtype
+    collapse to the shortest representative (Li-Fraumeni syndrome subsumes
+    'Li-Fraumeni syndrome 1'); genuinely distinct names are kept."""
+    from atlas.gene.sections.s06_variants import _dedup_disease_names as dd
+    assert dd(["Li-Fraumeni syndrome", "Li-Fraumeni syndrome 1"]) == ["Li-Fraumeni syndrome"]
+    assert dd(["Li-Fraumeni syndrome 1"]) == ["Li-Fraumeni syndrome 1"]   # nothing to subsume
+    assert dd(["BRCA1-related cancer", "Lynch syndrome"]) == ["BRCA1-related cancer", "Lynch syndrome"]
+    assert dd(["", None, "  "]) == []
