@@ -60,3 +60,12 @@ def test_component_percentile_and_rank_clause():
     P.reset()
     assert P.component_percentile("gene", "drug_count", 10) is None
     assert P.rank_clause("gene", "drug_count", 10) == ""
+
+
+def test_components_for_reads_per_slug_map():
+    P.reset()
+    P._COMP = {"gene": {"FER": {"gwas_count": 33, "drug_count": 56}}}
+    assert P.components_for("gene", "FER") == {"gwas_count": 33, "drug_count": 56}
+    assert P.components_for("gene", "NOPE") == {}     # unknown slug
+    assert P.components_for("drug", "X") == {}        # unknown type
+    P.reset()

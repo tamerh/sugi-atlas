@@ -207,6 +207,14 @@ def _write_evidence(collected, dist_dir):
     # render (evidence.rank_clause). Same frozen-distribution contract as _dist.
     out["_dist_components"] = {et: {k: sorted(vs) for k, vs in cd.items()}
                                for et, cd in comp_by_type.items()}
+    # Per-slug component counts → a render reads a RELATED page's numbers
+    # (evidence.components_for): a thin disease quoting its parent's evidence, a
+    # lncRNA quoting its sense gene. Drop the all-zero entities to keep it lean.
+    out["_components"] = {}
+    for r in collected:
+        comps = {k: int(v or 0) for k, v in (r.get("evidence_components") or {}).items()}
+        if any(comps.values()):
+            out["_components"].setdefault(r["entity"], {})[r["slug"]] = comps
     write_json(os.path.join(dist_dir, "atlas", "evidence.json"),
                out, indent=0, sort_keys=True)
     print(f"[B] evidence: scored {sum(len(m) for m in raw_by_type.values())} entities")

@@ -121,26 +121,35 @@ _RANK_FLOOR_PCT = 90              # only surface a rank in the top decile
 _PROM = {}    # {entity_type: {slug: score}}
 _DIST = {}    # {entity_type: [sorted raw signals]} — for single-entity reuse
 _DIST_COMP = {}   # {entity_type: {component_key: [sorted counts]}} — per-metric rank
+_COMP = {}    # {entity_type: {slug: {component_key: count}}} — per-slug lookup
 _ROOT = None
 
 
 def load(dist_root):
     """Load <dist>/atlas/evidence.json (idempotent per root)."""
-    global _PROM, _DIST, _DIST_COMP, _ROOT
+    global _PROM, _DIST, _DIST_COMP, _COMP, _ROOT
     if dist_root == _ROOT:
         return
-    _PROM, _DIST, _DIST_COMP, _ROOT = {}, {}, {}, dist_root
+    _PROM, _DIST, _DIST_COMP, _COMP, _ROOT = {}, {}, {}, {}, dist_root
     path = os.path.join(dist_root, "atlas", "evidence.json")
     if os.path.exists(path):
         d = json.load(open(path))
         _DIST = d.pop("_dist", {})
         _DIST_COMP = d.pop("_dist_components", {})
+        _COMP = d.pop("_components", {})
         _PROM = d
 
 
 def reset():
-    global _PROM, _DIST, _DIST_COMP, _ROOT
-    _PROM, _DIST, _DIST_COMP, _ROOT = {}, {}, {}, None
+    global _PROM, _DIST, _DIST_COMP, _COMP, _ROOT
+    _PROM, _DIST, _DIST_COMP, _COMP, _ROOT = {}, {}, {}, {}, None
+
+
+def components_for(entity_type, slug):
+    """The frozen per-component counts for another built entity (by slug) — lets
+    a render read a *related* page's headline numbers (a thin disease quoting its
+    parent's evidence, a lncRNA quoting its sense gene). {} when unknown."""
+    return _COMP.get(entity_type, {}).get(slug) or {}
 
 
 def component_percentile(entity_type, key, count):

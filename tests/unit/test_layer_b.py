@@ -217,3 +217,33 @@ def test_residue_map_single_product_no_header():
 
 def test_residue_map_empty_when_no_features():
     assert R.r_residue_map({"reviewed_uniprot": ["P0"], "ufeatures": []}) == ""
+
+
+def test_sense_gene_orientation_bullet(monkeypatch):
+    """An antisense lncRNA orients to its sense gene, quoting the SENSE gene's
+    biology (attributed), manifest-gated."""
+    from atlas.page import at_a_glance as AAG
+    from atlas.page import evidence, links
+    monkeypatch.setattr(links, "gene_url",
+                        lambda symbol=None, **k: f"/atlas/gene/{symbol}/" if symbol == "FER" else None)
+    evidence._COMP = {"gene": {"FER": {"gwas_count": 33, "drug_count": 56}}}
+    b = AAG._sense_gene_bullet("FER-AS1")
+    assert "antisense to" in b and "[FER](/atlas/gene/FER/)" in b
+    assert "33 GWAS associations" in b and "56 ChEMBL molecules" in b
+    assert "not this transcript" in b                       # honest attribution
+    assert AAG._sense_gene_bullet("TP53") == ""             # not antisense
+    assert AAG._sense_gene_bullet("XXX-AS1") == ""          # sense gene not built
+    evidence.reset()
+
+
+def test_parent_evidence_clause(monkeypatch):
+    """A thin subtype quantifies its parent's evidence from the parent's frozen
+    components — attributed, never folded into this page's score."""
+    from atlas.disease import render as DR
+    from atlas.page import evidence, links
+    monkeypatch.setattr(links, "_lookup", lambda et, *a: "heavy-metal-poisoning")
+    evidence._COMP = {"disease": {"heavy-metal-poisoning":
+                                  {"trial_count": 4, "gwas_count": 1, "drug_count": 1}}}
+    c = DR._parent_evidence_clause({"id": "MONDO:1", "name": "heavy metal poisoning"})
+    assert "4 clinical trials" in c and "1 GWAS association" in c and "1 approved drug" in c
+    evidence.reset()

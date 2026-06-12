@@ -239,6 +239,31 @@ def r_symptoms(b):
                 for p in phs[:ROW_CAP]])])
 
 
+def _parent_evidence_clause(parent):
+    """Quantify what a thin subtype's parent term holds, from the parent page's
+    frozen evidence components (no new fetch). Returns e.g. '4 clinical trials,
+    1 GWAS association'; '' when the parent isn't a built page or carries nothing
+    notable. The caller attributes it to the parent — it never enters this page's
+    own evidence score."""
+    from atlas.page import evidence
+    slug = links._lookup("disease", parent.get("id"), parent.get("name"))
+    if not slug:
+        return ""
+    c = evidence.components_for("disease", slug)
+    def _plural(n, noun):
+        return f"{_i(n)} {noun}{'s' if n != 1 else ''}"
+    bits = []
+    if c.get("gene_count"):
+        bits.append(_plural(c["gene_count"], "cohort gene"))
+    if c.get("gwas_count"):
+        bits.append(_plural(c["gwas_count"], "GWAS association"))
+    if c.get("trial_count"):
+        bits.append(_plural(c["trial_count"], "clinical trial"))
+    if c.get("drug_count"):
+        bits.append(_plural(c["drug_count"], "approved drug"))
+    return ", ".join(bits)
+
+
 def r_disease_family(b1, b5):
     """Mondo ontology family — broader term (parent) + subtypes (children), with
     a pointer to the parent when this page's own cohort is sparse. Granular
@@ -265,9 +290,14 @@ def r_disease_family(b1, b5):
     gene_count = (b5 or {}).get("gene_count") or 0
     # Lead: route a sparse subtype to its parent; else flag an umbrella term.
     if parent and parent_url and gene_count == 0:
+        # Quantify what the parent actually holds (from its frozen evidence
+        # components), strictly attributed — never folded into this page's score.
+        inh = _parent_evidence_clause(parent)
+        quant = (f" The broader term carries {inh} — *aggregated across all "
+                 f"{parent.get('name')}, not specific to this subtype.*" if inh else "")
         out += [f"This is a subtype of **{links.maybe_link(parent.get('name'), parent_url)}**. "
                 "Genetic, therapeutic, and trial evidence is largely curated at the "
-                "broader-term level — see the parent page for the associated-gene "
+                f"broader-term level.{quant} See the parent page for the associated-gene "
                 "cohort and molecular evidence.", ""]
     elif b1.get("child_count"):
         n = b1["child_count"]

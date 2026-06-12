@@ -12,6 +12,8 @@ sheet you scan, distinct on purpose (no sentence synthesis, just labelled
 facts). Bullets with no backing data are dropped; if nothing qualifies the
 whole block elides (returns "").
 """
+import re
+
 from atlas.page import evidence
 
 # ClinGen dosage score scale (same mapping the §-detail block uses).
@@ -33,6 +35,40 @@ _TF_MIN_TARGETS = 10
 
 def _truthy(v):
     return v in (True, "true", "True", "1", 1, "yes", "Yes")
+
+
+def _symbol(bundle):
+    for sid in ("3", "2", "8", "6", "12", "4", "5"):
+        s = (bundle.get(sid) or {}).get("symbol")
+        if s:
+            return s
+    return ""
+
+
+def _sense_gene_bullet(symbol):
+    """For an antisense lncRNA (SYMBOL-AS1/-AS2…), orient the reader to its sense
+    partner and quote the SENSE gene's biology — strictly attributed as the sense
+    gene's, never imported into this transcript's evidence. Manifest-gated (only
+    when the sense gene is a built page). '' otherwise."""
+    m = re.match(r"^(.+?)-AS\d*$", symbol or "")
+    if not m:
+        return ""
+    sense = m.group(1)
+    from atlas.page import links
+    url = links.gene_url(symbol=sense)
+    if not url:
+        return ""
+    c = evidence.components_for("gene", sense)
+    bits = []
+    if c.get("gwas_count"):
+        bits.append(f"{c['gwas_count']:,} GWAS associations")
+    if c.get("drug_count"):
+        bits.append(f"{c['drug_count']:,} ChEMBL molecules")
+    if c.get("variant_count"):
+        bits.append(f"{c['variant_count']:,} ClinVar variants")
+    carries = (f" — the sense gene carries {', '.join(bits[:2])} "
+               "(the sense gene's biology, not this transcript's)") if bits else ""
+    return f"**Sense gene:** antisense to {links.maybe_link(sense, url)}{carries}"
 
 
 def _gene_disease(b12) -> str:
@@ -89,6 +125,9 @@ def at_a_glance(bundle) -> str:
                        f"product; not a drug target. Variant/disease associations "
                        f"are omitted (they would be positional, from an overlapping "
                        f"protein-coding gene).")
+        sense = _sense_gene_bullet(_symbol(bundle))
+        if sense:
+            bullets.append(sense)
 
     # Curated gene–disease relationship — often the real headline (esp. for
     # Mendelian / complex-disease genes the cancer/drug flags miss).
