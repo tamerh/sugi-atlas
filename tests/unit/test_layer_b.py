@@ -337,3 +337,14 @@ def test_name_overlap_gate():
     assert _name_overlap("Chondrodysplasia punctata, brachytelephalangic, autosomal",
                          "Brachytelephalangic chondrodysplasia punctata") == 1.0
     assert _name_overlap("Chondrodysplasia punctata", "Cystic fibrosis") == 0.0
+
+
+def test_pdb_table_shows_title():
+    """The PDB experimental-structures table carries the structure Title column."""
+    from atlas.gene import render as R
+    b4 = {"reviewed_uniprot": ["P0"], "pdb_count": 1, "pdb": [
+        {"id": "1M17", "title": "EGFR tyrosine kinase domain with erlotinib",
+         "method": "X-RAY DIFFRACTION", "resolution": "2.6"}]}
+    md = R.r_structure(b4)
+    assert "| PDB | Title | Method | Resolution (Å) |" in md
+    assert "1M17" in md and "EGFR tyrosine kinase domain with erlotinib" in md

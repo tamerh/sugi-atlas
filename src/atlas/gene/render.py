@@ -458,8 +458,9 @@ def r_structure(b):
             return float("inf")
     pdb_sorted = sorted(pdb, key=_res)
     L.append("\n### Experimental structures (PDB) {#pdb}\n")
-    L.append(capped_table(["PDB", "Method", "Resolution (Å)"],
-                          [(p["id"], p.get("method"), fnum(p.get("resolution")))  # 2-dp; raw is 1.83549
+    L.append(capped_table(["PDB", "Title", "Method", "Resolution (Å)"],
+                          [(p["id"], _clip(p.get("title"), 90), p.get("method"),
+                            fnum(p.get("resolution")))  # 2-dp; raw is 1.83549
                            for p in pdb_sorted],
                           30, total=n, noun="structures by resolution"))
     L.append("\n### Predicted structure (AlphaFold) {#alphafold}\n")

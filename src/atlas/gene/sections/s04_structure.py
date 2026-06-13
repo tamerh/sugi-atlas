@@ -13,7 +13,8 @@ def collect(a):
     for u in a.reviewed_uniprots:
         for t in map_all(u, ">>uniprot>>pdb"):
             pdb[t["id"]] = {"id": t["id"], "method": t.get("method"),
-                            "resolution": t.get("resolution")}
+                            "resolution": t.get("resolution"),
+                            "title": (t.get("title") or "").strip()}
         # Antibody-complex structures (SAbDab) bound to this protein, reached via
         # the bidirectional PDB↔antibody edge (>>uniprot>>pdb>>antibody). The ids
         # are PDB_Hchain_Lchain — dedup to the distinct PDB. A high count flags a
