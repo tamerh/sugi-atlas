@@ -387,17 +387,12 @@ def test_clinical_trials_sponsor_and_intervention_drugs():
     assert "Daraxonrasib" in md
 
 
-def test_disease_about_this_page_block():
-    """Disease pages carry a trailing 'About this page' block (provenance +
-    clinical disclaimer) at the very end; gene/drug pages do not."""
+def test_disease_no_about_block_in_body():
+    """The medical disclaimer lives in the web theme's footer, NOT a body block —
+    disease pages must not emit a duplicate '**About this page**'."""
     import atlas.pipeline as P
     md = P.assemble_page("m", "", "## Clinical features {#clinical}\n\nb",
                          {"entity_type": "disease"},
                          bundle={"1": {"canonical_name": "Marfan syndrome"}})
-    assert "**About this page**" in md
-    assert "Marfan syndrome" in md.split("About this page")[1]
-    assert "not as medical advice or a diagnosis" in md
-    assert md.rstrip().endswith("clinician.*")          # truly at page end
-    mg = P.assemble_page("TP53", "", "## Function {#function}\n\nx",
-                         {"entity_type": "gene"}, bundle={"3": {}})
-    assert "About this page" not in mg                  # disease-only
+    assert "About this page" not in md
+    assert "not as medical advice" not in md
