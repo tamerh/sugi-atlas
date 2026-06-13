@@ -117,6 +117,24 @@ Not urgent — flagged during the v1.1.8 consistency pass.
 
 ---
 
+### P3 · Complement ChEMBL bioactivity with PubChem BioActivity on drug pages
+**Status:** open · **Priority:** P3
+
+Drug-page bioactivity (`drug/render.r_bioactivity`, §3) is **ChEMBL-only**, but
+PubChem and ChEMBL are complementary — PubChem BioAssay/BioActivity carries
+screening data (academic / NIH HTS) ChEMBL often lacks. We already exploit this
+on the **gene** side (`s10_drugs` uses `>>uniprot>>pubchem_activity` → the
+PubChem-BioAssay block); the drug side doesn't. Adding `>>chembl_molecule>>pubchem>>
+pubchem_activity` (or CID-anchored) to drug pages would fill bioactivity gaps for
+drugs where ChEMBL is thin.
+
+Caveat (flagged 2026-06-13, daraxonrasib dig): doesn't help brand-new drugs —
+they have no PubChem activity either (daraxonrasib CID → 0 `pubchem_activity`
+rows; the data simply isn't generated/deposited yet). Value is for *established*
+drugs with sparse ChEMBL curation. Render-side complement, not urgent.
+
+---
+
 ## To consolidate (currently in the web tracker)
 
 The web repo's `issues.md` still has a "sugi-atlas (generator / pipeline)" section —
