@@ -356,6 +356,12 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             glance = at_a_glance(bundle)
             if glance:
                 sentence += "\n\n" + glance
+            # Disease pages carry a clinical-content disclaimer (the global footer
+            # one is very short). The rare-disease-incompleteness clause is the
+            # honest answer to thin pages — don't read sparseness as "all known".
+            sentence += ("\n\n*A research reference, not medical advice or a "
+                         "diagnosis — and for rare conditions the available data "
+                         "may be incomplete. Consult a qualified clinician.*")
         elif entity_type == "drug":
             from atlas.page.drug_declarative import declarative_sentence
             from atlas.page.drug_jsonld import build_jsonld, as_script_tag
