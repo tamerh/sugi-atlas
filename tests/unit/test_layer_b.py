@@ -77,17 +77,23 @@ DRUG_H2 = [
 ]
 
 
-def test_clinical_description_from_mesh_scope_note():
-    """The MeSH scope note fills the Clinical-features zone for common diseases
-    where HPO is empty; '' when there is no scope note."""
+def test_clinical_description_dual_source():
+    """Clinical description shows Orphanet + MeSH source-labelled (both when both
+    exist, Orphanet first) plus an inheritance/onset line; '' when nothing."""
     from atlas.disease import render as DR
-    md = DR.r_clinical_description({"mesh_scope_note": "Persistently high systemic "
-                                    "arterial BLOOD PRESSURE."})
+    md = DR.r_clinical_description({"mesh_scope_note": "Persistently high BLOOD PRESSURE."})
     assert "## Clinical description" in md
-    assert "Persistently high systemic arterial BLOOD PRESSURE." in md
-    assert "MeSH descriptor scope note" in md
+    assert "**MeSH:** Persistently high BLOOD PRESSURE." in md
+    assert "**Orphanet:**" not in md
+    md2 = DR.r_clinical_description({
+        "orphanet_definition": "Brachytelephalangic chondrodysplasia punctata is …",
+        "mesh_scope_note": "A heterogeneous disorder …",
+        "orphanet_inheritance": ["X-linked recessive"],
+        "orphanet_onset": ["Antenatal", "Neonatal"]})
+    assert md2.index("**Orphanet:**") < md2.index("**MeSH:**")     # Orphanet leads
+    assert "**Inheritance:** X-linked recessive" in md2
+    assert "**Onset:** Antenatal, Neonatal" in md2
     assert DR.r_clinical_description({}) == ""
-    assert DR.r_clinical_description({"mesh_scope_note": "  "}) == ""
 
 
 def test_disease_canonical_h2_set_and_order():

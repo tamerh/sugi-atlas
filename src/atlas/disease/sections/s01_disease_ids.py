@@ -181,6 +181,12 @@ def collect(a):
         "prevalences": list(oa.get("prevalences") or []),
         "phenotypes": phenotypes,
         "phenotype_count": len(phenotypes),   # merged Orphanet + OMIM/Mondo HPO
+        # Orphanet curated clinical description + inheritance/onset (biobtree
+        # 2026-06-13 refresh). Definition is the license-clean, disease-specific
+        # clinical paragraph; complements the MeSH scope note (common diseases).
+        "orphanet_definition": (oa.get("definition") or "").strip(),
+        "orphanet_inheritance": list(oa.get("inheritance") or []),
+        "orphanet_onset": list(oa.get("onset") or []),
         "mesh_scope_note": mesh_scope_note,
         "is_cancer": a.is_cancer,
         "child_count": child_count,
@@ -206,6 +212,7 @@ SECTION = Section(
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",
+              "orphanet_definition", "orphanet_inheritance", "orphanet_onset",
               "child_count", "parent", "ancestors", "children", "siblings",
               "xref_counts", "is_cancer"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

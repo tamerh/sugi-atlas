@@ -207,16 +207,33 @@ def r_epidemiology(b):
 
 
 def r_clinical_description(b):
-    """MeSH scope note — a curated clinical-description paragraph. Fills the
-    Clinical-features zone for common multifactorial diseases (hypertension,
-    asthma, type 2 diabetes) where HPO — a rare/Mendelian phenotype ontology —
-    is empty. Clearly attributed to MeSH; complements (never replaces) the HPO
-    feature table. '' when the disease has no MeSH descriptor with a scope note."""
-    note = ((b or {}).get("mesh_scope_note") or "").strip()
-    if not note:
+    """Curated clinical-description paragraph(s) for the Clinical-features zone.
+    Two independent authorities, shown source-labelled — both when both exist:
+    Orphanet (disease-specific, the rare-disease tail) and MeSH (main descriptors,
+    common multifactorial diseases). Orphanet leads when present. Plus an
+    inheritance / age-of-onset line (Orphanet). '' when nothing is available."""
+    b = b or {}
+    parts = []
+    orph = (b.get("orphanet_definition") or "").strip()
+    if orph:
+        parts.append(f"**Orphanet:** {orph}")
+    mesh = (b.get("mesh_scope_note") or "").strip()
+    if mesh:
+        parts.append(f"**MeSH:** {mesh}")
+    # Inheritance / onset (Orphanet) — the defining genetic axis of a Mendelian
+    # disease; a concise line under the description.
+    io = []
+    inh = b.get("orphanet_inheritance") or []
+    onset = b.get("orphanet_onset") or []
+    if inh:
+        io.append(f"**Inheritance:** {', '.join(inh)}")
+    if onset:
+        io.append(f"**Onset:** {', '.join(onset)}")
+    if io:
+        parts.append(" · ".join(io))
+    if not parts:
         return ""
-    return "\n".join(["## Clinical description", "", note, "",
-                      "*Source: MeSH descriptor scope note.*"])
+    return "\n".join(["## Clinical description", "", "\n\n".join(parts)])
 
 
 def r_symptoms(b):
