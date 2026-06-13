@@ -341,6 +341,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
 
     lead = ""
     related_tail = ""   # "## Related Atlas pages" section, appended at page end
+    about_tail = ""     # disease-only "About this page" block, appended last
     entity_type = (meta or {}).get("entity_type") or "gene"
     if bundle is not None:
         # No visible "Updated" line — the date lives in frontmatter
@@ -356,12 +357,17 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             glance = at_a_glance(bundle)
             if glance:
                 sentence += "\n\n" + glance
-            # Disease pages carry a clinical-content disclaimer (the global footer
-            # one is very short). The rare-disease-incompleteness clause is the
-            # honest answer to thin pages — don't read sparseness as "all known".
-            sentence += ("\n\n*A research reference, not medical advice or a "
-                         "diagnosis — and for rare conditions the available data "
-                         "may be incomplete. Consult a qualified clinician.*")
+            # "About this page" — a trailing block (page end, not an H2 zone, so the
+            # frozen contract is untouched). Frames the provenance honestly + carries
+            # the clinical-content disclaimer; the rare-disease-incompleteness clause
+            # tells a reader of a thin page not to read sparseness as "all known".
+            _dz = (bundle.get("1") or {}).get("canonical_name") or "this disease"
+            about_tail = (
+                f"\n\n**About this page**\n\n*Sugi Atlas reference for {_dz}, "
+                "aggregating curated public biomedical databases (sources cited per "
+                "section). Provided for research and reference, not as medical advice "
+                "or a diagnosis. Available data may be incomplete, especially for rare "
+                "conditions. Consult a qualified clinician.*")
         elif entity_type == "drug":
             from atlas.page.drug_declarative import declarative_sentence
             from atlas.page.drug_jsonld import build_jsonld, as_script_tag
@@ -427,8 +433,8 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         disclosure = (f"*Summary written by {model} from the deterministic data below. "
                       f"Facts in the tables that follow are the authoritative source.*")
         return (head + lead + disclosure + "\n\n"
-                + summary_text.strip() + "\n\n" + body_md + related_tail + "\n")
-    return head + lead + body_md + related_tail + "\n"
+                + summary_text.strip() + "\n\n" + body_md + related_tail + about_tail + "\n")
+    return head + lead + body_md + related_tail + about_tail + "\n"
 
 def run_summary(body_md, symbol, model, kind="gene"):
     key = B.api_key()
