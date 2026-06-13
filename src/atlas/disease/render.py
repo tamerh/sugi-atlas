@@ -933,10 +933,10 @@ def r_clinical_trials(b):
     tt = b.get("top_trials") or []
     if tt:
         out += ["", "### Top trials by phase / activity {#top-trials}", "",
-                capped_table(["NCT", "Phase", "Status", "Title"],
+                capped_table(["NCT", "Phase", "Status", "Sponsor", "Title"],
                              [(t.get("id") or "",
                                phase_label(t.get("phase")), t.get("status"),
-                               _trunc(t.get("title"), 65))
+                               _trunc(t.get("sponsor"), 32), _trunc(t.get("title"), 60))
                               for t in tt],
                              None, total=b.get("trial_count"), noun="trials")]
     td = b.get("trial_drugs") or []
@@ -948,6 +948,20 @@ def r_clinical_trials(b):
                                d.get("max_phase"), _i(d.get("trial_count")))
                               for d in td],
                              ROW_CAP, noun="drugs")]
+    # Drugs named in trial interventions that the ChEMBL route misses — includes
+    # investigational drugs not yet in ChEMBL (e.g. daraxonrasib, phase 3).
+    # Linked where an Atlas drug page exists, else plain (no page yet).
+    tid = b.get("trial_intervention_drugs") or []
+    if tid:
+        out += ["", "### Other drugs named in trials {#trial-intervention-drugs}", "",
+                "Drugs named in these trials' interventions but not in the ChEMBL "
+                "table above — includes investigational drugs not yet in ChEMBL. "
+                "Linked where an Atlas drug page exists.", "",
+                capped_table(["Drug", "Max trial phase"],
+                             [(links.maybe_link(d.get("name"), links.drug_url(name=d.get("name"))),
+                               phase_label(d.get("phase")))
+                              for d in tid],
+                             ROW_CAP, noun="drugs named in trials")]
 
     # CIViC precision-subtype map — the drug × molecular subtype × indication
     # triple. Predictive associations only, ranked by CIViC evidence level

@@ -3,6 +3,7 @@ fanout). Surfaces total trial count, top trials by phase/status, and the
 drugs tested across them via clinical_trials → chembl_molecule.
 
 NEW collector — disease anchors directly to trials, no gene cohort fanout."""
+import re
 from collections import Counter
 from atlas.biobtree import map_all, bbmap, map_targets, entry
 from atlas.civic import aggregate_predictive
@@ -39,6 +40,14 @@ def _drug_max_phase(d):
     except (ValueError, TypeError):
         return 0
 
+# Non-drug / non-specific intervention strings to drop from the trial-drug list
+# (placebos, regimens, modalities, brand-marked combos) — raw CT.gov intervention
+# names are noisy; this keeps the list to recognizable single agents.
+_NON_DRUG_RX = re.compile(
+    r"\b(placebo|saline|standard of care|best supportive care|sham|vehicle|"
+    r"no intervention|observation|regimen|chemotherapy|radiotherapy|radiation|"
+    r"surgery|questionnaire|exercise|diet|supportive care|cohort)\b|[®™]", re.I)
+
 
 def collect(a):
     # ---- 1. trials — trust the edge. biobtree's mondo→clinical_trials edge was
@@ -63,7 +72,7 @@ def collect(a):
          "title": t.get("brief_title"),
          "phase": t.get("phase"),
          "status": t.get("overall_status"),
-         "sponsor": None}                     # not exposed by biobtree
+         "sponsor": t.get("lead_sponsor")}    # now in the map projection (#47)
         for t in trials_sorted[:40]
     ]
 
@@ -163,6 +172,28 @@ def collect(a):
                                       -(x["trial_count"] or 0),
                                       x["name"] or ""))[:30]
 
+    # ---- 5b. drugs named in trial interventions (map projection #47) that the
+    # chembl_molecule route MISSES — brand-new drugs not yet in ChEMBL (e.g.
+    # daraxonrasib, phase 3, no chembl_molecule). Read free from every trial's
+    # `intervention_names` (already drug-typed + canonicalised upstream); dedup
+    # against the linked ChEMBL trial drugs and drop placebo/standard-of-care.
+    known_names = {(d.get("name") or "").strip().lower() for d in top_drugs}
+    extra = {}                                # name.lower() -> (display name, phase int, raw phase)
+    for t in trials:
+        raw = t.get("phase")
+        ph = _phase_key(raw)
+        for nm in (t.get("intervention_names") or "").split(";"):
+            nm = nm.strip()
+            if not nm or nm.lower() in known_names or _NON_DRUG_RX.search(nm):
+                continue
+            disp = nm[:1].upper() + nm[1:]    # upstream lowercases ("daraxonrasib")
+            cur = extra.get(nm.lower())
+            if cur is None or ph > cur[1]:
+                extra[nm.lower()] = (disp, ph, raw)
+    trial_intervention_drugs = sorted(
+        ({"name": disp, "max_phase": ph, "phase": raw} for disp, ph, raw in extra.values()),
+        key=lambda d: (-d["max_phase"], d["name"]))[:30]
+
     # ---- 6. CIViC precision-subtype map — the drug × variant × indication
     # triple at disease level. mondo→civic_evidence yields predictive
     # associations stratified by molecular subtype (e.g. NSCLC → EGFR T790M →
@@ -178,6 +209,7 @@ def collect(a):
             "trial_count": trial_count,
             "top_trials": top_trials,
             "trial_drugs": top_drugs,
+            "trial_intervention_drugs": trial_intervention_drugs,
             "phase_counts": phase_counts,
             "status_counts": status_counts,
             "civic_evidence": civic_ranked,
@@ -193,7 +225,8 @@ SECTION = Section(
                  "status / lead-drug attrs. Plus CIViC precision-subtype map "
                  "(drug × molecular subtype × indication via mondo→civic_evidence)."),
     needs=("mondo_id", "mesh_ids", "xref_counts"),
-    produces=("trial_count", "top_trials", "trial_drugs", "phase_counts",
+    produces=("trial_count", "top_trials", "trial_drugs", "trial_intervention_drugs",
+              "phase_counts",
               "status_counts", "civic_evidence", "civic_evidence_total",
               "civic_predictive_total", "civic_association_total",
               "civic_evidence_type_counts"),

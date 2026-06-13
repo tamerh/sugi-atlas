@@ -369,3 +369,19 @@ def test_cross_species_homologs_render():
     assert "### Additional cross-species homologs {#cross-species-homologs}" in md
     assert "Pongo abelii" in md and "Q5RB22" in md and "100%" in md
     assert "beyond Ensembl Compara" in md
+
+
+def test_clinical_trials_sponsor_and_intervention_drugs():
+    """Top-trials table carries the sponsor; intervention drugs not in ChEMBL
+    (e.g. daraxonrasib) surface in their own block."""
+    from atlas.disease import render as DR
+    b = {"trial_count": 1,
+         "top_trials": [{"id": "NCT1", "title": "Study of X", "phase": "PHASE3",
+                         "status": "RECRUITING", "sponsor": "Revolution Medicines, Inc."}],
+         "trial_drugs": [],
+         "trial_intervention_drugs": [{"name": "Daraxonrasib", "max_phase": 3, "phase": "PHASE3"}]}
+    md = DR.r_clinical_trials(b)
+    assert "| NCT | Phase | Status | Sponsor | Title |" in md
+    assert "Revolution Medicines, Inc." in md
+    assert "### Other drugs named in trials {#trial-intervention-drugs}" in md
+    assert "Daraxonrasib" in md

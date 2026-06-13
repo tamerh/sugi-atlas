@@ -98,7 +98,7 @@ H4_IDS = {
               # function / therapeutics / trials
               "cohort-pathways", "go-enrichment", "approved-drug-genes", "top-targets", "cohort-drugs",
               "cohort-bioactivity", "cohort-enzymes", "screening-signal", "cohort-pgx",
-              "trial-phases", "top-trials", "trial-drugs", "civic"},
+              "trial-phases", "top-trials", "trial-drugs", "trial-intervention-drugs", "civic"},
     # drug pages are flat (one table per H3 section); only the two multi-table
     # sections (Target pathways, Clinical trials) carry H4s.
     "drug": {"target-reactome", "target-go", "trial-phases", "top-trials"},
