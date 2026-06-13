@@ -21,11 +21,9 @@ CHAINS = (
     ">>uniprot>>intact",
     ">>uniprot>>biogrid_interaction",
     ">>uniprot>>signor",
-    ">>uniprot>>esm2_similarity>>uniprot",
-    ">>uniprot>>diamond_similarity>>uniprot",
 )
 DATASETS = ("uniprot", "string_interaction", "intact", "biogrid_interaction",
-            "signor", "esm2_similarity", "diamond_similarity", "corum")
+            "signor", "corum")
 
 # Page cap for PPI sources. STRING/IntAct are score-desc sorted by biobtree,
 # so first 100 dominates the top-30 we render with comfortable margin.
@@ -124,13 +122,8 @@ def collect(a):
                           "method": t.get("experimental_system")} for t in bg[:30]]
     bundle["biogrid_count"] = biogrid_n or len(bg)
 
-    # ESM2 / Diamond similarity partners — render shows top 20 each.
-    # First page (100 rows) more than covers it; deeper pages are noise.
-    def partners(ds):
-        return [t["id"] for t in (map_all(uni, f">>uniprot>>{ds}>>uniprot", cap=1)
-                                  if uni else [])]
-    bundle["esm2_similar"] = partners("esm2_similarity")
-    bundle["diamond_similar"] = partners("diamond_similarity")
+    # (ESM2 / Diamond cross-species similarity moved to §5 orthologs — there they
+    # are organism-labelled cross-species homologs, not bare partner accessions.)
 
     # SIGNOR signaling — render shows top 30. First page covers it for any
     # cohort gene (TP53 paginates ~hundreds; bounded already cap=1).
@@ -159,7 +152,7 @@ SECTION = Section(
     id="8", name="interactions",
     description="Protein-protein interactions (STRING/IntAct/BioGRID with scores), SIGNOR signaling, ESM2/Diamond structural similarity",
     needs=("canonical_uniprot",),
-    produces=("string", "intact", "biogrid", "signor", "esm2_similar", "diamond_similar",
+    produces=("string", "intact", "biogrid", "signor",
               "interaction_partners", "corum", "corum_count"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

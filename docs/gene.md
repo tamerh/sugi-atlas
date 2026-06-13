@@ -124,7 +124,11 @@ non-coding genes. Chains: `>>hgnc>>mim`, `>>hgnc>>entrez`, `>>hgnc>>rnacentral`.
   targets or JASPAR motifs.
 - **§5 orthologs** — Ensembl Compara orthologs and paralogs
   (`>>ensembl>>ortholog`, `>>ensembl>>paralog`), emitted as returned (no species
-  filter — see the correction in §4).
+  filter — see the correction in §4), plus **cross-species homologs** from
+  UniProt-wide ESM2/Diamond similarity (`>>uniprot>>esm2_similarity`) — these
+  reach species *beyond* Compara's model-organism set (orangutan, dog, cow…);
+  organism is resolved via `>>uniprot>>taxonomy`, deduped against the Compara
+  species, shown as organism + UniProt accession + similarity.
 - **Derived**: gene-level ClinGen dosage + DepMap fitness (shown only when
   notable), and GeneRIF literature claims with PMID cites.
 
@@ -153,9 +157,10 @@ product"*).
   the Ensembl gene route**, because per-product annotation diverges (CDKN2A's
   p14ARF mitophagy GO terms are absent from the p16/Ensembl route), plus MSigDB
   gene sets and GO/Reactome parent rollups.
-- **§8 interactions** — STRING, IntAct, BioGRID, SIGNOR, ESM2/Diamond
-  structural similarity, and **CORUM** named protein complexes (`>>uniprot>>corum`
-  — the curated complement to the score-ranked PPI firehose). The chains query the
+- **§8 interactions** — STRING, IntAct, BioGRID, SIGNOR, and **CORUM** named
+  protein complexes (`>>uniprot>>corum` — the curated complement to the
+  score-ranked PPI firehose). (ESM2/Diamond cross-species similarity moved to §5
+  orthologs, where it's organism-labelled.) The chains query the
   *interaction record*
   (`>>uniprot>>string_interaction`), not `>>…>>uniprot` (which collapses to bare
   partner IDs and loses the scores). True totals come from the entry xref count

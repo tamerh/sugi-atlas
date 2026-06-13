@@ -348,3 +348,18 @@ def test_pdb_table_shows_title():
     md = R.r_structure(b4)
     assert "| PDB | Title | Method | Resolution (Å) |" in md
     assert "1M17" in md and "EGFR tyrosine kinase domain with erlotinib" in md
+
+
+def test_cross_species_homologs_render():
+    """ESM2/Diamond cross-species homologs render as an organism-labelled table
+    (beyond Compara), with UniProt links and similarity %."""
+    from atlas.gene import render as R
+    b = {"ortholog_count": 1,
+         "orthologs": [{"organism": "mus_musculus", "symbol": "Egfr", "id": "ENSMUSG..."}],
+         "cross_species_homologs": [
+             {"organism": "Pongo abelii", "accession": "Q5RB22", "similarity": 1.0, "source": "ESM2"},
+             {"organism": "Bos taurus", "accession": "Q2KJC8", "similarity": 0.99, "source": "ESM2"}]}
+    md = R.r_orthologs(b)
+    assert "### Additional cross-species homologs {#cross-species-homologs}" in md
+    assert "Pongo abelii" in md and "Q5RB22" in md and "100%" in md
+    assert "beyond Ensembl Compara" in md

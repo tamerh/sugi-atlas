@@ -497,6 +497,20 @@ def r_orthologs(b):
         L.append(f"\n**Paralogs ({b.get('paralog_count', 0)}):** "
                  + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:ROW_CAP]))
         L.append(more_line(b.get("paralog_count"), len(para[:ROW_CAP])))
+    # Cross-species homologs (UniProt-wide ESM2/Diamond similarity) — reach species
+    # beyond Ensembl Compara's model set (the table above). One row per species;
+    # the non-model gene symbol/Ensembl id aren't in biobtree, so we show the
+    # UniProt accession + similarity.
+    hom = b.get("cross_species_homologs") or []
+    if hom:
+        L.append("\n### Additional cross-species homologs {#cross-species-homologs}\n")
+        L.append("Sequence/structure homologs in species beyond Ensembl Compara's "
+                 "model organisms (UniProt ESM2 / Diamond similarity).\n")
+        L.append(table(["Organism", "UniProt", "Similarity", "Source"],
+                       [(h.get("organism"),
+                         links.maybe_link(h.get("accession"), links.uniprot_url(h.get("accession"))),
+                         f"{h.get('similarity'):.0%}" if isinstance(h.get("similarity"), float) else h.get("similarity"),
+                         h.get("source")) for h in hom]))
     return "\n".join(L)
 
 
@@ -591,8 +605,6 @@ def r_interactions(b):
                           40, total=b.get("intact_count"), noun="interactions by confidence"))
     L.append(_labeled(f"BioGRID ({b.get('biogrid_count', 0)})",
                       (f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15])))
-    L.append(_labeled("ESM2 similar proteins", (f"`{p}`" for p in b.get("esm2_similar", [])[:40])))
-    L.append(_labeled("Diamond homologs", (f"`{p}`" for p in b.get("diamond_similar", [])[:40])))
     L.append("\n### SIGNOR signaling {#signor}\n")
     L.append(capped_table(["A", "Effect", "B", "Mechanism"],
                           [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])],

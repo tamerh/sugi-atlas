@@ -78,7 +78,7 @@ H4_IDS = {
              "string", "intact", "signor", "corum", "interactome-enrichment",
              "collectri", "jaspar", "mirdb",
              # §expression / §disease-assoc
-             "fantom5-promoters", "tissue-expression", "scxa",
+             "fantom5-promoters", "tissue-expression", "scxa", "cross-species-homologs",
              "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",
              # §drug-data
              "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",

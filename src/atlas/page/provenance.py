@@ -64,6 +64,7 @@ UPSTREAM = {
     "signor":            ("SIGNOR",                                "https://signor.uniroma2.it/"),
     "esm2_similarity":   ("ESM2 (Meta AI)",                        "https://github.com/facebookresearch/esm"),
     "diamond_similarity":("DIAMOND alignment",                     "https://github.com/bbuchfink/diamond"),
+    "taxonomy":          ("UniProt Taxonomy",                      "https://www.uniprot.org/taxonomy"),
     # TF regulation + post-transcriptional regulation
     "collectri":         ("CollecTRI",                             "https://github.com/saezlab/CollecTRI"),
     "jaspar":            ("JASPAR",                                "https://jaspar.genereg.net/"),
