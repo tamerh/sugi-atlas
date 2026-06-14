@@ -55,7 +55,7 @@ def test_ncrna_emits_all_sections_with_placeholders(monkeypatch):
     md = P.render_all(bundle)
     assert _h2(md) == GENE_H2                      # same set, not collapsed
     assert "*Non-coding RNA — no protein product" in md.split("{#protein}")[1]
-    assert "protein-" not in md                    # no JSON-LD @id anchor for ncRNA
+    assert 'id="protein-' not in md                # no JSON-LD @id anchor for ncRNA
 
 
 DISEASE_H2 = [

@@ -131,8 +131,10 @@ def at_a_glance(bundle) -> str:
               f"protein-coding gene{'s' if len(linked) != 1 else ''} "
               f"{', '.join(linked)}, not this transcript.") if linked else ""
         bullets.append(f"**Gene type:** non-coding ({noncoding}) — no protein "
-                       f"product; not a drug target. Variant/disease associations "
-                       f"are omitted (they would be positional).{ov}")
+                       f"product, so no protein-based drug-target data (Atlas drug "
+                       f"coverage is protein-target-based; RNA-targeting therapeutics "
+                       f"aside). Variant/disease associations are omitted (they would "
+                       f"be positional).{ov}")
         sense = _sense_gene_bullet(_symbol(bundle))
         if sense:
             bullets.append(sense)

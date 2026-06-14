@@ -269,7 +269,7 @@ def render_all(bundle):
          "" if noncoding else join(S("3", "protein-ids"), S("4", "structure"),
                                    D(R.r_hpa_protein(bundle), "hpa-protein"),
                                    D(R.r_residue_map(b3), "residue-map")),
-         "Non-coding RNA — no protein product; not a drug target."),
+         "Non-coding RNA — no protein product."),
         ("Function", "function",
          (D(R.r_noncoding_genesets(bundle.get("7") or {}), "gene-sets") if noncoding
           else join(S("7", "pathways"), S("8", "interactions"))),
@@ -281,7 +281,9 @@ def render_all(bundle):
          "No curated disease, variant, or cancer-driver associations."),
         ("Drugs & pharmacology", "drugs",
          "" if noncoding else S("10", "drug-data"),
-         "No drug or pharmacology data — not an established drug target."),
+         "No protein-based drug or pharmacology data — Atlas drug coverage is "
+         "protein-target-based. Non-coding RNAs may still be targetable by RNA "
+         "therapeutics (antisense oligonucleotides, siRNA), which aren't covered here."),
     ]
     return emit_canonical(spec, anchors={"protein": protein_a})
 
