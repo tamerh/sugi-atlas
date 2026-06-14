@@ -121,10 +121,18 @@ def at_a_glance(bundle) -> str:
     # so explicitly rather than leaving a suspiciously empty page.
     noncoding = bundle.get("_noncoding")
     if noncoding:
+        # Name the overlapping protein-coding gene(s) when known (from the
+        # positional variant/splice records, §6) — so "positional, from an
+        # overlapping gene" is concrete + navigable, not vague.
+        from atlas.page import links
+        overlap = (bundle.get("6") or {}).get("overlap_genes") or []
+        linked = [links.maybe_link(g, links.gene_url(symbol=g)) for g in overlap[:4]]
+        ov = (f" The variant/disease data at this locus belongs to the overlapping "
+              f"protein-coding gene{'s' if len(linked) != 1 else ''} "
+              f"{', '.join(linked)}, not this transcript.") if linked else ""
         bullets.append(f"**Gene type:** non-coding ({noncoding}) — no protein "
                        f"product; not a drug target. Variant/disease associations "
-                       f"are omitted (they would be positional, from an overlapping "
-                       f"protein-coding gene).")
+                       f"are omitted (they would be positional).{ov}")
         sense = _sense_gene_bullet(_symbol(bundle))
         if sense:
             bullets.append(sense)

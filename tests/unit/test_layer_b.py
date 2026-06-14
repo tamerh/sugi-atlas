@@ -396,3 +396,25 @@ def test_disease_no_about_block_in_body():
                          bundle={"1": {"canonical_name": "Marfan syndrome"}})
     assert "About this page" not in md
     assert "not as medical advice" not in md
+
+
+def test_noncoding_genesets_function_block():
+    """Non-coding genes surface MSigDB gene-set membership in the Function zone."""
+    from atlas.gene import render as R
+    b7 = {"msigdb": [{"id": "M1", "name": "TFEB_TARGET_GENES"},
+                     {"id": "M2", "name": "chr6q26"}], "msigdb_total": 2}
+    md = R.r_noncoding_genesets(b7)
+    assert "Gene-set membership (MSigDB)" in md
+    assert "member of 2 curated MSigDB gene sets" in md
+    assert "`TFEB_TARGET_GENES`" in md
+    assert R.r_noncoding_genesets({}) == ""          # no sets → elide
+
+
+def test_noncoding_overlap_gene_bullet(monkeypatch):
+    """A non-coding gene names + links the overlapping protein-coding gene whose
+    positional variant/disease data it would otherwise inherit."""
+    from atlas.page import at_a_glance as AAG, links
+    monkeypatch.setattr(links, "gene_url", lambda symbol=None, **k: f"/atlas/gene/{symbol}/")
+    md = AAG.at_a_glance({"_noncoding": "lncRNA", "6": {"overlap_genes": ["QKI"]}})
+    assert "non-coding (lncRNA)" in md
+    assert "overlapping protein-coding gene [QKI](/atlas/gene/QKI/)" in md

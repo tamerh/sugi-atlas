@@ -51,7 +51,7 @@ ID_RE = {
 H3_IDS = {
     "gene": {"gene-ids", "transcripts", "expression", "regulation",
              "functional-genomics", "generif", "orthologs", "protein-ids",
-             "structure", "residue-map", "pathways", "interactions", "cancer",
+             "structure", "residue-map", "pathways", "gene-sets", "interactions", "cancer",
              "variants", "disease-assoc", "drug-data",
              "hpa-protein", "hpa-expression", "hpa-cancer"},
     "disease": {"clinical-description", "epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",

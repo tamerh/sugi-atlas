@@ -271,7 +271,8 @@ def render_all(bundle):
                                    D(R.r_residue_map(b3), "residue-map")),
          "Non-coding RNA — no protein product; not a drug target."),
         ("Function", "function",
-         "" if noncoding else join(S("7", "pathways"), S("8", "interactions")),
+         (D(R.r_noncoding_genesets(bundle.get("7") or {}), "gene-sets") if noncoding
+          else join(S("7", "pathways"), S("8", "interactions"))),
          "No curated pathway, Gene-Ontology, or interaction data."),
         ("Disease & clinical", "disease",
          "" if noncoding else join(D(R.r_cancer_overview(bundle), "cancer"),

@@ -35,12 +35,27 @@ def collect(a):
     bundle["clinvar_total"] = xc.get("clinvar", 0)
     bundle["spliceai_total"] = xc.get("spliceai", 0)
 
+    # ClinVar/SpliceAI records carry the gene_symbol they map to. For a non-coding
+    # gene these positional records belong to the OVERLAPPING protein-coding
+    # gene(s) (e.g. lncRNA CAHM's variants are QKI's). Capture those distinct
+    # symbols (minus self) so the non-coding render can orient the reader to the
+    # overlapping gene. Survives the non-coding scrub (not a scrubbed key).
+    self_sym = (a.symbol or "").upper()
+    overlap = set()
+    def _add_overlap(field):
+        for g in re.split(r"[;,]", field or ""):
+            g = g.strip()
+            if g and g.upper() != self_sym:
+                overlap.add(g)
+
     classes = ["Pathogenic", "Likely pathogenic", "Uncertain significance",
                "Likely benign", "Benign"]
     breakdown, top_path = {}, []
     for cls in classes:
         rs = map_all(a.hgnc_id, f'>>hgnc>>clinvar[germline_classification=="{cls}"]')
         breakdown[cls] = len(rs)
+        for t in rs:
+            _add_overlap(t.get("gene_symbol"))
         if cls in ("Pathogenic", "Likely pathogenic"):
             for t in rs:
                 if len(top_path) >= 30:
@@ -52,8 +67,11 @@ def collect(a):
 
     sp = sorted(map_all(a.hgnc_id, ">>hgnc>>spliceai"),
                 key=lambda t: float(t.get("score") or 0), reverse=True)
+    for t in sp:
+        _add_overlap(t.get("gene_symbol"))
     bundle["top_spliceai"] = [{"id": t["id"], "effect": t.get("effect"),
                                "score": t.get("score")} for t in sp[:30]]
+    bundle["overlap_genes"] = sorted(overlap)
 
     ct = a.canonical_transcript
     bundle["canonical_transcript"] = ct
@@ -97,6 +115,6 @@ SECTION = Section(
     produces=("clinvar_total", "clinvar_breakdown", "top_pathogenic", "top_spliceai",
               "alphamissense_total", "top_alphamissense", "dbsnp_sample",
               "clingen_variant_total", "clingen_variant_breakdown",
-              "clingen_variant_vceps", "clingen_variant_diseases"),
+              "clingen_variant_vceps", "clingen_variant_diseases", "overlap_genes"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

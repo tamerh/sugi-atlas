@@ -558,6 +558,25 @@ def r_variants(b):
     return "\n".join(L)
 
 
+def r_noncoding_genesets(b7):
+    """Function-zone content for NON-CODING genes: MSigDB gene-set membership.
+    MSigDB sets are keyed by gene id, so membership is intrinsic to this gene
+    (unlike the positional variant/disease data we scrub) — it's the one
+    functional signal valid for a lncRNA with no protein pathway/GO/interaction
+    data. '' when the gene is in no sets."""
+    sets = b7.get("msigdb") or []
+    names = [s.get("name") for s in sets if s.get("name")]
+    if not names:
+        return ""
+    total = b7.get("msigdb_total") or len(names)
+    return "\n".join(
+        ["## Gene-set membership (MSigDB)", "",
+         f"This non-coding RNA is a member of {total:,} curated MSigDB gene set"
+         f"{'s' if total != 1 else ''} — regulatory-target and signature collections "
+         "that include it (it has no protein-based pathway / GO / interaction data).",
+         "", ", ".join(f"`{n}`" for n in names[:ROW_CAP])])
+
+
 def r_pathways(b):
     L = ["## Pathways and Gene Ontology", "",
          "### Reactome pathways {#reactome}", ""]
