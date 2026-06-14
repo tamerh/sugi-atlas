@@ -5,10 +5,9 @@ from atlas.biobtree import map_all
 from atlas.gene.sections.base import Section
 
 CHAINS = (">>ensembl>>ortholog", ">>ensembl>>paralog",
-          ">>uniprot>>esm2_similarity", ">>uniprot>>diamond_similarity",
-          ">>uniprot>>taxonomy")
+          ">>uniprot>>diamond_similarity", ">>uniprot>>taxonomy")
 DATASETS = ("ensembl", "ortholog", "paralog",
-            "uniprot", "esm2_similarity", "diamond_similarity", "taxonomy")
+            "uniprot", "diamond_similarity", "taxonomy")
 
 _HOMOLOG_SPECIES_CAP = 15   # distinct non-model species to surface
 _HOMOLOG_PROBE_CAP = 40     # bound the per-accession taxonomy resolutions
@@ -27,6 +26,14 @@ def _organism_from_id(gid):
     return next((org for pre, org in _NS_ORGANISM if g.startswith(pre.upper())), "")
 
 
+def _is_virus(org):
+    """A viral taxon (e.g. 'Avian leukosis virus' carrying v-erbB, a transduced
+    EGFR). Genuine sequence homologs, but not organismal species — de-prioritised
+    below the cellular orthologs so they never displace a mammalian ortholog. No
+    cellular organism carries 'virus' in its scientific name, so the test is safe."""
+    return "virus" in (org or "").lower()
+
+
 def collect(a):
     bundle = {"section": "05_orthologs", "symbol": a.symbol, "ensembl_id": a.ensembl_id}
     orths = map_all(a.ensembl_id, ">>ensembl>>ortholog") if a.ensembl_id else []
@@ -38,15 +45,20 @@ def collect(a):
     bundle["paralogs"] = [{"id": t["id"], "symbol": t.get("name")} for t in paras]
     bundle["paralog_count"] = len(paras)
 
-    # Cross-species homologs (ESM2/Diamond similarity) — UniProt-wide, so they
-    # reach species the Ensembl Compara orthologs above (model organisms only)
-    # miss. The similar protein's gene symbol / Ensembl id aren't in biobtree for
-    # non-model species, so we present organism (via >>uniprot>>taxonomy) +
-    # UniProt accession + similarity score, deduped to one row per species. Human
-    # hits are skipped (paralogs already cover them).
-    # Species already covered by the Compara orthologs table above — so the
-    # homolog block extends BEYOND the model set, not duplicating it. Compara
-    # genomes are lower_snake ("mus_musculus"); taxonomy names are "Mus musculus".
+    # Cross-species homologs (Diamond similarity) — UniProt-wide, so they reach
+    # species the Ensembl Compara orthologs above (model organisms only) miss. We
+    # use Diamond ONLY, not ESM2: Diamond is local sequence alignment, so a hit is
+    # a genuine sequence homolog with an interpretable % identity (e.g. EGFR's hits
+    # span 34–100% identity and are all ERBB-family). ESM2 embedding-cosine
+    # saturates near 1.0 even for unrelated proteins (it scored bovine FKBP9 at
+    # 0.9991 vs EGFR — a false positive indistinguishable from the real hits), so
+    # it's unsafe to assert as "homolog" on a reference page. See BIOBTREE_ISSUES
+    # #44. The homolog's gene symbol / Ensembl id aren't in biobtree for non-model
+    # species, so we present organism (via >>uniprot>>taxonomy) + UniProt accession
+    # + % identity, deduped to the best hit per species. Human hits are skipped
+    # (paralogs already cover them); species already in the Compara table above are
+    # skipped too, so this block extends BEYOND the model set. Compara genomes are
+    # lower_snake ("mus_musculus"); taxonomy names are "Mus musculus".
     def _norm_sp(s):
         return (s or "").replace("_", " ").strip().lower()
     ortholog_species = {_norm_sp(o.get("organism")) for o in bundle["orthologs"]}
@@ -55,18 +67,23 @@ def collect(a):
     uni = a.canonical_uniprot
     if uni:
         sims = []
-        for ds, src in (("esm2_similarity", "ESM2"), ("diamond_similarity", "Diamond")):
-            for t in map_all(uni, f">>uniprot>>{ds}", cap=1):
-                try:
-                    sc = float(t.get("top_similarity") or 0)
-                except (TypeError, ValueError):
-                    sc = 0.0
-                if t.get("id") and t["id"] != uni:
-                    sims.append((sc, t["id"], src))
+        for t in map_all(uni, ">>uniprot>>diamond_similarity", cap=1):
+            # Diamond schema: id|similarity_count|top_identity|top_bitscore.
+            # top_identity is a percentage (0–100); store as a 0–1 fraction so the
+            # renderer's `:.1%` shows "91.8%".
+            try:
+                ident = float(t.get("top_identity") or 0) / 100.0
+            except (TypeError, ValueError):
+                ident = 0.0
+            if t.get("id") and t["id"] != uni and ident > 0:
+                sims.append((ident, t["id"]))
         sims.sort(key=lambda x: -x[0])
-        probed = 0
-        for sc, acc, src in sims:
-            if len(homologs) >= _HOMOLOG_SPECIES_CAP or probed >= _HOMOLOG_PROBE_CAP:
+        probed = n_cellular = 0
+        for ident, acc in sims:
+            # Stop once the cap can be filled by cellular organisms alone, or the
+            # taxonomy-probe budget is spent — viral homologs only fill leftover
+            # slots, so there's no need to keep probing past a full cellular set.
+            if probed >= _HOMOLOG_PROBE_CAP or n_cellular >= _HOMOLOG_SPECIES_CAP:
                 break
             probed += 1
             tax = map_all(acc, ">>uniprot>>taxonomy")
@@ -75,11 +92,19 @@ def collect(a):
                 continue
             if _norm_sp(org) in ortholog_species:     # already in the Compara table above
                 continue
-            if org not in homologs:
+            if org not in homologs:                   # first = highest identity (sorted)
                 homologs[org] = {"organism": org, "accession": acc,
-                                 "similarity": round(sc, 3), "source": src}
-    bundle["cross_species_homologs"] = sorted(homologs.values(),
-                                              key=lambda h: -h["similarity"])
+                                 "similarity": round(ident, 3), "source": "Diamond"}
+                if not _is_virus(org):
+                    n_cellular += 1
+    # Cellular organisms first (the cross-species orthologs readers expect), then
+    # viral homologs (v-erbB-type oncogene captures), each by descending identity;
+    # truncate to the species cap so viruses never displace a mammalian ortholog.
+    cellular = sorted((h for h in homologs.values() if not _is_virus(h["organism"])),
+                      key=lambda h: -h["similarity"])
+    viral = sorted((h for h in homologs.values() if _is_virus(h["organism"])),
+                   key=lambda h: -h["similarity"])
+    bundle["cross_species_homologs"] = (cellular + viral)[:_HOMOLOG_SPECIES_CAP]
     return bundle
 
 SECTION = Section(

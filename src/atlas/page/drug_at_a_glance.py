@@ -20,8 +20,9 @@ def _format_int(n):
         return None
 
 
-def _status(b1) -> str:
-    """Development status from max_phase / FDA flag."""
+def _status(b1, b5=None) -> str:
+    """Development status from max_phase / FDA flag / Phase-4 trial signal."""
+    from atlas.indication import has_phase4_trial
     if b1.get("is_fda_approved") or b1.get("max_phase") == 4:
         return "Approved (max clinical phase 4)"
     mp = b1.get("max_phase")
@@ -29,6 +30,10 @@ def _status(b1) -> str:
         mp = int(float(mp))
     except (TypeError, ValueError):
         return ""
+    # ChEMBL under-phases some approved drugs (e.g. non-oncology oligonucleotides
+    # like inclisiran); a registered Phase-4 trial only exists post-approval.
+    if mp >= 3 and has_phase4_trial(b5):
+        return f"Approved (registered Phase 4 trials; ChEMBL max clinical phase {mp})"
     return f"Max clinical phase {mp} (not approved)" if mp else ""
 
 
@@ -46,7 +51,7 @@ def at_a_glance(bundle) -> str:
     bullets = []
 
     # Development status.
-    status = _status(b1)
+    status = _status(b1, b5)
     if status:
         bullets.append(f"**Status:** {status}")
 
@@ -138,7 +143,8 @@ def at_a_glance(bundle) -> str:
 
     # Notable callout — substantial trial activity without approval (a drug in
     # active development, surfaced as a deterministic observation).
-    if tr >= 10 and not (b1.get("is_fda_approved") or b1.get("max_phase") == 4):
+    from atlas.indication import molecule_approved
+    if tr >= 10 and not molecule_approved(b1, b5):
         bullets.append(f"**Notable:** {_format_int(tr)} clinical trials, not yet approved")
 
     if not bullets:

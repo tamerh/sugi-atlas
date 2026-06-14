@@ -25,10 +25,11 @@ def _join(names):
     return ", ".join(names[:-1]) + ", and " + names[-1]
 
 
-def _class_clause(b1, b6):
+def _class_clause(b1, b6, b5=None):
     """'approved small-molecule tyrosine kinase inhibitor (ATC L01EA01)'."""
+    from atlas.indication import molecule_approved
     bits = []
-    if b1.get("is_fda_approved") or (b1.get("max_phase") == 4):
+    if molecule_approved(b1, b5):
         bits.append("approved")
     elif b1.get("max_phase") == 3:
         bits.append("phase-3 clinical-stage")
@@ -115,6 +116,7 @@ def declarative_sentence(bundle):
     b1 = bundle.get("1") or {}
     b2 = bundle.get("2") or {}
     b4 = bundle.get("4") or {}
+    b5 = bundle.get("5") or {}
     b6 = bundle.get("6") or {}
     b10 = bundle.get("10") or {}
 
@@ -123,8 +125,8 @@ def declarative_sentence(bundle):
     chembl = b1.get("chembl_id")
     head = f"**{display}**" + (f" ({chembl})" if chembl else "")
 
-    sentence = f"{head} is a{'n' if _class_clause(b1, b6)[:1].lower() in 'aeiou' else ''} "
-    sentence += _class_clause(b1, b6)
+    sentence = f"{head} is a{'n' if _class_clause(b1, b6, b5)[:1].lower() in 'aeiou' else ''} "
+    sentence += _class_clause(b1, b6, b5)
     sentence += _targets_clause(b2)
     sentence += _indications_clause(b4)
     sentence += _civic_clause(b10)

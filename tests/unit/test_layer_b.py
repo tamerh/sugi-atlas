@@ -357,18 +357,31 @@ def test_pdb_table_shows_title():
 
 
 def test_cross_species_homologs_render():
-    """ESM2/Diamond cross-species homologs render as an organism-labelled table
-    (beyond Compara), with UniProt links and similarity %."""
+    """Diamond cross-species homologs render as an organism-labelled table (beyond
+    Compara), with UniProt links and % sequence identity."""
     from atlas.gene import render as R
     b = {"ortholog_count": 1,
          "orthologs": [{"organism": "mus_musculus", "symbol": "Egfr", "id": "ENSMUSG..."}],
          "cross_species_homologs": [
-             {"organism": "Pongo abelii", "accession": "Q5RB22", "similarity": 1.0, "source": "ESM2"},
-             {"organism": "Bos taurus", "accession": "Q2KJC8", "similarity": 0.99, "source": "ESM2"}]}
+             {"organism": "Pongo abelii", "accession": "Q5RB22", "similarity": 0.98, "source": "Diamond"},
+             {"organism": "Bos taurus", "accession": "P04412", "similarity": 0.541, "source": "Diamond"}]}
     md = R.r_orthologs(b)
     assert "### Additional cross-species homologs {#cross-species-homologs}" in md
-    assert "Pongo abelii" in md and "Q5RB22" in md and "100%" in md
+    # 1-decimal identity (not rounded), Diamond-only framing, and a "% sequence
+    # identity" header — ESM2 (which over-called, e.g. EGFR→bovine FKBP9) is gone.
+    assert "Pongo abelii" in md and "Q5RB22" in md and "98.0%" in md and "54.1%" in md
     assert "beyond Ensembl Compara" in md
+    assert "Diamond" in md and "identity" in md and "ESM2" not in md
+
+
+def test_cross_species_homolog_virus_classifier():
+    """Viral taxa (v-erbB carriers) are detected so they de-prioritise below the
+    cellular orthologs; no cellular organism carries 'virus' in its name."""
+    from atlas.gene.sections.s05_orthologs import _is_virus
+    assert _is_virus("Avian leukosis virus")
+    assert _is_virus("Avian erythroblastosis virus (strain ES4)")
+    assert not _is_virus("Macaca mulatta")
+    assert not _is_virus("Bos taurus") and not _is_virus("")
 
 
 def test_clinical_trials_sponsor_and_intervention_drugs():

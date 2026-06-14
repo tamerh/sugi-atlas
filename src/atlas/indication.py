@@ -37,6 +37,40 @@ def is_oncology_drug(atc_codes):
     return any((c or "").upper().startswith(_ONCOLOGY_ATC) for c in (atc_codes or []))
 
 
+def _int_phase(mp):
+    try:
+        return int(float(mp)) if mp is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def has_phase4_trial(b5):
+    """True if the molecule has a registered Phase-4 (post-marketing) trial.
+
+    A Phase-4 trial only exists for an approved drug, so this recovers approvals
+    that ChEMBL's `max_phase` under-states — notably non-oncology oligonucleotides
+    like inclisiran/Leqvio (FDA-approved Dec 2021, yet ChEMBL caps it at phase 3),
+    which carry no PubChem is_fda_approved flag. Reads §5's phase distribution
+    (`phase_counts`, keyed by the raw uppercased trial phase, e.g. "PHASE4")."""
+    pc = (b5 or {}).get("phase_counts") or {}
+    return any(v and str(k).upper() == "PHASE4" for k, v in pc.items())
+
+
+def molecule_approved(b1, b5=None):
+    """Single source of truth for "is this an approved drug?" at the molecule
+    level (status bullet, lead class clause, "not yet approved" callout).
+
+    Approved when PubChem says so, or ChEMBL max_phase is 4, or the drug is
+    late-stage (max_phase >= 3) AND has a registered Phase-4 trial — the last
+    branch catches drugs ChEMBL under-phases. Conservative: it only ever upgrades
+    to approved. NOTE: this is molecule-level; per-indication "approved for THIS
+    disease" tiering stays oncology-only (see approved_indication)."""
+    if b1.get("is_fda_approved") or _int_phase(b1.get("max_phase")) == 4:
+        return True
+    mp = _int_phase(b1.get("max_phase"))
+    return mp is not None and mp >= 3 and has_phase4_trial(b5)
+
+
 def is_cancer_disease(name):
     n = (name or "").lower()
     return any(kw in n for kw in _CANCER_KW)

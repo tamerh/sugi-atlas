@@ -196,7 +196,11 @@ def at_a_glance(bundle) -> str:
         cancers = [c for c in (intogen.get("cancer_types") or "").split(",") if c]
         scope = f" across {len(cancers)} cancer types" if cancers else ""
         if role:
-            bullets.append(f"**Cancer driver (intOGen):** {role}{scope}")
+            # The role is intOGen's computational call from cohort mutation
+            # patterns — hedge it so it doesn't read as a curated assignment
+            # (it can diverge from a gene's established role; see §Cancer significance).
+            bullets.append(f"**Cancer driver (intOGen):** {role}{scope} "
+                           f"(inferred from mutation patterns)")
 
     # Cancer dependency (DepMap CRISPR fitness) — only when notable. A low
     # pct_dependent (e.g. 0.2%) means "not a dependency" — noise as a headline,

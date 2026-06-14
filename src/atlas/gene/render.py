@@ -497,19 +497,23 @@ def r_orthologs(b):
         L.append(f"\n**Paralogs ({b.get('paralog_count', 0)}):** "
                  + ", ".join(f"{p.get('symbol')} ({p['id']})" for p in para[:ROW_CAP]))
         L.append(more_line(b.get("paralog_count"), len(para[:ROW_CAP])))
-    # Cross-species homologs (UniProt-wide ESM2/Diamond similarity) — reach species
-    # beyond Ensembl Compara's model set (the table above). One row per species;
-    # the non-model gene symbol/Ensembl id aren't in biobtree, so we show the
-    # UniProt accession + similarity.
+    # Cross-species homologs (UniProt-wide Diamond local-alignment similarity) —
+    # reach species beyond Ensembl Compara's model set (the table above). Diamond
+    # only (not ESM2 embedding similarity, which over-calls — see s05_orthologs);
+    # one row per species, best hit. The non-model gene symbol/Ensembl id aren't in
+    # biobtree, so we show the UniProt accession + % sequence identity.
     hom = b.get("cross_species_homologs") or []
     if hom:
         L.append("\n### Additional cross-species homologs {#cross-species-homologs}\n")
-        L.append("Sequence/structure homologs in species beyond Ensembl Compara's "
-                 "model organisms (UniProt ESM2 / Diamond similarity).\n")
-        L.append(table(["Organism", "UniProt", "Similarity", "Source"],
+        L.append("Sequence homologs in species beyond Ensembl Compara's model "
+                 "organisms, by Diamond local protein alignment (% sequence identity; "
+                 "best hit per species). Lower-identity rows are more distant homologs. "
+                 "The matched accessions' gene symbols aren't in biobtree yet, so each "
+                 "row shows the UniProt accession.\n")
+        L.append(table(["Organism", "UniProt", "Identity", "Method"],
                        [(h.get("organism"),
                          links.maybe_link(h.get("accession"), links.uniprot_url(h.get("accession"))),
-                         f"{h.get('similarity'):.0%}" if isinstance(h.get("similarity"), float) else h.get("similarity"),
+                         f"{h.get('similarity'):.1%}" if isinstance(h.get("similarity"), float) else h.get("similarity"),
                          h.get("source")) for h in hom]))
     return "\n".join(L)
 
@@ -1101,6 +1105,14 @@ def r_cancer_overview(bundle):
             shown = ", ".join(cancers[:12]) + (f"…(+{len(cancers)-12} more)" if len(cancers) > 12 else "")
             head += f" — {shown}"
         L.append(head + ".")
+        # intOGen's role is inferred from the statistical *pattern* of somatic
+        # mutations across tumour cohorts — a computational call that can diverge
+        # from a gene's established/curated role (e.g. a known tumour suppressor
+        # may carry an "activating" label in a given cohort). Read it alongside
+        # the curated evidence above, not in place of it.
+        L.append("*intOGen's role is a computational inference from cohort "
+                 "mutation patterns and may diverge from the gene's curated/"
+                 "literature role; read it alongside the evidence above.*")
     return "\n\n".join(L)
 
 
