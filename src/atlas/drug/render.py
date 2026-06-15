@@ -155,6 +155,22 @@ def r_targets(b):
                          t.get("target_name") or "",
                          _action(t.get("action")), fnum(t.get("affinity")) if t.get("affinity") not in (None, "") else "",
                          _dep(t), t.get("uniprot") or "") for t in pt]))
+    # Curated mechanism of action (ChEMBL drug_mechanism). The only target edge for
+    # RNA therapeutics (siRNA/ASO) — e.g. inclisiran → PCSK9 — which carry no
+    # bioactivity target. Curated, so shown even when GtoPdb/bioactivity targets exist.
+    moa = b.get("mechanisms") or []
+    moa_genes = b.get("mechanism_genes") or []
+    if moa:
+        L.append("\n### Mechanism of action (ChEMBL curated) {#mechanism}\n")
+        if moa_genes:
+            links_ = ", ".join(links.maybe_link(g.get("gene_symbol") or g.get("hgnc_id"),
+                                                 links.gene_url(symbol=g.get("gene_symbol"),
+                                                                hgnc_id=g.get("hgnc_id")))
+                               for g in moa_genes)
+            L.append(f"**Target gene{'s' if len(moa_genes) != 1 else ''}:** {links_}\n")
+        L.append(table(["Mechanism of action", "Action type", "Target", "Target type"],
+                       [(m.get("mechanism_of_action"), m.get("action_type"),
+                         m.get("target_name"), m.get("target_type")) for m in moa]))
     bc = b.get("bioactivity_target_count") or 0
     if bc:
         # Count only — the sample of names dumped unsorted, off-target screening
@@ -163,7 +179,7 @@ def r_targets(b):
         L.append(f"\n**Broader ChEMBL bioactivity targets: {_i(bc)}** "
                  "(assay-derived screening hits — not curated targets; per-target "
                  "potencies are in the ChEMBL bioactivities table below).")
-    if not pt and not bc:
+    if not pt and not bc and not moa:
         L.append("*No target linkage available.*")
     return "\n".join(L)
 

@@ -53,6 +53,7 @@ H3_IDS = {
              "functional-genomics", "generif", "orthologs", "protein-ids",
              "structure", "residue-map", "pathways", "gene-sets", "interactions", "cancer",
              "variants", "disease-assoc", "drug-data",
+             "ncrna-function", "ncrna-disease", "ncrna-interactions", "ncrna-drugs",
              "hpa-protein", "hpa-cancer"},   # hpa-expression is now an H4 under §expression
     "disease": {"clinical-description", "epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",
                 "cohort-genes", "protein-families", "expression", "interactions",
@@ -77,9 +78,9 @@ H4_IDS = {
              "reactome", "reactome-categories", "go-categories",
              "string", "intact", "signor", "corum", "interactome-enrichment",
              "collectri", "jaspar", "mirdb",
-             # §expression / §disease-assoc
+             # §expression / §disease-assoc / §ncrna
              "fantom5-promoters", "tissue-expression", "scxa", "hpa-expression",
-             "cross-species-homologs",
+             "cross-species-homologs", "ncrna-go",
              "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",
              # §drug-data
              "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",
@@ -102,7 +103,7 @@ H4_IDS = {
               "trial-phases", "top-trials", "trial-drugs", "trial-intervention-drugs", "civic"},
     # drug pages are flat (one table per H3 section); only the two multi-table
     # sections (Target pathways, Clinical trials) carry H4s.
-    "drug": {"target-reactome", "target-go", "trial-phases", "top-trials"},
+    "drug": {"mechanism", "target-reactome", "target-go", "trial-phases", "top-trials"},
 }
 
 _H2_LINE = re.compile(r"^## (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")

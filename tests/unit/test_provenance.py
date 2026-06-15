@@ -120,9 +120,9 @@ def test_build_provenance_no_meta_yields_null_meta_fields():
 
 def test_build_provenance_sections_list_has_all_sections():
     p = build_provenance(_bundle(), meta=META)
-    assert len(p["sections"]) == 13          # §1–§12 + §13 Human Protein Atlas
+    assert len(p["sections"]) == 14          # §1–§12 + §13 HPA + §14 non-coding RNA
     ids = [s["id"] for s in p["sections"]]
-    assert ids == [str(n) for n in range(1, 14)]
+    assert ids == [str(n) for n in range(1, 15)]
 
 def test_build_provenance_each_section_has_required_fields():
     p = build_provenance(_bundle(), meta=META)

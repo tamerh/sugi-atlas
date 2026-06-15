@@ -374,6 +374,50 @@ def test_cross_species_homologs_render():
     assert "Diamond" in md and "identity" in md and "ESM2" not in md
 
 
+def test_ncrna_layer_renders_disease_interaction_drug_function():
+    """The §14 non-coding RNA layer renders its four blocks from a bundle."""
+    from atlas.gene import render as R
+    b14 = {
+        "rfam": [{"rfam_id": "RF00658", "rfam_description": "microRNA mir-21", "rna_type": "miRNA"}],
+        "go": [{"id": "GO:0016442", "type": "cellular_component", "name": "RISC complex"}],
+        "diseases": [{"disease_name": "Stomach Neoplasms", "causality": "Yes",
+                      "validated_method": "qRT-PCR//Western Blot", "category": "LncRNA"}],
+        "disease_total": 246,
+        "interactions": [{"partner_name": "hsa-miR-412", "partner_type": "miRNA",
+                          "level": "RNA-RNA", "datasource": "Literature mining"}],
+        "interaction_total": 2968,
+        "drugs": [{"drug_name": "Cisplatin", "relation": "drug_resistance",
+                   "effect": "resistant", "condition": "cell line"}],
+        "drug_total": 81,
+    }
+    fn = R.r_ncrna_function(b14)
+    assert "RF00658" in fn and "RISC complex" in fn and "microRNA mir-21" in fn
+    dis = R.r_ncrna_disease(b14)
+    assert "Stomach Neoplasms" in dis and "246" in dis and "qRT-PCR, Western Blot" in dis
+    inter = R.r_ncrna_interactions(b14)
+    assert "hsa-miR-412" in inter and "2,968" in inter
+    drg = R.r_ncrna_drugs(b14)
+    assert "Cisplatin" in drg and "drug_resistance" in drg
+    # all elide on an empty bundle
+    assert R.r_ncrna_function({}) == "" and R.r_ncrna_disease({}) == ""
+
+
+def test_drug_moa_targets_render_and_lead():
+    """ChEMBL mechanism-of-action gives RNA therapeutics a target (#49): MOA block
+    + 'targeting X' in the lead, even with no GtoPdb/bioactivity target."""
+    from atlas.drug import render as DR
+    from atlas.page.drug_declarative import _targets_clause
+    b2 = {"primary_targets": [], "bioactivity_target_count": 0,
+          "mechanisms": [{"mechanism_of_action": "PCSK9 mRNA RNAi inhibitor",
+                          "action_type": "RNAI INHIBITOR", "target_name": "PCSK9 mRNA",
+                          "target_type": "NUCLEIC-ACID"}],
+          "mechanism_genes": [{"hgnc_id": "HGNC:20001", "gene_symbol": "PCSK9"}]}
+    md = DR.r_targets(b2)
+    assert "Mechanism of action (ChEMBL curated)" in md and "PCSK9 mRNA RNAi inhibitor" in md
+    assert "No target linkage" not in md            # MOA counts as linkage
+    assert _targets_clause(b2) == " targeting PCSK9"
+
+
 def test_cross_species_homolog_virus_classifier():
     """Viral taxa (v-erbB carriers) are detected so they de-prioritise below the
     cellular orthologs; no cellular organism carries 'virus' in its name."""

@@ -258,6 +258,15 @@ def render_all(bundle):
     protein_a = (f'<a id="protein-{canon}"></a>\n\n'
                  if (canon and not noncoding) else "")
 
+    # Non-coding RNA layer (§14) — curated, symbol-keyed (not positional), so it
+    # survives the non-coding scrub and is the real content for thin lncRNA/miRNA
+    # pages. Gated on data, so coding genes (which rarely carry these) elide them.
+    b14 = bundle.get("14") or {}
+    nc_function = D(R.r_ncrna_function(b14), "ncrna-function")
+    nc_disease = D(R.r_ncrna_disease(b14), "ncrna-disease")
+    nc_interactions = D(R.r_ncrna_interactions(b14), "ncrna-interactions")
+    nc_drugs = D(R.r_ncrna_drugs(b14), "ncrna-drugs")
+
     spec = [
         ("Identifiers", "identifiers", S("1", "gene-ids"), None),
         ("Gene structure", "gene-structure",
@@ -271,16 +280,19 @@ def render_all(bundle):
                                    D(R.r_residue_map(b3), "residue-map")),
          "Non-coding RNA — no protein product."),
         ("Function", "function",
-         (D(R.r_noncoding_genesets(bundle.get("7") or {}), "gene-sets") if noncoding
-          else join(S("7", "pathways"), S("8", "interactions"))),
+         (join(D(R.r_noncoding_genesets(bundle.get("7") or {}), "gene-sets"),
+               nc_function, nc_interactions) if noncoding
+          else join(S("7", "pathways"), S("8", "interactions"),
+                    nc_function, nc_interactions)),
          "No curated pathway, Gene-Ontology, or interaction data."),
         ("Disease & clinical", "disease",
-         "" if noncoding else join(D(R.r_cancer_overview(bundle), "cancer"),
-                                   D(R.r_hpa_cancer(bundle), "hpa-cancer"),
-                                   S("6", "variants"), S("12", "disease-assoc")),
+         (nc_disease if noncoding
+          else join(D(R.r_cancer_overview(bundle), "cancer"),
+                    D(R.r_hpa_cancer(bundle), "hpa-cancer"),
+                    S("6", "variants"), S("12", "disease-assoc"), nc_disease)),
          "No curated disease, variant, or cancer-driver associations."),
         ("Drugs & pharmacology", "drugs",
-         "" if noncoding else S("10", "drug-data"),
+         (nc_drugs if noncoding else join(S("10", "drug-data"), nc_drugs)),
          "No protein-based drug or pharmacology data — Atlas drug coverage is "
          "protein-target-based. Non-coding RNAs may still be targetable by RNA "
          "therapeutics (antisense oligonucleotides, siRNA), which aren't covered here."),

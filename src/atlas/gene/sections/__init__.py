@@ -9,12 +9,14 @@ from atlas.gene.sections import (
     s01_gene_ids, s02_transcripts, s03_protein_ids, s04_structure,
     s05_orthologs, s06_variants, s07_pathways, s08_interactions,
     s09_tf_regulation, s10_drugs, s11_expression, s12_diseases, s13_hpa,
+    s14_ncrna,
 )
 
 _MODULES = (
     s01_gene_ids, s02_transcripts, s03_protein_ids, s04_structure,
     s05_orthologs, s06_variants, s07_pathways, s08_interactions,
     s09_tf_regulation, s10_drugs, s11_expression, s12_diseases, s13_hpa,
+    s14_ncrna,
 )
 
 REGISTRY: "dict[str, Section]" = {m.SECTION.id: m.SECTION for m in _MODULES}

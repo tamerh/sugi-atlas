@@ -581,6 +581,85 @@ def r_noncoding_genesets(b7):
          "", ", ".join(f"`{n}`" for n in names[:ROW_CAP])])
 
 
+def r_ncrna_function(b14):
+    """Non-coding RNA function — Rfam family + Rfam-derived GO (RNAcentral).
+    Structured RNAs (rRNA/tRNA/snoRNA/miRNA) carry an Rfam family + GO; bare
+    lncRNAs usually carry neither (use the disease/interaction layers instead).
+    '' when the gene has no Rfam and no GO."""
+    rfam = b14.get("rfam") or []
+    go = b14.get("go") or []
+    if not rfam and not go:
+        return ""
+    L = ["## Non-coding RNA function {#ncrna-function}", "",
+         "Functional annotation for the RNA itself (RNAcentral / Rfam), "
+         "independent of any protein product."]
+    if rfam:
+        L.append("\n**Rfam family:** " + ", ".join(
+            f"{r.get('rfam_description') or r.get('rfam_id')} (`{r.get('rfam_id')}`)"
+            for r in rfam))
+    if go:
+        L.append("\n### Gene Ontology (Rfam-derived) {#ncrna-go}\n")
+        L.append(table(["GO ID", "Aspect", "Term"],
+                       [(g.get("id"), (g.get("type") or "").replace("_", " "), g.get("name"))
+                        for g in go[:ROW_CAP]]))
+    return "\n".join(L)
+
+
+def r_ncrna_disease(b14):
+    """ncRNA -> disease associations (LncRNADisease v3.0 + HMDD). Curated,
+    symbol-keyed (not positional), so valid for a non-coding gene. '' when none."""
+    dis = b14.get("diseases") or []
+    if not dis:
+        return ""
+    total = b14.get("disease_total") or len(dis)
+    L = ["## ncRNA disease associations {#ncrna-disease}", "",
+         "Curated non-coding-RNA → disease associations (LncRNADisease, HMDD) — "
+         "these are RNA-level associations for this gene, not the positional "
+         "variant data omitted above.", ""]
+    L.append(capped_table(["Disease", "Causal?", "Validated by"],
+                          [(d.get("disease_name"), d.get("causality"),
+                            (d.get("validated_method") or "").replace("//", ", "))
+                           for d in dis],
+                          ROW_CAP, total=total, noun="ncRNA–disease associations"))
+    return "\n".join(L)
+
+
+def r_ncrna_interactions(b14):
+    """ncRNA -> partner interactions (NPInter v5): RNA-RNA / RNA-protein. '' when none."""
+    inter = b14.get("interactions") or []
+    if not inter:
+        return ""
+    total = b14.get("interaction_total") or len(inter)
+    L = ["## ncRNA interactions {#ncrna-interactions}", "",
+         "Experimentally supported non-coding-RNA interaction partners (NPInter).", ""]
+    L.append(capped_table(["Partner", "Partner type", "Level", "Source"],
+                          [(links.maybe_link(i.get("partner_name"),
+                                             links.gene_url(symbol=i.get("partner_name"))),
+                            i.get("partner_type"), i.get("level"), i.get("datasource"))
+                           for i in inter],
+                          ROW_CAP, total=total, noun="interaction partners"))
+    return "\n".join(L)
+
+
+def r_ncrna_drugs(b14):
+    """ncRNA -> drug associations (resistance / target). '' when none."""
+    drg = b14.get("drugs") or []
+    if not drg:
+        return ""
+    total = b14.get("drug_total") or len(drg)
+    L = ["## ncRNA–drug associations {#ncrna-drugs}", "",
+         "Curated non-coding-RNA → drug associations (drug response / resistance / "
+         "target). Atlas's main drug coverage is protein-target-based; these are "
+         "RNA-level associations.", ""]
+    L.append(capped_table(["Drug", "Relation", "Effect", "Condition"],
+                          [(links.maybe_link(d.get("drug_name"),
+                                             links.drug_url(name=d.get("drug_name"))),
+                            d.get("relation"), d.get("effect"), d.get("condition"))
+                           for d in drg],
+                          ROW_CAP, total=total, noun="ncRNA–drug associations"))
+    return "\n".join(L)
+
+
 def r_pathways(b):
     L = ["## Pathways and Gene Ontology", "",
          "### Reactome pathways {#reactome}", ""]

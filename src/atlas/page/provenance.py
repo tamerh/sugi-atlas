@@ -29,6 +29,10 @@ UPSTREAM = {
     "entrez":            ("NCBI Gene (Entrez)",                    "https://www.ncbi.nlm.nih.gov/gene/"),
     "mim":               ("OMIM",                                  "https://www.omim.org/"),
     "rnacentral":        ("RNAcentral",                            "https://rnacentral.org/"),
+    "ncrna_disease":     ("LncRNADisease / HMDD",                  "http://www.rnanut.net/lncrnadisease/"),
+    "ncrna_interaction": ("NPInter v5",                            "http://bigdata.ibp.ac.cn/npinter5/"),
+    "ncrna_drug":        ("ncRNADrug",                             "http://www.jianglab.cn/ncRNADrug/"),
+    "chembl_mechanism":  ("ChEMBL (mechanism of action)",         "https://www.ebi.ac.uk/chembl/"),
     # transcripts / exons
     "transcript":        ("Ensembl",                               "https://www.ensembl.org/"),
     "exon":              ("Ensembl",                               "https://www.ensembl.org/"),

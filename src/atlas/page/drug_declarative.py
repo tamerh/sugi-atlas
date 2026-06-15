@@ -54,6 +54,11 @@ def _targets_clause(b2):
     prim = (b2 or {}).get("primary_targets") or []
     genes = [t.get("gene_symbol") for t in prim if t.get("gene_symbol")]
     if not genes:
+        # Fallback to curated MOA target genes — the only target for RNA
+        # therapeutics (e.g. inclisiran → PCSK9), which have no GtoPdb/bioactivity.
+        genes = [g.get("gene_symbol") for g in ((b2 or {}).get("mechanism_genes") or [])
+                 if g.get("gene_symbol")]
+    if not genes:
         return ""
     return " targeting " + _join(genes[:3])
 
