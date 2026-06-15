@@ -53,7 +53,7 @@ H3_IDS = {
              "functional-genomics", "generif", "orthologs", "protein-ids",
              "structure", "residue-map", "pathways", "gene-sets", "interactions", "cancer",
              "variants", "disease-assoc", "drug-data",
-             "hpa-protein", "hpa-expression", "hpa-cancer"},
+             "hpa-protein", "hpa-cancer"},   # hpa-expression is now an H4 under §expression
     "disease": {"clinical-description", "epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",
                 "cohort-genes", "protein-families", "expression", "interactions",
                 "structural", "pathways", "indicated", "mechanism-alignment",
@@ -78,7 +78,8 @@ H4_IDS = {
              "string", "intact", "signor", "corum", "interactome-enrichment",
              "collectri", "jaspar", "mirdb",
              # §expression / §disease-assoc
-             "fantom5-promoters", "tissue-expression", "scxa", "cross-species-homologs",
+             "fantom5-promoters", "tissue-expression", "scxa", "hpa-expression",
+             "cross-species-homologs",
              "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",
              # §drug-data
              "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",

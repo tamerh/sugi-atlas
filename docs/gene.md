@@ -81,7 +81,7 @@ into the Gene-structure, Protein, and Disease zones):
 |---|---|---|
 | **Summary** `{#summary}` | declarative lead + NCBI summary + JSON-LD | the one-line "what is this gene" |
 | **Identifiers** `{#identifiers}` | §1 gene IDs | core IDs + an xref-count census |
-| **Gene structure** `{#gene-structure}` | §2 transcripts, §11 expression, §9 regulation, §5 orthologs, §13 HPA expression, derived genomics/GeneRIFs | the locus: isoforms, where it's expressed, how it's regulated |
+| **Gene structure** `{#gene-structure}` | §2 transcripts, §11 expression (with §13 HPA expression nested as an H4 subsection), §9 regulation, §5 orthologs, derived genomics/GeneRIFs | the locus: isoforms, where it's expressed, how it's regulated |
 | **Protein** `{#protein}` | §3 protein IDs, §4 structure, residue map, §13 HPA (subcellular location, protein classes, antibody reliability) | the product(s): domains, features, structures |
 | **Function** `{#function}` | §7 pathways, §8 interactions (incl. CORUM complexes) | pathways, GO, the interaction network |
 | **Disease & clinical** `{#disease}` | §6 variants (incl. ClinGen expert-panel), §12 associations, §13 HPA cancer prognostics, cancer significance | variants, disease links, cancer-driver role |

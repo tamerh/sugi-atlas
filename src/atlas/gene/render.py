@@ -1245,14 +1245,16 @@ def r_hpa_protein(bundle):
 
 
 def r_hpa_expression(bundle):
-    """HPA per-tissue/cell expression (nTPM, + IHC protein level when present) →
-    Gene-structure zone, alongside the Bgee/FANTOM5/SCXA expression."""
+    """HPA per-tissue/cell expression (nTPM, + IHC protein level when present).
+    Renders as a SUBSECTION of "Expression profiles" (an H4 after demotion,
+    alongside the Bgee/FANTOM5/SCXA expression blocks), not its own top-level
+    section — HPA RNA expression is expression data, so it belongs there."""
     b = bundle.get("13") or {}
     exp = b.get("hpa_expression") or []
     if not exp:
         return ""
     spec = (b.get("hpa") or {}).get("rna_tissue_specificity")
-    L = ["## HPA expression {#hpa-expression}", ""]
+    L = ["### HPA expression {#hpa-expression}", ""]
     if spec:
         L.append(f"RNA tissue specificity: **{spec}**\n")
     if any(r.get("protein_level") for r in exp):
