@@ -303,6 +303,9 @@ def _gene_evidence_score(g):
             + (1 if ev.get("gwas") else 0))
 
 
+_NCRNA_MESH_CAP = 25   # bound a non-coding RNA gene's §14 disease/drug mesh edges
+
+
 def related_targets(entity_type, bundle):
     """Resolve a page's cross-entity references to BUILT Atlas targets.
     Returns {"Genes": [(label, path)], "Diseases": [...], "Drugs": [...]},
@@ -310,7 +313,7 @@ def related_targets(entity_type, bundle):
     related_block (markdown) and the JSON-LD cross-entity edges."""
     from atlas.civic import therapy_label
     groups = {"Genes": [], "Diseases": [], "Trial diseases": [], "Drugs": [],
-              "Pharmacogenes": []}
+              "ncRNA diseases": [], "ncRNA drugs": [], "Pharmacogenes": []}
     seen = set()
 
     def add(grp, label, url):
@@ -333,6 +336,22 @@ def related_targets(entity_type, bundle):
             th = therapy_label(r.get("therapy"))
             add("Drugs", _drug_display(th), drug_url(name=th))
             add("Diseases", r.get("disease"), disease_url(name=r.get("disease")))
+        # Non-coding RNA layer (§14) — curated ncRNA→disease (LncRNADisease/HMDD)
+        # and ncRNA→drug (ncRNADrug), so a lncRNA/miRNA's Related block isn't empty
+        # (its protein-based curated edges are scrubbed). Manifest-gated, so
+        # free-text disease names that don't match a built page (and uncovered
+        # drugs) simply drop; capped to keep the mesh bounded. Interaction partners
+        # are RNA names that rarely match a gene slug — deliberately not meshed.
+        # Distinct groups (not "Diseases"/"Drugs") so the forward labels stay
+        # honest AND the reverse index has no mapping for them (REVERSE_LABEL omits
+        # ("gene","ncRNA …")) — forward-only, so a drug page isn't polluted with
+        # "MALAT1 is a CIViC biomarker" and a disease page isn't told an ncRNA is a
+        # GenCC-curated associated gene.
+        b14 = bundle.get("14") or {}
+        for d in (b14.get("diseases") or [])[:_NCRNA_MESH_CAP]:
+            add("ncRNA diseases", d.get("disease_name"), disease_url(name=d.get("disease_name")))
+        for dr in (b14.get("drugs") or [])[:_NCRNA_MESH_CAP]:
+            add("ncRNA drugs", _drug_display(dr.get("drug_name")), drug_url(name=dr.get("drug_name")))
     elif entity_type == "disease":
         b4, b5, b10, b13 = (bundle.get(k) or {} for k in ("4", "5", "10", "13"))
         # Rank cohort genes by disease-specific evidence (audit #10): the cohort
@@ -527,7 +546,12 @@ def related_block(entity_type, bundle, slug=None):
     if entity_type == "disease":
         label = {"Genes": "Cohort genes"}
     elif entity_type == "gene":                      # forward gene edges: name the relationship precisely
-        label = {"Diseases": "Associated diseases", "Drugs": "Biomarker drugs (CIViC)"}
+        label = {"Diseases": "Associated diseases", "Drugs": "Biomarker drugs (CIViC)",
+                 # §14 ncRNA edges live in their own groups (never mixed with the
+                 # curated CIViC/GenCC ones) so they're labelled honestly, not as
+                 # "CIViC biomarker drugs".
+                 "ncRNA diseases": "Associated diseases (ncRNA)",
+                 "ncRNA drugs": "Associated drugs (ncRNA: response / resistance)"}
     elif entity_type == "drug":                      # tier drug→disease: approved vs investigational
         label = {"Diseases": "Indicated for", "Trial diseases": "In clinical trials for"}
     else:
@@ -546,7 +570,8 @@ def related_block(entity_type, bundle, slug=None):
         head = f"**{lbl_text}** *({cap})*:" if cap else f"**{lbl_text}:**"
         lines.append(f"- {head} {row}")
 
-    for grp in ("Genes", "Diseases", "Trial diseases", "Drugs", "Pharmacogenes"):
+    for grp in ("Genes", "Diseases", "Trial diseases", "Drugs",
+                "ncRNA diseases", "ncRNA drugs", "Pharmacogenes"):
         if groups.get(grp):
             _row(label.get(grp, grp), groups[grp])
     # Reverse edges (incoming) — corpus builds only; _REVERSE is empty otherwise.
