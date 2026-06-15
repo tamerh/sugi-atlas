@@ -7,15 +7,21 @@
 # a local, gitignored ./dist — nothing is pushed to a separate dist repo.
 #
 #   ./atlas.sh test [int|all]
-#   ./atlas.sh sample
+#   ./atlas.sh sample [light|dense|both]
 #   ./atlas.sh prod
 #   ./atlas.sh release vX.Y.Z
 #   ./atlas.sh release-publish vX.Y.Z
 #   ./atlas.sh help
 #
-#   sample        Small curated corpus (~100 pages incl. TP53/BRCA2) for the web
-#                 team — built into dist/sample/ + archived as
-#                 atlas-corpus-sample-<stamp>-<version>.tar.gz. Mesh is sample-local.
+#   sample        Self-contained review corpus for the web/test team — built into
+#                 dist/sample/ AND archived there as a tarball, so a tester can pull
+#                 it without the full corpus. Two variants, same build+archive
+#                 convention so both land in dist/sample/ consistently:
+#                   light  (~30 pages, data/corpus/sample/*) → atlas-corpus-sample-light-<stamp>-<ver>.tar.gz
+#                   dense (~1k pages, data/corpus/dense/*)   → atlas-corpus-sample-dense-<stamp>-<ver>.tar.gz
+#                   both   builds light then dense; both tars persist in dist/sample/
+#                 Default is light. Mesh is sample-local (links resolve only among
+#                 the built pages) — expected for a sample.
 #
 #   test          Unit suite only — fast, no build. The default.
 #   test int      Integration suite over ./dist (must already be built).
@@ -143,17 +149,35 @@ archive() {
   ok "$(du -h "$out" | cut -f1)  $out"
 }
 
-# Sample corpus — a small curated set (~100 pages, incl. TP53/BRCA2) for the web
-# team to pull without the full corpus. Built into dist/sample/ and archived as
-# atlas-corpus-sample-<stamp>-<version>.tar.gz. The cross-entity mesh is
-# sample-local (links resolve only among the ~100 pages) — expected for a sample.
+# Sample corpus for the web/test team — built into dist/sample/ AND archived
+# there as a tarball, so a tester can pull a self-contained set without the full
+# corpus. Two variants share one build+archive convention so both tars land in
+# dist/sample/ consistently (light ~30 pages, dense ~1k pages); `both` produces
+# both tars side by side. The cross-entity mesh is sample-local (links resolve
+# only among the built pages) — expected for a sample.
+_sample_variant() {   # <label> <archive-infix> <genes> <diseases> <drugs>  (DIST pre-scoped to dist/sample)
+  build "$1" "$3" "$4" "$5"
+  echo; integration
+  echo; archive "$2"
+}
+
 cmd_sample() {
+  local mode="${1:-light}"
   preflight
   local DIST="$DIST/sample"           # build + archive under dist/sample/ (function-scoped)
-  build "sample set" "$SAMPLE_DIR/genes.txt" "$SAMPLE_DIR/diseases.txt" "$SAMPLE_DIR/drugs.txt"
-  echo; integration
-  echo; archive sample
-  ok "sample corpus ready"
+  case "$mode" in
+    light) _sample_variant "sample set (light, ~30 pages)" sample-light \
+             "$SAMPLE_DIR/genes.txt" "$SAMPLE_DIR/diseases.txt" "$SAMPLE_DIR/drugs.txt" ;;
+    dense) _sample_variant "sample set (dense)" sample-dense \
+             "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt" ;;
+    both)  _sample_variant "sample set (light, ~30 pages)" sample-light \
+             "$SAMPLE_DIR/genes.txt" "$SAMPLE_DIR/diseases.txt" "$SAMPLE_DIR/drugs.txt"
+           echo
+           _sample_variant "sample set (dense)" sample-dense \
+             "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt" ;;
+    *)     die "usage: ./atlas.sh sample [light|dense|both]" ;;
+  esac
+  ok "sample corpus ready ($mode) — tar(s) in $DIST/"
 }
 
 # ---- commands ---------------------------------------------------------------
@@ -275,7 +299,7 @@ set -- "${POS[@]:-}"
 
 case "$CMD" in
   test)            cmd_test "${1:-}" ;;
-  sample)          cmd_sample ;;
+  sample)          cmd_sample "${1:-}" ;;
   prod)            cmd_prod ;;
   release)         cmd_release "${1:-}" ;;
   release-publish) cmd_release_publish "${1:-}" ;;
