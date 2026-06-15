@@ -347,11 +347,18 @@ def related_targets(entity_type, bundle):
         # ("gene","ncRNA …")) — forward-only, so a drug page isn't polluted with
         # "MALAT1 is a CIViC biomarker" and a disease page isn't told an ncRNA is a
         # GenCC-curated associated gene.
+        # Label each edge with the DESTINATION's canonical name (the ncRNA
+        # dataset uses free-text synonyms — "Coronary Artery Disease" resolves to
+        # /coronary-artery-disorder/; the link must show the page's real title).
         b14 = bundle.get("14") or {}
         for d in (b14.get("diseases") or [])[:_NCRNA_MESH_CAP]:
-            add("ncRNA diseases", d.get("disease_name"), disease_url(name=d.get("disease_name")))
+            u = disease_url(name=d.get("disease_name"))
+            if u:
+                add("ncRNA diseases", canonical_label(u) or d.get("disease_name"), u)
         for dr in (b14.get("drugs") or [])[:_NCRNA_MESH_CAP]:
-            add("ncRNA drugs", _drug_display(dr.get("drug_name")), drug_url(name=dr.get("drug_name")))
+            u = drug_url(name=dr.get("drug_name"))
+            if u:
+                add("ncRNA drugs", canonical_label(u) or _drug_display(dr.get("drug_name")), u)
     elif entity_type == "disease":
         b4, b5, b10, b13 = (bundle.get(k) or {} for k in ("4", "5", "10", "13"))
         # Rank cohort genes by disease-specific evidence (audit #10): the cohort
