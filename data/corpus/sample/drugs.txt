@@ -8,3 +8,7 @@ Tamoxifen
 Codeine
 Clopidogrel
 Osimertinib
+Inclisiran
+Patisiran
+Tofersen
+Cisplatin
