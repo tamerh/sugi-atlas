@@ -18,3 +18,5 @@ data/corpus/seeds/
 
 # internal-only docs (research, roadmap, upstream-liaison notes) — on disk, not published
 docs/internal/
+# KG-Registry submission drafts — local staging; submitted to the external registry by hand
+docs/kg-registry/
