@@ -9,8 +9,10 @@ CHAINS = (">>ensembl>>ortholog", ">>ensembl>>paralog",
 DATASETS = ("ensembl", "ortholog", "paralog",
             "uniprot", "diamond_similarity", "taxonomy")
 
-_HOMOLOG_SPECIES_CAP = 15   # distinct non-model species to surface
-_HOMOLOG_PROBE_CAP = 40     # bound the per-accession taxonomy resolutions
+_HOMOLOG_SPECIES_CAP = 40   # distinct non-model species to surface
+_HOMOLOG_PROBE_CAP = 100    # bound the per-accession taxonomy resolutions — set to
+                            # the Diamond hit-list max (~100) so we can scan the whole
+                            # list to reach SPECIES_CAP distinct species when available
 
 # biobtree's >>ensembl>>ortholog edge leaves name/genome EMPTY for some model-
 # organism-database namespaces (WormBase C. elegans confirmed; FlyBase/zebrafish/
