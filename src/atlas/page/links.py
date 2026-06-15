@@ -364,6 +364,12 @@ def related_targets(entity_type, bundle):
             if (t.get("source") or "").lower() != "gtopdb":
                 continue
             add("Genes", t.get("gene_symbol"), gene_url(symbol=t.get("gene_symbol"), hgnc_id=t.get("hgnc_id")))
+        # Curated ChEMBL mechanism-of-action targets — the only target for RNA
+        # therapeutics (inclisiran→PCSK9, patisiran→TTR). Curated (drug_mechanism),
+        # so safe for the gene mesh, unlike the excluded bioactivity assay hits;
+        # this is what makes the gene→RNA-drug reverse edge exist.
+        for g in (b2.get("mechanism_genes") or []):
+            add("Genes", g.get("gene_symbol"), gene_url(symbol=g.get("gene_symbol"), hgnc_id=g.get("hgnc_id")))
         # Phase ≥3 only (launch decision): all-phase indications surfaced
         # investigational junk as "indicated" (asthma ← Atorvastatin, a phase-3
         # trial). The disease side renders these as a dedicated "Drugs indicated"
