@@ -383,7 +383,11 @@ def r_disease_family(b1, b5):
     # the TRUE count in the header and "(+N more)" covering the rest.
     sibling_count = b1.get("sibling_count") or len(siblings)
     child_count = b1.get("child_count") or len(children)
-    sib = _family_line("Related subtypes", siblings, sibling_count,
+    # "Sibling subtypes", NOT "Related subtypes": these are co-children of the
+    # immediate parent (e.g. breast carcinoma's siblings under "carcinoma" are
+    # prostate/lung carcinoma — taxonomic siblings, not clinically related). The
+    # tail names the shared parent so the relationship is unambiguous.
+    sib = _family_line("Sibling subtypes", siblings, sibling_count,
                        f" under {links.maybe_link(parent.get('name'), parent_url)}"
                        if (parent and parent_url) else " under the parent term")
     if sib:
