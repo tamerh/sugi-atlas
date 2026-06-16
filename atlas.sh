@@ -126,7 +126,10 @@ build() {
   ok "$label built in $((SECONDS - t0))s"
 }
 
-build_dense() { build "dense set" "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt" "$DENSE_DIR/pathways.txt"; }
+# NOTE: pathways are SHELVED (see docs/internal/IMPROVEMENT_ROADMAP.md thread D) —
+# the vertical code is retained but dormant; not seeded into the dense set or prod.
+# To revive, add a pathways list as the 5th build() arg (build() still supports it).
+build_dense() { build "dense set" "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt"; }
 
 build_full() {
   [ -f "$SEED_DIR/drugs_chembl_seed.txt" ] || { say "seeds missing → regenerating"; python -m atlas.build_corpus; }
