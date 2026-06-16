@@ -293,9 +293,7 @@ def render_all(bundle):
          "No curated disease, variant, or cancer-driver associations."),
         ("Drugs & pharmacology", "drugs",
          (nc_drugs if noncoding else join(S("10", "drug-data"), nc_drugs)),
-         "No protein-based drug or pharmacology data — Atlas drug coverage is "
-         "protein-target-based. Non-coding RNAs may still be targetable by RNA "
-         "therapeutics (antisense oligonucleotides, siRNA), which aren't covered here."),
+         "No curated drug or pharmacology associations for this gene."),
     ]
     return emit_canonical(spec, anchors={"protein": protein_a})
 

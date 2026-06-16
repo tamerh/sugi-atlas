@@ -127,14 +127,13 @@ def at_a_glance(bundle) -> str:
         from atlas.page import links
         overlap = (bundle.get("6") or {}).get("overlap_genes") or []
         linked = [links.maybe_link(g, links.gene_url(symbol=g)) for g in overlap[:4]]
-        ov = (f" The variant/disease data at this locus belongs to the overlapping "
+        # Neutral, factual: state the gene type. If positional variant/disease
+        # records resolve to an overlapping protein-coding gene, attribute them
+        # there (navigable) — no editorial caveat about coverage models.
+        ov = (f" Any variant/disease records at this locus belong to the overlapping "
               f"protein-coding gene{'s' if len(linked) != 1 else ''} "
               f"{', '.join(linked)}, not this transcript.") if linked else ""
-        bullets.append(f"**Gene type:** non-coding ({noncoding}) — no protein "
-                       f"product, so no protein-based drug-target data (Atlas drug "
-                       f"coverage is protein-target-based; RNA-targeting therapeutics "
-                       f"aside). Variant/disease associations are omitted (they would "
-                       f"be positional).{ov}")
+        bullets.append(f"**Gene type:** non-coding ({noncoding}) — no protein product.{ov}")
         sense = _sense_gene_bullet(_symbol(bundle))
         if sense:
             bullets.append(sense)

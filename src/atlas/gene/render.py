@@ -669,8 +669,7 @@ def r_ncrna_drugs(b14):
     total = b14.get("drug_total") or len(drg)
     L = ["## ncRNA–drug associations {#ncrna-drugs}", "",
          "Curated non-coding-RNA → drug associations (drug response / resistance / "
-         "target). Atlas's main drug coverage is protein-target-based; these are "
-         "RNA-level associations.", ""]
+         "target).", ""]
     L.append(capped_table(["Drug", "Relation", "Effect", "Condition"],
                           [(links.maybe_link(d.get("drug_name"),
                                              links.drug_url(name=d.get("drug_name"))),
