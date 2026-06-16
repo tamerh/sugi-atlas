@@ -102,9 +102,24 @@ def collect(a):
             r.get("disease") for r in cg if r.get("disease"))
 
     # dbSNP rsIDs via ENTREZ (direct hgnc>>dbsnp unbacked; see BIOBTREE_ISSUES.md).
+    # The map projection now carries gnomAD population MAF + variant class (#56),
+    # so surface the COMMON/frequent variants first (most informative) rather than
+    # an arbitrary slice of ultra-rare ones.
     dbs = map_all(a.hgnc_id, ">>hgnc>>entrez>>dbsnp", cap=2)
-    bundle["dbsnp_sample"] = [{"id": t["id"], "pos": f"{t.get('chromosome')}:{t.get('position')}",
-                               "change": f"{t.get('ref_allele')}>{t.get('alt_allele')}"} for t in dbs[:30]]
+
+    def _freq(t):
+        try:
+            return float(t.get("gnomad_frequency"))
+        except (TypeError, ValueError):
+            return None
+    rows = [{"id": t["id"], "pos": f"{t.get('chromosome')}:{t.get('position')}",
+             "change": f"{t.get('ref_allele')}>{t.get('alt_allele')}",
+             "gnomad": _freq(t), "is_common": t.get("is_common") == "true",
+             "variant_class": t.get("variant_class")} for t in dbs]
+    # gnomAD-frequency first (highest MAF), then the rest — a frequency-bearing
+    # variant (a real population polymorphism) is far more useful than a singleton.
+    rows.sort(key=lambda r: (r["gnomad"] is None, -(r["gnomad"] or 0.0)))
+    bundle["dbsnp_sample"] = rows[:30]
     bundle["dbsnp_sampled"] = len(dbs)
     return bundle
 

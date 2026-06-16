@@ -563,8 +563,22 @@ def r_variants(b):
         shown = min(15, len(ds))
         sampled = b.get("dbsnp_sampled", 0)
         of = f" of ~{sampled:,} sampled via entrez" if sampled > shown else " via entrez"
-        L.append(f"\n**dbSNP variants (showing {shown}{of}):** "
-                 + ", ".join(f"{d['id']} ({d['pos']} {d['change']})" for d in ds[:15]))
+        L.append(f"\n### dbSNP variants (showing {shown}{of}) {{#dbsnp}}\n")
+        L.append("Population variants with gnomAD minor-allele frequency where "
+                 "available (frequency-bearing variants shown first); blank MAF = "
+                 "not reported in gnomAD (typically very rare).\n")
+
+        def _maf(d):
+            f = d.get("gnomad")
+            if f is None:
+                return ""
+            return f"{f:.2%}" if f >= 0.0001 else f"{f:.1e}"
+        def _rs(i):                       # biobtree returns "RS123"; dbSNP convention is "rs123"
+            return ("rs" + i[2:]) if i[:2].upper() == "RS" else i
+        L.append(table(["Variant", "Position", "Change", "gnomAD MAF", "Class"],
+                       [(links.maybe_link(_rs(d["id"]), links.variant_link(_rs(d["id"]))),
+                         d["pos"], d["change"], _maf(d),
+                         d.get("variant_class") or "") for d in ds[:15]]))
     return "\n".join(L)
 
 
