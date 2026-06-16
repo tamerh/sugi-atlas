@@ -304,6 +304,12 @@ def r_functional_genomics(b):
                  + (", strongly selective" if sel == "true" else "")
                  + (", common-essential" if ce == "true" else "")
                  + ".")
+        # Which models depend on it most (gene-effect, lower = stronger dependency).
+        lines = b.get("depmap_lines") or []
+        if lines:
+            names = ", ".join(f"{d['cell_line']} ({d['gene_effect']})" for d in lines[:15])
+            L.append(f"\n**Most-dependent cell lines** *(DepMap gene-effect, lower = "
+                     f"stronger; ≤ −0.5 shown)*: {names}.")
     return "\n".join(L)
 
 
@@ -866,6 +872,18 @@ def r_drugs(b):
         if any(r.get("n", 1) > 1 for r in ce):
             L.append("\n*CIViC column: a representative evidence item (EID); "
                      "+N = additional CIViC items supporting the same association.*")
+
+    # CIViC curated clinical variants — the named-variant catalogue (with variant
+    # type) beneath the predictive evidence above. Compact name list.
+    cvs = b.get("civic_variants") or []
+    if cvs:
+        total = b.get("civic_variant_total", len(cvs))
+        names = ", ".join(f"{v['name']}" + (f" ({v['type']})" if v.get("type") else "")
+                          for v in cvs[:ROW_CAP])
+        L.append(f"\n### CIViC curated variants ({total}) {{#civic-variants}}\n")
+        L.append("Named clinical variants curated in CIViC for this gene "
+                 "(the catalogue beneath the predictive evidence above):\n")
+        L.append(names + (f" …(+{total - ROW_CAP} more)" if total > ROW_CAP else "") + ".")
 
     pg = b.get("pharmgkb", [])
     # Don't surface is_vip: it's broken upstream (always true — ACTB/GAPDH/TTN

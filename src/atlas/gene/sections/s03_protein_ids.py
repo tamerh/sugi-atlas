@@ -23,10 +23,12 @@ CHAINS = (
     ">>hgnc>>entrez",                  # anchor-resolved: NCBI gene id + summary
     ">>hgnc>>clingen_dosage",          # anchor-resolved: haplo/triplo scores
     ">>hgnc>>depmap",                  # anchor-resolved: CRISPR fitness
+    ">>entrez>>depmap_dependency",     # per-cell-line CRISPR gene-effect
     ">>entrez>>generif",               # per-gene PMID-anchored claims
 )
 DATASETS = ("uniprot", "ensembl", "refseq", "interpro", "pfam", "antibody",
-            "ufeature", "brenda", "rhea", "entrez", "clingen_dosage", "depmap", "generif")
+            "ufeature", "brenda", "rhea", "entrez", "clingen_dosage", "depmap",
+            "depmap_dependency", "generif")
 
 def collect(a):
     bundle = {
@@ -160,6 +162,22 @@ def collect(a):
     # (we also expose here so the gene page's protein-level block is self-contained).
     bundle["depmap"] = a.depmap or {}
 
+    # DepMap per-cell-line dependency — WHICH cancer models actually depend on
+    # this gene (gene_effect: < -0.5 = dependent, ~ -1 strongly). Names the models
+    # behind the summary pct_dependent; empty for non-dependency genes. Bounded
+    # fetch; most-dependent (most-negative) first, top kept.
+    dep_lines = []
+    if a.entrez_id:
+        for r in map_all(a.entrez_id, ">>entrez>>depmap_dependency", cap=3):
+            try:
+                ge = float(r.get("gene_effect"))
+            except (TypeError, ValueError):
+                continue
+            if ge < -0.5 and r.get("cell_line_name"):
+                dep_lines.append({"cell_line": r["cell_line_name"], "gene_effect": round(ge, 3)})
+        dep_lines.sort(key=lambda d: d["gene_effect"])     # most-dependent first
+    bundle["depmap_lines"] = dep_lines[:25]
+
     # GeneRIFs — NCBI per-gene PMID-anchored claims. ~hundreds per popular gene;
     # cap at top-40 (insertion order from biobtree ~ chronological). Each entry
     # carries gene_id + text only; full PMID list comes from entry() but we don't
@@ -192,7 +210,7 @@ SECTION = Section(
               "brenda_ec", "brenda_kinetics", "brenda_kinetics_total", "rhea_reactions",
               "cc", "isoforms", "protein_name",
               "alternative_names", "ncbi_summary", "entrez_id",
-              "clingen_dosage", "depmap", "generifs"),
+              "clingen_dosage", "depmap", "depmap_lines", "generifs"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
     # refseq_protein follows the same REVIEWED-only fluctuation as
     # refseq_mrna (BIOBTREE_ISSUES.md #11 — see §2 shrinkable note).

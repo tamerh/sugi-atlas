@@ -135,6 +135,7 @@ CHAINS = (
     ">>hgnc>>gencc>>mondo>>clinical_trials",
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
     ">>hgnc>>civic_evidence",
+    ">>hgnc>>civic>>civic_variant",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
             "chembl_document", "patent_compound", "cellosaurus",
@@ -143,7 +144,7 @@ DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay
             "bindingdb", "gtopdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc",
-            "civic_evidence")
+            "civic_evidence", "civic", "civic_variant")
 
 # ChEMBL assay type codes — single-letter classification we surface as a
 # breakdown ("how heavily this target is profiled, and by what experimental
@@ -554,6 +555,20 @@ def collect(a):
     bundle["civic_association_total"] = cstats["association_total"]
     bundle["civic_evidence_type_counts"] = cstats["evidence_type_counts"]
 
+    # CIViC curated CLINICAL VARIANTS (named, with variant_type) — the named-variant
+    # catalogue beneath the predictive evidence above (EGFR: L858R, T790M, ex19del…).
+    # Schema: id|name|gene|variant_types. Empty for non-cancer genes.
+    cv = map_all(a.hgnc_id, ">>hgnc>>civic>>civic_variant", cap=2)
+    seen, civic_variants = set(), []
+    for r in cv:
+        nm = (r.get("name") or "").strip()
+        if nm and nm not in seen:
+            seen.add(nm)
+            civic_variants.append({"name": nm,
+                                   "type": (r.get("variant_types") or "").replace("_", " ")})
+    bundle["civic_variants"] = civic_variants
+    bundle["civic_variant_total"] = len(civic_variants)
+
     bundle["is_drug_target"] = bool(targets)
     return bundle
 
@@ -574,6 +589,7 @@ SECTION = Section(
               "bindingdb_ranked", "bindingdb_total", "bindingdb_human",
               "bindingdb_measured", "pubchem_bioassay", "ctd_interactions",
               "disease_trials", "civic_evidence", "civic_predictive_total",
-              "civic_evidence_total", "is_drug_target"),
+              "civic_evidence_total", "civic_variants", "civic_variant_total",
+              "is_drug_target"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

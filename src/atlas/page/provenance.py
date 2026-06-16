@@ -122,6 +122,7 @@ UPSTREAM = {
     "nord":              ("NORD (National Org for Rare Disorders)", "https://rarediseases.org/"),
     "uberon":            ("Uberon (multi-species anatomy ontology)", "https://obophenotype.github.io/uberon/"),
     "civic":             ("CIViC (Clinical Interpretation of Variants in Cancer)", "https://civicdb.org/"),
+    "civic_variant":     ("CIViC (curated variants)",              "https://civicdb.org/"),
     "clingen_gene_validity": ("ClinGen Gene-Disease Validity",     "https://search.clinicalgenome.org/kb/gene-validity"),
     "clingen_dosage":    ("ClinGen Gene Dosage Map",               "https://search.clinicalgenome.org/kb/gene-dosage"),
     "clingen_variant":   ("ClinGen Variant Curation",              "https://erepo.clinicalgenome.org/evrepo/"),

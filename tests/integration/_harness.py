@@ -83,7 +83,7 @@ H4_IDS = {
              "cross-species-homologs", "ncrna-go",
              "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",
              # §drug-data
-             "chembl-molecules", "civic", "pharmgkb-clinical", "pharmgkb-variants",
+             "chembl-molecules", "civic", "civic-variants", "pharmgkb-clinical", "pharmgkb-variants",
              "pharmgkb-var-annotations",
              "pharmgkb-guidelines", "gtopdb", "bindingdb", "chembl-bioactivity",
              "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials"},

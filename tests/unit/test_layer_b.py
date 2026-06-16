@@ -402,6 +402,26 @@ def test_ncrna_layer_renders_disease_interaction_drug_function():
     assert R.r_ncrna_function({}) == "" and R.r_ncrna_disease({}) == ""
 
 
+def test_depmap_dependency_lines_render():
+    """Functional genomics names the most-dependent cell lines (DepMap per-line)."""
+    from atlas.gene import render as R
+    b = {"depmap": {"pct_dependent": "42", "common_essential": "false", "strongly_selective": "true"},
+         "depmap_lines": [{"cell_line": "NCI-H1975", "gene_effect": -2.784},
+                          {"cell_line": "HSC-2", "gene_effect": -2.098}]}
+    md = R.r_functional_genomics(b)
+    assert "Most-dependent cell lines" in md and "NCI-H1975 (-2.784)" in md
+
+
+def test_civic_curated_variants_render():
+    """§10 lists the CIViC named-variant catalogue with counts."""
+    from atlas.gene import render as R
+    b = {"civic_variants": [{"name": "L858R", "type": "missense variant"},
+                            {"name": "T790M", "type": "missense variant"}],
+         "civic_variant_total": 131}
+    md = R.r_drugs(b)
+    assert "CIViC curated variants (131)" in md and "L858R" in md and "{#civic-variants}" in md
+
+
 def test_cellphonedb_ligand_receptor_render():
     """§8 renders CellPhoneDB ligand–receptor pairs as a distinct subsection,
     with the partner gene and this gene's role (ligand/receptor)."""
