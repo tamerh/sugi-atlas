@@ -11,7 +11,8 @@ from atlas.page.jsonld_inline import INLINE_CAP
 
 # drug → MolecularEntity (not Drug): Drug ⊂ Product trips Google's product
 # structured-data validator; MolecularEntity also fits our chemistry props.
-_TYPE = {"gene": "Gene", "disease": "MedicalCondition", "drug": "MolecularEntity"}
+_TYPE = {"gene": "Gene", "disease": "MedicalCondition", "drug": "MolecularEntity",
+         "pathway": "DefinedTerm"}
 
 
 def test_inline_jsonld_arrays_capped(pages):

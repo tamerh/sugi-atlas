@@ -121,6 +121,13 @@ def _meta_description(entity_type, bundle, limit=155):
 def entity_facts(entity_type, bundle):
     """{identifier, alt_names, tldr, description, section_defaults} for the
     frontmatter."""
+    if entity_type == "pathway":
+        # Flat (non-section) bundle; description = the declarative lead, markdown-
+        # stripped, for the meta/SEO description.
+        from atlas.pathway.render import declarative_sentence
+        desc = re.sub(r"[*`\[\]]|\((?:/|http)[^)]*\)", "", declarative_sentence(bundle)).strip()
+        return {"identifier": bundle.get("reactome_id"), "alt_names": [], "tldr": [],
+                "description": desc[:300], "section_defaults": {}}
     b1 = bundle.get("1") or {}
     return {
         "identifier": _identifier(entity_type, b1),

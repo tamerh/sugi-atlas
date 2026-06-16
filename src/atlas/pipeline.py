@@ -382,6 +382,12 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             glance = at_a_glance(bundle)
             if glance:
                 sentence += "\n\n" + glance
+        elif entity_type == "pathway":
+            # Flat (non-section) bundle; the lead + GO + source ARE the summary.
+            from atlas.pathway.render import summary_block
+            from atlas.page.pathway_jsonld import build_jsonld, as_script_tag
+            sentence = summary_block(bundle)
+            jsonld_tag = as_script_tag(build_jsonld(bundle, symbol))
         else:
             from atlas.page.declarative import declarative_sentence
             from atlas.page.jsonld import build_jsonld, as_script_tag

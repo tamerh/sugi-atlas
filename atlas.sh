@@ -105,10 +105,11 @@ preflight() {
   ok "biobtree reachable at $BIOBTREE"
 }
 
-# build <label> <genes-list> <diseases-list> <drugs-list> → into $DIST
+# build <label> <genes-list> <diseases-list> <drugs-list> [<pathways-list>] → into $DIST
 build() {
-  local label="$1" g="$2" s="$3" r="$4" w
+  local label="$1" g="$2" s="$3" r="$4" p="${5:-}" w pcount=0
   for f in "$g" "$s" "$r"; do [ -f "$f" ] || die "missing list $f"; done
+  [ -n "$p" ] && [ -f "$p" ] && pcount=$(count "$p")
   w=$(workers)
   stamp_version                       # version/commit captured at build start
   # Start every build from a clean slate so pages from a prior phase/run can't
@@ -117,14 +118,15 @@ build() {
   # (e.g. GBA, which the full HGNC seed lists as GBA1, or salt-form drugs) — they
   # would fail the manifest⇄pages bijection.
   rm -rf "$DIST/atlas" "$DIST/cache"
-  say "$label → $DIST  ${D}(genes=$(count "$g") diseases=$(count "$s") drugs=$(count "$r") | workers=$w${LIMIT:+ limit=$LIMIT})${N}"
+  say "$label → $DIST  ${D}(genes=$(count "$g") diseases=$(count "$s") drugs=$(count "$r") pathways=$pcount | workers=$w${LIMIT:+ limit=$LIMIT})${N}"
   local t0=$SECONDS
   python -m atlas.batch --dist "$DIST" --workers "$w" \
-    --genes "@$g" --diseases "@$s" --drugs "@$r" ${LIMIT:+--limit "$LIMIT"}
+    --genes "@$g" --diseases "@$s" --drugs "@$r" \
+    ${p:+--pathways "@$p"} ${LIMIT:+--limit "$LIMIT"}
   ok "$label built in $((SECONDS - t0))s"
 }
 
-build_dense() { build "dense set" "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt"; }
+build_dense() { build "dense set" "$DENSE_DIR/genes.txt" "$DENSE_DIR/diseases.txt" "$DENSE_DIR/drugs.txt" "$DENSE_DIR/pathways.txt"; }
 
 build_full() {
   [ -f "$SEED_DIR/drugs_chembl_seed.txt" ] || { say "seeds missing → regenerating"; python -m atlas.build_corpus; }

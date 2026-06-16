@@ -15,7 +15,16 @@ def test_canonical_h2_set_and_order(pages):
     bad = []
     for p in pages:
         ids = [i for _label, i in p.h2]
-        if ids != H2_IDS[p.entity]:
+        canon = H2_IDS[p.entity]
+        if p.entity == "pathway":
+            # Lighter type: H2s are a SUBSEQUENCE of the frozen order (hierarchy /
+            # related legitimately elide), in order, no extras.
+            order = {cid: n for n, cid in enumerate(canon)}
+            ok = (all(i in order for i in ids)
+                  and all(order[a] < order[b] for a, b in zip(ids, ids[1:])))
+            if not ok:
+                bad.append(f"{p.entity}/{p.slug}: {ids}")
+        elif ids != canon:
             bad.append(f"{p.entity}/{p.slug}: {ids}")
     assert not bad, report(bad)
 
@@ -31,7 +40,11 @@ def test_summary_first_related_last(pages):
     bad = []
     for p in pages:
         ids = [i for _l, i in p.h2 if i]
-        if not ids or ids[0] != "summary" or ids[-1] != "related":
+        # Pathway: summary first; "related" last only when present (it elides when
+        # members are off-corpus).
+        last_ok = (ids and ids[-1] == "related") or (
+            p.entity == "pathway" and "related" not in ids)
+        if not ids or ids[0] != "summary" or not last_ok:
             bad.append(f"{p.entity}/{p.slug}: {ids[:1]}…{ids[-1:]}")
     assert not bad, report(bad)
 

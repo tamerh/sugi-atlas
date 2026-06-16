@@ -60,6 +60,12 @@ _SPEC = {
         ("activity_count",      "3",  "activity_total",         0.5),
         ("patent_family_count", "11", "patent_family_total",    0.3),
     ],
+    # Pathway has a FLAT bundle (no section ids) — components() reads it directly;
+    # the sid/field slots are unused, only the (key, weight) pair matters.
+    "pathway": [
+        ("member_count", "", "member_count", 1.0),
+        ("child_count",  "", "child_count",  0.5),
+    ],
 }
 
 
@@ -73,6 +79,10 @@ def _int(v):
 def components(entity_type, bundle):
     """Raw integer component counts for an entity, with the fixed per-type keys
     always present (0 when the section/field is absent)."""
+    if entity_type == "pathway":
+        # Flat bundle: read the fields directly off it (no section nesting).
+        return {key: _int(bundle.get(field))
+                for key, _sid, field, _w in _SPEC.get("pathway", [])}
     out = {}
     for key, sid, field, _w in _SPEC.get(entity_type, []):
         sec = bundle.get(sid) if isinstance(bundle.get(sid), dict) else {}

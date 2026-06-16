@@ -47,11 +47,12 @@ def _manifest_lock(path):
 
 
 # Process-global manifest. {entity_type: {resolvable_key: slug}}.
-_MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
+_ENTITY_TYPES = ("gene", "disease", "drug", "pathway")
+_MANIFEST = {k: {} for k in _ENTITY_TYPES}
 # Destination canonical name per slug (audit #13): a name_key can resolve to a
 # page whose canonical name differs (synonym "schizoaffective disorder" →
 # /schizophrenia/). This lets a link render the page it ACTUALLY points to.
-_CANON = {"gene": {}, "disease": {}, "drug": {}}
+_CANON = {k: {} for k in _ENTITY_TYPES}
 _LOADED_FROM = None
 
 # Reverse-edge index {target_url: [[src_label, src_url, src_type, group], …]} —
@@ -88,14 +89,12 @@ def load(dist_root):
     try:
         with open(path) as f:
             data = json.load(f)
-        _MANIFEST = {"gene": data.get("gene") or {},
-                     "disease": data.get("disease") or {},
-                     "drug": data.get("drug") or {}}
+        _MANIFEST = {k: data.get(k) or {} for k in _ENTITY_TYPES}
         canon = data.get("canon") or {}
-        _CANON = {k: canon.get(k) or {} for k in ("gene", "disease", "drug")}
+        _CANON = {k: canon.get(k) or {} for k in _ENTITY_TYPES}
     except (FileNotFoundError, json.JSONDecodeError):
-        _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
-        _CANON = {"gene": {}, "disease": {}, "drug": {}}
+        _MANIFEST = {k: {} for k in _ENTITY_TYPES}
+        _CANON = {k: {} for k in _ENTITY_TYPES}
     _LOADED_FROM = dist_root
     return _MANIFEST
 
@@ -144,8 +143,8 @@ def reset():
     """Clear the mesh (tests / fresh runs)."""
     global _MANIFEST, _CANON, _REVERSE, _LOADED_FROM, _REVERSE_FROM
     global _INDICATIONS, _INDICATIONS_FROM
-    _MANIFEST = {"gene": {}, "disease": {}, "drug": {}}
-    _CANON = {"gene": {}, "disease": {}, "drug": {}}
+    _MANIFEST = {k: {} for k in _ENTITY_TYPES}
+    _CANON = {k: {} for k in _ENTITY_TYPES}
     _REVERSE = {}
     _LOADED_FROM = None
     _REVERSE_FROM = None
@@ -171,7 +170,7 @@ def upsert(dist_root, entity, slug, id_keys=(), name_keys=(), canonical=None):
                 data = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             data = {}
-        for k in ("gene", "disease", "drug"):
+        for k in _ENTITY_TYPES:
             data.setdefault(k, {})
         data.setdefault("canon", {}).setdefault(entity, {})
         bucket = data[entity]
@@ -308,6 +307,7 @@ def _gene_evidence_score(g):
 
 
 _NCRNA_MESH_CAP = 25   # bound a non-coding RNA gene's §14 disease/drug mesh edges
+_PATHWAY_MESH_CAP = 200  # bound member-gene edges per pathway (giant pathways)
 
 
 def related_targets(entity_type, bundle):
@@ -317,7 +317,7 @@ def related_targets(entity_type, bundle):
     related_block (markdown) and the JSON-LD cross-entity edges."""
     from atlas.civic import therapy_label
     groups = {"Genes": [], "Diseases": [], "Trial diseases": [], "Drugs": [],
-              "ncRNA diseases": [], "ncRNA drugs": [], "Pharmacogenes": []}
+              "ncRNA diseases": [], "ncRNA drugs": [], "Pharmacogenes": [], "Pathways": []}
     seen = set()
 
     def add(grp, label, url):
@@ -432,6 +432,18 @@ def related_targets(entity_type, bundle):
         pgx |= {r.get("gene") for r in (b9.get("clinical_annotations") or [])}
         for sym in sorted(s for s in pgx if s):
             add("Pharmacogenes", sym, gene_url(symbol=sym))
+    elif entity_type == "pathway":
+        # Member genes → these REVERSE onto gene pages as "Member of pathways"
+        # (the payoff: a gene gains "pathways containing this gene"). Capped —
+        # giant pathways have thousands of members; the full list is in the body.
+        for m in (bundle.get("members") or [])[:_PATHWAY_MESH_CAP]:
+            add("Genes", m.get("symbol"), gene_url(symbol=m.get("symbol")))
+        # Parent + subpathways — forward-only nav (also in the body hierarchy).
+        par = bundle.get("parent") or {}
+        if par.get("name"):
+            add("Pathways", par.get("name"), pathway_url(reactome_id=par.get("id"), name=par.get("name")))
+        for c in (bundle.get("children") or []):
+            add("Pathways", c.get("name"), pathway_url(reactome_id=c.get("id"), name=c.get("name")))
 
     # Disease links resolve by name and a synonym can land on a differently-named
     # page (audit #13: "schizoaffective disorder" → /schizophrenia/). Relabel to
@@ -481,13 +493,15 @@ REVERSE_LABEL = {
     ("gene", "Diseases"): "Associated genes",    # genes asserting association with this disease (GenCC/ClinGen/CIViC) → on disease pages
     ("disease", "Genes"): "Disease cohort memberships",  # diseases whose associated-gene cohort includes this gene → on gene pages. COHORT MEMBERSHIP (GWAS/GenCC/ClinVar/CIViC), NOT a causal claim — shown in full (coexists with the gene's forward Associated diseases; the caption flags the overlap).
     ("drug", "Pharmacogenes"): "Pharmacogenomically associated drugs",  # drugs with a PharmGKB variant/clinical association for this gene → on gene pages (PGx, not targeting)
+    ("pathway", "Genes"): "Member of pathways",  # pathways whose member-gene set includes this gene → on gene pages (Reactome membership)
     # ("drug","Diseases") deliberately omitted: drug→disease indications are
     # surfaced as the dedicated "Drugs indicated for this disease" Therapeutics
     # section (render r_drugs_indicated, fed by the indicated_drugs.json index),
     # which carries the development phase the flat reverse block can't.
 }
 _REVERSE_ORDER = ["Biomarker genes", "Targeted by drugs", "Associated genes",
-                  "Disease cohort memberships", "Pharmacogenomically associated drugs"]
+                  "Disease cohort memberships", "Pharmacogenomically associated drugs",
+                  "Member of pathways"]
 
 # Italic clarifier rendered after a group label — kills the misread that a
 # predictive/biomarker or cohort-membership edge is a target/causal claim.
@@ -565,6 +579,8 @@ def related_block(entity_type, bundle, slug=None):
                  "ncRNA drugs": "Associated drugs (ncRNA: response / resistance)"}
     elif entity_type == "drug":                      # tier drug→disease: approved vs investigational
         label = {"Diseases": "Indicated for", "Trial diseases": "In clinical trials for"}
+    elif entity_type == "pathway":
+        label = {"Genes": "Member genes", "Pathways": "Related pathways"}
     else:
         label = {}
     forward_urls = {url for items in groups.values() for _lbl, url in items}
@@ -582,7 +598,7 @@ def related_block(entity_type, bundle, slug=None):
         lines.append(f"- {head} {row}")
 
     for grp in ("Genes", "Diseases", "Trial diseases", "Drugs",
-                "ncRNA diseases", "ncRNA drugs", "Pharmacogenes"):
+                "ncRNA diseases", "ncRNA drugs", "Pharmacogenes", "Pathways"):
         if groups.get(grp):
             _row(label.get(grp, grp), groups[grp])
     # Reverse edges (incoming) — corpus builds only; _REVERSE is empty otherwise.

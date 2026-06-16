@@ -65,17 +65,33 @@ def r_members(b):
     return "\n".join(L)
 
 
-def render_all(b):
-    """Full pathway page body."""
+def summary_block(b):
+    """The Summary-section content: declarative lead + GO + Reactome source. Used
+    by assemble_page (pathway branch) as the `## Summary` body, mirroring the
+    gene/disease/drug declarative lead."""
     parts = [declarative_sentence(b)]
     go = b.get("go_id")
     if go:
-        parts.append(f"**Gene Ontology:** [{go}](https://www.ebi.ac.uk/QuickGO/term/{go})")
+        # Id in a code span, link the word (never the bare ontology id as a label).
+        parts.append(f"**Gene Ontology:** `{go}` "
+                     f"([QuickGO](https://www.ebi.ac.uk/QuickGO/term/{go}))")
     rid = b.get("reactome_id")
     if rid:
         parts.append(f"*Source: [Reactome {rid}]({_reactome_url(rid)}).*")
-    body = "\n\n".join(parts)
+    return "\n\n".join(parts)
+
+
+def body(b):
+    """The data sections (hierarchy + members) — the Summary is added separately
+    by assemble_page so the page matches the gene/disease/drug shape."""
+    out = []
     for r in (r_hierarchy(b), r_members(b)):
         if r:
-            body += "\n\n" + r
-    return body
+            out.append(r)
+    return "\n\n".join(out)
+
+
+def render_all(b):
+    """Full standalone body (summary + sections) — used by the standalone
+    collect→render path and tests. The batch path uses summary_block()/body()."""
+    return summary_block(b) + ("\n\n" + body(b) if body(b) else "")

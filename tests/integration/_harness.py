@@ -38,11 +38,16 @@ H2_IDS = {
                 "genes", "function", "drugs", "trials", "related"],
     "drug":    ["summary", "identifiers", "targets", "indications",
                 "pharmacology", "related-molecules", "related"],
+    # Pathway is a lighter type: hierarchy (no parent for top-level terms) and
+    # related (members may be off-corpus) legitimately elide, so its H2s are a
+    # SUBSEQUENCE of this frozen order, not an exact match (see test_contract).
+    "pathway": ["summary", "hierarchy", "member-genes", "related"],
 }
 ID_RE = {
     "gene":    re.compile(r"^[A-Za-z0-9][A-Za-z0-9._@\-]*$"),  # HGNC symbol (incl. @ for gene clusters, e.g. PCDHA@)
     "disease": re.compile(r"^MONDO:\d+$"),
     "drug":    re.compile(r"^CHEMBL\d+$"),
+    "pathway": re.compile(r"^R-HSA-\d+$"),
 }
 
 # Frozen section-H3 id allow-list per entity (the ids render_all assigns). A
@@ -55,6 +60,7 @@ H3_IDS = {
              "variants", "disease-assoc", "drug-data",
              "ncrna-function", "ncrna-disease", "ncrna-interactions", "ncrna-drugs",
              "hpa-protein", "hpa-cancer"},   # hpa-expression is now an H4 under §expression
+    "pathway": set(),       # pathway sections are all H2 (no H3s)
     "disease": {"clinical-description", "epidemiology", "symptoms", "disease-ids", "gwas", "variant-tiers", "mendelian",
                 "cohort-genes", "protein-families", "expression", "interactions",
                 "structural", "pathways", "indicated", "mechanism-alignment",
@@ -104,6 +110,7 @@ H4_IDS = {
     # drug pages are flat (one table per H3 section); only the two multi-table
     # sections (Target pathways, Clinical trials) carry H4s.
     "drug": {"mechanism", "target-reactome", "target-go", "trial-phases", "top-trials"},
+    "pathway": set(),       # pathway sections carry no H4 table-blocks
 }
 
 _H2_LINE = re.compile(r"^## (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
@@ -112,7 +119,7 @@ _H4_LINE = re.compile(r"^#### (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
 _ANY_HEADING = re.compile(r"^(#{2,6}) (.+?)(?:\s*\{#([a-z0-9-]+)\})?\s*$")
 _TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
 _CELL_SPLIT = re.compile(r"(?<!\\)\|")     # unescaped pipe = real column divider
-_INTERNAL_LINK = re.compile(r"\]\((/atlas/(gene|disease|drug)/([^/)#]+)/[^)]*)\)")
+_INTERNAL_LINK = re.compile(r"\]\((/atlas/(gene|disease|drug|pathway)/([^/)#]+)/[^)]*)\)")
 
 
 def _maybe_skip():
@@ -209,7 +216,7 @@ def _load():
     return pages
 
 
-_URL_PARTS = re.compile(r"/atlas/(gene|disease|drug)/([^/)#]+)/")
+_URL_PARTS = re.compile(r"/atlas/(gene|disease|drug|pathway)/([^/)#]+)/")
 
 
 def page_exists(url):

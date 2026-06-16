@@ -74,6 +74,14 @@ def collect_one(spec):
             id_keys = [a.chembl_id, a.parent_chembl, *(a.child_chembls or ())]
             name_keys = [a.canonical_name, *(getattr(a, "alt_names", None) or ())]
             title = a.canonical_name or ident
+        elif etype == "pathway":
+            from atlas.pathway.collect import collect as pcollect
+            from atlas.pathway.slug import slugify as pathway_slug
+            bundle = pcollect(ident)            # flat bundle (no section ids)
+            slug = pathway_slug(bundle.get("name") or ident)
+            id_keys = [bundle.get("reactome_id")]
+            name_keys = [bundle.get("name")]
+            title = bundle.get("name") or ident
         else:
             return {"ok": False, "entity": etype, "ident": ident, "error": "unknown entity"}
 
@@ -145,6 +153,11 @@ def render_one(spec):
             body = DR.render_all(bundle)
             from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
             jsonld = as_jsonld_string(build_jsonld(bundle, slug))
+        elif etype == "pathway":
+            from atlas.pathway import render as PR
+            from atlas.page.pathway_jsonld import build_jsonld, as_jsonld_string
+            body = PR.body(bundle)                 # Summary added by assemble_page
+            jsonld = as_jsonld_string(build_jsonld(bundle, slug))
         else:
             body = DRR.render_all(bundle)
             from atlas.page.drug_jsonld import build_jsonld, as_jsonld_string
@@ -185,8 +198,9 @@ def _drain(label, pool, fn, specs):
 
 def _merge_manifest(collected, dist_dir):
     """PHASE B — one writer builds the whole manifest from every key-set."""
-    manifest = {"gene": {}, "disease": {}, "drug": {},
-                "canon": {"gene": {}, "disease": {}, "drug": {}}}
+    _types = ("gene", "disease", "drug", "pathway")
+    manifest = {k: {} for k in _types}
+    manifest["canon"] = {k: {} for k in _types}
     for r in collected:
         bucket = manifest[r["entity"]]
         for k in r["id_keys"]:
@@ -319,12 +333,15 @@ def _parse_list(val):
     return [x.strip() for x in val.split(",") if x.strip()]
 
 
-def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None):
+def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None, pathways=()):
+    pathways = list(pathways or [])
     if limit:                       # test slice: first N of each category
         genes, diseases, drugs = genes[:limit], diseases[:limit], drugs[:limit]
+        pathways = pathways[:limit]
     specs_a = ([("gene", g, dist_dir, cache_dir) for g in genes]
                + [("disease", d, dist_dir, cache_dir) for d in diseases]
-               + [("drug", x, dist_dir, cache_dir) for x in drugs])
+               + [("drug", x, dist_dir, cache_dir) for x in drugs]
+               + [("pathway", p, dist_dir, cache_dir) for p in pathways])
     total = len(specs_a)
     print(f"[batch] {total} entities | {workers} workers | dist={dist_dir}")
 
@@ -412,14 +429,16 @@ def main(argv=None):
     ap.add_argument("--genes", default="")
     ap.add_argument("--diseases", default="")
     ap.add_argument("--drugs", default="")
+    ap.add_argument("--pathways", default="")
     ap.add_argument("--limit", type=int, default=None,
                     help="build only the first N of each category (test slice)")
     a = ap.parse_args(argv)
     genes, diseases, drugs = _parse_list(a.genes), _parse_list(a.diseases), _parse_list(a.drugs)
-    if not (genes or diseases or drugs):
-        ap.error("give at least one of --genes / --diseases / --drugs")
+    pathways = _parse_list(a.pathways)
+    if not (genes or diseases or drugs or pathways):
+        ap.error("give at least one of --genes / --diseases / --drugs / --pathways")
     cache = a.cache or os.path.join(a.dist, "cache")   # keep all build artifacts under <dist>/
-    run(genes, diseases, drugs, a.dist, cache, a.workers, limit=a.limit)
+    run(genes, diseases, drugs, a.dist, cache, a.workers, limit=a.limit, pathways=pathways)
 
 
 if __name__ == "__main__":
