@@ -232,6 +232,10 @@ def drug_url(chembl_id=None, name=None):
     return _url("drug", _lookup("drug", chembl_id, name))
 
 
+def pathway_url(reactome_id=None, name=None):
+    return _url("pathway", _lookup("pathway", reactome_id, name))
+
+
 def uniprot_url(acc):
     """UniProtKB entry URL for an accession, else None. Shared so UniProt
     accessions link consistently across page types (the drug bioactivity table
