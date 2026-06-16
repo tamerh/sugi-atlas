@@ -119,7 +119,7 @@ def collect(a):
     # gnomAD-frequency first (highest MAF), then the rest — a frequency-bearing
     # variant (a real population polymorphism) is far more useful than a singleton.
     rows.sort(key=lambda r: (r["gnomad"] is None, -(r["gnomad"] or 0.0)))
-    bundle["dbsnp_sample"] = rows[:30]
+    bundle["dbsnp_sample"] = rows[:50]
     bundle["dbsnp_sampled"] = len(dbs)
     return bundle
 

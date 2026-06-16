@@ -560,7 +560,7 @@ def r_variants(b):
                           None, total=b.get("alphamissense_total"), noun="scored, likely-pathogenic"))
     ds = b.get("dbsnp_sample", [])
     if ds:
-        shown = min(15, len(ds))
+        shown = min(50, len(ds))
         sampled = b.get("dbsnp_sampled", 0)
         of = f" of ~{sampled:,} sampled via entrez" if sampled > shown else " via entrez"
         L.append(f"\n### dbSNP variants (showing {shown}{of}) {{#dbsnp}}\n")
@@ -578,7 +578,7 @@ def r_variants(b):
         L.append(table(["Variant", "Position", "Change", "gnomAD MAF", "Class"],
                        [(links.maybe_link(_rs(d["id"]), links.variant_link(_rs(d["id"]))),
                          d["pos"], d["change"], _maf(d),
-                         d.get("variant_class") or "") for d in ds[:15]]))
+                         d.get("variant_class") or "") for d in ds[:50]]))
     return "\n".join(L)
 
 
