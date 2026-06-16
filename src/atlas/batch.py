@@ -126,6 +126,22 @@ def render_one(spec):
             jsonld = as_jsonld_string(build_jsonld(bundle))
         elif etype == "disease":
             bundle["_indicated_drugs"] = links.indicated_drugs(dist_dir, slug)
+            # Sparse-subtype fallback: when this term has NO disease-direct
+            # indications of its own, surface the PARENT term's indicated drugs
+            # (clearly attributed in the render) so the Therapeutics zone isn't an
+            # empty placeholder next to a parent that carries real therapeutic data.
+            if not bundle["_indicated_drugs"]:
+                parent = (bundle.get("1") or {}).get("parent") or {}
+                pslug = (links._lookup("disease", parent.get("id"), parent.get("name"))
+                         if parent else None)
+                if pslug and pslug != slug:
+                    pdrugs = links.indicated_drugs(dist_dir, pslug)
+                    if pdrugs:
+                        bundle["_parent_indicated_drugs"] = pdrugs
+                        bundle["_parent_disease"] = {
+                            "name": parent.get("name"),
+                            "url": links.disease_url(mondo_id=parent.get("id"),
+                                                     name=parent.get("name"))}
             body = DR.render_all(bundle)
             from atlas.page.disease_jsonld import build_jsonld, as_jsonld_string
             jsonld = as_jsonld_string(build_jsonld(bundle, slug))

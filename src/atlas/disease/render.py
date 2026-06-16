@@ -1241,6 +1241,43 @@ def _cohort_empty_note(bundles):
             "(above).*")
 
 
+def _parent_drugs_indicated(bundles):
+    """Sparse-subtype Therapeutics fallback: render the PARENT term's indicated
+    drugs (injected as `_parent_indicated_drugs` in batch), clearly attributed to
+    the parent and NOT to this subtype. '' when there's no parent therapeutic data.
+    Capped — umbrella parents (e.g. 'cancer') can carry large drug lists."""
+    prows = bundles.get("_parent_indicated_drugs") or []
+    pdis = bundles.get("_parent_disease") or {}
+    if not prows or not pdis.get("name"):
+        return ""
+    CAP = 30
+    appr = [r for r in prows if r.get("approved")]
+    trial = [r for r in prows if not r.get("approved") and (r.get("max_phase") or 0) in (2, 3)]
+    pname = links.maybe_link(pdis.get("name"), pdis.get("url"))
+    out = ["## Drugs indicated or in trials for this disease", "",
+           f"*This subtype has no disease-direct ChEMBL indication of its own. The "
+           f"drugs below are recorded at the broader parent-term level "
+           f"({pname}) — not specific to this subtype.*", ""]
+    if appr:
+        out += [f"**{_i(len(appr))} approved drug{'s' if len(appr) != 1 else ''} for "
+                f"{pdis.get('name')}** (parent-term ChEMBL indications):", "",
+                table(["Drug", "Status"],
+                      [(links.maybe_link(r.get("name"), r.get("url")),
+                        f"Approved (phase {r.get('max_phase')})") for r in appr[:CAP]])]
+        if len(appr) > CAP:
+            out.append(f"\n*…+{_i(len(appr) - CAP)} more on the parent page.*")
+    if trial:
+        out += ["",
+                f"**{_i(len(trial))} drug{'s' if len(trial) != 1 else ''} in trials for "
+                f"{pdis.get('name')} (phase 2–3, investigational):**", "",
+                table(["Drug", "Highest phase"],
+                      [(links.maybe_link(r.get("name"), r.get("url")), f"Phase {r.get('max_phase')}")
+                       for r in sorted(trial, key=lambda r: -(r.get("max_phase") or 0))[:CAP]])]
+        if len(trial) > CAP:
+            out.append(f"\n*…+{_i(len(trial) - CAP)} more on the parent page.*")
+    return "\n".join(out)
+
+
 def r_drugs_indicated(bundles):
     """Drugs DIRECTLY indicated for this disease (ChEMBL drug_indication), from
     the merge-phase indication index (links.indicated_drugs → injected as
@@ -1256,7 +1293,7 @@ def r_drugs_indicated(bundles):
     Therapeutics zone elides cleanly."""
     rows = bundles.get("_indicated_drugs") or []
     if not rows:
-        return ""
+        return _parent_drugs_indicated(bundles)
     # Tier on the index's `approved` flag (atlas.indication.approved_indication):
     # phase 4, or an anticancer drug at phase 3 vs this cancer (ChEMBL logs
     # imatinib→CML at phase 3 though approved). Everything else is investigational

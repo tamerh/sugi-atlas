@@ -402,6 +402,23 @@ def test_ncrna_layer_renders_disease_interaction_drug_function():
     assert R.r_ncrna_function({}) == "" and R.r_ncrna_disease({}) == ""
 
 
+def test_disease_subtype_parent_therapeutics_fallback():
+    """A sparse subtype with no own indications surfaces the PARENT term's drugs,
+    clearly attributed to the parent (not to the subtype)."""
+    from atlas.disease import render as DR
+    bundles = {"_indicated_drugs": [],
+               "_parent_indicated_drugs": [
+                   {"name": "Imatinib", "url": "/atlas/drug/imatinib/", "max_phase": 4, "approved": True},
+                   {"name": "Foo", "url": "/atlas/drug/foo/", "max_phase": 2, "approved": False}],
+               "_parent_disease": {"name": "chronic myeloid leukemia",
+                                   "url": "/atlas/disease/chronic-myeloid-leukemia/"}}
+    md = DR.r_drugs_indicated(bundles)
+    assert "broader parent-term level" in md and "Imatinib" in md
+    assert "chronic myeloid leukemia" in md and "not specific to this subtype" in md
+    # no own and no parent data → elides cleanly
+    assert DR.r_drugs_indicated({"_indicated_drugs": []}) == ""
+
+
 def test_depmap_dependency_lines_render():
     """Functional genomics names the most-dependent cell lines (DepMap per-line)."""
     from atlas.gene import render as R
