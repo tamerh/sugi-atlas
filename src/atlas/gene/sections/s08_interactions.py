@@ -21,9 +21,10 @@ CHAINS = (
     ">>uniprot>>intact",
     ">>uniprot>>biogrid_interaction",
     ">>uniprot>>signor",
+    ">>hgnc>>cellphonedb",
 )
 DATASETS = ("uniprot", "string_interaction", "intact", "biogrid_interaction",
-            "signor", "corum")
+            "signor", "corum", "cellphonedb")
 
 # Page cap for PPI sources. STRING/IntAct are score-desc sorted by biobtree,
 # so first 100 dominates the top-30 we render with comfortable margin.
@@ -146,6 +147,34 @@ def collect(a):
                         "has_drug_targets": t.get("has_drug_targets") == "true"}
                        for t in cor]
     bundle["corum_count"] = len(cor)
+
+    # CellPhoneDB — curated ligand–receptor pairs (cell-cell communication), a
+    # class the STRING/IntAct PPI firehose doesn't frame. Schema:
+    # id|partner_a|partner_b|directionality|classification|genes_a|genes_b. genes_a/
+    # _b are symbols; the partner is the non-self side, and this gene's role
+    # (ligand vs receptor) follows the Ligand-Receptor directionality (a=ligand,
+    # b=receptor). Routed via >>hgnc>>cellphonedb (symbols, no accession resolve).
+    self_u = (a.symbol or "").upper()
+    lr = []
+    for t in (map_all(a.hgnc_id, ">>hgnc>>cellphonedb") if a.hgnc_id else []):
+        ga, gb = (t.get("genes_a") or "").strip(), (t.get("genes_b") or "").strip()
+        if self_u and ga.upper() == self_u:
+            partner, role = gb, "ligand"          # this gene is partner_a
+        elif self_u and gb.upper() == self_u:
+            partner, role = ga, "receptor"         # this gene is partner_b
+        else:
+            partner, role = (gb or ga), ""
+        if partner:
+            lr.append({"partner": partner, "role": role,
+                       "classification": t.get("classification")})
+    # dedup by (partner, role)
+    seen, uniq = set(), []
+    for r in lr:
+        k = (r["partner"], r["role"])
+        if k not in seen:
+            seen.add(k); uniq.append(r)
+    bundle["cellphonedb"] = uniq
+    bundle["cellphonedb_count"] = len(uniq)
     return bundle
 
 SECTION = Section(
@@ -153,6 +182,7 @@ SECTION = Section(
     description="Protein-protein interactions (STRING/IntAct/BioGRID with scores), SIGNOR signaling, ESM2/Diamond structural similarity",
     needs=("canonical_uniprot",),
     produces=("string", "intact", "biogrid", "signor",
-              "interaction_partners", "corum", "corum_count"),
+              "interaction_partners", "corum", "corum_count",
+              "cellphonedb", "cellphonedb_count"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

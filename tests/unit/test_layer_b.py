@@ -402,6 +402,21 @@ def test_ncrna_layer_renders_disease_interaction_drug_function():
     assert R.r_ncrna_function({}) == "" and R.r_ncrna_disease({}) == ""
 
 
+def test_cellphonedb_ligand_receptor_render():
+    """§8 renders CellPhoneDB ligand–receptor pairs as a distinct subsection,
+    with the partner gene and this gene's role (ligand/receptor)."""
+    from atlas.gene import render as R
+    b = {"cellphonedb": [{"partner": "EREG", "role": "receptor",
+                          "classification": "Signaling by Epidermal growth factor"},
+                         {"partner": "TGFA", "role": "receptor",
+                          "classification": "Signaling by Transforming growth factor"}],
+         "cellphonedb_count": 7}
+    md = R.r_interactions(b)
+    assert "Ligand–receptor pairs (CellPhoneDB)" in md and "{#cellphonedb}" in md
+    assert "EREG" in md and "receptor" in md
+    assert R.r_interactions({}).find("CellPhoneDB") == -1   # elides with no data
+
+
 def test_drug_moa_targets_render_and_lead():
     """ChEMBL mechanism-of-action gives RNA therapeutics a target (#49): MOA block
     + 'targeting X' in the lead, even with no GtoPdb/bioactivity target."""

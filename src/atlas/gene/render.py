@@ -724,6 +724,19 @@ def r_interactions(b):
                                 (c.get("subunits") or "").replace(";", ", "))
                                for c in cor],
                               ROW_CAP, total=b.get("corum_count"), noun="complexes by size"))
+    # CellPhoneDB — curated ligand–receptor pairs (cell-cell communication), a
+    # class the PPI firehose above doesn't frame. Partner gene linked; role is
+    # this gene's side of the pair (ligand / receptor).
+    lr = b.get("cellphonedb") or []
+    if lr:
+        L.append(f"\n### Ligand–receptor pairs (CellPhoneDB) ({b.get('cellphonedb_count', len(lr))}) {{#cellphonedb}}\n")
+        L.append("Curated ligand–receptor partners (cell-cell communication), "
+                 "distinct from the protein–protein interactions above.\n")
+        L.append(capped_table(["Partner", "This gene's role", "Signaling class"],
+                              [(links.maybe_link(p.get("partner"), links.gene_url(symbol=p.get("partner"))),
+                                p.get("role") or "", p.get("classification") or "")
+                               for p in lr],
+                              ROW_CAP, total=b.get("cellphonedb_count"), noun="ligand–receptor pairs"))
     L.extend(_interactome_enrichment(b))
     return "\n".join(L)
 

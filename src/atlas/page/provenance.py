@@ -33,6 +33,7 @@ UPSTREAM = {
     "ncrna_interaction": ("NPInter v5",                            "http://bigdata.ibp.ac.cn/npinter5/"),
     "ncrna_drug":        ("ncRNADrug",                             "http://www.jianglab.cn/ncRNADrug/"),
     "chembl_mechanism":  ("ChEMBL (mechanism of action)",         "https://www.ebi.ac.uk/chembl/"),
+    "cellphonedb":       ("CellPhoneDB",                           "https://www.cellphonedb.org/"),
     # transcripts / exons
     "transcript":        ("Ensembl",                               "https://www.ensembl.org/"),
     "exon":              ("Ensembl",                               "https://www.ensembl.org/"),
