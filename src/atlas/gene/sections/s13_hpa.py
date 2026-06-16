@@ -70,8 +70,18 @@ def collect(a):
             "reliability": r.get("reliability")}
            for r in map_all(a.symbol, ">>hgnc>>hpa>>hpa_expression")]
     exp.sort(key=lambda r: -_num(r.get("ntpm")))
-    bundle["hpa_expression"] = exp
-    bundle["hpa_expression_total"] = len(exp)
+    # Drop "not detected" rows — they're noise: a not-expressed gene (ZNF735)
+    # otherwise renders dozens of zero-nTPM tissues, and TERT renders tissues with
+    # nTPM 0 + protein "Not detected". Keep a row only if RNA was detected
+    # (nTPM > 0) OR the IHC protein level is a POSITIVE call (High/Medium/Low) —
+    # never a negative "Not detected" IHC result.
+    def _pos_protein(r):
+        pl = (r.get("protein_level") or "").strip().lower()
+        return pl and pl != "not detected"
+    detected = [r for r in exp if _num(r.get("ntpm")) > 0 or _pos_protein(r)]
+    bundle["hpa_expression"] = detected
+    bundle["hpa_expression_total"] = len(detected)
+    bundle["hpa_expression_profiled"] = len(exp)   # all tissues HPA profiled (incl. zeros)
     # Cancer pathology — keep the PROGNOSTIC cancers (favorable/unfavorable + p);
     # the non-prognostic rows are just "expression detected", no signal.
     bundle["hpa_pathology"] = [
@@ -88,7 +98,8 @@ SECTION = Section(
                  "tissue/cancer specificity, per-tissue expression (nTPM), and cancer "
                  "prognostic markers, via >>hgnc>>hpa (+ hpa_expression, hpa_pathology)"),
     needs=("symbol",),
-    produces=("hpa", "hpa_expression", "hpa_expression_total", "hpa_pathology"),
+    produces=("hpa", "hpa_expression", "hpa_expression_total",
+              "hpa_expression_profiled", "hpa_pathology"),
     datasets=DATASETS,
     chains=CHAINS,
     collect_fn=collect,

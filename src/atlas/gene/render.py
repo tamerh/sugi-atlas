@@ -1375,9 +1375,18 @@ def r_hpa_expression(bundle):
     section — HPA RNA expression is expression data, so it belongs there."""
     b = bundle.get("13") or {}
     exp = b.get("hpa_expression") or []
-    if not exp:
-        return ""
     spec = (b.get("hpa") or {}).get("rna_tissue_specificity")
+    profiled = b.get("hpa_expression_profiled") or 0
+    if not exp:
+        # Nothing detected above the HPA threshold — state it concisely rather than
+        # render dozens of nTPM=0 rows (the ZNF735 case). Elide entirely if HPA
+        # profiled nothing at all.
+        if not profiled:
+            return ""
+        return ("### HPA expression {#hpa-expression}\n\n"
+                f"RNA tissue specificity (HPA): **{spec or 'Not detected'}** — no "
+                f"expression detected above threshold across {profiled:,} profiled "
+                f"tissues/cells.")
     L = ["### HPA expression {#hpa-expression}", ""]
     if spec:
         L.append(f"RNA tissue specificity: **{spec}**\n")
