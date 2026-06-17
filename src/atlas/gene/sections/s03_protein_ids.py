@@ -24,11 +24,12 @@ CHAINS = (
     ">>hgnc>>clingen_dosage",          # anchor-resolved: haplo/triplo scores
     ">>hgnc>>depmap",                  # anchor-resolved: CRISPR fitness
     ">>entrez>>depmap_dependency",     # per-cell-line CRISPR gene-effect
+    ">>hgnc>>gnomad_constraint",       # gene-level pLI/LOEUF (population LoF constraint)
     ">>entrez>>generif",               # per-gene PMID-anchored claims
 )
 DATASETS = ("uniprot", "ensembl", "refseq", "interpro", "pfam", "antibody",
             "ufeature", "brenda", "rhea", "entrez", "clingen_dosage", "depmap",
-            "depmap_dependency", "generif")
+            "depmap_dependency", "gnomad_constraint", "generif")
 
 def collect(a):
     bundle = {
@@ -178,6 +179,13 @@ def collect(a):
         dep_lines.sort(key=lambda d: d["gene_effect"])     # most-dependent first
     bundle["depmap_lines"] = dep_lines[:25]
 
+    # gnomAD gene-level constraint (pLI / LOEUF / mis_z) — population loss-of-
+    # function intolerance, one row/gene. The single best "is this gene dosage/LoF
+    # sensitive" signal; complements ClinGen dosage. Map projection carries the
+    # headline trio directly.
+    gc = map_all(a.hgnc_id, ">>hgnc>>gnomad_constraint", cap=1)
+    bundle["gnomad_constraint"] = gc[0] if gc else {}
+
     # GeneRIFs — NCBI per-gene PMID-anchored claims. ~hundreds per popular gene;
     # cap at top-40 (insertion order from biobtree ~ chronological). Each entry
     # carries gene_id + text only; full PMID list comes from entry() but we don't
@@ -210,7 +218,8 @@ SECTION = Section(
               "brenda_ec", "brenda_kinetics", "brenda_kinetics_total", "rhea_reactions",
               "cc", "isoforms", "protein_name",
               "alternative_names", "ncbi_summary", "entrez_id",
-              "clingen_dosage", "depmap", "depmap_lines", "generifs"),
+              "clingen_dosage", "depmap", "depmap_lines", "gnomad_constraint",
+              "generifs"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
     # refseq_protein follows the same REVIEWED-only fluctuation as
     # refseq_mrna (BIOBTREE_ISSUES.md #11 — see §2 shrinkable note).

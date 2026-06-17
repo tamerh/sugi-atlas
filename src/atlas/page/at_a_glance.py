@@ -233,6 +233,27 @@ def at_a_glance(bundle) -> str:
             f"{_DOSAGE_SCALE.get(haplo, 'unscored')}, triplosensitivity "
             f"{_DOSAGE_SCALE.get(triplo, 'unscored')}")
 
+    # Population constraint (gnomAD pLI / LOEUF) — loss-of-function intolerance,
+    # the headline "is this gene dosage/LoF sensitive" signal. Complements ClinGen.
+    gc = b3.get("gnomad_constraint") or {}
+    cparts = []
+    try:
+        plf = float(gc.get("pli"))
+        cparts.append(f"pLI {plf:.2f} ("
+                      + ("loss-of-function intolerant" if plf >= 0.9
+                         else "LoF-tolerant" if plf < 0.1 else "intermediate") + ")")
+    except (TypeError, ValueError):
+        pass
+    try:
+        lf = float(gc.get("loeuf"))
+        cparts.append(f"LOEUF {lf:.2f} ("
+                      + ("highly constrained" if lf < 0.35
+                         else "moderately constrained" if lf < 0.6 else "unconstrained") + ")")
+    except (TypeError, ValueError):
+        pass
+    if cparts:
+        bullets.append("**Constraint (gnomAD):** " + ", ".join(cparts))
+
     # Transcription factor flag (CollecTRI) — promoted only when it has a
     # meaningful regulon. A 1–2 target flag (e.g. TTN, APOE) is a source
     # false-positive and stays in §9 Regulation, not the headline set.

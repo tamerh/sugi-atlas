@@ -277,9 +277,25 @@ def r_functional_genomics(b):
         dm_notable = False
     dm_notable = (dm_notable or dm.get("strongly_selective") == "true"
                   or dm.get("common_essential") == "true")
-    if not cd and not dm_notable:
+    gc = b.get("gnomad_constraint") or {}
+    has_gc = gc.get("pli") not in (None, "") or gc.get("loeuf") not in (None, "")
+    if not cd and not dm_notable and not has_gc:
         return ""
     L = ["## Functional genomics", ""]
+    if has_gc:
+        bits = []
+        for label, key in (("pLI", "pli"), ("LOEUF", "loeuf"), ("missense Z", "mis_z")):
+            v = gc.get(key)
+            if v not in (None, ""):
+                try:
+                    bits.append(f"{label} {float(v):.3g}")
+                except (TypeError, ValueError):
+                    pass
+        if bits:
+            L.append(f"**gnomAD constraint:** {', '.join(bits)} — population "
+                     "loss-of-function intolerance (pLI ≥ 0.9 = LoF-intolerant; lower "
+                     "LOEUF = more constrained). "
+                     "[gnomAD](https://gnomad.broadinstitute.org/)")
     if cd:
         haplo = cd.get("haplo_score", "")
         triplo = cd.get("triplo_score", "")

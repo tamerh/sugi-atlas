@@ -129,6 +129,7 @@ UPSTREAM = {
     "corum":             ("CORUM Protein Complexes",               "https://mips.helmholtz-muenchen.de/corum/"),
     "depmap":            ("DepMap (Cancer Dependency Map)",        "https://depmap.org/portal/"),
     "depmap_dependency": ("DepMap (Cancer Dependency Map)",        "https://depmap.org/portal/"),
+    "gnomad_constraint": ("gnomAD (gene constraint)",              "https://gnomad.broadinstitute.org/"),
     "generif":           ("NCBI GeneRIFs",                         "https://www.ncbi.nlm.nih.gov/gene/about-generif"),
     # expression
     "bgee":              ("Bgee",                                  "https://www.bgee.org/"),
