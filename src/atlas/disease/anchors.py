@@ -182,7 +182,12 @@ def _build_cohort(mondo_id: str):
             h = t.get("id")
             if not h or not h.startswith("HGNC:"):
                 continue
-            evidence.setdefault(h, {f: False for f, _ in _COHORT_ROUTES})[flag] = True
+            # "alliance" is a corroboration-only flag (set later in resolve(),
+            # never introduces a gene) — pre-seed it False so every gene's
+            # evidence dict carries the key uniformly.
+            evidence.setdefault(
+                h, {f: False for f, _ in _COHORT_ROUTES} | {"alliance": False}
+            )[flag] = True
 
     def _score(hgnc):
         return sum(1 for v in evidence[hgnc].values() if v)
@@ -320,6 +325,27 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
             continue
     enrichment_cohort = tuple((h, symbol_of[h]) for h in cohort_full[:ENRICH_CAP]
                               if h in symbol_of)
+
+    # Alliance corroboration (corroborate-only). An Alliance "is_implicated_in"
+    # (human) gene that is ALREADY in the cohort union gets an extra evidence
+    # flag — which can lift a single-route gene to "strong" (>=2 routes) so the
+    # cap retains it (see _is_strong). Alliance NEVER introduces a gene: an
+    # alliance-only gene stays in the standalone §5 Alliance block, not the
+    # cohort. Reuses symbol_of (already resolved) so no extra id lookups; the
+    # association_type/species filter mirrors §5's standalone block. Gated on a
+    # DOID xref (the bridge to alliance_disease) to skip the call otherwise.
+    if xc.get("doid", 0) > 0:
+        implicated_syms = {
+            r["gene_symbol"]
+            for r in map_all(mondo_id, ">>mondo>>doid>>alliance_disease")
+            if r.get("gene_symbol")
+            and r.get("association_type") == "is_implicated_in"
+            and (r.get("species") or "") == "Homo sapiens"
+        }
+        if implicated_syms:
+            for hgnc, ev_row in evidence.items():
+                if symbol_of.get(hgnc) in implicated_syms:
+                    ev_row["alliance"] = True
 
     # Pre-resolve the DISPLAY gene anchors (full per-gene plan) so downstream
     # per-gene sections don't re-pay anchor cost. Selection applies the evidence
