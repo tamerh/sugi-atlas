@@ -111,6 +111,7 @@ UPSTREAM = {
     "intogen":           ("intOGen (cancer driver catalog)",       "https://www.intogen.org/"),
     # Mondo OBO cross-ontology xrefs (biobtree 2026-06-01)
     "doid":              ("Disease Ontology",                      "https://disease-ontology.org/"),
+    "alliance_disease":  ("Alliance of Genome Resources",          "https://www.alliancegenome.org/"),
     "sctid":             ("SNOMED CT",                             "https://www.snomed.org/"),
     "umls":              ("UMLS (NLM Unified Medical Language)",   "https://www.nlm.nih.gov/research/umls/"),
     "ncit":              ("NCI Thesaurus",                         "https://ncithesaurus.nci.nih.gov/"),

@@ -56,6 +56,33 @@ def _vlink(rs):
     return links.maybe_link(rs or "", links.variant_link(rs))
 
 
+def r_alliance_genes(bundles):
+    """Alliance / Disease-Ontology gene→disease associations — a curated source
+    distinct from the cohort above (via mondo→doid→alliance_disease), split into
+    *implicated* (causal/mechanistic) vs *biomarker*. Genes link to Atlas pages.
+    '' when none."""
+    b5 = bundles.get("5") or {}
+    imp = b5.get("alliance_implicated") or []
+    mark = b5.get("alliance_marker") or []
+    if not imp and not mark:
+        return ""
+
+    def _line(label, syms):
+        if not syms:
+            return ""
+        body = ", ".join(_glink(s) for s in syms[:ROW_CAP])
+        more = f" (+{_i(len(syms) - ROW_CAP)} more)" if len(syms) > ROW_CAP else ""
+        return f"\n**{label} ({_i(len(syms))}):** {body}{more}"
+
+    L = ["## Alliance gene associations {#alliance-genes}", "",
+         "Curated gene–disease associations from the Alliance of Genome Resources "
+         "(Disease Ontology) — distinct from the cohort above: *implicated* "
+         "(causal/mechanistic) vs *biomarker* (a marker for the disease)."]
+    L.append(_line("Implicated genes", imp))
+    L.append(_line("Biomarker genes", mark))
+    return "\n".join(p for p in L if p)
+
+
 # Shared with the dual-evidence on-disease filter (atlas.disease.cohort) so both
 # the GenCC dedup here and §4 use identical disease-name matching.
 from atlas.disease.cohort import disease_tokens as _disease_tokens
@@ -1376,7 +1403,8 @@ def render_all(bundles):
          "No common-variant (GWAS) or curated variant data for this disease."),
         ("Genes & proteins", "genes",
          join(_cohort_empty_note(bundles),
-              D(r_molecular_basis(bundles), "molecular-basis"), cohort_genes),
+              D(r_molecular_basis(bundles), "molecular-basis"), cohort_genes,
+              D(r_alliance_genes(bundles), "alliance-genes")),
          "No associated genes curated for this disease."),
         ("Function", "function", S("14", "pathways") if has_cohort else "",
          "No pathway enrichment — requires an associated-gene cohort."),

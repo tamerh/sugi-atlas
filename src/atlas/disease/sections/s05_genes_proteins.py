@@ -5,11 +5,13 @@ the cohort and aggregates.
 No new chains/datasets — everything comes from gene §1 + §3 bundles via the
 cohort fan-out helper."""
 from atlas.section import Section
+from atlas.biobtree import map_all
 from atlas.disease.cohort import fan
 from atlas.gene.sections import s01_gene_ids, s03_protein_ids
 
-CHAINS   = (">>hgnc>>ensembl>>uniprot",)  # reused via gene collectors
-DATASETS = ("hgnc", "ensembl", "uniprot")
+CHAINS   = (">>hgnc>>ensembl>>uniprot",         # reused via gene collectors
+            ">>mondo>>doid>>alliance_disease")  # Alliance/DO gene→disease associations
+DATASETS = ("hgnc", "ensembl", "uniprot", "doid", "alliance_disease")
 
 _EVIDENCE_KEYS = ("gwas", "gencc", "clinvar", "civic_evidence")
 
@@ -100,6 +102,20 @@ def collect(a):
             molecular_basis.append(mb)
         summary[_classify(ev)] += 1
 
+    # Alliance / Disease Ontology gene→disease associations (via mondo→doid→
+    # alliance_disease). A distinct curated source from the cohort above, with the
+    # is_implicated_in (causal-ish) vs is_marker_for (biomarker) distinction nothing
+    # else here carries. Human only (the rare model-organism rows are noise);
+    # implicated takes precedence over marker for a gene in both.
+    implicated, marker = set(), set()
+    if a.mondo_id:
+        for r in map_all(a.mondo_id, ">>mondo>>doid>>alliance_disease"):
+            sym = r.get("gene_symbol")
+            if not sym or (r.get("species") or "") != "Homo sapiens":
+                continue
+            (implicated if r.get("association_type") == "is_implicated_in" else marker).add(sym)
+    marker -= implicated
+
     return {
         "section": "05_genes_proteins",
         "mondo_id": a.mondo_id,
@@ -109,6 +125,8 @@ def collect(a):
         "evidence_summary": summary,
         "cohort_function_summary": function_lines,
         "molecular_basis": molecular_basis,
+        "alliance_implicated": sorted(implicated),
+        "alliance_marker": sorted(marker),
     }
 
 
@@ -119,6 +137,7 @@ SECTION = Section(
                  "REUSE wrapper over gene §1/§3."),
     needs=("cohort", "cohort_evidence"),
     produces=("genes", "protein_count", "gene_count", "evidence_summary",
-              "cohort_function_summary", "molecular_basis"),
+              "cohort_function_summary", "molecular_basis",
+              "alliance_implicated", "alliance_marker"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
