@@ -93,15 +93,25 @@ def collect(a):
     ancestors = []      # nearest-first: [parent, grandparent, …, root]
     children = []
     siblings = []
+    other_parents = []  # immediate DAG parents NOT on the breadcrumb path
     if a.mondo_id:
         seen, cur = set(), a.mondo_id           # walk up, bounded + cycle-guarded
-        for _ in range(10):
+        for i in range(10):
             try:
                 pr = map_all(cur, ">>mondo>>mondoparent")
             except Exception:
                 break
             if not pr:
                 break
+            # Mondo is a multi-parent DAG. The breadcrumb follows pr[0]; any
+            # additional parents of THIS term (only the first hop) are kept as
+            # `other_parents` so the page links up every lineage it belongs to
+            # (e.g. "colorectal adenocarcinoma" is under both `adenocarcinoma`
+            # AND `colorectal carcinoma` — without this the colorectal lineage
+            # is unreachable upward, though the parent links down to it).
+            if i == 0 and len(pr) > 1:
+                other_parents = [{"id": r.get("id"), "name": r.get("name")}
+                                 for r in pr[1:] if r.get("id")]
             pid, pname = pr[0].get("id"), pr[0].get("name")
             if not pid or pid in seen:
                 break
@@ -192,6 +202,7 @@ def collect(a):
         "child_count": child_count,
         "sibling_count": sibling_count,
         "parent": parent,
+        "other_parents": other_parents,
         "ancestors": ancestors,
         "children": children,
         "siblings": siblings,
@@ -213,7 +224,7 @@ SECTION = Section(
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",
               "orphanet_definition", "orphanet_inheritance", "orphanet_onset",
-              "child_count", "parent", "ancestors", "children", "siblings",
+              "child_count", "parent", "other_parents", "ancestors", "children", "siblings",
               "xref_counts", "is_cancer"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

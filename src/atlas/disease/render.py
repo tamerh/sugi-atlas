@@ -372,7 +372,7 @@ def r_disease_family(b1, b5):
     ancestors = b1.get("ancestors") or []
     children = b1.get("children") or []
     siblings = b1.get("siblings") or []
-    if not (parent or ancestors or children or siblings):
+    if not (parent or ancestors or children or siblings or b1.get("other_parents")):
         return ""
 
     def _dl(t):  # manifest-gated disease link by id (label = name)
@@ -403,6 +403,17 @@ def r_disease_family(b1, b5):
         crumb = " › ".join(_dl(t) for t in reversed(ancestors))
         cur = b1.get("canonical_name") or b1.get("name") or "this disease"
         out.append(f"**Classification path:** {crumb} › **{cur}**")
+    # Additional DAG parents — Mondo multi-parents many cancer terms across the
+    # morphology and anatomy axes (e.g. "colorectal adenocarcinoma" sits under
+    # both `adenocarcinoma` and `colorectal carcinoma`). The breadcrumb follows
+    # one lineage; link the rest so every parent is reachable upward (built
+    # pages only, to match the sibling/subtype lines).
+    op = [(t, links.disease_url(mondo_id=t.get("id"), name=t.get("name")))
+          for t in (b1.get("other_parents") or [])]
+    op = [(t, u) for t, u in op if u]
+    if op:
+        out.append("**Also classified under:** "
+                   + ", ".join(links.maybe_link(t.get("name"), u) for t, u in op))
     # Siblings (co-subtypes under the same parent) + this term's own subtypes.
     # s01 stores up to 300, but dumping all inline produced a 28k-char unwrappable
     # line (2q13-microdeletion: 337 siblings on a 1-gene page). Show only the first
