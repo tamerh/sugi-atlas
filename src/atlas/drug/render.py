@@ -478,7 +478,13 @@ def r_drugcentral(b):
     moa = b.get("moa_targets") or []
     tc = b.get("target_count")
     if acts or moa:
-        moa_links = ", ".join(links.maybe_link(u, links.uniprot_url(u)) for u in moa)
+        # Cap the inline accessions — most drugs have a handful of MOA targets,
+        # but some (e.g. metformin, 50) carry a long curated set. The count is the
+        # signal; the resolved/linked targets live in §2/§3/§8.
+        _SHOW = 8
+        moa_links = ", ".join(links.maybe_link(u, links.uniprot_url(u)) for u in moa[:_SHOW])
+        if len(moa) > _SHOW:
+            moa_links += f", +{_i(len(moa) - _SHOW)} more"
         bits = []
         if acts:
             bits.append("/".join(acts))
@@ -497,10 +503,11 @@ def r_faers(b):
     if not total:
         return ""
     nrec = b.get("name_record_count") or 0
+    dr = b.get("distinct_reactions") or 0
     L = ["## Adverse-event reports (FAERS)", "",
          f"**{_i(total)} reports across {_i(nrec)} FAERS drug-name record"
-         f"{'' if nrec == 1 else 's'}; {_i(b.get('distinct_reactions'))} distinct "
-         "MedDRA reactions.**",
+         f"{'' if nrec == 1 else 's'}; {_i(dr)} distinct MedDRA "
+         f"reaction{'' if dr == 1 else 's'}.**",
          "",
          "*openFDA FAERS — spontaneous post-marketing reports. **Co-occurrence, "
          "not causation**: reports are voluntary, unverified, and confounded by "

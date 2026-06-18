@@ -21,8 +21,13 @@ Two read-outs, because sort order changes the story:
 
 CRITICAL framing: FAERS is co-occurrence, NOT causation — reports are
 unverified, voluntary, and confounded by indication/notoriety. PRR is a
-disproportionality heuristic, not a risk estimate. (serious_count / outcome
-exist upstream but aren't in the lite projection yet — see BIOBTREE_ISSUES.)"""
+disproportionality heuristic, not a risk estimate.
+
+`serious_count` is now in the lite projection (biobtree restored it) and is
+summed per PT + rendered as a "Serious" column. `outcome` is also projected but
+deliberately NOT surfaced: it's a single ICH reaction-outcome code per PT
+(1=recovered … 5=fatal, 6=unknown, dominated by 6) and biobtree's per-PT
+aggregation (modal vs most-severe) is unconfirmed — see BIOBTREE_ISSUES."""
 from atlas.biobtree import map_all
 from atlas.section import Section
 

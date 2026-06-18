@@ -45,6 +45,21 @@ def test_disproportionate_respects_report_floor():
     assert names[0] == "oral pigmentation"
 
 
+def test_prr_none_counted_in_volume_but_excluded_from_disproportionality():
+    # A reaction whose only rows lack a PRR still counts toward report_count
+    # (volume view) but has prr=None → excluded from the disproportionality view
+    # (and must not crash the weighted-PRR division guard).
+    rows = [
+        {"reaction": "unscored event", "report_count": "500", "serious_count": "10"},
+        {"reaction": "scored event", "report_count": "50", "prr": "40.0", "serious_count": "5"},
+    ]
+    most, disp, _ = _aggregate_reactions(rows)
+    unscored = next(r for r in most if r["reaction"] == "unscored event")
+    assert unscored["report_count"] == 500 and unscored["prr"] is None
+    assert "unscored event" not in [r["reaction"] for r in disp]
+    assert [r["reaction"] for r in disp] == ["scored event"]
+
+
 def test_empty_and_zero_rows():
     most, disp, distinct = _aggregate_reactions(
         [{"reaction": "", "report_count": "5", "prr": "2"},

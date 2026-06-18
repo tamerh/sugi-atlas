@@ -732,8 +732,9 @@ def r_protein_families(b):
         else:
             out += ["", "### Family distribution {#family-distribution}", ""]
             if fe and 0 < n_fam < MIN_ORA_N:
-                out += [f"Cohort has {_i(n_fam)} family-classified gene — counts "
-                        "only (too few for over-representation statistics).", ""]
+                out += [f"Cohort has {_i(n_fam)} family-classified gene"
+                        f"{'' if n_fam == 1 else 's'} — counts only (too few for "
+                        "over-representation statistics).", ""]
             rows = sorted(fc.items(), key=lambda kv: -kv[1])
             out.append(table(["Family", "Genes"], [(k, _i(v)) for k, v in rows]))
     fa = b.get("family_assignments") or []
@@ -1071,9 +1072,11 @@ def r_pathways(b):
     # we drop the fold/FDR stats and show plain membership instead. Common for
     # single-gene Mendelian diseases and definitional-fallback cohorts.
     if gp and gp < MIN_ORA_N:
-        over = (f" Cohort has {_i(gp)} gene with Reactome annotation — too few "
-                "for over-representation statistics, so the pathways below are "
-                "membership (what the cohort gene participates in), not enrichment.")
+        over = (f" Cohort has {_i(gp)} gene{'' if gp == 1 else 's'} with Reactome "
+                "annotation — too few for over-representation statistics, so the "
+                "pathways below are membership (what the cohort "
+                f"gene{'' if gp == 1 else 's'} participate{'s' if gp == 1 else ''} "
+                "in), not enrichment.")
     elif es:
         over = (f" Enrichment computed across {_i(es)} evidence-associated genes "
                 f"({_i(gp)} with Reactome annotation).")
@@ -1115,8 +1118,8 @@ def r_pathways(b):
                                    f"{p['fold']:.1f}×" if p.get("fold") else "—",
                                    _fdr(p.get("fdr")), _samp(p)) for p in rows],
                                  ROW_CAP, noun=f"{noun} by enrichment")]
-        note = ([f"Cohort has {_i(n_annot)} annotated gene — membership only "
-                 "(too few for over-representation statistics)."]
+        note = ([f"Cohort has {_i(n_annot)} annotated gene{'' if n_annot == 1 else 's'}"
+                 " — membership only (too few for over-representation statistics)."]
                 if (n_annot and not powered) else [])
         return ["", f"### {heading} {{#{anchor}}}", ""] + ([note[0], ""] if note else []) + [
                 capped_table([col0, "Genes", "Sample cohort genes"],
