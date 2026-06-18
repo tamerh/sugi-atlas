@@ -34,6 +34,13 @@ _REACTION_CHAIN = ">>chembl_molecule>>faers>>faers_reaction"
 _PRR_MIN_REPORTS = 10
 # How many rows each view keeps in the bundle (render caps again at ROW_CAP).
 _TOP_N = 50
+# map_all `cap` bounds PAGES (~100 rows each). FAERS reaction lists are large
+# (paracetamol ~25.8k rows) and are NOT globally sorted by report_count, so the
+# default cap=60 (~6.1k) silently truncated mid-way and corrupted the per-PT
+# aggregation across name records. biobtree already aggregates (drops count=1
+# singletons), so the full set is bounded + cheap to pull (sub-second on
+# localhost); 500 pages (~50k rows) clears the biggest drugs with headroom.
+_FETCH_CAP = 500
 
 
 def _int(v):
@@ -94,7 +101,7 @@ def collect(a):
     total_reports = sum(r["total_reports"] or 0 for r in name_records)
 
     most_reported, disproportionate, distinct_reactions = _aggregate_reactions(
-        map_all(a.chembl_id, _REACTION_CHAIN))
+        map_all(a.chembl_id, _REACTION_CHAIN, cap=_FETCH_CAP))
 
     return {
         "section": "13_faers",
