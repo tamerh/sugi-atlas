@@ -467,6 +467,47 @@ def r_clinical_trials(b):
     return "\n".join(L)
 
 
+def r_faers(b):
+    total = b.get("total_reports") or 0
+    if not total:
+        return ""
+    nrec = b.get("name_record_count") or 0
+    L = ["## Adverse-event reports (FAERS)", "",
+         f"**{_i(total)} reports across {_i(nrec)} FAERS drug-name record"
+         f"{'' if nrec == 1 else 's'}; {_i(b.get('distinct_reactions'))} distinct "
+         "MedDRA reactions.**",
+         "",
+         "*openFDA FAERS — spontaneous post-marketing reports. **Co-occurrence, "
+         "not causation**: reports are voluntary, unverified, and confounded by "
+         "indication and reporting bias (the drug's own indication often appears "
+         "as a 'reaction'). PRR is a disproportionality heuristic (reaction rate "
+         "for this drug vs the FAERS background), NOT a risk estimate. Counts are "
+         "pooled across the drug's name records.*"]
+
+    def _prr(v):
+        return "—" if v is None else f"{v:.1f}×"
+
+    mr = b.get("most_reported") or []
+    if mr:
+        L += ["", "### Most-reported events {#faers-reported}", "",
+              capped_table(["Reaction (MedDRA PT)", "Reports", "PRR"],
+                           [(r.get("reaction"), _i(r.get("report_count")), _prr(r.get("prr")))
+                            for r in mr],
+                           ROW_CAP, noun="reactions by report volume")]
+    dp = b.get("disproportionate") or []
+    if dp:
+        floor = b.get("prr_min_reports") or 0
+        L += ["", "### Strongest disproportionality {#faers-disproportionality}", "",
+              f"Reactions over-reported for this drug vs the FAERS background "
+              f"(PRR), among those with ≥ {_i(floor)} reports (a high PRR off a "
+              "few reports is noise, not signal).", "",
+              capped_table(["Reaction (MedDRA PT)", "Reports", "PRR"],
+                           [(r.get("reaction"), _i(r.get("report_count")), _prr(r.get("prr")))
+                            for r in dp],
+                           ROW_CAP, noun="reactions by disproportionality")]
+    return "\n".join(L)
+
+
 def r_pharmacology(b):
     body = []
     roles = b.get("chebi_roles") or []
@@ -524,6 +565,7 @@ RENDER = {
     "8": r_target_pathways,
     "9": r_pharmacogenomics,
     "10": r_clinical_evidence,
+    "13": r_faers,
 }
 
 
@@ -560,8 +602,9 @@ def render_all(bundles):
         ("Indications & clinical", "indications",
          join(S("4", "indication-list"), S("5", "clinical-trials"), S("10", "civic")),
          "No labelled indications, trials, or CIViC evidence."),
-        ("Pharmacology", "pharmacology", S("9", "pharmacogenomics"),
-         "No pharmacogenomic data."),
+        ("Pharmacology", "pharmacology",
+         join(S("9", "pharmacogenomics"), S("13", "adverse-events")),
+         "No pharmacogenomic or adverse-event data."),
         ("Related molecules", "related-molecules", S("7", "related-mol"),
          "No competitor molecules sharing a primary target."),
     ]

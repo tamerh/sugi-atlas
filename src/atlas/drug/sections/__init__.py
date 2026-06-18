@@ -18,21 +18,22 @@ Sections land incrementally per the spec's sequencing. Present so far:
   §10 clinical_evidence   (NEW, CIViC via chembl_molecule→civic_evidence)
   §11 patent_literature   (NEW, patent_compound)
   §12 salt_forms          (NEW, anchor read, parent/child nav)
-All 12 deterministic sections wired.
+  §13 faers               (NEW, openFDA FAERS adverse events + PRR)
+All 13 deterministic sections wired.
 """
 from atlas.section import Section
 from atlas.drug.sections import (
     s01_drug_ids, s02_targets, s03_bioactivity, s04_indications,
     s05_clinical_trials, s06_pharmacology, s07_related_molecules,
     s08_target_pathways, s09_pharmacogenomics, s10_clinical_evidence,
-    s11_patent_literature, s12_salt_forms,
+    s11_patent_literature, s12_salt_forms, s13_faers,
 )
 
 _MODULES = (
     s01_drug_ids, s02_targets, s03_bioactivity, s04_indications,
     s05_clinical_trials, s06_pharmacology, s07_related_molecules,
     s08_target_pathways, s09_pharmacogenomics, s10_clinical_evidence,
-    s11_patent_literature, s12_salt_forms,
+    s11_patent_literature, s12_salt_forms, s13_faers,
 )
 
 REGISTRY: "dict[str, Section]" = {m.SECTION.id: m.SECTION for m in _MODULES}

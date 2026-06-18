@@ -89,6 +89,8 @@ UPSTREAM = {
     "pharmgkb_var_annotation": ("PharmGKB Variant Annotations",    "https://www.pharmgkb.org/variantAnnotations"),
     "pharmgkb_guideline": ("PharmGKB / CPIC dosing guidelines",    "https://www.pharmgkb.org/guidelineAnnotations"),
     "pharmgkb":          ("PharmGKB",                              "https://www.pharmgkb.org/"),
+    "faers":             ("openFDA FAERS",                         "https://open.fda.gov/data/faers/"),
+    "faers_reaction":    ("openFDA FAERS",                         "https://open.fda.gov/data/faers/"),
     "chebi":             ("ChEBI",                                 "https://www.ebi.ac.uk/chebi/"),
     "pubchem":           ("PubChem",                               "https://pubchem.ncbi.nlm.nih.gov/"),
     "gtopdb":            ("Guide to Pharmacology (GtoPdb)",        "https://www.guidetopharmacology.org/"),

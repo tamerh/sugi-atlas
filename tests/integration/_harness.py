@@ -69,7 +69,7 @@ H3_IDS = {
                 "clinical-trials"},
     "drug": {"drug-ids", "primary-targets", "bioactivity", "target-pathways",
              "indication-list", "clinical-trials", "civic", "pharmacogenomics",
-             "related-mol"},
+             "adverse-events", "related-mol"},
 }
 
 # Frozen H4 id allow-list per entity. H4s are the table-block titles inside a
@@ -109,7 +109,8 @@ H4_IDS = {
               "trial-phases", "top-trials", "trial-drugs", "trial-intervention-drugs", "civic"},
     # drug pages are flat (one table per H3 section); only the two multi-table
     # sections (Target pathways, Clinical trials) carry H4s.
-    "drug": {"mechanism", "target-reactome", "target-go", "trial-phases", "top-trials"},
+    "drug": {"mechanism", "target-reactome", "target-go", "trial-phases", "top-trials",
+             "faers-reported", "faers-disproportionality"},
     "pathway": set(),       # pathway sections carry no H4 table-blocks
 }
 
