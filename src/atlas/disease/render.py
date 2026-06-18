@@ -23,6 +23,11 @@ from atlas.page import links
 # significance-threshold redesign. See the gene renderer's note.
 ROW_CAP = 60
 
+# Minimum annotated cohort genes for over-representation analysis to be shown
+# with fold/FDR. Below this (single-gene Mendelian / definitional-fallback
+# cohorts), ORA is statistically vacuous — render membership instead.
+MIN_ORA_N = 3
+
 # Shared formatting helpers --------------------------------------------------
 
 def _i(n):
@@ -704,7 +709,11 @@ def r_protein_families(b):
         def _fdr(q):
             return "—" if q is None else (f"{q:.0e}" if q < 1e-3 else f"{q:.3f}")
 
-        if fe and any((fe.get(k) or {}).get("fdr") is not None for k in fc):
+        # Same ORA floor as §pathways: family enrichment over a 1-2 gene cohort
+        # is vacuous (one kinase → "Kinase 27.7× FDR 0.036"), so suppress the
+        # fold/FDR below MIN_ORA_N classified genes and show counts only.
+        n_fam = sum(fc.values())
+        if fe and n_fam >= MIN_ORA_N and any((fe.get(k) or {}).get("fdr") is not None for k in fc):
             def _fkey(kv):                       # enriched (lowest FDR) first
                 e = fe.get(kv[0]) or {}
                 tested = e.get("fdr") is not None
@@ -722,6 +731,9 @@ def r_protein_families(b):
                            for k, v in sorted(fc.items(), key=_fkey)])]
         else:
             out += ["", "### Family distribution {#family-distribution}", ""]
+            if fe and 0 < n_fam < MIN_ORA_N:
+                out += [f"Cohort has {_i(n_fam)} family-classified gene — counts "
+                        "only (too few for over-representation statistics).", ""]
             rows = sorted(fc.items(), key=lambda kv: -kv[1])
             out.append(table(["Family", "Genes"], [(k, _i(v)) for k, v in rows]))
     fa = b.get("family_assignments") or []
@@ -1053,8 +1065,20 @@ def r_clinical_trials(b):
 
 def r_pathways(b):
     es, gp = b.get("enrichment_size") or 0, b.get("genes_with_pathways") or 0
-    over = (f" Enrichment computed across {_i(es)} evidence-associated genes "
-            f"({_i(gp)} with Reactome annotation)." if es else "")
+    # Over-representation analysis is only meaningful with enough annotated genes:
+    # a 1-2 gene cohort makes EVERY pathway that gene belongs to look hugely
+    # "enriched" (k/n=1 vs a tiny K/N) at a deceptively low FDR. Below this floor
+    # we drop the fold/FDR stats and show plain membership instead. Common for
+    # single-gene Mendelian diseases and definitional-fallback cohorts.
+    if gp and gp < MIN_ORA_N:
+        over = (f" Cohort has {_i(gp)} gene with Reactome annotation — too few "
+                "for over-representation statistics, so the pathways below are "
+                "membership (what the cohort gene participates in), not enrichment.")
+    elif es:
+        over = (f" Enrichment computed across {_i(es)} evidence-associated genes "
+                f"({_i(gp)} with Reactome annotation).")
+    else:
+        over = ""
     out = ["## Pathway analysis", "",
            f"**Distinct Reactome pathways touched by cohort: "
            f"{_i(b.get('pathway_count'))}.**{over}"]
@@ -1071,11 +1095,15 @@ def r_pathways(b):
 
     def _ora_block(rows, anchor, heading, col0, n_annot, noun):
         """ORA-ranked table (fold + FDR, sorted by enrichment) when the background
-        is present; count-only fallback otherwise. Counts + members kept either
-        way (ground-truth for human/agent consumers)."""
+        is present AND the cohort is large enough for the test (>= MIN_ORA_N
+        annotated genes); plain membership fallback otherwise. Counts + members
+        kept either way (ground-truth for human/agent consumers)."""
         if not rows:
             return []
-        if any(p.get("fdr") is not None for p in rows):
+        # Underpowered (1-2 annotated genes) → suppress the misleading fold/FDR
+        # even though the numbers exist; show membership instead (see r_pathways).
+        powered = n_annot >= MIN_ORA_N
+        if powered and any(p.get("fdr") is not None for p in rows):
             return ["", f"### {heading} {{#{anchor}}}", "",
                     "Over-representation of cohort genes vs the genome-wide "
                     "background (hypergeometric test, Benjamini-Hochberg FDR; fold = "
@@ -1087,7 +1115,10 @@ def r_pathways(b):
                                    f"{p['fold']:.1f}×" if p.get("fold") else "—",
                                    _fdr(p.get("fdr")), _samp(p)) for p in rows],
                                  ROW_CAP, noun=f"{noun} by enrichment")]
-        return ["", f"### {heading} {{#{anchor}}}", "",
+        note = ([f"Cohort has {_i(n_annot)} annotated gene — membership only "
+                 "(too few for over-representation statistics)."]
+                if (n_annot and not powered) else [])
+        return ["", f"### {heading} {{#{anchor}}}", ""] + ([note[0], ""] if note else []) + [
                 capped_table([col0, "Genes", "Sample cohort genes"],
                              [(p.get("name") or p.get("id") or "", _i(p.get("gene_count")), _samp(p))
                               for p in rows],
