@@ -71,9 +71,10 @@ def _aggregate_reactions(rows, prr_min_reports=_PRR_MIN_REPORTS, top_n=_TOP_N):
         prr = _float(r.get("prr"))
         if not pt or rc <= 0:
             continue
-        g = agg.setdefault(pt, {"reaction": pt, "report_count": 0,
+        g = agg.setdefault(pt, {"reaction": pt, "report_count": 0, "serious_count": 0,
                                 "_prr_num": 0.0, "_prr_den": 0, "records": 0})
         g["report_count"] += rc
+        g["serious_count"] += _int(r.get("serious_count")) or 0
         g["records"] += 1
         if prr is not None:
             g["_prr_num"] += prr * rc
@@ -83,7 +84,8 @@ def _aggregate_reactions(rows, prr_min_reports=_PRR_MIN_REPORTS, top_n=_TOP_N):
     for g in agg.values():
         prr = round(g["_prr_num"] / g["_prr_den"], 2) if g["_prr_den"] else None
         reactions.append({"reaction": g["reaction"], "report_count": g["report_count"],
-                          "prr": prr, "records": g["records"]})
+                          "serious_count": g["serious_count"], "prr": prr,
+                          "records": g["records"]})
 
     most_reported = sorted(reactions, key=lambda x: (-x["report_count"], x["reaction"]))[:top_n]
     disproportionate = sorted(

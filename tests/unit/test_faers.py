@@ -8,10 +8,10 @@ from atlas.drug.sections.s13_faers import _aggregate_reactions
 # records (791@1.90 and 1766@2.09), "oral pigmentation" once with a high PRR
 # off few reports, "rash" once below the PRR report floor.
 _ROWS = [
-    {"reaction": "diarrhoea", "report_count": "791", "prr": "1.90"},
-    {"reaction": "diarrhoea", "report_count": "1766", "prr": "2.09"},
-    {"reaction": "oral pigmentation", "report_count": "18", "prr": "536.0"},
-    {"reaction": "rash", "report_count": "5", "prr": "300.0"},
+    {"reaction": "diarrhoea", "report_count": "791", "prr": "1.90", "serious_count": "692"},
+    {"reaction": "diarrhoea", "report_count": "1766", "prr": "2.09", "serious_count": "1500"},
+    {"reaction": "oral pigmentation", "report_count": "18", "prr": "536.0", "serious_count": "3"},
+    {"reaction": "rash", "report_count": "5", "prr": "300.0", "serious_count": "5"},
 ]
 
 
@@ -20,6 +20,7 @@ def test_sums_report_count_across_name_records():
     assert distinct == 3                                  # diarrhoea merged
     diarrhoea = next(r for r in most if r["reaction"] == "diarrhoea")
     assert diarrhoea["report_count"] == 791 + 1766
+    assert diarrhoea["serious_count"] == 692 + 1500       # serious summed too
     assert diarrhoea["records"] == 2
 
 

@@ -487,12 +487,21 @@ def r_faers(b):
     def _prr(v):
         return "—" if v is None else f"{v:.1f}×"
 
+    def _serious(r):
+        s, rc = r.get("serious_count") or 0, r.get("report_count") or 0
+        return f"{_i(s)} ({round(100 * s / rc)}%)" if rc else "—"
+
+    cols = ["Reaction (MedDRA PT)", "Reports", "Serious", "PRR"]
+
+    def _row(r):
+        return (r.get("reaction"), _i(r.get("report_count")), _serious(r), _prr(r.get("prr")))
+
     mr = b.get("most_reported") or []
     if mr:
         L += ["", "### Most-reported events {#faers-reported}", "",
-              capped_table(["Reaction (MedDRA PT)", "Reports", "PRR"],
-                           [(r.get("reaction"), _i(r.get("report_count")), _prr(r.get("prr")))
-                            for r in mr],
+              "Serious = reports flagged serious (death / life-threatening / "
+              "hospitalisation / disability / other medically important).", "",
+              capped_table(cols, [_row(r) for r in mr],
                            ROW_CAP, noun="reactions by report volume")]
     dp = b.get("disproportionate") or []
     if dp:
@@ -501,9 +510,7 @@ def r_faers(b):
               f"Reactions over-reported for this drug vs the FAERS background "
               f"(PRR), among those with ≥ {_i(floor)} reports (a high PRR off a "
               "few reports is noise, not signal).", "",
-              capped_table(["Reaction (MedDRA PT)", "Reports", "PRR"],
-                           [(r.get("reaction"), _i(r.get("report_count")), _prr(r.get("prr")))
-                            for r in dp],
+              capped_table(cols, [_row(r) for r in dp],
                            ROW_CAP, noun="reactions by disproportionality")]
     return "\n".join(L)
 
