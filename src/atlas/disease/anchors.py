@@ -204,6 +204,21 @@ def _is_strong(ev_row: Dict[str, bool]) -> bool:
                 or sum(1 for v in ev_row.values() if v) >= 2)
 
 
+# Orphanet italicizes gene symbols in its clinical definitions (its house
+# convention, e.g. "<i>PIK3CA</i>"). When NO structured gene route resolves,
+# that prose is often the only place a rare disease's causal gene is named, so
+# we recover it as a last-resort cohort seed (validated against HGNC by the
+# caller). Symbol shape: 2-9 chars, upper-alnum, leading letter (HGNC style).
+_ITALIC_GENE_RX = re.compile(r"<i>\s*([A-Z][A-Z0-9]{1,8})\s*</i>")
+
+
+def _definitional_genes(definition: str):
+    """Candidate gene symbols Orphanet italicizes in `definition`, de-duplicated
+    in first-seen order. HGNC validation is the caller's job (this just pulls the
+    italic tokens that look like a symbol)."""
+    return list(dict.fromkeys(_ITALIC_GENE_RX.findall(definition or "")))
+
+
 def _select_cohort(ranked, evidence, cap=COHORT_CAP, hard_max=COHORT_MAX):
     """Pick the cohort to fan out from the ranked union. Keep ALL strong genes
     (evidence floor, even past `cap`), then fill remaining slots up to `cap` from
@@ -310,6 +325,29 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
                 break
 
     cohort_full, evidence = _build_cohort(mondo_id)
+
+    # Definitional gene fallback — ONLY when no structured route resolved. A
+    # rare/Mendelian disease's causal gene is frequently named only in the
+    # Orphanet clinical definition (italicized; see _definitional_genes). Recover
+    # the italic symbols that validate against HGNC and seed a minimal cohort
+    # tagged `definitional`. Gated on an empty structured cohort, so it can never
+    # dilute a real cohort — it only lights up the otherwise-empty molecular /
+    # therapeutic sections with the gene the page already names in prose.
+    if not cohort_full and orphanet_attrs.get("definition"):
+        seeded = []
+        for sym in _definitional_genes(orphanet_attrs["definition"]):
+            try:
+                hits = map_all(sym, ">>hgnc")
+            except Exception:
+                continue
+            hid = next((h["id"] for h in hits
+                        if (h.get("id") or "").startswith("HGNC:")), None)
+            if hid and hid not in evidence:
+                evidence[hid] = {f: False for f, _ in _COHORT_ROUTES}
+                evidence[hid]["alliance"] = False
+                evidence[hid]["definitional"] = True
+                seeded.append(hid)
+        cohort_full = tuple(seeded)
 
     # Resolve the symbol for the top ENRICH_CAP evidence-ranked genes ONCE
     # (one hgnc entry each). This serves both the wide enrichment cohort and the

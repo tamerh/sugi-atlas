@@ -646,6 +646,18 @@ def r_genes_proteins(b):
            f"**{_i(b.get('gene_count'))} cohort genes, "
            f"{_i(b.get('protein_count'))} distinct canonical proteins.**"]
     ev = b.get("evidence_summary") or {}
+    # Definitional-only cohort: no structured route resolved, so the gene(s) were
+    # recovered from the Orphanet clinical definition (italicized symbol). Flag
+    # the provenance up front — this is the disease's stated causal gene, NOT a
+    # curated gene–disease validity assertion, and the downstream molecular /
+    # therapeutic sections inherit that caveat.
+    if ev.get("definitional") and not any(v for k, v in ev.items() if k != "definitional"):
+        out += ["",
+                "*Gene recovered from the Orphanet clinical definition (named in "
+                "prose; no structured GWAS / GenCC / ClinVar / CIViC association). "
+                "Treated as the disease's stated causal gene to populate the "
+                "molecular and therapeutic sections — not a curated gene–disease "
+                "validity assertion.*"]
     if ev and any(ev.values()):              # skip the all-zero partition (no cohort)
         out += ["", "### Evidence partition {#evidence-partition}", ""]
         out.append(table(["Subset", "Genes"],

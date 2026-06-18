@@ -13,7 +13,7 @@ CHAINS   = (">>hgnc>>ensembl>>uniprot",         # reused via gene collectors
             ">>mondo>>doid>>alliance_disease")  # Alliance/DO gene→disease associations
 DATASETS = ("hgnc", "ensembl", "uniprot", "doid", "alliance_disease")
 
-_EVIDENCE_KEYS = ("gwas", "gencc", "clinvar", "civic_evidence")
+_EVIDENCE_KEYS = ("gwas", "gencc", "clinvar", "civic_evidence", "definitional")
 
 
 def _classify(ev: dict) -> str:
@@ -22,6 +22,11 @@ def _classify(ev: dict) -> str:
     gc = bool(ev.get("gencc"))
     cv = bool(ev.get("clinvar"))
     ci = bool(ev.get("civic_evidence"))
+    # `definitional` genes are a last-resort fallback that ONLY exists when no
+    # structured route resolved (see anchors._definitional_genes) — so such a
+    # gene never carries another flag, and gets its own bucket.
+    if ev.get("definitional") and not (g or gc or cv or ci):
+        return "definitional"
     n = sum((g, gc, cv, ci))
     if n >= 3:
         return "multi_evidence"
@@ -47,7 +52,7 @@ def collect(a):
     g3_by = {b.get("symbol"): b for b in g3_bundles}
 
     summary = {"gwas_only": 0, "gwas_and_gencc": 0, "gwas_and_clinvar": 0,
-               "civic_only": 0, "multi_evidence": 0}
+               "civic_only": 0, "multi_evidence": 0, "definitional": 0}
     genes = []
     seen_canonical = set()
     from atlas.page.uniprot_cc import first_sentence
