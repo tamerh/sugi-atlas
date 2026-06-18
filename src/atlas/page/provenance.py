@@ -91,6 +91,7 @@ UPSTREAM = {
     "pharmgkb":          ("PharmGKB",                              "https://www.pharmgkb.org/"),
     "faers":             ("openFDA FAERS",                         "https://open.fda.gov/data/faers/"),
     "faers_reaction":    ("openFDA FAERS",                         "https://open.fda.gov/data/faers/"),
+    "drugcentral":       ("DrugCentral",                           "https://drugcentral.org/"),
     "chebi":             ("ChEBI",                                 "https://www.ebi.ac.uk/chebi/"),
     "pubchem":           ("PubChem",                               "https://pubchem.ncbi.nlm.nih.gov/"),
     "gtopdb":            ("Guide to Pharmacology (GtoPdb)",        "https://www.guidetopharmacology.org/"),

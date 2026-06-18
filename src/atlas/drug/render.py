@@ -467,6 +467,31 @@ def r_clinical_trials(b):
     return "\n".join(L)
 
 
+def r_drugcentral(b):
+    if not b.get("found"):
+        return ""
+    L = ["## Regulatory approval & mechanism (DrugCentral)", ""]
+    appr = b.get("approvals") or []
+    L.append(f"**Approved:** {', '.join(appr)}." if appr
+             else "*No agency approval flag recorded in DrugCentral.*")
+    acts = b.get("action_types") or []
+    moa = b.get("moa_targets") or []
+    tc = b.get("target_count")
+    if acts or moa:
+        moa_links = ", ".join(links.maybe_link(u, links.uniprot_url(u)) for u in moa)
+        bits = []
+        if acts:
+            bits.append("/".join(acts))
+        if moa:
+            bits.append(f"{_i(len(moa))} MOA target{'' if len(moa) == 1 else 's'}"
+                        + (f" of {_i(tc)} total" if tc else "") + f" ({moa_links})")
+        L.append("**Curated mechanism:** " + " · ".join(bits) + ".")
+    L.append("")
+    L.append("*DrugCentral (CC BY-SA): authoritative regulatory-approval status + "
+             "curated mechanism. The drug's full target set is in Targets above.*")
+    return "\n".join(L)
+
+
 def r_faers(b):
     total = b.get("total_reports") or 0
     if not total:
@@ -573,6 +598,7 @@ RENDER = {
     "9": r_pharmacogenomics,
     "10": r_clinical_evidence,
     "13": r_faers,
+    "14": r_drugcentral,
 }
 
 
@@ -607,7 +633,8 @@ def render_all(bundles):
          join(S("2", "primary-targets"), S("3", "bioactivity"), S("8", "target-pathways")),
          "No curated protein targets or measured bioactivity."),
         ("Indications & clinical", "indications",
-         join(S("4", "indication-list"), S("5", "clinical-trials"), S("10", "civic")),
+         join(S("4", "indication-list"), S("14", "drugcentral"),
+              S("5", "clinical-trials"), S("10", "civic")),
          "No labelled indications, trials, or CIViC evidence."),
         ("Pharmacology", "pharmacology",
          join(S("9", "pharmacogenomics"), S("13", "adverse-events")),

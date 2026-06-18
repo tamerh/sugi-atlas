@@ -68,8 +68,8 @@ H3_IDS = {
                 "pharmacogenomics", "tractability", "druggability", "undrugged",
                 "clinical-trials"},
     "drug": {"drug-ids", "primary-targets", "bioactivity", "target-pathways",
-             "indication-list", "clinical-trials", "civic", "pharmacogenomics",
-             "adverse-events", "related-mol"},
+             "indication-list", "drugcentral", "clinical-trials", "civic",
+             "pharmacogenomics", "adverse-events", "related-mol"},
 }
 
 # Frozen H4 id allow-list per entity. H4s are the table-block titles inside a
