@@ -9,7 +9,11 @@ CHAINS = (
     ">>ensembl>>refseq[is_mane_select==true]",
     ">>refseq>>transcript",
     ">>transcript>>exon",
-    ">>hgnc>>entrez>>neighborentrez",   # genomic neighbors (locus context)
+    # genomic neighbors (locus context); drop biological-region noise server-side
+    # (recombination/intergenic regions are ~half the raw edge). strand/distance/
+    # relationship=overlapping land when biobtree widens the lite projection —
+    # then sort by distance + flag antisense/bidirectional-promoter pairs.
+    '>>hgnc>>entrez>>neighborentrez[type!="biological-region"]',
 )
 DATASETS = ("ensembl", "transcript", "refseq", "ccds", "exon",
             "entrez", "neighborentrez")
@@ -53,7 +57,7 @@ def collect(a):
     seen = set()
     neighbors = []
     if a.hgnc_id:
-        for t in map_all(a.hgnc_id, ">>hgnc>>entrez>>neighborentrez"):
+        for t in map_all(a.hgnc_id, '>>hgnc>>entrez>>neighborentrez[type!="biological-region"]'):
             sym = (t.get("symbol") or "").strip()
             if (t.get("type") not in _NEIGHBOR_GENE_TYPES or not sym
                     or sym.startswith("LOC") or sym == a.symbol or sym in seen):
