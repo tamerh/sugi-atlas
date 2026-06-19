@@ -85,6 +85,24 @@ def r_gene_ids(b):
     return "## Gene identifiers\n\n" + table(["Field", "Value"], rows)
 
 
+def r_genomic_neighbors(b):
+    nb = b.get("genomic_neighbors") or []
+    if not nb:
+        return ""
+    total = b.get("genomic_neighbor_count") or len(nb)
+    L = ["## Genomic neighbors (locus context)", "",
+         "Genes flanking this one on the chromosome (NCBI/Entrez gene "
+         "neighborhood). Positional context only — some neighbors share "
+         "regulatory elements (bidirectional promoters, antisense/overlapping "
+         "transcripts), but chromosomal adjacency is not itself a functional "
+         "relationship (see Interactions for that).", "",
+         table(["Symbol", "Type", "Entrez"],
+               [(links.maybe_link(n.get("symbol"), links.gene_url(symbol=n.get("symbol"))),
+                 n.get("type"), n.get("id")) for n in nb])]
+    L.append(more_line(total, len(nb)))
+    return "\n".join(L)
+
+
 def r_transcripts(b):
     L = ["## Transcript identifiers", ""]
     # Inline ID list + biotype breakdown (consistent with the RefSeq lists

@@ -55,7 +55,7 @@ ID_RE = {
 # the contract fails the gate.
 H3_IDS = {
     "gene": {"gene-ids", "transcripts", "expression", "regulation",
-             "functional-genomics", "generif", "orthologs", "protein-ids",
+             "functional-genomics", "generif", "orthologs", "genomic-neighbors", "protein-ids",
              "structure", "residue-map", "pathways", "gene-sets", "interactions", "cancer",
              "variants", "disease-assoc", "drug-data",
              "ncrna-function", "ncrna-disease", "ncrna-interactions", "ncrna-drugs",
