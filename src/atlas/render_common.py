@@ -87,6 +87,19 @@ def gencc_rank(c):
     return _GENCC_RANK.get((c or "").strip().lower(), 0)
 
 
+def pval(s):
+    """Tidy a GWAS-style p-value string for display: "8.000000e-11" → "8e-11",
+    "1.500000e-08" → "1.5e-8". Passes non-numeric / empty through unchanged."""
+    try:
+        v = float(s)
+    except (TypeError, ValueError):
+        return s or ""
+    if v <= 0:
+        return s or ""
+    mant, _, e = f"{v:.1e}".partition("e")
+    return f"{mant.rstrip('0').rstrip('.')}e{int(e)}"
+
+
 def fnum(v, nd=2):
     """Round float-ish display values to `nd` decimals so float32 artifacts
     (e.g. 6.170000076293945, 0.19679999999999997) don't leak into pages.

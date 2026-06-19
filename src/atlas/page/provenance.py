@@ -52,6 +52,9 @@ UPSTREAM = {
     "alphafold":         ("AlphaFold DB",                          "https://alphafold.ebi.ac.uk/"),
     # orthology
     "ortholog":          ("Ensembl Compara",                       "https://www.ensembl.org/info/genome/compara/"),
+    "panelapp_gene":     ("Genomics England PanelApp",             "https://panelapp.genomicsengland.co.uk/"),
+    "mgi":               ("MGI (Mouse Genome Informatics)",        "https://www.informatics.jax.org/"),
+    "alliance_phenotype": ("Alliance of Genome Resources",         "https://www.alliancegenome.org/"),
     "paralog":           ("Ensembl Compara",                       "https://www.ensembl.org/info/genome/compara/"),
     # variants
     "clinvar":           ("ClinVar",                               "https://www.ncbi.nlm.nih.gov/clinvar/"),

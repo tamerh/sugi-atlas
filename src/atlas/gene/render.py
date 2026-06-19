@@ -11,7 +11,7 @@ reserved for the synthesis/executive-summary layer, not this.
 """
 import sys, os, html
 from atlas.gene import collect as C
-from atlas.render_common import table, phase_label, fnum, more_line, capped_table
+from atlas.render_common import table, phase_label, fnum, more_line, capped_table, pval
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
@@ -524,6 +524,22 @@ def r_orthologs(b):
     # only (not ESM2 embedding similarity, which over-calls — see s05_orthologs);
     # one row per species, best hit. The non-model gene symbol/Ensembl id aren't in
     # biobtree, so we show the UniProt accession + % sequence identity.
+    # Observed mouse-model phenotypes (MGI knockout/mutant), via the gene's mouse
+    # ortholog — real model-organism biology, NOT a translation of the human
+    # gene's HPO terms. Ranked by MGI annotation count (robustness).
+    mp = b.get("mouse_phenotypes") or []
+    if mp:
+        total = b.get("mouse_phenotype_total") or len(mp)
+        mgi = (b.get("mouse_mgi_ids") or [None])[0]
+        mgi_link = (f" ([{mgi}](https://www.informatics.jax.org/marker/{mgi}))"
+                    if mgi else "")
+        L.append("\n### Mouse-model phenotypes {#mouse-phenotypes}\n")
+        L.append(f"Observed phenotypes of the mouse ortholog{mgi_link} from MGI "
+                 "(Alliance of Genome Resources) — knockout/mutant phenotypes, "
+                 f"ranked by annotation count. {total} distinct phenotype terms.\n")
+        L.append(table(["Mouse phenotype (MP)", "Records"],
+                       [(p.get("statement"), p.get("records")) for p in mp]))
+        L.append(more_line(total, len(mp)))
     hom = b.get("cross_species_homologs") or []
     if hom:
         L.append("\n### Additional cross-species homologs {#cross-species-homologs}\n")
@@ -1295,6 +1311,20 @@ def r_diseases(b):
                                 c.get("classification"), c.get("moi"))
                                for c in cgv],
                               ROW_CAP, noun="validity classifications"))
+
+    # PanelApp (Genomics England) — diagnostic gene panels the gene is on, with
+    # its rating per panel. Green = diagnostic-grade; the clinical "which test
+    # would include this gene" signal that ClinGen/GenCC (per-disease) don't give.
+    pa = b.get("panelapp") or []
+    if pa:
+        green = b.get("panelapp_green") or 0
+        L.append("\n### Genomics England panels (PanelApp) {#panelapp}\n")
+        L.append(f"Clinical diagnostic gene panels including this gene "
+                 f"({len(pa)} panels, {green} green/diagnostic-grade). "
+                 "Confidence: green = diagnostic, amber = moderate.\n")
+        L.append(capped_table(["Panel", "Rating"],
+                              [(p.get("panel"), p.get("confidence")) for p in pa],
+                              ROW_CAP, noun="panels"))
     L.append(f"\n**Mondo ({len(b.get('mondo', []))}):** "
              + ", ".join(f"{links.maybe_link(m.get('name'), links.disease_url(mondo_id=m['id'], name=m.get('name')))} ({m['id']})"
                          for m in b.get("mondo", [])[:ROW_CAP]))
@@ -1310,7 +1340,7 @@ def r_diseases(b):
                           ROW_CAP, total=b.get("hpo_total"), noun="phenotypes (HPO-id order)"))
     L.append("\n### GWAS associations {#gwas-assoc}\n")
     L.append(capped_table(["Study", "Trait", "p-value"],
-                          [(g["id"], g.get("trait"), g.get("p_value")) for g in b.get("gwas", [])],
+                          [(g["id"], g.get("trait"), pval(g.get("p_value"))) for g in b.get("gwas", [])],
                           30, total=b.get("gwas_total"), noun="associations"))
 
     # EFO canonical trait names — normalized vocabulary for the free-text

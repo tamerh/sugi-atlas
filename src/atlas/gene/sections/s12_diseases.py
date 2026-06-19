@@ -17,9 +17,15 @@ CHAINS = (
     ">>hgnc>>intogen",                            # cancer-driver classification (LoF/Act)
     ">>hgnc>>civic",                              # CIViC gene-level curated narrative
     ">>hgnc>>clingen_gene_validity",              # ClinGen expert-panel gene-disease validity
+    ">>hgnc>>panelapp_gene",                      # Genomics England clinical gene panels
 )
 DATASETS = ("mim", "gencc", "mondo", "orphanet", "hpo", "gwas", "gwas_study", "efo",
-            "mesh", "intogen", "civic", "clinvar", "hgnc", "clingen_gene_validity")
+            "mesh", "intogen", "civic", "clinvar", "hgnc", "clingen_gene_validity",
+            "panelapp_gene")
+
+# PanelApp diagnostic-grade rating order (green = high-confidence diagnostic,
+# amber = moderate, red = low — usually filtered out upstream).
+_PANEL_RANK = {"green": 0, "amber": 1, "red": 2}
 
 def collect(a):
     bundle = {"section": "12_diseases", "symbol": a.symbol}
@@ -137,6 +143,17 @@ def collect(a):
         "classification": r.get("classification"),
         "moi": r.get("moi"),  # AD / AR / XL / etc.
     } for r in map_all(a.hgnc_id, ">>hgnc>>clingen_gene_validity")]
+
+    # PanelApp (Genomics England) — clinical diagnostic gene panels this gene sits
+    # on, with the gene's rating on each (green = diagnostic-grade). One row per
+    # (panel, gene); ranked diagnostic-grade first, then panel name.
+    panels = [{"panel": (r.get("panel_name") or "").strip(),
+               "confidence": (r.get("confidence") or "").strip().lower()}
+              for r in map_all(a.hgnc_id, ">>hgnc>>panelapp_gene")
+              if (r.get("panel_name") or "").strip()]
+    panels.sort(key=lambda p: (_PANEL_RANK.get(p["confidence"], 3), p["panel"]))
+    bundle["panelapp"] = panels
+    bundle["panelapp_green"] = sum(1 for p in panels if p["confidence"] == "green")
     return bundle
 
 SECTION = Section(
@@ -147,6 +164,6 @@ SECTION = Section(
     needs=("hgnc_id", "hgnc_entry"),
     produces=("gene_omim", "disease_omim", "gencc", "mondo", "orphanet", "hpo",
               "gwas", "gwas_studies", "efo_traits", "mesh_descriptors", "intogen", "civic",
-              "clingen_validity"),
+              "clingen_validity", "panelapp", "panelapp_green"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

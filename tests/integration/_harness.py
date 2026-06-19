@@ -86,8 +86,8 @@ H4_IDS = {
              "collectri", "jaspar", "mirdb",
              # §expression / §disease-assoc / §ncrna
              "fantom5-promoters", "tissue-expression", "scxa", "hpa-expression",
-             "cross-species-homologs", "ncrna-go",
-             "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh",
+             "cross-species-homologs", "mouse-phenotypes", "ncrna-go",
+             "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh", "panelapp",
              # §drug-data
              "chembl-molecules", "civic", "civic-variants", "pharmgkb-clinical", "pharmgkb-variants",
              "pharmgkb-var-annotations",

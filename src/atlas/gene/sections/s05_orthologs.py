@@ -1,13 +1,55 @@
 """§5 — orthologs: cross-species orthologs (Ensembl Compara) + paralogs, plus
 UniProt-wide cross-species homologs (ESM2/Diamond similarity) that reach species
 beyond Compara's model-organism set."""
+from collections import Counter
+
 from atlas.biobtree import map_all
 from atlas.gene.sections.base import Section
 
 CHAINS = (">>ensembl>>ortholog", ">>ensembl>>paralog",
-          ">>uniprot>>diamond_similarity", ">>uniprot>>taxonomy")
+          ">>uniprot>>diamond_similarity", ">>uniprot>>taxonomy",
+          ">>ensembl>>entrez", ">>entrez>>mgi", ">>alliance_phenotype")
 DATASETS = ("ensembl", "ortholog", "paralog",
-            "uniprot", "diamond_similarity", "taxonomy")
+            "uniprot", "diamond_similarity", "taxonomy",
+            "entrez", "mgi", "alliance_phenotype")
+
+# Observed mouse-model phenotypes (MGI, via the Alliance) for the gene's mouse
+# ortholog — real knockout/mutant phenotypes, distinct from the HP→uPheno→MP
+# TRANSLATION of the human gene's own HPO terms. biobtree has no direct
+# human-gene→model-phenotype edge yet (the human→ortholog hop isn't traversable
+# — orthologentrez issue, fix in progress), but each hop resolves on its own, so
+# we step through it: mouse ortholog Ensembl → mouse Entrez → MGI →
+# alliance_phenotype. SWAP for the direct edge when it lands.
+_MOUSE_PHENO_CAP = 25
+_PHENO_NOISE = {"no abnormal phenotype detected"}
+
+
+def _mouse_phenotypes(mouse_ensembl_ids):
+    """[{mp_id, statement, records}] for the mouse ortholog(s), ranked by MGI
+    record count (more annotations = more robustly observed), and the MGI id(s)
+    resolved. Drops the 'no abnormal phenotype detected' control rows."""
+    counts: Counter = Counter()
+    stmts: dict = {}
+    mgi_ids = []
+    for mm in mouse_ensembl_ids:
+        for e in map_all(mm, ">>ensembl>>entrez"):
+            for g in map_all(e["id"], ">>entrez>>mgi"):
+                if g["id"] in mgi_ids:
+                    continue
+                mgi_ids.append(g["id"])
+                # Cap the phenotype pull — top genes carry 600+ records; ~300
+                # (3 pages) is plenty to rank the top _MOUSE_PHENO_CAP by count.
+                for r in map_all(g["id"], ">>alliance_phenotype", cap=3):
+                    term = r.get("phenotype_term")
+                    stmt = (r.get("phenotype_statement") or "").strip()
+                    if not term or not stmt or stmt.lower() in _PHENO_NOISE:
+                        continue
+                    counts[term] += 1
+                    stmts.setdefault(term, stmt)
+    ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    phenos = [{"mp_id": t, "statement": stmts[t], "records": n}
+              for t, n in ranked[:_MOUSE_PHENO_CAP]]
+    return phenos, mgi_ids, len(counts)
 
 _HOMOLOG_SPECIES_CAP = 40   # distinct non-model species to surface
 _HOMOLOG_PROBE_CAP = 100    # bound the per-accession taxonomy resolutions — set to
@@ -43,6 +85,14 @@ def collect(a):
                             "organism": t.get("genome") or _organism_from_id(t["id"])}
                            for t in orths]
     bundle["ortholog_count"] = len(orths)
+
+    # Observed mouse-model phenotypes for the mouse ortholog (see _mouse_phenotypes).
+    mouse_ens = [o["id"] for o in orths if (o.get("genome") or "") == "mus_musculus"]
+    phenos, mgi_ids, distinct = _mouse_phenotypes(mouse_ens) if mouse_ens else ([], [], 0)
+    bundle["mouse_phenotypes"] = phenos
+    bundle["mouse_phenotype_total"] = distinct
+    bundle["mouse_mgi_ids"] = mgi_ids
+
     paras = map_all(a.ensembl_id, ">>ensembl>>paralog") if a.ensembl_id else []
     bundle["paralogs"] = [{"id": t["id"], "symbol": t.get("name")} for t in paras]
     bundle["paralog_count"] = len(paras)
@@ -113,6 +163,7 @@ SECTION = Section(
     id="5", name="orthologs",
     description="Orthologous genes in model organisms + paralogs (Ensembl Compara)",
     needs=("ensembl_id", "canonical_uniprot"),
-    produces=("orthologs", "paralogs", "cross_species_homologs"),
+    produces=("orthologs", "paralogs", "cross_species_homologs",
+              "mouse_phenotypes", "mouse_phenotype_total", "mouse_mgi_ids"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
