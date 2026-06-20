@@ -39,6 +39,25 @@ _NS_ABBR = {"biological_process": "BP", "molecular_function": "MF",
             "cellular_component": "CC"}
 
 
+_REACTOME_EVIDENCE = {"TAS": "curated", "IEA": "electronic"}
+
+
+def _merge_reactome(rx, t):
+    """Accumulate a Reactome row, keeping the best evidence (curated TAS beats
+    electronic IEA) and the disease-pathway flag across the union's sources."""
+    pid = t.get("id")
+    if not pid:
+        return
+    ev = _REACTOME_EVIDENCE.get((t.get("evidence") or "").strip(), "other")
+    cur = rx.get(pid)
+    best = "curated" if (ev == "curated" or (cur and cur["evidence"] == "curated")) else ev
+    rx[pid] = {
+        "name": t.get("name") or (cur or {}).get("name"),
+        "evidence": best,
+        "is_disease": (t.get("is_disease_pathway") == "true") or bool(cur and cur["is_disease"]),
+    }
+
+
 def _eco_tier(eco):
     """Coarse evidence tier for the per-gene GO summary."""
     if eco in _ECO_EXPERIMENTAL:
@@ -57,15 +76,21 @@ def collect(a):
 
     # Reactome: union all reviewed uniprots + ensembl gene-level route.
     # Dual-product genes (CDKN2A p16+p14ARF) and pathways the canonical uniprot
-    # alone misses both land here.
+    # alone misses both land here. Each edge carries evidence (TAS curated vs IEA
+    # electronic) + is_disease_pathway; TAS beats IEA when sources disagree.
     rx = {}
-    for u in a.reviewed_uniprots:
-        for t in map_all(u, ">>uniprot>>reactome"):
-            rx[t["id"]] = t.get("name") or rx.get(t["id"])
+    for chain, src_id in ((">>uniprot>>reactome", u) for u in a.reviewed_uniprots):
+        for t in map_all(src_id, chain):
+            _merge_reactome(rx, t)
     for t in (map_all(a.ensembl_id, ">>ensembl>>reactome") if a.ensembl_id else []):
-        rx[t["id"]] = t.get("name") or rx.get(t["id"])
-    bundle["reactome"] = [{"id": k, "name": v} for k, v in rx.items()]
-    bundle["reactome_count"] = len(bundle["reactome"])
+        _merge_reactome(rx, t)
+    # curated (TAS) first, then disease pathways, then by name
+    bundle["reactome"] = sorted(
+        ({"id": k, **v} for k, v in rx.items()),
+        key=lambda p: (p["evidence"] != "curated", not p["is_disease"], p["name"] or p["id"]))
+    bundle["reactome_count"] = len(rx)
+    bundle["reactome_curated_count"] = sum(1 for v in rx.values() if v["evidence"] == "curated")
+    bundle["reactome_disease_count"] = sum(1 for v in rx.values() if v["is_disease"])
 
     msig = map_all(a.hgnc_id, ">>hgnc>>msigdb")
     bundle["msigdb"] = [{"id": t["id"], "name": t.get("standard_name"),
@@ -141,7 +166,8 @@ SECTION = Section(
     id="7", name="pathways",
     description="Reactome pathways (union over all reviewed uniprots + ensembl), MSigDB gene sets, GO terms (BP/MF/CC)",
     needs=("hgnc_id", "hgnc_entry", "ensembl_id", "reviewed_uniprots"),
-    produces=("reactome", "msigdb", "go", "go_counts",
+    produces=("reactome", "reactome_curated_count", "reactome_disease_count",
+              "msigdb", "go", "go_counts",
               "go_experimental", "go_experimental_count", "go_total",
               "go_parent_rollup", "reactome_parent_rollup"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

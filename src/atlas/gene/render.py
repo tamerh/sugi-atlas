@@ -732,7 +732,16 @@ def r_ncrna_drugs(b14):
 def r_pathways(b):
     L = ["## Pathways and Gene Ontology", "",
          "### Reactome pathways {#reactome}", ""]
-    L.append(capped_table(["ID", "Pathway"], [(p["id"], p.get("name")) for p in b.get("reactome", [])],
+    rxc = b.get("reactome_curated_count")
+    if rxc is not None:
+        L.append(f"**{rxc} curated (TAS)** of {b.get('reactome_count', 0)}; "
+                 f"{b.get('reactome_disease_count', 0)} disease pathways. "
+                 "Curated-first; evidence = TAS (manually curated) vs IEA "
+                 "(electronic inference).\n")
+    L.append(capped_table(["ID", "Pathway", "Evidence"],
+                          [(p["id"],
+                            (p.get("name") or "") + (" ⚕" if p.get("is_disease") else ""),
+                            p.get("evidence")) for p in b.get("reactome", [])],
                           ROW_CAP, total=b.get("reactome_count"), noun="pathways"))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
     L.append(", ".join(f"`{m['name']}`" for m in b.get("msigdb", [])[:15]))
