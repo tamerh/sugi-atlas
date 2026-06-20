@@ -28,6 +28,7 @@ UPSTREAM = {
     "ensembl":           ("Ensembl",                               "https://www.ensembl.org/"),
     "entrez":            ("NCBI Gene (Entrez)",                    "https://www.ncbi.nlm.nih.gov/gene/"),
     "neighborentrez":    ("NCBI Gene (neighbors)",                 "https://www.ncbi.nlm.nih.gov/gene/"),
+    "orthologentrez":    ("NCBI Gene (orthologs)",                 "https://www.ncbi.nlm.nih.gov/gene/"),
     "mim":               ("OMIM",                                  "https://www.omim.org/"),
     "rnacentral":        ("RNAcentral",                            "https://rnacentral.org/"),
     "ncrna_disease":     ("LncRNADisease / HMDD",                  "http://www.rnanut.net/lncrnadisease/"),

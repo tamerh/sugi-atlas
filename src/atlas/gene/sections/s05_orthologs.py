@@ -6,46 +6,43 @@ from collections import Counter
 from atlas.biobtree import map_all
 from atlas.gene.sections.base import Section
 
+_MOUSE_MGI_CHAIN = ">>hgnc>>entrez>>orthologentrez>>mgi"
+_MOUSE_PHENO_CHAIN = ">>hgnc>>entrez>>orthologentrez>>mgi>>alliance_phenotype"
+
 CHAINS = (">>ensembl>>ortholog", ">>ensembl>>paralog",
           ">>uniprot>>diamond_similarity", ">>uniprot>>taxonomy",
-          ">>ensembl>>entrez", ">>entrez>>mgi", ">>alliance_phenotype")
+          _MOUSE_MGI_CHAIN, _MOUSE_PHENO_CHAIN)
 DATASETS = ("ensembl", "ortholog", "paralog",
             "uniprot", "diamond_similarity", "taxonomy",
-            "entrez", "mgi", "alliance_phenotype")
+            "entrez", "orthologentrez", "mgi", "alliance_phenotype")
 
 # Observed mouse-model phenotypes (MGI, via the Alliance) for the gene's mouse
 # ortholog — real knockout/mutant phenotypes, distinct from the HP→uPheno→MP
-# TRANSLATION of the human gene's own HPO terms. biobtree has no direct
-# human-gene→model-phenotype edge yet (the human→ortholog hop isn't traversable
-# — orthologentrez issue, fix in progress), but each hop resolves on its own, so
-# we step through it: mouse ortholog Ensembl → mouse Entrez → MGI →
-# alliance_phenotype. SWAP for the direct edge when it lands.
+# TRANSLATION of the human gene's own HPO terms. The human→ortholog hop
+# (orthologentrez) was fixed 2026-06-20, so this is now a single chain query
+# (human gene → mouse MGI → alliance_phenotype) — no longer the 4-hop step-through
+# via the Ensembl ortholog. The >>mgi hop filters orthologentrez's all-species set
+# to mouse.
 _MOUSE_PHENO_CAP = 25
 _PHENO_NOISE = {"no abnormal phenotype detected"}
 
 
-def _mouse_phenotypes(mouse_ensembl_ids):
-    """[{mp_id, statement, records}] for the mouse ortholog(s), ranked by MGI
-    record count (more annotations = more robustly observed), and the MGI id(s)
-    resolved. Drops the 'no abnormal phenotype detected' control rows."""
+def _mouse_phenotypes(hgnc_id):
+    """[{mp_id, statement, records}] for the gene's mouse ortholog, ranked by MGI
+    record count (more annotations = more robustly observed), plus the MGI id(s).
+    Drops the 'no abnormal phenotype detected' control rows."""
+    mgi_ids = [m["id"] for m in map_all(hgnc_id, _MOUSE_MGI_CHAIN) if m.get("id")]
     counts: Counter = Counter()
     stmts: dict = {}
-    mgi_ids = []
-    for mm in mouse_ensembl_ids:
-        for e in map_all(mm, ">>ensembl>>entrez"):
-            for g in map_all(e["id"], ">>entrez>>mgi"):
-                if g["id"] in mgi_ids:
-                    continue
-                mgi_ids.append(g["id"])
-                # Cap the phenotype pull — top genes carry 600+ records; ~300
-                # (3 pages) is plenty to rank the top _MOUSE_PHENO_CAP by count.
-                for r in map_all(g["id"], ">>alliance_phenotype", cap=3):
-                    term = r.get("phenotype_term")
-                    stmt = (r.get("phenotype_statement") or "").strip()
-                    if not term or not stmt or stmt.lower() in _PHENO_NOISE:
-                        continue
-                    counts[term] += 1
-                    stmts.setdefault(term, stmt)
+    # Cap the phenotype pull — top genes carry 600+ records; ~300 (3 pages) is
+    # plenty to rank the top _MOUSE_PHENO_CAP by count.
+    for r in map_all(hgnc_id, _MOUSE_PHENO_CHAIN, cap=3):
+        term = r.get("phenotype_term")
+        stmt = (r.get("phenotype_statement") or "").strip()
+        if not term or not stmt or stmt.lower() in _PHENO_NOISE:
+            continue
+        counts[term] += 1
+        stmts.setdefault(term, stmt)
     ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
     phenos = [{"mp_id": t, "statement": stmts[t], "records": n}
               for t, n in ranked[:_MOUSE_PHENO_CAP]]
@@ -87,8 +84,7 @@ def collect(a):
     bundle["ortholog_count"] = len(orths)
 
     # Observed mouse-model phenotypes for the mouse ortholog (see _mouse_phenotypes).
-    mouse_ens = [o["id"] for o in orths if (o.get("genome") or "") == "mus_musculus"]
-    phenos, mgi_ids, distinct = _mouse_phenotypes(mouse_ens) if mouse_ens else ([], [], 0)
+    phenos, mgi_ids, distinct = _mouse_phenotypes(a.hgnc_id) if a.hgnc_id else ([], [], 0)
     bundle["mouse_phenotypes"] = phenos
     bundle["mouse_phenotype_total"] = distinct
     bundle["mouse_mgi_ids"] = mgi_ids
