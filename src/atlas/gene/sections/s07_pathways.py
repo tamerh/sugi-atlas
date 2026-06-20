@@ -29,6 +29,8 @@ _ECO_LABEL = {
     "ECO:0000314": "direct assay", "ECO:0000315": "mutant phenotype",
     "ECO:0000316": "genetic interaction", "ECO:0000353": "physical interaction",
     "ECO:0000270": "expression pattern", "ECO:0000269": "experiment",
+    "ECO:0007005": "high-throughput assay", "ECO:0007007": "high-throughput mutant",
+    "ECO:0007003": "high-throughput genetic", "ECO:0006056": "high-throughput",
     "ECO:0000304": "traceable author", "ECO:0000303": "author statement",
     "ECO:0000250": "sequence similarity", "ECO:0000266": "sequence orthology",
     "ECO:0000318": "phylogenetic", "ECO:0000247": "sequence alignment",
@@ -111,6 +113,8 @@ def collect(a):
     experimental = []
     ev_counts = Counter()
     for t in go_map.values():
+        if (t.get("name") or "").startswith("obsolete "):   # GO tombstones — skip
+            continue
         eco = t.get("evidence")
         ev_counts[_eco_tier(eco)] += 1
         row = {"id": t["id"], "name": t.get("name"), "evidence": eco}

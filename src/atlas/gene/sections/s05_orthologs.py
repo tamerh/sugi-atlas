@@ -11,32 +11,29 @@ _MOUSE_PHENO_CHAIN = ">>hgnc>>entrez>>orthologentrez>>mgi>>alliance_phenotype"
 
 CHAINS = (">>ensembl>>ortholog", ">>ensembl>>paralog",
           ">>uniprot>>diamond_similarity", ">>uniprot>>taxonomy",
-          _MOUSE_MGI_CHAIN, _MOUSE_PHENO_CHAIN)
+          _MOUSE_MGI_CHAIN, _MOUSE_PHENO_CHAIN,
+          ">>ensembl>>entrez", ">>entrez>>mgi", ">>alliance_phenotype")  # fallback
 DATASETS = ("ensembl", "ortholog", "paralog",
             "uniprot", "diamond_similarity", "taxonomy",
             "entrez", "orthologentrez", "mgi", "alliance_phenotype")
 
 # Observed mouse-model phenotypes (MGI, via the Alliance) for the gene's mouse
 # ortholog — real knockout/mutant phenotypes, distinct from the HP→uPheno→MP
-# TRANSLATION of the human gene's own HPO terms. The human→ortholog hop
-# (orthologentrez) was fixed 2026-06-20, so this is now a single chain query
-# (human gene → mouse MGI → alliance_phenotype) — no longer the 4-hop step-through
-# via the Ensembl ortholog. The >>mgi hop filters orthologentrez's all-species set
-# to mouse.
+# TRANSLATION of the human gene's own HPO terms.
+#
+# Fast path: the orthologentrez human→ortholog hop (fixed 2026-06-20) gives a
+# single chain query, human gene → mouse MGI → alliance_phenotype (the >>mgi hop
+# filters orthologentrez's all-species set to mouse). But orthologentrez misses
+# ~5% of mouse orthologs Ensembl Compara has (e.g. SMN1), so when it yields no
+# MGI we FALL BACK to the Compara route (mouse ortholog Ensembl → Entrez → MGI).
 _MOUSE_PHENO_CAP = 25
 _PHENO_NOISE = {"no abnormal phenotype detected"}
 
 
-def _mouse_phenotypes(hgnc_id):
-    """[{mp_id, statement, records}] for the gene's mouse ortholog, ranked by MGI
-    record count (more annotations = more robustly observed), plus the MGI id(s).
-    Drops the 'no abnormal phenotype detected' control rows."""
-    mgi_ids = [m["id"] for m in map_all(hgnc_id, _MOUSE_MGI_CHAIN) if m.get("id")]
+def _pheno_rows_to_result(mgi_ids, pheno_rows):
     counts: Counter = Counter()
     stmts: dict = {}
-    # Cap the phenotype pull — top genes carry 600+ records; ~300 (3 pages) is
-    # plenty to rank the top _MOUSE_PHENO_CAP by count.
-    for r in map_all(hgnc_id, _MOUSE_PHENO_CHAIN, cap=3):
+    for r in pheno_rows:
         term = r.get("phenotype_term")
         stmt = (r.get("phenotype_statement") or "").strip()
         if not term or not stmt or stmt.lower() in _PHENO_NOISE:
@@ -47,6 +44,26 @@ def _mouse_phenotypes(hgnc_id):
     phenos = [{"mp_id": t, "statement": stmts[t], "records": n}
               for t, n in ranked[:_MOUSE_PHENO_CAP]]
     return phenos, mgi_ids, len(counts)
+
+
+def _mouse_phenotypes(hgnc_id, mouse_ensembl_ids):
+    """[{mp_id, statement, records}] for the gene's mouse ortholog, ranked by MGI
+    record count, plus the MGI id(s). Cap the phenotype pull at 3 pages — top
+    genes carry 600+ records, plenty to rank the top _MOUSE_PHENO_CAP."""
+    # Fast path: orthologentrez direct chain.
+    mgi_ids = [m["id"] for m in map_all(hgnc_id, _MOUSE_MGI_CHAIN) if m.get("id")]
+    if mgi_ids:
+        return _pheno_rows_to_result(mgi_ids, map_all(hgnc_id, _MOUSE_PHENO_CHAIN, cap=3))
+    # Fallback: Ensembl Compara mouse ortholog → Entrez → MGI (catches the ~5%
+    # orthologentrez lacks). Only runs when the fast path found nothing.
+    rows = []
+    for mm in mouse_ensembl_ids:
+        for e in map_all(mm, ">>ensembl>>entrez"):
+            for g in map_all(e["id"], ">>entrez>>mgi"):
+                if g["id"] not in mgi_ids:
+                    mgi_ids.append(g["id"])
+                    rows.extend(map_all(g["id"], ">>alliance_phenotype", cap=3))
+    return _pheno_rows_to_result(mgi_ids, rows)
 
 _HOMOLOG_SPECIES_CAP = 40   # distinct non-model species to surface
 _HOMOLOG_PROBE_CAP = 100    # bound the per-accession taxonomy resolutions — set to
@@ -84,7 +101,9 @@ def collect(a):
     bundle["ortholog_count"] = len(orths)
 
     # Observed mouse-model phenotypes for the mouse ortholog (see _mouse_phenotypes).
-    phenos, mgi_ids, distinct = _mouse_phenotypes(a.hgnc_id) if a.hgnc_id else ([], [], 0)
+    mouse_ens = [o["id"] for o in orths if (o.get("genome") or "") == "mus_musculus"]
+    phenos, mgi_ids, distinct = (_mouse_phenotypes(a.hgnc_id, mouse_ens)
+                                 if a.hgnc_id else ([], [], 0))
     bundle["mouse_phenotypes"] = phenos
     bundle["mouse_phenotype_total"] = distinct
     bundle["mouse_mgi_ids"] = mgi_ids
