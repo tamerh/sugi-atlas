@@ -757,6 +757,23 @@ def r_pathways(b):
         L.append(capped_table(["Category", "Terms"],
                               [(p.get("name") or p["id"], p.get("term_count")) for p in gp],
                               ROW_CAP, noun="GO namespaces"))
+    # Experimentally-supported GO annotations — the high-confidence subset (direct
+    # assay / mutant phenotype / interaction), filtered by ECO evidence code, vs
+    # the phylogenetic/computational/electronic (IEA) annotations. The functions
+    # actually validated for this gene.
+    gx = b.get("go_experimental") or []
+    if gx:
+        total = b.get("go_total") or 0
+        L.append("\n### Experimentally-supported GO annotations {#go-experimental}\n")
+        L.append(f"GO terms backed by direct experimental evidence (ECO experimental "
+                 f"codes) — {b.get('go_experimental_count', len(gx))} of {total} "
+                 "annotations. The rest are phylogenetic / computational / "
+                 "electronic (IEA).\n")
+        L.append(capped_table(["GO term", "NS", "Evidence"],
+                              [(links.maybe_link(t.get("name") or t["id"],
+                                                 f"https://amigo.geneontology.org/amigo/term/{t['id']}"),
+                                t.get("namespace"), t.get("evidence_label")) for t in gx],
+                              ROW_CAP, noun="experimentally-supported GO terms"))
     return "\n".join(L)
 
 

@@ -81,7 +81,7 @@ H4_IDS = {
              # §variants
              "clinvar", "top-pathogenic", "clingen-variants", "spliceai", "alphamissense", "dbsnp",
              # §pathways / §interactions / §regulation
-             "reactome", "reactome-categories", "go-categories",
+             "reactome", "reactome-categories", "go-categories", "go-experimental",
              "string", "intact", "signor", "corum", "cellphonedb", "interactome-enrichment",
              "collectri", "jaspar", "mirdb",
              # §expression / §disease-assoc / §ncrna

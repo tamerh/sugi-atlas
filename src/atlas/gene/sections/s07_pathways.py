@@ -18,6 +18,39 @@ DATASETS = ("reactome", "msigdb", "go", "uniprot", "ensembl", "hgnc")
 # already captures the dominant categories.
 _PARENT_ROLLUP_TOP_N = 20
 
+# GO ECO evidence (now in the lite >>uniprot>>go projection). The experimental
+# subtree = directly-assayed / mutant-phenotype / interaction evidence — the
+# high-confidence annotations, vs phylogenetic/computational/electronic (IEA).
+_ECO_EXPERIMENTAL = {
+    "ECO:0000314", "ECO:0000315", "ECO:0000316", "ECO:0000353", "ECO:0000270",
+    "ECO:0000269", "ECO:0006056", "ECO:0007005", "ECO:0007007", "ECO:0007003",
+}
+_ECO_LABEL = {
+    "ECO:0000314": "direct assay", "ECO:0000315": "mutant phenotype",
+    "ECO:0000316": "genetic interaction", "ECO:0000353": "physical interaction",
+    "ECO:0000270": "expression pattern", "ECO:0000269": "experiment",
+    "ECO:0000304": "traceable author", "ECO:0000303": "author statement",
+    "ECO:0000250": "sequence similarity", "ECO:0000266": "sequence orthology",
+    "ECO:0000318": "phylogenetic", "ECO:0000247": "sequence alignment",
+    "ECO:0000501": "electronic (IEA)", "ECO:0007669": "electronic (IEA)",
+    "ECO:0000305": "curator inference", "ECO:0000307": "no biological data",
+}
+_NS_ABBR = {"biological_process": "BP", "molecular_function": "MF",
+            "cellular_component": "CC"}
+
+
+def _eco_tier(eco):
+    """Coarse evidence tier for the per-gene GO summary."""
+    if eco in _ECO_EXPERIMENTAL:
+        return "experimental"
+    if eco in ("ECO:0000501", "ECO:0007669"):
+        return "electronic"
+    if eco in ("ECO:0000318", "ECO:0000250", "ECO:0000266", "ECO:0000247"):
+        return "computational"
+    if eco in ("ECO:0000303", "ECO:0000304", "ECO:0000305"):
+        return "author/curator"
+    return "other"
+
 def collect(a):
     bundle = {"section": "07_pathways", "symbol": a.symbol}
     xc = xref_counts(a.hgnc_entry)
@@ -40,18 +73,33 @@ def collect(a):
     bundle["msigdb_total"] = xc.get("msigdb", len(msig))
 
     # GO: UniProt-GOA + Ensembl annotation diverge ~20%; per-product GO differs
-    # (CDKN2A p14ARF mitophagy terms absent from p16/ensembl).
+    # (CDKN2A p14ARF mitophagy terms absent from p16/ensembl). UniProt rows carry
+    # the ECO evidence code (ensembl rows don't), so UniProt wins on shared terms
+    # — ensembl only ADDS terms UniProt lacks — to preserve evidence.
     go_map = {}
     for u in a.reviewed_uniprots:
         for t in map_all(u, ">>uniprot>>go"):
             go_map[t["id"]] = t
     for t in (map_all(a.ensembl_id, ">>ensembl>>go") if a.ensembl_id else []):
-        go_map[t["id"]] = t
+        go_map.setdefault(t["id"], t)
     grouped = {"biological_process": [], "molecular_function": [], "cellular_component": []}
+    experimental = []
+    ev_counts = Counter()
     for t in go_map.values():
-        grouped.setdefault(t.get("type"), []).append({"id": t["id"], "name": t.get("name")})
+        eco = t.get("evidence")
+        ev_counts[_eco_tier(eco)] += 1
+        row = {"id": t["id"], "name": t.get("name"), "evidence": eco}
+        grouped.setdefault(t.get("type"), []).append(row)
+        if eco in _ECO_EXPERIMENTAL:
+            experimental.append({"id": t["id"], "name": t.get("name"),
+                                 "namespace": _NS_ABBR.get(t.get("type"), t.get("type")),
+                                 "evidence_label": _ECO_LABEL.get(eco, eco)})
+    experimental.sort(key=lambda r: (r["namespace"], r["name"] or r["id"]))
     bundle["go"] = grouped
     bundle["go_counts"] = {k: len(v) for k, v in grouped.items()}
+    bundle["go_experimental"] = experimental
+    bundle["go_experimental_count"] = len(experimental)
+    bundle["go_total"] = len(go_map)
 
     # GO parent rollup — for each of the top-N GO terms in each category,
     # fetch its `goparent` to map fine-grained terms to L1/L2 categories.
@@ -94,6 +142,7 @@ SECTION = Section(
     description="Reactome pathways (union over all reviewed uniprots + ensembl), MSigDB gene sets, GO terms (BP/MF/CC)",
     needs=("hgnc_id", "hgnc_entry", "ensembl_id", "reviewed_uniprots"),
     produces=("reactome", "msigdb", "go", "go_counts",
+              "go_experimental", "go_experimental_count", "go_total",
               "go_parent_rollup", "reactome_parent_rollup"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
