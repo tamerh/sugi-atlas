@@ -62,7 +62,8 @@ def collect(a):
     bundle["rfam"] = _dedup(rfam, lambda r: r["rfam_id"])
     bundle["go"] = _dedup(
         [{"id": t.get("id"), "type": t.get("type"), "name": t.get("name")}
-         for t in map_all(hid, ">>hgnc>>rnacentral>>go") if t.get("id")],
+         for t in map_all(hid, ">>hgnc>>rnacentral>>go")
+         if t.get("id") and not (t.get("name") or "").startswith("obsolete ")],  # skip GO tombstones
         lambda r: r["id"])
 
     # ncRNA -> disease (LncRNADisease v3.0 + HMDD). Map projection carries the

@@ -90,7 +90,8 @@ def interactome_enrichment(partners, kind, top_n=8):
                     for cid, k in counts.items()], cohort_n=annotated, universe_n=universe_n)
     band = [it for it in items
             if it["fdr"] is not None and it["fdr"] < _MAX_FDR
-            and _K_LO <= (it["K"] or 0) <= _K_HI and it["k"] >= _MIN_K]
+            and _K_LO <= (it["K"] or 0) <= _K_HI and it["k"] >= _MIN_K
+            and not (it.get("name") or "").startswith("obsolete ")]  # skip GO/term tombstones
     band.sort(key=lambda it: (-(it["fold"] or 0.0), it["fdr"], it["id"]))
     return band[:top_n]
 

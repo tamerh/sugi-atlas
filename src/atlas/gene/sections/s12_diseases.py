@@ -142,7 +142,8 @@ def collect(a):
         "disease": r.get("disease_label"),
         "classification": r.get("classification"),
         "moi": r.get("moi"),  # AD / AR / XL / etc.
-    } for r in map_all(a.hgnc_id, ">>hgnc>>clingen_gene_validity")]
+    } for r in map_all(a.hgnc_id, ">>hgnc>>clingen_gene_validity")
+        if not (r.get("disease_label") or "").startswith("obsolete ")]  # skip obsolete disease names
 
     # PanelApp (Genomics England) — clinical diagnostic gene panels this gene sits
     # on, with the gene's rating on each (green = diagnostic-grade). One row per
