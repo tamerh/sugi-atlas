@@ -905,8 +905,15 @@ def r_tf_regulation(b):
 
 
 def r_drugs(b):
+    from atlas.predict import target_url
     L = ["## Drug and pharmacology data", "",
          f"**Is drug target: {'yes' if b.get('is_drug_target') else 'no'}**\n"]
+    # Sugi Predict cross-link — only for the 4,884 targets Predict covers.
+    purl = target_url(symbol=b.get("symbol"), uniprot=b.get("canonical_uniprot"))
+    if purl:
+        L.append(f"**Predicted patent chemistry:** explore the predicted patent-"
+                 f"compound landscape for {b.get('symbol')} across ~30M SureChEMBL "
+                 f"compounds on [Sugi Predict]({purl}).\n")
     # ChEMBL target/bioactivity blocks only render when populated — non-target
     # genes (e.g. APOE) would otherwise show "(0)" lines + empty tables. CIViC /
     # PharmGKB / CTD blocks below still carry the section for such genes.

@@ -68,6 +68,7 @@ def collect(a):
     mechanisms, mechanism_genes = _mechanisms(a.chembl_id)
     return {
         "section": "02_targets",
+        "smiles": a.smiles,   # for the Sugi Predict structure-prediction cross-link
         "primary_targets": primary,
         "primary_source": (a.targets[0].source if a.targets else None),
         "bioactivity_target_count": len(bioactivity),
@@ -83,7 +84,7 @@ SECTION = Section(
                  "pAffinity; covers antibodies) annotated with DepMap cancer-"
                  "dependency + secondary ChEMBL bioactivity target set"),
     needs=("targets", "bioactivity_targets"),
-    produces=("primary_targets", "primary_source", "bioactivity_target_count",
+    produces=("smiles", "primary_targets", "primary_source", "bioactivity_target_count",
               "bioactivity_targets", "mechanisms", "mechanism_genes"),
     datasets=("gtopdb_ligand", "gtopdb_interaction", "gtopdb", "uniprot",
               "hgnc", "chembl_target", "chembl_mechanism", "depmap"),

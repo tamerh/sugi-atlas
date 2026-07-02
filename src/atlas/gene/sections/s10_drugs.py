@@ -172,6 +172,7 @@ def _f(x):
 def collect(a):
     bundle = {"section": "10_drugs", "symbol": a.symbol}
     uni = a.canonical_uniprot
+    bundle["canonical_uniprot"] = uni   # for the Sugi Predict target-page cross-link
 
     targets = map_all(uni, ">>uniprot>>chembl_target") if uni else []
     bundle["chembl_targets"] = [{"id": t["id"], "title": t.get("title"), "type": t.get("type")}
@@ -579,7 +580,7 @@ SECTION = Section(
                  "clickable CID/AID), clinical trials via disease route, CIViC "
                  "clinical evidence (drug × variant × indication precision triple)"),
     needs=("hgnc_id", "canonical_uniprot"),
-    produces=("chembl_targets", "molecules", "chembl_activities",
+    produces=("canonical_uniprot", "chembl_targets", "molecules", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",

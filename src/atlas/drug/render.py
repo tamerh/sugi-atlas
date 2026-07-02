@@ -127,7 +127,15 @@ def r_drug_ids(b):
 
 
 def r_targets(b):
+    from atlas.predict import smiles_url
     L = ["## Targets", ""]
+    # Sugi Predict cross-link — k-NN target prediction on this drug's structure.
+    surl = smiles_url(b.get("smiles"))
+    if surl:
+        L.append("**Predicted targets (structure-based):** run this molecule's "
+                 f"structure through chemical k-NN target prediction on "
+                 f"[Sugi Predict]({surl}) — predicted human protein targets across "
+                 "the SureChEMBL patent corpus.\n")
     pt = b.get("primary_targets") or []
     if pt:
         src = b.get("primary_source") or "gtopdb"
