@@ -54,9 +54,9 @@ def target_url(symbol=None, uniprot=None):
 
 
 def smiles_url(smiles):
-    """Predict structure-prediction URL for a drug's SMILES (the universal `q`
-    search), or None when no SMILES is available."""
+    """Predict structure-prediction URL for a drug's SMILES, or None when no
+    SMILES is available. Uses the dedicated /predict/predict?smiles= endpoint."""
     s = (smiles or "").strip()
     if not s:
         return None
-    return f"{_BASE}/?q={quote(s)}"
+    return f"{_BASE}/predict?smiles={quote(s)}"

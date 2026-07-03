@@ -26,12 +26,13 @@ def test_non_target_returns_none():
     assert target_url(symbol="", uniprot="") is None
 
 
-def test_smiles_url_encodes_special_chars():
-    # imatinib SMILES — '=', '(', ')', '#' etc. must be percent-encoded.
-    url = smiles_url("CC(=O)OC1=CC=CC=C1C(=O)O")  # aspirin
-    assert url.startswith("https://sugi.bio/predict/?q=")
-    assert "=" not in url.split("?q=", 1)[1]        # raw '=' encoded, not left bare
-    assert "%3D" in url                              # '=' → %3D
+def test_smiles_url_uses_predict_endpoint_and_encodes():
+    # aspirin SMILES — hits /predict/predict?smiles= with the structure encoded.
+    url = smiles_url("CC(=O)OC1=CC=CC=C1C(=O)O")
+    assert url.startswith("https://sugi.bio/predict/predict?smiles=")
+    payload = url.split("?smiles=", 1)[1]
+    assert "=" not in payload and "(" not in payload   # '=', '(' percent-encoded
+    assert "%3D" in url and "%28" in url               # '=' → %3D, '(' → %28
 
 
 def test_smiles_url_empty():
