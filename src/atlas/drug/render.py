@@ -181,18 +181,21 @@ def r_targets(b):
                  "potencies are in the ChEMBL bioactivities table below).")
     if not pt and not bc and not moa:
         L.append("*No target linkage available.*")
-    # Sugi Predict cross-link — its own sub-block at the end (a bare trailing
-    # paragraph gets dropped by the section-based web renderer). Only when the
-    # structure resolved to a SureChEMBL compound in Predict's atlas; no fallback.
+    return "\n".join(L)
+
+
+def r_predict(b):
+    """Sugi Predict cross-link — its OWN section at the end of the Targets zone
+    (placing it inside r_targets buried it mid-zone). Only when the drug's
+    structure resolved to a SureChEMBL compound in Predict's atlas; '' otherwise."""
     from atlas.predict import compound_url
     sid = b.get("predict_schembl")
     curl_ = compound_url(sid)
-    if curl_:
-        L.append("\n### Predicted targets — Sugi Predict {#sugi-predict}\n")
-        L.append(f"This molecule is SureChEMBL compound **{sid}** — see its "
-                 f"predicted protein targets + similar patent compounds on "
-                 f"[Sugi Predict]({curl_}).")
-    return "\n".join(L)
+    if not curl_:
+        return ""
+    return ("## Predicted targets — Sugi Predict\n\n"
+            f"This molecule is SureChEMBL compound **{sid}** — see its predicted "
+            f"protein targets + similar patent compounds on [Sugi Predict]({curl_}).")
 
 
 def r_bioactivity(b):
@@ -642,13 +645,21 @@ def render_all(bundles):
     def S(s, anchor):
         return with_heading_id(demote(RENDER[s](merged[s])), anchor) if s in merged else ""
 
+    def D(md, anchor):          # derived (non-registered) block, demoted + anchored
+        return with_heading_id(demote(md), anchor)
+
     def join(*parts):
         return "\n\n".join(p for p in parts if p and p.strip())
+
+    # Sugi Predict cross-link — end of the Targets zone (predict_schembl lives on
+    # the §2 bundle); empty string when the drug isn't in Predict's atlas.
+    predict_block = D(r_predict(merged.get("2") or {}), "sugi-predict")
 
     spec = [
         ("Identifiers", "identifiers", S("1", "drug-ids"), None),
         ("Targets", "targets",
-         join(S("2", "primary-targets"), S("3", "bioactivity"), S("8", "target-pathways")),
+         join(S("2", "primary-targets"), S("3", "bioactivity"),
+              S("8", "target-pathways"), predict_block),
          "No curated protein targets or measured bioactivity."),
         ("Indications & clinical", "indications",
          join(S("4", "indication-list"), S("14", "drugcentral"),
