@@ -92,7 +92,8 @@ H4_IDS = {
              "chembl-molecules", "civic", "civic-variants", "pharmgkb-clinical", "pharmgkb-variants",
              "pharmgkb-var-annotations",
              "pharmgkb-guidelines", "gtopdb", "bindingdb", "chembl-bioactivity",
-             "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials"},
+             "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials",
+             "sugi-predict"},
     "disease": {  # clinical / genetics
               "prevalence", "hpo-features", "gwas-associations", "gwas-studies",
               "clinvar-variants", "tier-distribution", "maf-distribution",
@@ -110,7 +111,7 @@ H4_IDS = {
     # drug pages are flat (one table per H3 section); only the two multi-table
     # sections (Target pathways, Clinical trials) carry H4s.
     "drug": {"mechanism", "target-reactome", "target-go", "trial-phases", "top-trials",
-             "faers-reported", "faers-disproportionality"},
+             "faers-reported", "faers-disproportionality", "sugi-predict"},
     "pathway": set(),       # pathway sections carry no H4 table-blocks
 }
 

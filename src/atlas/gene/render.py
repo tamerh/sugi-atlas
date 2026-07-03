@@ -1212,14 +1212,15 @@ def r_drugs(b):
                           [(t["id"], phase_label(t.get("phase")), t.get("status"),
                             (t.get("title") or "").strip()) for t in ct],
                           ROW_CAP, total=b.get("disease_trial_count"), noun="trials"))
-    # Sugi Predict cross-link (see-also, end of section) — only for the 4,884
-    # targets Predict covers.
+    # Sugi Predict cross-link — its own sub-block at the end of the section (a bare
+    # trailing paragraph gets dropped by the section-based web renderer). Only for
+    # the 4,884 targets Predict covers.
     from atlas.predict import target_url
     purl = target_url(symbol=b.get("symbol"), uniprot=b.get("canonical_uniprot"))
     if purl:
-        L.append(f"\n*See also — predicted patent chemistry: the predicted patent-"
-                 f"compound landscape for {b.get('symbol')} across ~30M SureChEMBL "
-                 f"compounds on [Sugi Predict]({purl}).*")
+        L.append("\n### Predicted chemistry — Sugi Predict {#sugi-predict}\n")
+        L.append(f"The predicted patent-compound landscape for {b.get('symbol')} "
+                 f"across ~30M SureChEMBL compounds — [explore on Sugi Predict]({purl}).")
     return "\n".join(L)
 
 

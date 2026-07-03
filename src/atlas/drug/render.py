@@ -181,14 +181,15 @@ def r_targets(b):
                  "potencies are in the ChEMBL bioactivities table below).")
     if not pt and not bc and not moa:
         L.append("*No target linkage available.*")
-    # Sugi Predict cross-link (see-also, end of section) — k-NN target
-    # prediction on this drug's structure.
+    # Sugi Predict cross-link — its own sub-block at the end (a bare trailing
+    # paragraph gets dropped by the section-based web renderer).
     from atlas.predict import smiles_url
     surl = smiles_url(b.get("smiles"))
     if surl:
-        L.append(f"\n*See also — predicted targets (structure-based): run this "
-                 f"molecule's structure through chemical k-NN target prediction on "
-                 f"[Sugi Predict]({surl}), across the SureChEMBL patent corpus.*")
+        L.append("\n### Predicted targets — Sugi Predict {#sugi-predict}\n")
+        L.append("Run this molecule's structure through chemical k-NN target "
+                 f"prediction — [explore on Sugi Predict]({surl}), across the "
+                 "SureChEMBL patent corpus.")
     return "\n".join(L)
 
 
