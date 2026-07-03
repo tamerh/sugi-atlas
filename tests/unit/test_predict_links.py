@@ -1,6 +1,6 @@
 """Sugi Predict cross-link URL builders (atlas.predict). Gating against the
 bundled 4,884-target manifest + SMILES query encoding."""
-from atlas.predict import target_url, smiles_url, _covered
+from atlas.predict import target_url, smiles_url, compound_url, _covered
 
 
 def test_manifest_loads():
@@ -38,3 +38,9 @@ def test_smiles_url_uses_predict_endpoint_and_encodes():
 def test_smiles_url_empty():
     assert smiles_url("") is None
     assert smiles_url(None) is None
+
+
+def test_compound_url():
+    assert compound_url("SCHEMBL10883") == "https://sugi.bio/predict/compound/SCHEMBL10883"
+    assert compound_url("") is None
+    assert compound_url(None) is None

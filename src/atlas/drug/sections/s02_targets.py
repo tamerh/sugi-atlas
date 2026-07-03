@@ -66,9 +66,11 @@ def collect(a):
                     "name": t.get("name"), "type": t.get("type")}
                    for t in a.bioactivity_targets]
     mechanisms, mechanism_genes = _mechanisms(a.chembl_id)
+    from atlas.predict import resolve_schembl
     return {
         "section": "02_targets",
-        "smiles": a.smiles,   # for the Sugi Predict structure-prediction cross-link
+        "smiles": a.smiles,   # Sugi Predict cross-link (search fallback)
+        "predict_schembl": resolve_schembl(a.smiles),   # direct compound page when in the atlas
         "primary_targets": primary,
         "primary_source": (a.targets[0].source if a.targets else None),
         "bioactivity_target_count": len(bioactivity),
@@ -84,8 +86,8 @@ SECTION = Section(
                  "pAffinity; covers antibodies) annotated with DepMap cancer-"
                  "dependency + secondary ChEMBL bioactivity target set"),
     needs=("targets", "bioactivity_targets"),
-    produces=("smiles", "primary_targets", "primary_source", "bioactivity_target_count",
-              "bioactivity_targets", "mechanisms", "mechanism_genes"),
+    produces=("smiles", "predict_schembl", "primary_targets", "primary_source",
+              "bioactivity_target_count", "bioactivity_targets", "mechanisms", "mechanism_genes"),
     datasets=("gtopdb_ligand", "gtopdb_interaction", "gtopdb", "uniprot",
               "hgnc", "chembl_target", "chembl_mechanism", "depmap"),
     chains=(">>gtopdb_ligand>>gtopdb_interaction>>gtopdb>>uniprot>>hgnc",

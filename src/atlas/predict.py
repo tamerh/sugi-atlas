@@ -17,7 +17,35 @@ import json
 import os
 from urllib.parse import quote
 
+import urllib3
+
 _BASE = "https://sugi.bio/predict"
+
+# Internal SMILES → SureChEMBL resolver (a drug's structure to its atlas compound
+# id). Build-time only; overridable via env. Returns a SCHEMBL id on a 303, or
+# None (200/other) when the structure isn't in the SureChEMBL atlas. Failures
+# degrade to None so a down resolver never breaks the build (render falls back to
+# the SMILES-search link).
+_RESOLVER = os.environ.get("ATLAS_PREDICT_RESOLVER", "http://127.0.0.1:8012/predict")
+_RESOLVER_POOL = urllib3.PoolManager(num_pools=2, timeout=urllib3.Timeout(total=8.0))
+
+
+def resolve_schembl(smiles):
+    """SureChEMBL id (e.g. 'SCHEMBL10883') for a drug's SMILES via the internal
+    resolver, or None when the structure isn't in the atlas / resolver is down."""
+    s = (smiles or "").strip()
+    if not s:
+        return None
+    try:
+        r = _RESOLVER_POOL.request("GET", _RESOLVER, fields={"smiles": s},
+                                   redirect=False, retries=False)
+        if r.status == 303:
+            loc = r.headers.get("Location") or r.headers.get("location") or ""
+            sid = loc.rstrip("/").rsplit("/", 1)[-1]
+            return sid if sid.startswith("SCHEMBL") else None
+    except Exception:
+        pass
+    return None
 
 
 @functools.lru_cache(maxsize=1)
@@ -53,9 +81,17 @@ def target_url(symbol=None, uniprot=None):
     return f"{_BASE}/target/{quote(key)}/"
 
 
+def compound_url(schembl_id):
+    """Predict per-compound page URL for a SureChEMBL id, or None. The direct
+    page (preferred over the SMILES search when the structure is in the atlas)."""
+    sid = (schembl_id or "").strip()
+    return f"{_BASE}/compound/{quote(sid)}" if sid else None
+
+
 def smiles_url(smiles):
     """Predict structure-prediction URL for a drug's SMILES, or None when no
-    SMILES is available. Uses the dedicated /predict/predict?smiles= endpoint."""
+    SMILES is available. The fallback when the structure isn't a known SureChEMBL
+    compound — runs k-NN on the structure via /predict/predict?smiles=."""
     s = (smiles or "").strip()
     if not s:
         return None
