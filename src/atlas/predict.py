@@ -8,9 +8,9 @@ Two link directions:
   targets have a page (a non-target 404s), so gate strictly against the bundled
   target manifest (data/predict/targets.json, refreshed from
   https://sugi.bio/predict/static/targets.json).
-- drug → structure prediction (`/predict/?q={SMILES}`): runs k-NN on the drug's
-  own structure, so any drug with a SMILES links (no gate; below the 0.3
-  confidence floor Predict just reports "novel chemistry").
+- drug → per-compound page (`/predict/compound/{SCHEMBL}`): resolve the drug's
+  SMILES to its SureChEMBL id via the internal resolver; a drug not in Predict's
+  atlas gets no link, and a down resolver fails the build (no silent fallback).
 """
 import functools
 import json
@@ -26,7 +26,21 @@ _BASE = "https://sugi.bio/predict"
 # means the structure isn't in the atlas → None. A DOWN resolver RAISES (no silent
 # fallback) so the build fails loudly rather than shipping search links.
 _RESOLVER = os.environ.get("ATLAS_PREDICT_RESOLVER", "http://127.0.0.1:8012/predict")
-_RESOLVER_POOL = urllib3.PoolManager(num_pools=2, timeout=urllib3.Timeout(total=8.0))
+
+# The corpus build forks worker processes (multiprocessing.Pool). A urllib3 pool
+# created in the parent and shared across the fork crosses responses between
+# processes (drug A getting drug B's SureChEMBL id). Key the pool by PID so every
+# process — parent and each forked child — lazily builds its OWN pool.
+_pool_by_pid = {}
+
+
+def _pool():
+    pid = os.getpid()
+    p = _pool_by_pid.get(pid)
+    if p is None:
+        p = urllib3.PoolManager(num_pools=2, timeout=urllib3.Timeout(total=8.0))
+        _pool_by_pid[pid] = p
+    return p
 
 
 class PredictResolverError(RuntimeError):
@@ -38,8 +52,8 @@ def check_resolver():
     PredictResolverError if unreachable, so a build with drugs aborts up front
     rather than silently dropping every drug's compound link."""
     try:
-        _RESOLVER_POOL.request("GET", _RESOLVER, fields={"smiles": "C"},
-                               redirect=False, retries=False)
+        _pool().request("GET", _RESOLVER, fields={"smiles": "C"},
+                        redirect=False, retries=False)
     except urllib3.exceptions.HTTPError as e:
         raise PredictResolverError(
             f"Sugi Predict resolver unreachable at {_RESOLVER}: {e}. Start the "
@@ -55,8 +69,8 @@ def resolve_schembl(smiles):
     if not s:
         return None
     try:
-        r = _RESOLVER_POOL.request("GET", _RESOLVER, fields={"smiles": s},
-                                   redirect=False, retries=False)
+        r = _pool().request("GET", _RESOLVER, fields={"smiles": s},
+                            redirect=False, retries=False)
     except urllib3.exceptions.HTTPError as e:
         raise PredictResolverError(
             f"Sugi Predict resolver unreachable at {_RESOLVER}: {e}. Start the "
