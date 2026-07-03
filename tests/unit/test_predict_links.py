@@ -1,6 +1,9 @@
 """Sugi Predict cross-link URL builders (atlas.predict). Gating against the
 bundled 4,884-target manifest + SMILES query encoding."""
-from atlas.predict import target_url, smiles_url, compound_url, _covered
+import pytest
+
+from atlas import predict
+from atlas.predict import target_url, compound_url, resolve_schembl, PredictResolverError, _covered
 
 
 def test_manifest_loads():
@@ -26,21 +29,20 @@ def test_non_target_returns_none():
     assert target_url(symbol="", uniprot="") is None
 
 
-def test_smiles_url_uses_predict_endpoint_and_encodes():
-    # aspirin SMILES — hits /predict/predict?smiles= with the structure encoded.
-    url = smiles_url("CC(=O)OC1=CC=CC=C1C(=O)O")
-    assert url.startswith("https://sugi.bio/predict/predict?smiles=")
-    payload = url.split("?smiles=", 1)[1]
-    assert "=" not in payload and "(" not in payload   # '=', '(' percent-encoded
-    assert "%3D" in url and "%28" in url               # '=' → %3D, '(' → %28
-
-
-def test_smiles_url_empty():
-    assert smiles_url("") is None
-    assert smiles_url(None) is None
-
-
 def test_compound_url():
     assert compound_url("SCHEMBL10883") == "https://sugi.bio/predict/compound/SCHEMBL10883"
     assert compound_url("") is None
     assert compound_url(None) is None
+
+
+def test_resolve_schembl_empty_is_none_without_calling():
+    assert resolve_schembl("") is None
+    assert resolve_schembl(None) is None
+
+
+def test_resolve_schembl_raises_when_resolver_down(monkeypatch):
+    # A down resolver must FAIL LOUDLY (no silent fallback). Point it at a closed
+    # port so the connection is refused immediately.
+    monkeypatch.setattr(predict, "_RESOLVER", "http://127.0.0.1:1/predict")
+    with pytest.raises(PredictResolverError):
+        resolve_schembl("CC(=O)OC1=CC=CC=C1C(=O)O")

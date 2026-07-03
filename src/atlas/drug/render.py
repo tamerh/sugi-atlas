@@ -182,10 +182,9 @@ def r_targets(b):
     if not pt and not bc and not moa:
         L.append("*No target linkage available.*")
     # Sugi Predict cross-link — its own sub-block at the end (a bare trailing
-    # paragraph gets dropped by the section-based web renderer). Prefer the direct
-    # SureChEMBL compound page when the structure is in Predict's atlas; else fall
-    # back to the SMILES k-NN search.
-    from atlas.predict import compound_url, smiles_url
+    # paragraph gets dropped by the section-based web renderer). Only when the
+    # structure resolved to a SureChEMBL compound in Predict's atlas; no fallback.
+    from atlas.predict import compound_url
     sid = b.get("predict_schembl")
     curl_ = compound_url(sid)
     if curl_:
@@ -193,11 +192,6 @@ def r_targets(b):
         L.append(f"This molecule is SureChEMBL compound **{sid}** — see its "
                  f"predicted protein targets + similar patent compounds on "
                  f"[Sugi Predict]({curl_}).")
-    elif smiles_url(b.get("smiles")):
-        L.append("\n### Predicted targets — Sugi Predict {#sugi-predict}\n")
-        L.append("Run this molecule's structure through chemical k-NN target "
-                 f"prediction — [explore on Sugi Predict]({smiles_url(b.get('smiles'))}), "
-                 "across the SureChEMBL patent corpus.")
     return "\n".join(L)
 
 

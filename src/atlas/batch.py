@@ -345,6 +345,13 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None, pathwa
     total = len(specs_a)
     print(f"[batch] {total} entities | {workers} workers | dist={dist_dir}")
 
+    # Pre-flight: drug pages resolve SMILES→SureChEMBL via the internal Predict
+    # resolver. Fail fast + loud if it's down (no silent fallback), so we never
+    # ship a corpus with the drug cross-links missing.
+    if drugs:
+        from atlas.predict import check_resolver
+        check_resolver()
+
     t0 = time.time()
     print(f"[A] collect ({total}) …", flush=True)
     with Pool(workers) as pool:
