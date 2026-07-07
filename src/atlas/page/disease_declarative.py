@@ -71,16 +71,21 @@ def _evidence_clause(b1, b2, b4, b5):
     return " with " + parts[0]
 
 
-def _trials_clause(b1, b13):
+def _trials_clause(b1, b13, joined=False):
     # §13 trial_count is the authoritative total off the now exact-match
     # mondo→clinical_trials edge. It may legitimately be 0 for a rare disease,
     # which is the correct answer — so don't treat 0 as "missing".
+    # `joined`: a preceding evidence clause ("… with N cohort genes") is present,
+    # so continue its list with "and". Otherwise open a new "with …" — writing
+    # " and N trials" straight after "is a disease" reads as a category error
+    # ("a disease and 193 trials").
     if b13 is None or "trial_count" not in b13:
         return ""
     n = b13.get("trial_count") or 0
     if not n:
         return ""
-    return f" and {_format_int(n)} clinical trial" + ("s" if n != 1 else "")
+    lead = " and " if joined else " with "
+    return f"{lead}{_format_int(n)} registered clinical trial" + ("s" if n != 1 else "")
 
 
 def _drugs_clause(b13):
@@ -176,7 +181,7 @@ def declarative_sentence(bundle):
     if causal and ev:
         ev = "," + ev                        # "…Definitive), with N cohort genes"
     sentence += causal + ev
-    sentence += _trials_clause(b1, b13)
+    sentence += _trials_clause(b1, b13, joined=bool(causal or ev))
     sentence += "."
     sentence += _pathway_clause(b14)
     sentence += _civic_subtype_clause(b13)

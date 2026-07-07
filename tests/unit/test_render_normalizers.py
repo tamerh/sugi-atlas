@@ -36,3 +36,16 @@ def test_display_name_preserves_codes_symbols_and_mixed():
     assert display_name("TP53") == "TP53"         # gene symbol (upper, no digit-guard needed... )
     assert display_name("Imatinib") == "Imatinib" # already mixed-case, untouched
     assert display_name(None) is None
+
+
+# ── disease lead: trials clause grammar (no "is a disease AND N trials") ──────
+def test_trials_clause_grammar():
+    from atlas.page.disease_declarative import _trials_clause
+    b13 = {"trial_count": 193}
+    # standalone (no preceding evidence) → opens a "with …" (not "and …")
+    assert _trials_clause({}, b13, joined=False) == " with 193 registered clinical trials"
+    # continuing a preceding "with N cohort genes" list → "and …"
+    assert _trials_clause({}, b13, joined=True) == " and 193 registered clinical trials"
+    assert _trials_clause({}, {"trial_count": 1}, joined=False) == " with 1 registered clinical trial"
+    assert _trials_clause({}, {"trial_count": 0}) == ""
+    assert _trials_clause({}, {}) == ""
