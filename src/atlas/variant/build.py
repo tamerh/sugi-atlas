@@ -114,9 +114,9 @@ def _write_index(symbol, hgnc, recs, out_root):
     desc = (f"{len(recs)} clinically significant ClinVar variants in {symbol} "
             "(pathogenic, likely-pathogenic, conflicting) — each with a dedicated "
             "reference page.")
-    # index is a listing page, not a variant entity → plain title (no suffix)
-    page = _frontmatter(meta, desc, f"{symbol}-variants", [], entity_type="") + "\n".join(L)
-    _write(out_root, f"gene/{symbol.lower()}", page)
+    # index is a listing page (its own type → plain title, but still sitemapped)
+    page = _frontmatter(meta, desc, f"{symbol}-variants", [], entity_type="variant-index") + "\n".join(L)
+    _write(out_root, f"{symbol.lower()}-variants", page)
 
 
 def main(argv=None):
