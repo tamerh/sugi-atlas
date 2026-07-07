@@ -45,6 +45,16 @@ def declarative(v):
     return "".join(parts) + "."
 
 
+def declarative_plain(v):
+    """The lead sentence, markdown-stripped — for the frontmatter/meta
+    description (SEO + AI-citation snippet)."""
+    import re
+    s = declarative(v)
+    s = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", s)   # link → label
+    s = re.sub(r"[*`_]", "", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def render_body(v):
     L = ["## Summary", "", declarative(v), ""]
     # At a glance
