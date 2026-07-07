@@ -277,9 +277,14 @@ def r_indications(b):
 
     L = ["## Indications", ""]
     if approved:
+        # The "anticancer cancer-use at phase 3" caveat only applies when an
+        # approved row is actually phase 3 — don't leak it onto non-cancer drugs
+        # whose approvals are all phase 4 (e.g. insulin-icodec).
+        cancer_caveat = (", plus an anticancer drug's labelled cancer uses "
+                         "(which ChEMBL often logs at phase 3)"
+                         if any((i.get("max_phase") or 0) == 3 for i in approved) else "")
         L += [f"**{_i(len(approved))} approved indication"
-              f"{'s' if len(approved) != 1 else ''}.** FDA phase 4, plus an anticancer "
-              "drug's labelled cancer uses (which ChEMBL often logs at phase 3).", "",
+              f"{'s' if len(approved) != 1 else ''}.** FDA phase 4{cancer_caveat}.", "",
               _tbl(approved, "Indication")]
     if trials:
         L += ["",
@@ -470,7 +475,7 @@ def r_clinical_trials(b):
         L += ["", "### Phase distribution {#trial-phases}", "",
               *([note.strip() + ".", ""] if note else []),
               table(["Phase", "Trials"],
-                    [(k, _i(v)) for k, v in sorted(pc.items(), key=lambda kv: -kv[1])])]
+                    [(phase_label(k), _i(v)) for k, v in sorted(pc.items(), key=lambda kv: -kv[1])])]
     tt = b.get("top_trials") or []
     if tt:
         L += ["", "### Top trials by phase / activity {#top-trials}", "",

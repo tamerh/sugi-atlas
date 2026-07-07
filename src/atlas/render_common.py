@@ -71,8 +71,8 @@ def display_name(s):
     keep its exact case."""
     if not (s and isinstance(s, str) and s.isupper()):
         return s
-    if any(c.isdigit() for c in s):           # code, not a word — preserve
-        return s
+    if " " not in s and any(c.isdigit() for c in s):   # single-token code — preserve
+        return s                                        # (multi-word names w/ digits ARE names)
     return s.title()
 
 
@@ -122,11 +122,21 @@ def fnum(v, nd=2):
 
 
 def phase_label(p):
-    """Normalize a clinical-trial phase for display. biobtree emits 'NaN' for
-    trials with no interventional phase (observational / natural-history), which
-    naively uppercases to a confusing 'NAN' — map those to 'Not specified'."""
-    p = (p or "").strip().upper()
-    return "Not specified" if p in ("", "NAN", "NA") else p
+    """Normalize a clinical-trial phase for display: the raw CT.gov enum
+    ('PHASE2', 'EARLY_PHASE1', 'PHASE1/PHASE2') → human form ('Phase 2', 'Early
+    Phase 1', 'Phase 1/2'). Idempotent (an already-formatted 'Phase 3' passes
+    through unchanged). biobtree emits 'NaN' for trials with no interventional
+    phase (observational / natural-history) → 'Not specified'."""
+    u = (p or "").strip().upper()
+    if u in ("", "NAN", "NA", "N/A", "NONE"):
+        return "Not specified"
+    if u.replace(" ", "").replace("_", "").startswith("EARLYPHASE"):
+        n = re.findall(r"\d", u)
+        return "Early Phase " + n[0] if n else "Early Phase"
+    nums = re.findall(r"PHASE\s*([0-9])", u)   # also matches already-formatted 'PHASE 3'
+    if nums:
+        return "Phase " + "/".join(nums)
+    return (p or "").strip()                    # unknown label — leave as-is
 
 
 def _cell(c):

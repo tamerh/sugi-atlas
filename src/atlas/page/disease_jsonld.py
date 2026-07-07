@@ -113,7 +113,8 @@ def _drugs(bundle: dict) -> list:
             continue
         # Substance, not Drug — Drug ⊂ Product trips Google's product validator
         # (see drug_jsonld.py). Substance reads naturally as a treatment reference.
-        rec = {"@type": "Substance", "name": name or mid}
+        from atlas.render_common import display_name
+        rec = {"@type": "Substance", "name": display_name(name) or mid}
         sameas = []
         if mid:
             rec["identifier"] = mid

@@ -12,7 +12,7 @@ dict and are called explicitly by render_all().
 """
 import re
 from collections import Counter
-from atlas.render_common import table, fnum, gencc_rank, phase_label, more_line, capped_table
+from atlas.render_common import table, fnum, gencc_rank, phase_label, more_line, capped_table, display_name
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
 
@@ -874,7 +874,7 @@ def r_mechanism_synthesis(bundles):
          "mechanistic rationale linking the disease-direct indication to the "
          "disease's genetics. *Atlas-derived cross-reference.*", "",
          table(["Indicated drug", "Cohort targets", "Genes"],
-               [(links.maybe_link(d.get("name"), d.get("url")), _i(len(tg)),
+               [(links.maybe_link(display_name(d.get("name")), d.get("url")), _i(len(tg)),
                  ", ".join(_glink(s) for s in tg[:6]) + (" …" if len(tg) > 6 else ""))
                 for d, tg in aligned[:ROW_CAP]])])
 
@@ -898,7 +898,7 @@ def r_drug_targets(b):
                 "necessarily a drug of choice or one indicated for this disease.", "",
                 table(["Symbol", "Example approved molecule"],
                       [(links.maybe_link(g.get("symbol"), links.gene_url(symbol=g.get("symbol"))),
-                        g.get("drug") or g.get("top_molecule") or "")
+                        display_name(g.get("drug") or g.get("top_molecule") or ""))
                        for g in ag])]
     tt = b.get("top_targets") or []
     if tt:
@@ -910,7 +910,7 @@ def r_drug_targets(b):
     if drugs:
         out += ["", "### Drugs targeting cohort genes {#cohort-drugs}", "",
                 capped_table(["Molecule", "Max phase", "Targets in cohort"],
-                             [(links.maybe_link(d.get("name") or d.get("id") or "",
+                             [(links.maybe_link(display_name(d.get("name") or d.get("id") or ""),
                                                 links.drug_url(chembl_id=d.get("id"), name=d.get("name"))),
                                d.get("max_phase"),
                                ", ".join(_glink(s) for s in (d.get("gene_targets") or [])[:6]))
@@ -996,7 +996,7 @@ def r_clinical_trials(b):
     if pc:
         out += ["", "### Phase distribution (across all retrieved trials) {#trial-phases}", ""]
         rows = sorted(pc.items(), key=lambda kv: -kv[1])
-        out.append(table(["Phase", "Trials"], [(k, _i(v)) for k, v in rows]))
+        out.append(table(["Phase", "Trials"], [(phase_label(k), _i(v)) for k, v in rows]))
     tt = b.get("top_trials") or []
     if tt:
         out += ["", "### Top trials by phase / activity {#top-trials}", "",
@@ -1010,7 +1010,7 @@ def r_clinical_trials(b):
     if td:
         out += ["", "### Drugs tested across these trials {#trial-drugs}", "",
                 capped_table(["Molecule", "Max phase", "Trials referencing"],
-                             [(links.maybe_link(d.get("name") or d.get("molecule_id"),
+                             [(links.maybe_link(display_name(d.get("name") or d.get("molecule_id")),
                                                 links.drug_url(chembl_id=d.get("molecule_id"), name=d.get("name"))),
                                d.get("max_phase"), _i(d.get("trial_count")))
                               for d in td],
@@ -1025,7 +1025,7 @@ def r_clinical_trials(b):
                 "table above — includes investigational drugs not yet in ChEMBL. "
                 "Linked where an Atlas drug page exists.", "",
                 capped_table(["Drug", "Max trial phase"],
-                             [(links.maybe_link(d.get("name"), links.drug_url(name=d.get("name"))),
+                             [(links.maybe_link(display_name(d.get("name")), links.drug_url(name=d.get("name"))),
                                phase_label(d.get("phase")))
                               for d in tid],
                              ROW_CAP, noun="drugs named in trials")]
@@ -1178,7 +1178,7 @@ def r_drug_repurposing(bundles):
     out = [title, "", lead]
     if repurposable:
         out += ["", capped_table(["Compound", "Max phase", "Cohort target (bioactivity)"],
-                                 [(links.maybe_link(d.get("name") or d.get("id") or "",
+                                 [(links.maybe_link(display_name(d.get("name") or d.get("id") or ""),
                                                     links.drug_url(chembl_id=d.get("id"), name=d.get("name"))),
                                    d.get("max_phase"),
                                    ", ".join(_glink(s) for s in (d.get("gene_targets") or [])[:6]))
