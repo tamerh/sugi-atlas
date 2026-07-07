@@ -18,7 +18,10 @@ from atlas.pipeline import (build_meta, biobtree_version, atlas_version, _yaml_e
 from atlas.page import links
 from atlas.variant import collect as VC, render as VR, enrich as EN
 
-_DATASETS = ("clinvar", "clingen_variant", "mondo", "hgnc")
+_DATASETS = ("clinvar", "clingen_variant", "clingen_gene_validity", "clingen_dosage",
+             "gencc", "mondo", "orphanet", "gard", "clinical_trials", "panelapp_gene",
+             "alphamissense", "dbsnp", "gnomad_constraint", "uniprot", "pdb", "alphafold",
+             "hgnc")
 _CLASS_ORDER = ["Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic",
                 "Conflicting classifications of pathogenicity"]
 
@@ -73,8 +76,20 @@ def build_gene(symbol, out_root):
             continue
         seen_slug.add(rec["canonical_slug"])
         recs.append(rec)
-    # Per-gene enrichment context, fetched once (AlphaMissense map + residue index).
-    ctx = {"am": EN.gene_alphamissense(hgnc), "positions": VC.build_position_index(recs)}
+    # Per-gene enrichment context, fetched once and shared across the gene's
+    # variants (AlphaMissense map, residue index, gene ACMG context, structure,
+    # the primary-condition digest, diagnostic panels, and the P/LP scale count).
+    pl_count = sum(1 for r in recs if VC._is_pathogenic(r.get("classification")))
+    ctx = {
+        "am": EN.gene_alphamissense(hgnc),
+        "positions": VC.build_position_index(recs),
+        "recs": recs,
+        "gene_context": EN.gene_context(hgnc),
+        "structure": EN.gene_structure(hgnc),
+        "digest": EN.gene_condition_digest(hgnc),
+        "panels": EN.gene_panelapp(hgnc),
+        "pl_count": pl_count,
+    }
     # Pass 2 — enrich + render each.
     for rec in recs:
         VC.attach_enrichment(rec, ctx)

@@ -67,6 +67,97 @@ def declarative_plain(v):
     return re.sub(r"\s+", " ", s).strip()
 
 
+def _patient_zone(v):
+    """The 'For patients & families' section — plain-language + condition digest,
+    every line reference-framed, ending in a counselor CTA."""
+    d = v.get("digest") or {}
+    L = ["", "## For patients & families {#patients}", "",
+         v.get("plain") or "", "",
+         "*Reference information, not medical advice, and not a prediction for any "
+         "individual. A genetic counselor or clinician can interpret what it means "
+         "for you and your family.*"]
+    inh = (v.get("gene_context") or {}).get("inheritance") or d.get("inheritance") or []
+    facts = []
+    if inh:
+        facts.append(("Typical inheritance", ", ".join(inh[:3])))
+    if d.get("onset"):
+        facts.append(("Age of onset (condition)", ", ".join(d["onset"])))
+    if d.get("prevalence"):
+        facts.append(("Prevalence", d["prevalence"]))
+    if v.get("gene_pl_count"):
+        facts.append(("You're not alone",
+                      f"{v['gene_pl_count']} other pathogenic/likely-pathogenic "
+                      f"{v.get('gene_symbol')} variants are cataloged in ClinVar"))
+    cl = v.get("condition_links") or {}
+    if cl.get("trial_count"):
+        facts.append(("Clinical trials",
+                      f"{cl['trial_count']} registered for this condition — see ClinicalTrials.gov"))
+    if v.get("panels"):
+        n = len(v["panels"])
+        facts.append(("Diagnostic panels",
+                      f"{v['gene_symbol']} is a diagnostic-grade gene on "
+                      f"{n} Genomics England panel" + ("s" if n != 1 else "")))
+    if facts:
+        L += ["", table(["", ""], facts)]
+    # top symptoms of the condition (HPO with frequency)
+    if d.get("phenotypes"):
+        L += ["", f"**Commonly reported features of {d.get('name','the condition')}** "
+              "(across patients; presentation varies):", ""]
+        L += [f"- {p['term']}" + (f" — {p['freq']}" if p.get("freq") else "")
+              for p in d["phenotypes"][:8]]
+    # registry + counselor CTA
+    cta = []
+    if cl.get("gard"):
+        cta.append(f"[Condition overview & support (NIH GARD)](https://rarediseases.info.nih.gov/diseases/{cl['gard']}/index)")
+    cta.append("[Find a genetic counselor (NSGC)](https://findageneticcounselor.nsgc.org/)")
+    L += ["", "**Support & next steps:** " + " · ".join(cta) + "."]
+    return L
+
+
+def _gene_context_zone(v):
+    gc = v.get("gene_context") or {}
+    con, dos, val = gc.get("constraint"), gc.get("dosage"), gc.get("validity")
+    if not (con or dos or val):
+        return []
+    L = ["", "## Gene constraint & dosage {#gene-context}", ""]
+    bits = []
+    if con and con.get("loeuf"):
+        bits.append(f"LOEUF {con['loeuf']}, pLI {con.get('pli')}, missense-Z {con.get('mis_z')}")
+    if dos and (dos.get("haplo") or dos.get("triplo")):
+        bits.append(f"ClinGen dosage — haploinsufficiency {dos.get('haplo')}, triplosensitivity {dos.get('triplo')} (0–3 scale)")
+    if bits:
+        L.append(f"**{v.get('gene_symbol')}** population constraint: " + "; ".join(bits)
+                 + ". *Higher constraint = the gene tolerates damage poorly (supports a disease role).*")
+    if val:
+        L += ["", "Curated gene–disease validity (ClinGen):", ""]
+        L += [f"- **{x['disease']}** — {x['classification']} ({x['moi']})" for x in val]
+    return L
+
+
+def _protein_zone(v):
+    st = v.get("structural")
+    struct = v.get("structure") or {}
+    pdb, af = struct.get("pdb") or [], struct.get("alphafold")
+    if not (st or pdb or af):
+        return []
+    L = ["", "## Protein context {#protein}", ""]
+    if st and st.get("features"):
+        L.append(f"Residue **{st['position']}** lies in " + "; ".join(st["features"]) + ".")
+    if af and af.get("plddt"):
+        L.append(f"\nAlphaFold model confidence (whole protein): pLDDT {af['plddt']}, "
+                 f"{round(float(af['frac_high'])*100)}% of residues very-high."
+                 if af.get("frac_high") else f"\nAlphaFold pLDDT {af['plddt']}.")
+    if pdb:
+        mut = [p for p in pdb if any(w in (p.get("title") or "").lower()
+                                     for w in ("mutant", "variant"))]
+        line = f"\n**{len(pdb)} experimental structure(s)** (PDB): " + ", ".join(
+            f"[{p['id']}](https://www.rcsb.org/structure/{p['id']})" for p in pdb[:6])
+        if mut:
+            line += f" — incl. mutant structure {mut[0]['id']}"
+        L.append(line + ".")
+    return L
+
+
 def render_body(v):
     L = ["## Summary", "", declarative(v), ""]
     # At a glance
@@ -85,6 +176,9 @@ def render_body(v):
                   if v.get("alphamissense") and v["alphamissense"].get("class") else None),
                  (v["gnomad"]["band"] if v.get("gnomad") else None),
              ])))
+
+    # Patient zone — high on the page (high human value + citable)
+    L += _patient_zone(v)
 
     # Identity
     L += ["", "## Identity {#identity}", "",
@@ -110,9 +204,18 @@ def render_body(v):
         L += ["", "## Computational & population evidence {#evidence}", "",
               f"**Concordance:** {conc['verdict']}.", ""]
         L += [f"- {ln}" for ln in conc.get("lines", [])]
+        pctl = v.get("am_percentile")
+        if pctl and pctl["top_pct"] <= 10:      # only when it's a genuine standout
+            L.append(f"- AlphaMissense ranks this among the **top {pctl['top_pct']}%** "
+                     f"most-pathogenic-predicted substitutions in {v.get('gene_symbol')} "
+                     f"(of {pctl['n']:,} modeled).")
         L.append("\n*Independent of the ClinVar clinical classification: AlphaMissense "
                  "(Cheng et al. 2023, in-silico missense pathogenicity) and gnomAD v4 "
                  "population frequency. A prediction, not a clinical determination.*")
+
+    # Gene ACMG context + protein/structural context
+    L += _gene_context_zone(v)
+    L += _protein_zone(v)
 
     # Clinical significance + consensus + per-submitter table
     cons = v.get("consensus")
@@ -122,6 +225,12 @@ def render_body(v):
           + (f", last evaluated {v['last_evaluated']}." if v.get("last_evaluated") else ".")]
     if cons:
         L.append(f"\n**Submitter consensus:** {cons['verdict']}.")
+    tl = v.get("timeline")
+    if tl and tl["n"] > 1:
+        span = f"{tl['first']}" if tl["first"] == tl["last"] else f"{tl['first']}–{tl['last']}"
+        L.append(f"\n**Submission history:** {tl['n']} submissions ({span}); "
+                 + ("classifications have been stable." if tl["stable"]
+                    else "classifications have differed over time."))
     vcep = v.get("vcep") or []
     if vcep:
         c = vcep[0]
@@ -157,6 +266,14 @@ def render_body(v):
               + ", ".join(f"[{o['label']}](/atlas/variant/{o['slug']}/)" for o in others[:12])
               + ". *Positional co-occurrence of independent ClinVar records, not "
               "functional proof.*"]
+
+    # Similar variants (internal mesh)
+    sim = v.get("similar") or []
+    if sim:
+        L += ["", "## Similar variants {#similar}", "",
+              "Related " + v.get("gene_symbol", "") + " variant pages (same residue, "
+              "condition, or type): "
+              + ", ".join(f"[{s['label']}](/atlas/variant/{s['slug']}/)" for s in sim) + "."]
 
     L += ["", f"*Source: NCBI ClinVar (variation {v['variation_id']}), plus AlphaMissense "
           "and gnomAD as noted. Classifications reflect these databases as of the page's "

@@ -113,14 +113,31 @@ def attach_enrichment(rec, ctx=None):
     concordance, submitter consensus, same-residue hotspot. ctx carries the
     per-gene caches so this stays cheap across a gene's variants."""
     ctx = ctx or {}
+    am_map = ctx.get("am") or {}
     short = EN.missense_short(rec.get("hgvs_p"))
-    am = (ctx.get("am") or {}).get(short) if short else None
+    am = am_map.get(short) if short else None
     gnomad = EN.gnomad_for(rec.get("rsid"))
     rec["alphamissense"] = ({"short": short, "class": am[0], "score": am[1]} if am else None)
     rec["gnomad"] = gnomad
     rec["consensus"] = EN.submitter_consensus(rec.get("submissions") or [])
     rec["concordance"] = EN.concordance(rec.get("classification"), am, gnomad)
     rec["hotspot"] = EN.residue_hotspot(rec.get("hgvs_p"), ctx.get("positions"))
+    # Batch 3 — per-variant derived (in-memory from the per-gene caches)
+    rec["am_percentile"] = am_map and (am and EN.am_percentile(am[1], am_map)) or None
+    rec["structural"] = EN.structural_context(rec.get("hgvs_p"), (ctx.get("structure") or {}).get("intervals"))
+    rec["similar"] = EN.similar_variants(rec, ctx.get("recs") or [])
+    rec["timeline"] = EN.submission_timeline(rec.get("submissions") or [])
+    rec["plain"] = EN.plain_summary(rec, ctx.get("digest"))
+    # per-gene context is shared (attach the references for the renderer)
+    rec["gene_context"] = ctx.get("gene_context")
+    rec["structure"] = ctx.get("structure")
+    rec["digest"] = ctx.get("digest")
+    rec["panels"] = ctx.get("panels")
+    rec["gene_pl_count"] = ctx.get("pl_count")
+    # patient condition links (GARD + trials), routed via the variant's condition
+    conds = rec.get("conditions") or []
+    rec["condition_links"] = (EN.condition_links(conds[0].get("mondo_id"), ctx.setdefault("trials_cache", {}))
+                              if conds else {})
     return rec
 
 

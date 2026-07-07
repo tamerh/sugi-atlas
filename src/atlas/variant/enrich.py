@@ -42,7 +42,9 @@ def protein_position(hgvs_p):
 def gene_alphamissense(hgnc_id):
     """{protein_short: (am_class, am_pathogenicity)} for the whole gene."""
     out = {}
-    for r in map_all(hgnc_id, ">>hgnc>>uniprot>>alphamissense", cap=200):
+    # cap high enough for full per-gene coverage (~2.5k substitutions/small gene)
+    # so the percentile stats see the whole distribution.
+    for r in map_all(hgnc_id, ">>hgnc>>uniprot>>alphamissense", cap=60):
         pv = (r.get("protein_variant") or "").strip()
         if pv:
             out[pv] = (r.get("am_class"), r.get("am_pathogenicity"))
@@ -141,6 +143,215 @@ def concordance(classification, am_entry, gnomad):
     else:
         verdict = "Mixed / partial evidence (see below)"
     return {"lines": lines, "verdict": verdict, "flags": flags}
+
+
+# ── Batch 3: per-gene context (fetched once per gene, cached in ctx) ─────────
+def gene_context(hgnc_id):
+    """ACMG-adjacent gene block: gnomAD constraint + ClinGen dosage + gene-disease
+    validity + inheritance (GenCC/validity). Fetched once per gene."""
+    con = map_all(hgnc_id, ">>hgnc>>gnomad_constraint")
+    constraint = None
+    if con:
+        c = con[0]
+        constraint = {"pli": c.get("pli"), "loeuf": c.get("loeuf"), "mis_z": c.get("mis_z")}
+    dos = map_all(hgnc_id, ">>hgnc>>clingen_dosage")
+    dosage = ({"haplo": dos[0].get("haplo_score"), "triplo": dos[0].get("triplo_score")}
+              if dos else None)
+    validity = [{"disease": v.get("disease_label"), "moi": v.get("moi"),
+                 "classification": v.get("classification")}
+                for v in map_all(hgnc_id, ">>hgnc>>clingen_gene_validity") if v.get("disease_label")]
+    inh = []
+    for g in map_all(hgnc_id, ">>hgnc>>gencc"):
+        t = (g.get("moi_title") or "").strip()
+        if t and t not in inh:
+            inh.append(t)
+    return {"constraint": constraint, "dosage": dosage, "validity": validity[:4],
+            "inheritance": inh}
+
+
+# Meaningful UniProt feature types → a human phrase ('{d}' = the description).
+_UF_KEEP = {
+    "domain": "the {d} domain", "region of interest": "the '{d}' region",
+    "binding site": "a binding site", "active site": "an active site",
+    "modified residue": "a modified residue ({d})", "helix": "an α-helix",
+    "strand": "a β-strand", "turn": "a turn", "motif": "the {d} motif",
+    "zinc finger": "a zinc-finger region", "metal binding": "a metal-binding site",
+    "dna-binding region": "a DNA-binding region", "site": "a functional site ({d})",
+    "nucleotide binding region": "a nucleotide-binding region",
+    "cross-link": "a cross-link site", "disulfide bond": "a disulfide bond",
+    "sequence variant": "a UniProt-annotated variant site ({d})",
+}
+
+
+def gene_structure(hgnc_id):
+    """PDB structures + AlphaFold confidence + parsed UniProt feature intervals
+    (for per-residue structural context). Fetched once per gene."""
+    pdb = [{"id": p.get("id"), "title": p.get("title"), "method": p.get("method"),
+            "resolution": p.get("resolution")}
+           for p in map_all(hgnc_id, ">>hgnc>>uniprot>>pdb")]
+    af = map_all(hgnc_id, ">>hgnc>>uniprot>>alphafold")
+    alphafold = ({"plddt": af[0].get("global_metric"),
+                  "frac_high": af[0].get("fraction_plddt_very_high")} if af else None)
+    intervals = []
+    for f in map_all(hgnc_id, ">>hgnc>>uniprot>>ufeature", cap=60):
+        t = (f.get("type") or "").strip().lower()
+        if t not in _UF_KEEP:
+            continue
+        try:
+            b, e = int(f.get("location_begin")), int(f.get("location_end"))
+        except (TypeError, ValueError):
+            continue
+        intervals.append({"type": t, "desc": (f.get("description") or "").strip(),
+                          "begin": b, "end": e})
+    return {"pdb": pdb, "alphafold": alphafold, "intervals": intervals}
+
+
+def gene_condition_digest(hgnc_id):
+    """Patient-facing digest of the gene's PRIMARY condition — routed via the
+    gene's best-annotated Orphanet disease (NOT the narrow ClinVar MONDO, which
+    is usually unannotated). Inheritance / onset / prevalence / HPO-with-frequency."""
+    diseases = [d for d in map_all(hgnc_id, ">>hgnc>>orphanet")
+                if (d.get("disorder_type") or "") == "Disease"]
+    if not diseases:
+        return None
+    best = max(diseases, key=lambda d: int(d.get("phenotype_count") or 0))
+    o = _orphanet_entry(best.get("id"))
+    if not o:
+        return None
+    phen = sorted((o.get("phenotypes") or []),
+                  key=lambda p: -(p.get("frequency_value") or 0))
+    prev = (o.get("prevalences") or [{}])[0]
+    return {
+        "name": o.get("name") or best.get("name"),
+        "definition": (o.get("definition") or "").strip(),
+        "inheritance": o.get("inheritance") or [],
+        "onset": o.get("onset") or [],
+        "prevalence": (f"{prev.get('prevalence_class')} ({prev.get('geographic')})"
+                       if prev.get("prevalence_class")
+                       and prev.get("prevalence_class").lower() != "unknown" else None),
+        "phenotypes": [{"term": p.get("hpo_term"), "freq": p.get("frequency")}
+                       for p in phen[:8] if p.get("hpo_term")],
+        "n_phenotypes": len(o.get("phenotypes") or []),
+    }
+
+
+def _orphanet_entry(oid):
+    from atlas.biobtree import entry
+    a = (entry(oid, "orphanet") or {}).get("Attributes") or {}
+    return a.get("Orphanet") or (next(iter(a.values()), {}) if a else {})
+
+
+def gene_panelapp(hgnc_id):
+    """Green (diagnostic-grade) Genomics England panels the gene is on."""
+    return [p.get("panel_name") for p in map_all(hgnc_id, ">>hgnc>>panelapp_gene")
+            if (p.get("confidence") or "").lower() == "green" and p.get("panel_name")]
+
+
+def condition_links(mondo_id, cache):
+    """GARD registry + clinical trials for a condition, climbing one MONDO parent
+    level when the exact term has none. Cached per MONDO id."""
+    if not mondo_id:
+        return {}
+    if mondo_id in cache:
+        return cache[mondo_id]
+    gard = [g.get("id") for g in map_all(mondo_id, ">>mondo>>gard") if g.get("id")]
+    trials = map_all(mondo_id, ">>mondo>>clinical_trials")
+    if not trials:
+        for par in map_all(mondo_id, ">>mondo>>mondoparent")[:2]:
+            trials = map_all(par.get("id"), ">>mondo>>clinical_trials")
+            if trials:
+                break
+    out = {"gard": gard[0] if gard else None, "trial_count": len(trials)}
+    cache[mondo_id] = out
+    return out
+
+
+# ── Batch 3: per-variant derived (mostly in-memory, no new calls) ────────────
+def structural_context(hgvs_p, intervals):
+    """UniProt features overlapping the variant's residue → human phrases."""
+    pos = protein_position(hgvs_p)
+    if pos is None or not intervals:
+        return None
+    out = []
+    for f in intervals:
+        if f["begin"] <= pos <= f["end"]:
+            phrase = _UF_KEEP[f["type"]].replace("{d}", f["desc"] or f["type"])
+            out.append(phrase)
+    return {"position": pos, "features": out} if out else None
+
+
+def am_percentile(score, am_map):
+    """The variant's AlphaMissense percentile within the gene's full modeled set
+    ('top 3% most-pathogenic-predicted of N'), or None."""
+    try:
+        s = float(score)
+    except (TypeError, ValueError):
+        return None
+    vals = []
+    for _, sc in am_map.values():
+        try:
+            vals.append(float(sc))
+        except (TypeError, ValueError):
+            pass
+    if len(vals) < 20:
+        return None
+    n_below = sum(1 for v in vals if v < s)
+    pct = round(100 * (len(vals) - n_below) / len(vals))
+    return {"top_pct": max(pct, 1), "n": len(vals)}
+
+
+def similar_variants(rec, recs):
+    """Up to 6 sibling variant pages most related to this one — same residue,
+    then same condition, then same variant type. Internal-mesh aid for both
+    personas + crawlers."""
+    pos = protein_position(rec.get("hgvs_p"))
+    conds = {c.get("mondo_id") for c in (rec.get("conditions") or [])}
+    vtype = rec.get("variant_type")
+    me = rec["canonical_slug"]
+    scored = []
+    for r in recs:
+        if r["canonical_slug"] == me:
+            continue
+        s = 0
+        if pos is not None and protein_position(r.get("hgvs_p")) == pos:
+            s += 3
+        if conds & {c.get("mondo_id") for c in (r.get("conditions") or [])}:
+            s += 2
+        if vtype and r.get("variant_type") == vtype:
+            s += 1
+        if s:
+            scored.append((s, r))
+    scored.sort(key=lambda x: (-x[0], x[1]["canonical_slug"]))
+    return [{"label": f"{r['gene_symbol']} {r.get('hgvs_p') or r.get('hgvs_c')}",
+             "slug": r["canonical_slug"]} for _, r in scored[:6]]
+
+
+def submission_timeline(submissions):
+    """First/last submission year + whether classifications diverged over time."""
+    dated = [s for s in submissions if s.get("date")]
+    years = sorted(int(s["date"][:4]) for s in dated if (s.get("date") or "")[:4].isdigit())
+    if not years:
+        return None
+    calls = {(s.get("classification") or "").split("/")[0].strip().lower() for s in submissions}
+    return {"first": years[0], "last": years[-1], "n": len(submissions),
+            "stable": len(calls) <= 1}
+
+
+def plain_summary(rec, digest):
+    """Deterministic plain-language one-liner for patients (NOT an LLM)."""
+    cls = (rec.get("classification") or "").lower()
+    if "conflict" in cls:
+        meaning = "of uncertain / conflicting significance (experts disagree)"
+    elif "pathogenic" in cls:
+        meaning = "considered disease-causing"
+    else:
+        meaning = f"classified as {rec.get('classification')}"
+    gene = rec.get("gene_symbol")
+    n = rec.get("submitter_count") or 0
+    who = (f" reported by {n} clinical lab" + ("s" if n != 1 else "")) if n else ""
+    cond = (digest or {}).get("name") or (rec.get("conditions") or [{}])[0].get("name")
+    link = f", and is linked to {cond}" if cond else ""
+    return f"This is a change in the {gene} gene that is {meaning}{who}{link}."
 
 
 def residue_hotspot(hgvs_p, position_index):

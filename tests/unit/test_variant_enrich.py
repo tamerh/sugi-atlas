@@ -50,3 +50,55 @@ def test_residue_hotspot():
     hs = residue_hotspot("p.Pro309Ala", idx)
     assert hs["position"] == 309 and len(hs["others"]) == 1        # excludes itself
     assert residue_hotspot("p.Pro309Ala", {309: [{"hgvs_p": "p.Pro309Ala", "slug": "a"}]}) is None
+
+
+# ── Batch 3 derived logic ────────────────────────────────────────────────────
+def test_am_percentile():
+    from atlas.variant.enrich import am_percentile
+    am = {f"V{i}": ("x", str(i / 100)) for i in range(100)}   # scores 0.00..0.99
+    p = am_percentile("0.98", am)
+    assert p["n"] == 100 and p["top_pct"] <= 3          # 0.98 is near the top
+    assert am_percentile("0.5", {"a": ("x", "0.1")}) is None   # too few to rank
+
+
+def test_structural_context():
+    from atlas.variant.enrich import structural_context
+    intervals = [{"type": "helix", "desc": "", "begin": 300, "end": 320},
+                 {"type": "region of interest", "desc": "actin-binding", "begin": 100, "end": 150}]
+    sc = structural_context("p.Pro309Ala", intervals)
+    assert sc["position"] == 309 and any("helix" in f for f in sc["features"])
+    assert structural_context("p.Pro200Ala", intervals) is None   # 200 in no interval
+
+
+def test_similar_variants_ranks_same_residue_first():
+    from atlas.variant.enrich import similar_variants
+    me = {"canonical_slug": "g-p-pro9ala", "hgvs_p": "p.Pro9Ala", "gene_symbol": "G",
+          "variant_type": "single nucleotide variant", "conditions": [{"mondo_id": "MONDO:1"}]}
+    recs = [me,
+            {"canonical_slug": "g-p-pro9leu", "hgvs_p": "p.Pro9Leu", "gene_symbol": "G",
+             "variant_type": "x", "conditions": []},                         # same residue (score 3)
+            {"canonical_slug": "g-p-arg5his", "hgvs_p": "p.Arg5His", "gene_symbol": "G",
+             "variant_type": "y", "conditions": [{"mondo_id": "MONDO:1"}]}]   # same condition (score 2)
+    sim = similar_variants(me, recs)
+    assert sim[0]["slug"] == "g-p-pro9leu"          # same-residue ranks first
+    assert me["canonical_slug"] not in [s["slug"] for s in sim]
+
+
+def test_submission_timeline():
+    from atlas.variant.enrich import submission_timeline
+    tl = submission_timeline([{"classification": "Pathogenic", "date": "2002-01-01"},
+                              {"classification": "Pathogenic", "date": "2018-06-01"}])
+    assert tl["first"] == 2002 and tl["last"] == 2018 and tl["stable"]
+    tl2 = submission_timeline([{"classification": "Pathogenic", "date": "2010-01-01"},
+                               {"classification": "Uncertain significance", "date": "2020-01-01"}])
+    assert not tl2["stable"]
+
+
+def test_plain_summary():
+    from atlas.variant.enrich import plain_summary
+    s = plain_summary({"gene_symbol": "ACTA1", "classification": "Pathogenic",
+                       "submitter_count": 3, "conditions": [{"name": "nemaline myopathy"}]}, None)
+    assert "ACTA1" in s and "disease-causing" in s and "3 clinical labs" in s
+    conf = plain_summary({"gene_symbol": "X", "classification": "Conflicting classifications of pathogenicity",
+                          "submitter_count": 0, "conditions": []}, None)
+    assert "experts disagree" in conf
