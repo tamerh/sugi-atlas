@@ -30,19 +30,31 @@ def _label(v):
 
 
 def declarative(v):
-    """One-sentence lead for the summary + meta description."""
+    """Answer-first lead — the self-contained factual block an assistant lifts to
+    answer 'is GENE pChange pathogenic?'. Includes the in-silico + population
+    differentiators when present."""
     label = _label(v)
     cls = v.get("classification") or "classified"
-    cond = (v.get("conditions") or [{}])[0].get("name")
+    gene = v.get("gene_symbol")
     rs = v.get("review_status") or ""
-    parts = [f"**{label}** is a **{cls}** variant in {v.get('gene_symbol')}"]
-    if "expert panel" in rs.lower():
-        parts.append(", reviewed by expert panel")
-    elif "multiple submitters" in rs.lower():
-        parts.append(", multiple submitters")
+    lead = f"**{label}** is classified **{cls}** in {gene} (ClinVar, {_stars(rs)}"
+    cons = v.get("consensus")
+    if cons:
+        lead += f", {cons['n']} submitter" + ("s" if cons["n"] != 1 else "")
+    if v.get("last_evaluated"):
+        lead += f"; last evaluated {v['last_evaluated']}"
+    lead += ")."
+    tail = []
+    am = v.get("alphamissense")
+    if am and am.get("class"):
+        tail.append(f"AlphaMissense: {am['class'].replace('_', ' ')} ({am['score']})")
+    g = v.get("gnomad")
+    if g:
+        tail.append(g["band"])
+    cond = (v.get("conditions") or [{}])[0].get("name")
     if cond:
-        parts.append(f", associated with {cond}")
-    return "".join(parts) + "."
+        tail.append(f"associated with {cond}")
+    return lead + (" " + "; ".join(s[0].upper() + s[1:] for s in tail) + "." if tail else "")
 
 
 def declarative_plain(v):
@@ -69,6 +81,9 @@ def render_body(v):
                  (f"{len(v['conditions'])} linked condition"
                   + ("s" if len(v['conditions']) != 1 else "")
                   if v.get("conditions") else None),
+                 (f"AlphaMissense {v['alphamissense']['class'].replace('_', ' ')}"
+                  if v.get("alphamissense") and v["alphamissense"].get("class") else None),
+                 (v["gnomad"]["band"] if v.get("gnomad") else None),
              ])))
 
     # Identity
@@ -89,11 +104,24 @@ def render_body(v):
     if exprs:
         L.append("\n**All HGVS expressions:** " + ", ".join(f"`{e}`" for e in exprs))
 
-    # Clinical significance + per-submitter table
+    # Computational & population evidence — the cross-source concordance readout
+    conc = v.get("concordance") or {}
+    if conc.get("verdict"):
+        L += ["", "## Computational & population evidence {#evidence}", "",
+              f"**Concordance:** {conc['verdict']}.", ""]
+        L += [f"- {ln}" for ln in conc.get("lines", [])]
+        L.append("\n*Independent of the ClinVar clinical classification: AlphaMissense "
+                 "(Cheng et al. 2023, in-silico missense pathogenicity) and gnomAD v4 "
+                 "population frequency. A prediction, not a clinical determination.*")
+
+    # Clinical significance + consensus + per-submitter table
+    cons = v.get("consensus")
     L += ["", "## Clinical significance {#significance}", "",
           f"**{v.get('classification')}** — review status {_stars(v.get('review_status'))} "
           f"*({v.get('review_status')})*"
           + (f", last evaluated {v['last_evaluated']}." if v.get("last_evaluated") else ".")]
+    if cons:
+        L.append(f"\n**Submitter consensus:** {cons['verdict']}.")
     vcep = v.get("vcep") or []
     if vcep:
         c = vcep[0]
@@ -118,7 +146,20 @@ def render_body(v):
     if extra:
         L.append("\n**Reported phenotype names (ClinVar):** " + ", ".join(extra[:10]) + ".")
 
-    L += ["", "*Source: NCBI ClinVar (variation " + v["variation_id"] + "). "
-          "Clinical variant interpretation — consult the primary submitters + a "
-          "clinician; not medical advice.*"]
+    # Same-residue hotspot context (deterministic, from the gene's own P/LP set)
+    hs = v.get("hotspot")
+    if hs and hs.get("others"):
+        others = hs["others"]
+        L += ["", "## Same-residue context {#hotspot}", "",
+              f"Residue **{hs['position']}** carries **{len(others)} other pathogenic "
+              f"ClinVar variant" + ("s" if len(others) != 1 else "")
+              + "** — a recurrently-mutated position: "
+              + ", ".join(f"[{o['label']}](/atlas/variant/{o['slug']}/)" for o in others[:12])
+              + ". *Positional co-occurrence of independent ClinVar records, not "
+              "functional proof.*"]
+
+    L += ["", f"*Source: NCBI ClinVar (variation {v['variation_id']}), plus AlphaMissense "
+          "and gnomAD as noted. Classifications reflect these databases as of the page's "
+          "build date and may change. Research/reference use — not medical advice; "
+          "consult the primary submitters and a clinician.*"]
     return "\n".join(L)

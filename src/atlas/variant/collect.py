@@ -9,6 +9,7 @@ optional annotations, joined by substitution/position — never page generators.
 """
 from atlas.biobtree import entry, map_all
 from atlas.variant.slug import parse_hgvs, variant_slugs
+from atlas.variant import enrich as EN
 
 # Classifications we build pages for (Phase 1 gate: the high-value + most-searched
 # slice; the benign long tail is excluded — see VARIANT_PAGES_SPEC.md §3).
@@ -84,6 +85,43 @@ def collect(variation_id):
         "canonical_slug": canonical,
         "slugs": slugs,
     }
+
+
+def _is_pathogenic(cls):
+    c = (cls or "").lower()
+    return "pathogenic" in c and "conflict" not in c
+
+
+def build_position_index(recs):
+    """{protein_position: [{hgvs_p, label, slug, classification}]} over the gene's
+    PATHOGENIC variants — powers the same-residue hotspot context."""
+    idx = {}
+    for r in recs:
+        pos = EN.protein_position(r.get("hgvs_p"))
+        if pos is None or not _is_pathogenic(r.get("classification")):
+            continue
+        idx.setdefault(pos, []).append({"hgvs_p": r.get("hgvs_p"),
+                                        "label": f"{r['gene_symbol']} {r['hgvs_p']}",
+                                        "slug": r["canonical_slug"],
+                                        "classification": r["classification"]})
+    return idx
+
+
+def attach_enrichment(rec, ctx=None):
+    """Add the deterministic enrichment layers to a collected record, in place:
+    AlphaMissense (from the per-gene `am` cache), gnomAD frequency, cross-source
+    concordance, submitter consensus, same-residue hotspot. ctx carries the
+    per-gene caches so this stays cheap across a gene's variants."""
+    ctx = ctx or {}
+    short = EN.missense_short(rec.get("hgvs_p"))
+    am = (ctx.get("am") or {}).get(short) if short else None
+    gnomad = EN.gnomad_for(rec.get("rsid"))
+    rec["alphamissense"] = ({"short": short, "class": am[0], "score": am[1]} if am else None)
+    rec["gnomad"] = gnomad
+    rec["consensus"] = EN.submitter_consensus(rec.get("submissions") or [])
+    rec["concordance"] = EN.concordance(rec.get("classification"), am, gnomad)
+    rec["hotspot"] = EN.residue_hotspot(rec.get("hgvs_p"), ctx.get("positions"))
+    return rec
 
 
 def enumerate_gene(hgnc_id, cap_pages=60):

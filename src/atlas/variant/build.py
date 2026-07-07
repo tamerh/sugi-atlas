@@ -16,7 +16,7 @@ import os
 from atlas.biobtree import search, rows
 from atlas.pipeline import (build_meta, biobtree_version, atlas_version, _yaml_escape)
 from atlas.page import links
-from atlas.variant import collect as VC, render as VR
+from atlas.variant import collect as VC, render as VR, enrich as EN
 
 _DATASETS = ("clinvar", "clingen_variant", "mondo", "hgnc")
 _CLASS_ORDER = ["Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic",
@@ -65,19 +65,27 @@ def build_gene(symbol, out_root):
     if not hgnc:
         print(f"  {symbol}: no HGNC id — skip")
         return []
-    built, seen_slug = [], set()
+    # Pass 1 — collect every buildable variant (pure ClinVar record).
+    recs, seen_slug = [], set()
     for vid, cls, name in VC.enumerate_gene(hgnc):
         rec = VC.collect(vid)
         if not rec or rec["canonical_slug"] in seen_slug:
             continue
         seen_slug.add(rec["canonical_slug"])
+        recs.append(rec)
+    # Per-gene enrichment context, fetched once (AlphaMissense map + residue index).
+    ctx = {"am": EN.gene_alphamissense(hgnc), "positions": VC.build_position_index(recs)}
+    # Pass 2 — enrich + render each.
+    for rec in recs:
+        VC.attach_enrichment(rec, ctx)
         meta = build_meta("variant", rec["canonical_slug"], VR._label(rec), _DATASETS)
         meta["gene"] = rec["gene_symbol"]
         meta["classification"] = rec["classification"]
         aliases = [f"/atlas/variant/{s}/" for s in rec["slugs"][1:]]   # non-canonical → redirects
-        page = _frontmatter(meta, VR.declarative_plain(rec), f"VCV{vid}", aliases) + VR.render_body(rec)
+        page = (_frontmatter(meta, VR.declarative_plain(rec), f"VCV{rec['variation_id']}", aliases)
+                + VR.render_body(rec))
         _write(out_root, rec["canonical_slug"], page)
-        built.append(rec)
+    built = recs
     _write_index(symbol, hgnc, built, out_root)
     print(f"  {symbol}: {len(built)} variant pages + index")
     return built
