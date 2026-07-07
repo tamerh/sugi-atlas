@@ -436,7 +436,13 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         # complete graph is also written as the entity.jsonld sidecar. The whole
         # intro is one canonical "## Summary {#summary}" section (PAGE_CONTRACT):
         # lead sentence (most-indexable) → RefSeq → At-a-glance → inline JSON-LD.
-        lead = "## Summary {#summary}\n\n" + sentence + "\n\n" + jsonld_tag + "\n\n"
+        # FAQPage JSON-LD (additive second script) — the Q&A shape assistants
+        # extract most reliably, built from the title + description + TL;DR facts.
+        from atlas.page.faq_jsonld import as_script_tag as _faq_script
+        faq_tag = _faq_script(meta.get("title"), meta.get("description"),
+                              meta.get("tldr"), f"https://sugi.bio/atlas/{entity_type}/{symbol}/")
+        lead = ("## Summary {#summary}\n\n" + sentence + "\n\n" + jsonld_tag
+                + (("\n" + faq_tag) if faq_tag else "") + "\n\n")
 
     if summary_text:    # legacy LLM-summary path (unused — no LLM summaries)
         model = meta.get("summary_model", "Qwen3-235B")
