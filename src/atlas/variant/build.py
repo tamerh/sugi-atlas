@@ -16,7 +16,7 @@ import os
 from atlas.biobtree import search, rows
 from atlas.pipeline import (build_meta, biobtree_version, atlas_version, _yaml_escape)
 from atlas.page import links
-from atlas.variant import collect as VC, render as VR, enrich as EN
+from atlas.variant import collect as VC, render as VR, enrich as EN, jsonld as VJ
 
 _DATASETS = ("clinvar", "clingen_variant", "clingen_gene_validity", "clingen_dosage",
              "gencc", "mondo", "orphanet", "gard", "clinical_trials", "panelapp_gene",
@@ -97,9 +97,15 @@ def build_gene(symbol, out_root):
         meta["gene"] = rec["gene_symbol"]
         meta["classification"] = rec["classification"]
         aliases = [f"/atlas/variant/{s}/" for s in rec["slugs"][1:]]   # non-canonical → redirects
+        jsonld_tag = VJ.as_script_tag(rec, meta)
         page = (_frontmatter(meta, VR.declarative_plain(rec), f"VCV{rec['variation_id']}", aliases)
-                + VR.render_body(rec))
+                + VR.render_body(rec, jsonld_tag))
         _write(out_root, rec["canonical_slug"], page)
+        # entity.jsonld sidecar (full graph, untruncated)
+        import json as _json
+        d = os.path.join(out_root, "atlas", "variant", rec["canonical_slug"])
+        with open(os.path.join(d, "entity.jsonld"), "w") as jf:
+            _json.dump(VJ.build_jsonld(rec, meta), jf, indent=2)
     built = recs
     _write_index(symbol, hgnc, built, out_root)
     print(f"  {symbol}: {len(built)} variant pages + index")

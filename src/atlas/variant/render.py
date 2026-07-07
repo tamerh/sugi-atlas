@@ -158,7 +158,7 @@ def _protein_zone(v):
     return L
 
 
-def render_body(v):
+def render_body(v, jsonld_tag=""):
     L = ["## Summary", "", declarative(v), ""]
     # At a glance
     L.append("**At a glance:** "
@@ -176,6 +176,9 @@ def render_body(v):
                   if v.get("alphamissense") and v["alphamissense"].get("class") else None),
                  (v["gnomad"]["band"] if v.get("gnomad") else None),
              ])))
+
+    if jsonld_tag:
+        L += ["", jsonld_tag]
 
     # Patient zone — high on the page (high human value + citable)
     L += _patient_zone(v)
