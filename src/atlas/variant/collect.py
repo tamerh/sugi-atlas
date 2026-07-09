@@ -116,11 +116,14 @@ def attach_enrichment(rec, ctx=None):
     am_map = ctx.get("am") or {}
     short = EN.missense_short(rec.get("hgvs_p"))
     am = am_map.get(short) if short else None
-    gnomad = EN.gnomad_for(rec.get("rsid"))
+    coord = EN.variant_coordinate(rec)
+    gnomad = EN.gnomad_frequency(rec)   # gnomAD v4.1 by coordinate (dbSNP fallback)
+    rec["coordinate"] = coord
     rec["alphamissense"] = ({"short": short, "class": am[0], "score": am[1]} if am else None)
     rec["gnomad"] = gnomad
+    rec["spliceai"] = EN.spliceai_for(coord, ctx.get("spliceai") or {})
     rec["consensus"] = EN.submitter_consensus(rec.get("submissions") or [])
-    rec["concordance"] = EN.concordance(rec.get("classification"), am, gnomad)
+    rec["concordance"] = EN.concordance(rec.get("classification"), am, gnomad, rec.get("spliceai"))
     rec["hotspot"] = EN.residue_hotspot(rec.get("hgvs_p"), ctx.get("positions"))
     # Batch 3 — per-variant derived (in-memory from the per-gene caches)
     rec["am_percentile"] = am_map and (am and EN.am_percentile(am[1], am_map)) or None

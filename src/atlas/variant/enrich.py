@@ -51,9 +51,80 @@ def gene_alphamissense(hgnc_id):
     return out
 
 
+_GENOMIC_SNV = re.compile(r"NC_0*\d+\.\d+:g\.(\d+)([ACGT]+)>([ACGT]+)$")
+
+
+def variant_coordinate(rec):
+    """GRCh38 gnomAD-style key 'chr:pos:ref:alt' (no chr prefix). SNVs only.
+
+    The variant carries genomic HGVS in BOTH assemblies (NC_..10 = GRCh37,
+    NC_..11 = GRCh38); to pick the GRCh38 one unambiguously we require the HGVS
+    position to equal the ClinVar `start` (which ClinVar reports on GRCh38).
+    Using the wrong assembly would key gnomAD wrong and read as a false absence.
+    """
+    start = rec.get("start")
+    chrom = str(rec.get("chromosome") or "").strip()
+    if not (start and chrom):
+        return None
+    for e in rec.get("hgvs_expressions") or []:
+        m = _GENOMIC_SNV.match(e)
+        if m and m.group(1) == str(start):
+            return f"{chrom}:{start}:{m.group(2)}:{m.group(3)}"
+    return None
+
+
+def gnomad_frequency(rec):
+    """gnomAD v4.1 per-variant frequency — the ACMG BA1/BS1/PM2 layer. Queried by
+    coordinate (the rsID reverse-hop isn't live yet). Falls back to the dbSNP
+    global frequency when no genomic coordinate can be parsed (e.g. indels)."""
+    coord = variant_coordinate(rec)
+    if coord:
+        g = map_all(coord, ">>gnomad_variant")
+        if g:
+            af = _f(g[0].get("af"))
+            popmax = _f(g[0].get("af_grpmax"))
+            anc = g[0].get("grpmax_ancestry")
+            return {"af": g[0].get("af"), "popmax": popmax, "ancestry": anc,
+                    "absent": False, "is_common": (popmax or 0) >= 0.05,
+                    "band": _gnomad_band(af, popmax, anc), "source": "gnomAD v4.1"}
+        return {"absent": True, "is_common": False, "popmax": None,
+                "band": "absent from gnomAD v4.1", "source": "gnomAD v4.1"}
+    # fallback — dbSNP inline global frequency (no coordinate to key gnomAD v4.1)
+    return gnomad_for(rec.get("rsid"))
+
+
+def _f(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def _gnomad_band(af, popmax, ancestry):
+    """ACMG-flavoured frequency band from gnomAD popmax (the ACMG-standard
+    metric). Descriptive, not a clinical criterion call."""
+    p = popmax if popmax is not None else af
+    if not p:
+        return "absent from gnomAD v4.1"
+    anc = f", {ancestry}" if ancestry else ""
+    if p >= 0.05:
+        return f"common (popmax {p:.1%}{anc}) — too common for a highly-penetrant pathogenic allele"
+    if p >= 0.01:
+        return f"low-frequency (popmax {p:.2%}{anc})"
+    if p >= 1e-3:
+        return f"rare (popmax {p:.3%}{anc})"
+    if p >= 1e-4:
+        return f"ultra-rare (popmax {_sci(p)}{anc})"
+    return f"very rare (popmax {_sci(p)}{anc})"
+
+
+def _sci(x):
+    return f"{x:.1e}"
+
+
 def gnomad_for(rsid):
-    """Population-frequency read for an rsID, or None. Absence is a real signal
-    (a rare pathogenic allele is expected to be absent from gnomAD)."""
+    """Population-frequency read from the dbSNP inline global frequency (fallback
+    when no coordinate is available). Absence is itself a signal."""
     if not rsid:
         return None
     d = map_all(rsid, ">>dbsnp")
@@ -63,7 +134,7 @@ def gnomad_for(rsid):
     absent = freq in ("", "0", "0.0")
     return {"frequency": freq, "absent": absent,
             "is_common": (d[0].get("is_common") == "true"),
-            "band": _freq_band(freq, absent)}
+            "band": _freq_band(freq, absent), "source": "dbSNP/gnomAD"}
 
 
 def _freq_band(freq, absent):
@@ -99,7 +170,7 @@ def submitter_consensus(submissions):
     return {"n": len(calls), "breakdown": dict(bd), "verdict": verdict}
 
 
-def concordance(classification, am_entry, gnomad):
+def concordance(classification, am_entry, gnomad, spliceai=None):
     """Cross-source concordance readout: does the independent in-silico +
     population evidence agree with ClinVar? Returns {lines, verdict, flags}.
     Never a clinical determination — a description of evidence agreement."""
@@ -124,15 +195,22 @@ def concordance(classification, am_entry, gnomad):
 
     if gnomad:
         total += 1
-        if gnomad["absent"]:
+        if gnomad.get("absent"):
             if clinvar_path:
                 agree += 1
-            lines.append("Absent from gnomAD — consistent with a rare pathogenic allele")
-        elif gnomad["is_common"]:
-            flags.append(f"common in gnomAD ({gnomad['frequency']})")
-            lines.append(f"**{gnomad['band']}** — unusual for a pathogenic classification ⚠")
+            lines.append("Absent from gnomAD v4.1 — consistent with a rare pathogenic allele")
+        elif gnomad.get("is_common"):
+            flags.append(gnomad.get("band", "common in gnomAD"))
+            lines.append(f"**{gnomad['band']}** ⚠")
         else:
-            lines.append(gnomad["band"].capitalize())
+            lines.append(gnomad["band"][0].upper() + gnomad["band"][1:] + " (gnomAD v4.1)")
+
+    if spliceai:
+        total += 1
+        if clinvar_path:
+            agree += 1
+        lines.append(f"SpliceAI predicts **{(spliceai.get('effect') or '').replace('_', ' ')}** "
+                     f"(Δ {spliceai.get('score')}) — a splice-altering effect consistent with pathogenicity")
 
     if total == 0:
         verdict = None
@@ -204,6 +282,33 @@ def gene_structure(hgnc_id):
         intervals.append({"type": t, "desc": (f.get("description") or "").strip(),
                           "begin": b, "end": e})
     return {"pdb": pdb, "alphafold": alphafold, "intervals": intervals}
+
+
+def gene_spliceai(hgnc_id):
+    """{coordinate: {effect, score}} of the gene's SpliceAI splice-impact
+    predictions (chr:pos:ref:alt keys), fetched once per gene."""
+    out = {}
+    for r in map_all(hgnc_id, ">>hgnc>>spliceai", cap=60):
+        cid = r.get("id")
+        if cid and r.get("score"):
+            out[cid] = {"effect": r.get("effect"), "score": r.get("score")}
+    return out
+
+
+def spliceai_for(coord, cache):
+    """SpliceAI prediction for a variant's coordinate, if it has a meaningful
+    (>=0.2) delta score — SpliceAI only annotates splice-relevant positions."""
+    if not coord or not cache:
+        return None
+    hit = cache.get(coord)
+    if not hit:
+        return None
+    try:
+        if float(hit["score"]) < 0.2:
+            return None
+    except (TypeError, ValueError):
+        return None
+    return hit
 
 
 def gene_condition_digest(hgnc_id):

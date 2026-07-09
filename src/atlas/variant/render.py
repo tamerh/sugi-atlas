@@ -213,8 +213,10 @@ def render_body(v, jsonld_tag=""):
                      f"most-pathogenic-predicted substitutions in {v.get('gene_symbol')} "
                      f"(of {pctl['n']:,} modeled).")
         L.append("\n*Independent of the ClinVar clinical classification: AlphaMissense "
-                 "(Cheng et al. 2023, in-silico missense pathogenicity) and gnomAD v4 "
-                 "population frequency. A prediction, not a clinical determination.*")
+                 "(Cheng et al. 2023, in-silico missense pathogenicity), gnomAD v4.1 "
+                 "population frequency (popmax — the ACMG BA1/BS1/PM2 metric), and "
+                 "SpliceAI splice-impact prediction. Predictions, not a clinical "
+                 "determination.*")
 
     # Gene ACMG context + protein/structural context
     L += _gene_context_zone(v)

@@ -102,3 +102,33 @@ def test_plain_summary():
     conf = plain_summary({"gene_symbol": "X", "classification": "Conflicting classifications of pathogenicity",
                           "submitter_count": 0, "conditions": []}, None)
     assert "experts disagree" in conf
+
+
+# ── gnomAD v4.1 (by coordinate) + SpliceAI (both went live 2026-07-09) ────────
+def test_variant_coordinate_picks_grch38():
+    from atlas.variant.enrich import variant_coordinate
+    # both assemblies present; must pick the one whose pos == ClinVar start (GRCh38)
+    rec = {"chromosome": "1", "start": 229432266,
+           "hgvs_expressions": ["NC_000001.10:g.229568013G>C",   # GRCh37 — must NOT win
+                                "NC_000001.11:g.229432266G>C"]}   # GRCh38 — matches start
+    assert variant_coordinate(rec) == "1:229432266:G:C"
+    # no genomic SNV HGVS (indel) → None
+    assert variant_coordinate({"chromosome": "1", "start": 5,
+                               "hgvs_expressions": ["NM_x:c.10del"]}) is None
+
+
+def test_gnomad_band_uses_popmax():
+    from atlas.variant.enrich import _gnomad_band
+    assert _gnomad_band(0.06, 0.08, "nfe").startswith("common")
+    assert "too common" in _gnomad_band(0.06, 0.08, "nfe")
+    assert _gnomad_band(1e-5, 2e-5, "afr").startswith("very rare")
+    assert _gnomad_band(None, None, None).startswith("absent")
+
+
+def test_spliceai_for_threshold():
+    from atlas.variant.enrich import spliceai_for
+    cache = {"1:100:C:T": {"effect": "acceptor_gain", "score": "0.61"},
+             "1:200:A:G": {"effect": "donor_loss", "score": "0.05"}}
+    assert spliceai_for("1:100:C:T", cache)["effect"] == "acceptor_gain"
+    assert spliceai_for("1:200:A:G", cache) is None      # below 0.2 → not surfaced
+    assert spliceai_for("1:999:C:T", cache) is None      # not in cache
