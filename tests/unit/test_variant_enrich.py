@@ -132,3 +132,35 @@ def test_spliceai_for_threshold():
     assert spliceai_for("1:100:C:T", cache)["effect"] == "acceptor_gain"
     assert spliceai_for("1:200:A:G", cache) is None      # below 0.2 → not surfaced
     assert spliceai_for("1:999:C:T", cache) is None      # not in cache
+
+
+# ── #2 batch: PharmGKB / CIViC gating + variant-landscape aggregate ──────────
+def test_pharmgkb_for_from_cache():
+    from atlas.variant.enrich import pharmgkb_for
+    cache = {"rs4244285": {"annotations": [{"drugs": "clopidogrel"}, {"drugs": "prasugrel"}],
+                           "clinical": [{"chemicals": "clopidogrel", "level": "1A", "type": "Efficacy"}]}}
+    p = pharmgkb_for("rs4244285", cache)
+    assert "clopidogrel" in p["drugs"] and p["clinical"][0]["level"] == "1A"
+    assert pharmgkb_for("rs999", cache) is None
+    assert pharmgkb_for(None, cache) is None
+
+
+def test_civic_gate_blocks_non_cancer_genes():
+    from atlas.variant.enrich import civic_for
+    # has_civic False → no lookup at all (the gate), returns None
+    assert civic_for("12345", False) is None
+
+
+def test_gene_variant_landscape():
+    from atlas.variant.enrich import gene_variant_landscape
+    recs = [{"classification": "Pathogenic", "variant_type": "single nucleotide variant",
+             "hgvs_p": "p.Arg48His"},
+            {"classification": "Pathogenic", "variant_type": "single nucleotide variant",
+             "hgvs_p": "p.Arg48Cys"},                       # same residue 48 → recurrent
+            {"classification": "Likely pathogenic", "variant_type": "Deletion",
+             "hgvs_p": "p.Lys300del"}]
+    lc = gene_variant_landscape(recs)
+    assert lc["n"] == 3
+    assert lc["by_type"]["single nucleotide variant"] == 2
+    assert (48, 2) in lc["recurrent"]                       # residue 48 hit twice
+    assert lc["residue_span"] == (48, 300)

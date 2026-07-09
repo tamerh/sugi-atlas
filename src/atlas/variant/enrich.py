@@ -311,6 +311,79 @@ def spliceai_for(coord, cache):
     return hit
 
 
+def gene_pharmgkb(hgnc_id):
+    """{rsID: {annotations, clinical}} pharmacogenomics for the gene, fetched once.
+    Empty for the vast majority of genes (only pharmacogenes carry PGx)."""
+    out = {}
+    for a in map_all(hgnc_id, ">>hgnc>>pharmgkb_var_annotation", cap=20):
+        rs = a.get("variant")
+        if rs and a.get("drugs"):
+            out.setdefault(rs, {"annotations": [], "clinical": []})["annotations"].append(
+                {"drugs": a.get("drugs"), "category": a.get("phenotype_category"),
+                 "significance": a.get("significance"), "sentence": a.get("sentence"),
+                 "pmid": a.get("pmid")})
+    for c in map_all(hgnc_id, ">>hgnc>>pharmgkb_clinical", cap=20):
+        rs = c.get("variant")
+        if rs and c.get("chemicals"):
+            out.setdefault(rs, {"annotations": [], "clinical": []})["clinical"].append(
+                {"chemicals": c.get("chemicals"), "level": c.get("level_of_evidence"),
+                 "type": c.get("type"), "phenotypes": c.get("phenotypes")})
+    return out
+
+
+def pharmgkb_for(rsid, cache):
+    """PGx for a variant's rsID from the per-gene cache, deduped."""
+    if not rsid or rsid not in (cache or {}):
+        return None
+    e = cache[rsid]
+    drugs = sorted({a["drugs"] for a in e["annotations"] if a.get("drugs")})
+    return {"drugs": drugs[:8], "n": len(e["annotations"]),
+            "clinical": sorted(e["clinical"], key=lambda c: (c.get("level") or "9"))[:5]}
+
+
+def gene_has_civic(hgnc_id):
+    """Whether the gene has any CIViC curation — gates the per-variant CIViC
+    lookup so non-oncology genes cost one probe, not one call per variant."""
+    return bool(map_all(hgnc_id, ">>hgnc>>civic", cap=1))
+
+
+def civic_for(variation_id, has_civic):
+    """CIViC predictive/prognostic evidence for a variant (cancer genes). Joined
+    via the clinvar↔civic_variant xref. None unless the gene has CIViC data."""
+    if not has_civic:
+        return None
+    cv = map_all(variation_id, ">>clinvar>>civic_variant")
+    if not cv:
+        return None
+    ev = map_all(cv[0]["id"], ">>civic_variant>>civic_evidence")
+    if not ev:
+        return None
+    return {"name": cv[0].get("name"),
+            "evidence": [{"disease": e.get("disease"), "therapies": e.get("therapies"),
+                          "type": e.get("evidence_type"), "level": e.get("evidence_level"),
+                          "significance": e.get("significance")} for e in ev[:8]]}
+
+
+def gene_variant_landscape(recs):
+    """Aggregate profile of the gene's built variants — for the per-gene index.
+    Zero new calls: everything from the in-memory record list."""
+    from collections import Counter
+    by_cls = Counter(r.get("classification") for r in recs)
+    by_type = Counter(r.get("variant_type") for r in recs if r.get("variant_type"))
+    pos = Counter()
+    for r in recs:
+        p = protein_position(r.get("hgvs_p"))
+        if p is not None and "pathogenic" in (r.get("classification") or "").lower():
+            pos[p] += 1
+    recurrent = [(p, n) for p, n in pos.most_common(8) if n > 1]
+    span = None
+    ps = [p for p in pos]
+    if ps:
+        span = (min(ps), max(ps))
+    return {"by_class": dict(by_cls), "by_type": dict(by_type.most_common(6)),
+            "recurrent": recurrent, "n": len(recs), "residue_span": span}
+
+
 def gene_condition_digest(hgnc_id):
     """Patient-facing digest of the gene's PRIMARY condition — routed via the
     gene's best-annotated Orphanet disease (NOT the narrow ClinVar MONDO, which

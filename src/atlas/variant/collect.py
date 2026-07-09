@@ -131,6 +131,8 @@ def attach_enrichment(rec, ctx=None):
     rec["similar"] = EN.similar_variants(rec, ctx.get("recs") or [])
     rec["timeline"] = EN.submission_timeline(rec.get("submissions") or [])
     rec["plain"] = EN.plain_summary(rec, ctx.get("digest"))
+    rec["pharmgkb"] = EN.pharmgkb_for(rec.get("rsid"), ctx.get("pharmgkb") or {})
+    rec["civic"] = EN.civic_for(rec.get("variation_id"), ctx.get("has_civic"))
     # per-gene context is shared (attach the references for the renderer)
     rec["gene_context"] = ctx.get("gene_context")
     rec["structure"] = ctx.get("structure")

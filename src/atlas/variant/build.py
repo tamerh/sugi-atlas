@@ -83,6 +83,8 @@ def build_gene(symbol, out_root):
     ctx = {
         "am": EN.gene_alphamissense(hgnc),
         "spliceai": EN.gene_spliceai(hgnc),
+        "pharmgkb": EN.gene_pharmgkb(hgnc),
+        "has_civic": EN.gene_has_civic(hgnc),
         "positions": VC.build_position_index(recs),
         "recs": recs,
         "gene_context": EN.gene_context(hgnc),
@@ -123,6 +125,24 @@ def _write_index(symbol, hgnc, recs, out_root):
          f"**{len(recs)} pathogenic / likely-pathogenic / conflicting variants** in "
          f"{links.maybe_link(symbol, links.gene_url(symbol=symbol, hgnc_id=hgnc)) or symbol} "
          "with a dedicated page. Benign and unreviewed variants are omitted.", ""]
+    # Variant-landscape profile (aggregate, zero new calls)
+    lc = EN.gene_variant_landscape(recs)
+    gc = (recs[0].get("gene_context") if recs else None) or {}
+    prof = []
+    if lc["by_type"]:
+        prof.append("**By type:** " + ", ".join(f"{n} {t.lower()}" for t, n in lc["by_type"].items()))
+    if lc["recurrent"]:
+        prof.append("**Most recurrently mutated residues:** "
+                    + ", ".join(f"residue {p} ({n} variants)" for p, n in lc["recurrent"]))
+    if lc["residue_span"]:
+        prof.append(f"**Span:** pathogenic variants across residues "
+                    f"{lc['residue_span'][0]}–{lc['residue_span'][1]}")
+    con = gc.get("constraint") or {}
+    if con.get("loeuf"):
+        prof.append(f"**Gene constraint:** LOEUF {con['loeuf']}, pLI {con.get('pli')} "
+                    "(lower LOEUF = less tolerant of loss-of-function)")
+    if prof:
+        L += ["### Variant landscape {#landscape}", ""] + [f"- {p}" for p in prof] + [""]
     for cls in _CLASS_ORDER + [c for c in by_cls if c not in _CLASS_ORDER]:
         group = sorted(by_cls.get(cls, []), key=lambda r: r["canonical_slug"])
         if not group:

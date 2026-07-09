@@ -158,6 +158,38 @@ def _protein_zone(v):
     return L
 
 
+def _civic_zone(v):
+    c = v.get("civic")
+    if not c or not c.get("evidence"):
+        return []
+    L = ["", "## Cancer therapy associations (CIViC) {#civic}", "",
+         "Curated clinical evidence for this variant from CIViC "
+         f"(profile *{c.get('name')}*):", "",
+         table(["Disease", "Therapies", "Type", "Level", "Significance"],
+               [(e.get("disease"), e.get("therapies"), e.get("type"),
+                 e.get("level"), e.get("significance")) for e in c["evidence"]]),
+         "*CIViC evidence levels A–E (A strongest). Therapy associations are "
+         "context-specific — not a treatment recommendation.*"]
+    return L
+
+
+def _pharmgkb_zone(v):
+    p = v.get("pharmgkb")
+    if not p or not (p.get("clinical") or p.get("drugs")):
+        return []
+    L = ["", "## Pharmacogenomics (PharmGKB) {#pgx}", ""]
+    if p.get("clinical"):
+        L += ["Clinical drug-response annotations:", "",
+              table(["Drug(s)", "Evidence level", "Category", "Phenotype"],
+                    [(c.get("chemicals"), c.get("level"), c.get("type"), c.get("phenotypes"))
+                     for c in p["clinical"]])]
+    elif p.get("drugs"):
+        L.append("Drugs with reported response associations: " + ", ".join(p["drugs"]) + ".")
+    L.append("*PharmGKB levels 1A/1B (highest) → 4. Discuss any medication "
+             "decision with your prescriber — reference information, not advice.*")
+    return L
+
+
 def render_body(v, jsonld_tag=""):
     L = ["## Summary", "", declarative(v), ""]
     # At a glance
@@ -271,6 +303,10 @@ def render_body(v, jsonld_tag=""):
               + ", ".join(f"[{o['label']}](/atlas/variant/{o['slug']}/)" for o in others[:12])
               + ". *Positional co-occurrence of independent ClinVar records, not "
               "functional proof.*"]
+
+    # Cancer-therapy (CIViC) + pharmacogenomics (PharmGKB) — conditional layers
+    L += _civic_zone(v)
+    L += _pharmgkb_zone(v)
 
     # Similar variants (internal mesh)
     sim = v.get("similar") or []
