@@ -164,3 +164,17 @@ def test_gene_variant_landscape():
     assert lc["by_type"]["single nucleotide variant"] == 2
     assert (48, 2) in lc["recurrent"]                       # residue 48 hit twice
     assert lc["residue_span"] == (48, 300)
+
+
+# ── MaveDB functional-assay join (staging: hgvs_pro now in projection) ────────
+def test_mavedb_for_dedups_by_score_set():
+    from atlas.variant.enrich import mavedb_for
+    cache = {"p.Ala302Thr": [
+        {"score": "-1.2", "score_set": "urn:mavedb:81-a-1", "license": "CC0", "title": "SGE"},
+        {"score": "0.1", "score_set": "urn:mavedb:81-a-1", "license": "CC0", "title": "SGE"},  # dup set
+        {"score": "-0.9", "score_set": "urn:mavedb:81-a-2", "license": "CC0", "title": "HDR"}]}
+    m = mavedb_for("p.Ala302Thr", cache)
+    assert len(m) == 2                                   # one row per score set
+    assert {r["score_set"] for r in m} == {"urn:mavedb:81-a-1", "urn:mavedb:81-a-2"}
+    assert mavedb_for("p.Gly1Arg", cache) is None
+    assert mavedb_for(None, cache) is None

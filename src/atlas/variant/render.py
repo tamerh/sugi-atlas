@@ -173,6 +173,29 @@ def _civic_zone(v):
     return L
 
 
+def _num(s):
+    """Round a raw assay score string for display (keep 3 decimals)."""
+    try:
+        return f"{float(s):.3f}"
+    except (TypeError, ValueError):
+        return s
+
+
+def _mavedb_zone(v):
+    m = v.get("mavedb")
+    if not m:
+        return []
+    return ["", "## Functional evidence (MaveDB) {#mavedb}", "",
+            f"Measured in **{len(m)} multiplexed functional assay"
+            + ("s" if len(m) != 1 else "") + "** (deep mutational scanning):", "",
+            table(["Assay (MaveDB score set)", "Raw score", "License"],
+                  [(f"[{r.get('title') or r['score_set']}](https://www.mavedb.org/score-sets/{r['score_set']}/)",
+                    _num(r["score"]), r.get("license")) for r in m]),
+            "*Raw per-assay scores — sign and scale differ between assays; interpret "
+            "within each score set. Experimental functional evidence (an ACMG PS3/BS3 "
+            "input), not a classification.*"]
+
+
 def _pharmgkb_zone(v):
     p = v.get("pharmgkb")
     if not p or not (p.get("clinical") or p.get("drugs")):
@@ -304,7 +327,8 @@ def render_body(v, jsonld_tag=""):
               + ". *Positional co-occurrence of independent ClinVar records, not "
               "functional proof.*"]
 
-    # Cancer-therapy (CIViC) + pharmacogenomics (PharmGKB) — conditional layers
+    # Functional (MaveDB) + cancer-therapy (CIViC) + PGx (PharmGKB) — conditional
+    L += _mavedb_zone(v)
     L += _civic_zone(v)
     L += _pharmgkb_zone(v)
 

@@ -133,6 +133,7 @@ def attach_enrichment(rec, ctx=None):
     rec["plain"] = EN.plain_summary(rec, ctx.get("digest"))
     rec["pharmgkb"] = EN.pharmgkb_for(rec.get("rsid"), ctx.get("pharmgkb") or {})
     rec["civic"] = EN.civic_for(rec.get("variation_id"), ctx.get("has_civic"))
+    rec["mavedb"] = EN.mavedb_for(rec.get("hgvs_p"), ctx.get("mavedb") or {})
     # per-gene context is shared (attach the references for the renderer)
     rec["gene_context"] = ctx.get("gene_context")
     rec["structure"] = ctx.get("structure")

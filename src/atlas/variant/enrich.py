@@ -284,6 +284,46 @@ def gene_structure(hgnc_id):
     return {"pdb": pdb, "alphafold": alphafold, "intervals": intervals}
 
 
+def gene_mavedb(hgnc_id):
+    """{hgvs_pro: [{score, score_set, title, license}]} of the gene's MaveDB
+    multiplexed functional-assay measurements, fetched once per gene. Empty for
+    most genes (only MAVE-assayed genes carry scores). score_set_title is looked
+    up once per score set (it's not in the lite map projection)."""
+    from collections import defaultdict
+    from atlas.biobtree import entry
+    by_hgvs, rep = defaultdict(list), {}
+    for x in map_all(hgnc_id, ">>hgnc>>mavedb", cap=200):
+        hp, ss = x.get("hgvs_pro"), x.get("score_set")
+        if hp and ss and x.get("score") is not None:
+            by_hgvs[hp].append({"score": x["score"], "score_set": ss,
+                                "license": x.get("license")})
+            rep.setdefault(ss, x.get("id"))
+    titles = {}
+    for ss, rid in rep.items():
+        if rid:
+            a = (entry(rid, "mavedb") or {}).get("Attributes") or {}
+            m = a.get("Mavedb") or (next(iter(a.values()), {}) if a else {})
+            titles[ss] = (m or {}).get("score_set_title")
+    for lst in by_hgvs.values():
+        for r in lst:
+            r["title"] = titles.get(r["score_set"])
+    return dict(by_hgvs)
+
+
+def mavedb_for(hgvs_p, cache):
+    """Deduped MaveDB assay measurements for a variant's protein change (one row
+    per score set), or None."""
+    rows_ = (cache or {}).get(hgvs_p)
+    if not rows_:
+        return None
+    seen, out = set(), []
+    for r in rows_:
+        if r["score_set"] not in seen:
+            seen.add(r["score_set"])
+            out.append(r)
+    return out[:6]
+
+
 def gene_spliceai(hgnc_id):
     """{coordinate: {effect, score}} of the gene's SpliceAI splice-impact
     predictions (chr:pos:ref:alt keys), fetched once per gene."""

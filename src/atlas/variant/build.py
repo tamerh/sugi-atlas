@@ -20,8 +20,8 @@ from atlas.variant import collect as VC, render as VR, enrich as EN, jsonld as V
 
 _DATASETS = ("clinvar", "clingen_variant", "clingen_gene_validity", "clingen_dosage",
              "gencc", "mondo", "orphanet", "gard", "clinical_trials", "panelapp_gene",
-             "alphamissense", "spliceai", "dbsnp", "gnomad_variant", "gnomad_constraint",
-             "uniprot", "pdb", "alphafold", "hgnc")
+             "alphamissense", "spliceai", "mavedb", "dbsnp", "gnomad_variant",
+             "gnomad_constraint", "uniprot", "pdb", "alphafold", "hgnc")
 _CLASS_ORDER = ["Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic",
                 "Conflicting classifications of pathogenicity"]
 
@@ -85,6 +85,7 @@ def build_gene(symbol, out_root):
         "spliceai": EN.gene_spliceai(hgnc),
         "pharmgkb": EN.gene_pharmgkb(hgnc),
         "has_civic": EN.gene_has_civic(hgnc),
+        "mavedb": EN.gene_mavedb(hgnc),
         "positions": VC.build_position_index(recs),
         "recs": recs,
         "gene_context": EN.gene_context(hgnc),
