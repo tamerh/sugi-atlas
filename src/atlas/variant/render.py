@@ -38,9 +38,9 @@ def declarative(v):
     gene = v.get("gene_symbol")
     rs = v.get("review_status") or ""
     lead = f"**{label}** is classified **{cls}** in {gene} (ClinVar, {_stars(rs)}"
-    cons = v.get("consensus")
-    if cons:
-        lead += f", {cons['n']} submitter" + ("s" if cons["n"] != 1 else "")
+    n_sub = v.get("submitter_count") or 0   # same count as At-a-glance (audit P2b)
+    if n_sub:
+        lead += f", {n_sub} submitter" + ("s" if n_sub != 1 else "")
     if v.get("last_evaluated"):
         lead += f"; last evaluated {v['last_evaluated']}"
     lead += ")."
@@ -100,7 +100,8 @@ def _patient_zone(v):
     # top symptoms — of the variant's OWN condition (audit P1), only when present
     if d.get("phenotypes"):
         L += ["", f"**Commonly reported features of {d.get('name','this condition')}** "
-              "(across patients with this condition; presentation varies):", ""]
+              "(across patients with this condition; presentation varies — "
+              "frequencies from Orphanet):", ""]
         L += [f"- {p['term']}" + (f" — {p['freq']}" if p.get("freq") else "")
               for p in d["phenotypes"][:8]]
     # registry + counselor CTA

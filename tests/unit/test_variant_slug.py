@@ -30,3 +30,22 @@ def test_variant_slugs_dedup_and_empty():
     canonical, slugs = variant_slugs("TP53", None, "p.Arg175His")
     assert canonical == "tp53-p-arg175his" and slugs == ["tp53-p-arg175his"]
     assert variant_slugs("ACTA1", None, None) == (None, [])
+
+
+def test_hgvs_operators_dont_collide():
+    # audit P1: *, +, - are meaningful and must produce DISTINCT slugs
+    from atlas.variant.slug import variant_slugs
+    utr = variant_slugs("PTEN", "c.*667A>T", None)[0]      # 3'UTR
+    cod = variant_slugs("PTEN", "c.667A>T", None)[0]       # coding
+    assert utr != cod and "star" in utr
+    intron_after = variant_slugs("ACTA1", "c.616+4C>G", None)[0]
+    intron_before = variant_slugs("ACTA1", "c.616-4C>G", None)[0]
+    assert intron_after != intron_before                    # opposite introns
+    assert "plus" in intron_after and "minus" in intron_before
+
+
+def test_gene_symbol_with_dash_preserved():
+    # a gene like NKX2-1 must not get mangled by the HGVS operator mapping
+    from atlas.variant.slug import variant_slugs
+    canonical, _ = variant_slugs("NKX2-1", None, "p.Arg100His")
+    assert canonical == "nkx2-1-p-arg100his"

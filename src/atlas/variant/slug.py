@@ -22,8 +22,21 @@ def parse_hgvs(name):
 
 
 def _norm(s):
-    """Slug-normalize an HGVS/gene token: lowercase, non-alnum → '-', collapse."""
+    """Slug-normalize a plain token (e.g. gene symbol): lowercase, non-alnum → '-'.
+    A gene like NKX2-1 stays 'nkx2-1'."""
     s = (s or "").lower()
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    return s.strip("-")
+
+
+def _norm_hgvs(s):
+    """Slug-normalize an HGVS form, preserving the position operators that are
+    MEANINGFUL and collide when dropped (audit P1): `*` (3'UTR) — `c.*667A>T` vs
+    `c.667A>T`; and `+`/`-` (intronic direction) — `c.616+4` vs `c.616-4`. Map
+    them to distinct word tokens before the non-alnum collapse. (In coding HGVS a
+    bare '-' only ever means the intronic-upstream operator.)"""
+    s = (s or "").lower()
+    s = s.replace("*", " star ").replace("+", " plus ").replace("-", " minus ")
     s = re.sub(r"[^a-z0-9]+", "-", s)
     return s.strip("-")
 
@@ -38,7 +51,7 @@ def variant_slugs(gene, c_form, p_form):
     out = []
     for form in (p_form, c_form):        # p. first → canonical
         if form:
-            slug = f"{g}-{_norm(form)}"
+            slug = f"{g}-{_norm_hgvs(form)}"
             if slug not in out:
                 out.append(slug)
     return (out[0] if out else None), out

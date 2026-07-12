@@ -76,6 +76,25 @@ def build_gene(symbol, out_root):
             continue
         seen_slug.add(rec["canonical_slug"])
         recs.append(rec)
+    # Dedup ClinVar records of the SAME variant (same coding change): some records
+    # carry the protein form (→ p-canonical) and a duplicate record is c-only
+    # (→ c-canonical). Without this, the c-only page collides with the p-record's
+    # c-alias redirect ("generated-twice" — audit P2). The record WITH the protein
+    # form wins so the canonical page is the p-slug and the c-form is only an alias.
+    by_cform = {}
+    deduped = []
+    for rec in recs:
+        cf = rec.get("hgvs_c")
+        if cf and cf in by_cform:
+            kept = by_cform[cf]
+            if rec.get("hgvs_p") and not kept.get("hgvs_p"):
+                deduped[deduped.index(kept)] = rec   # promote the p-form record
+                by_cform[cf] = rec
+            continue                                  # drop the duplicate
+        if cf:
+            by_cform[cf] = rec
+        deduped.append(rec)
+    recs = deduped
     # Per-gene enrichment context, fetched once and shared across the gene's
     # variants (AlphaMissense map, residue index, gene ACMG context, structure,
     # diagnostic panels; the patient digest is now per-condition, cached in ctx).

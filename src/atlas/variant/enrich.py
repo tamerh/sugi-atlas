@@ -86,8 +86,10 @@ def _coord_entry(coord, dataset):
         return None
     if not a:
         return None
-    # single-key Attributes wrapper (e.g. {"GnomadVariant": {...}})
-    return next(iter(a.values()), None) if len(a) == 1 else a
+    # single-key Attributes wrapper (e.g. {"GnomadVariant": {...}}); biobtree
+    # returns {"Empty": true} for a key with no data — guard to dict-only.
+    v = next(iter(a.values())) if len(a) == 1 else a
+    return v if isinstance(v, dict) else None
 
 
 def gnomad_frequency(rec):
@@ -153,16 +155,17 @@ def _gnomad_band(af, popmax, ancestry):
     p = popmax if popmax is not None else af
     if not p:
         return "absent from gnomAD v4.1"
-    anc = f", {ancestry}" if ancestry else ""
+    # ONE unit for the popmax value everywhere (audit P2a): a percentage, 3 s.f.
+    pct = f"popmax {p * 100:.3g}%" + (f", {ancestry}" if ancestry else "")
     if p >= 0.05:
-        return f"common (popmax {p:.1%}{anc}) — too common for a highly-penetrant pathogenic allele"
+        return f"common ({pct}) — too common for a highly-penetrant pathogenic allele"
     if p >= 0.01:
-        return f"low-frequency (popmax {p:.2%}{anc})"
+        return f"low-frequency ({pct})"
     if p >= 1e-3:
-        return f"rare (popmax {p:.3%}{anc})"
+        return f"rare ({pct})"
     if p >= 1e-4:
-        return f"ultra-rare (popmax {_sci(p)}{anc})"
-    return f"very rare (popmax {_sci(p)}{anc})"
+        return f"ultra-rare ({pct})"
+    return f"very rare ({pct})"
 
 
 def _sci(x):
@@ -557,19 +560,16 @@ def gene_panelapp(hgnc_id):
 
 
 def condition_links(mondo_id, cache):
-    """GARD registry + clinical trials for a condition, climbing one MONDO parent
-    level when the exact term has none. Cached per MONDO id."""
+    """GARD registry + clinical-trial count for the variant's EXACT condition.
+    Cached per MONDO id. Audit P2c: we no longer climb to a MONDO parent for
+    trials — climbing to a broad umbrella term (e.g. autism spectrum disorder)
+    inflated the count into the thousands and mis-attributed unrelated trials."""
     if not mondo_id:
         return {}
     if mondo_id in cache:
         return cache[mondo_id]
     gard = [g.get("id") for g in map_all(mondo_id, ">>mondo>>gard") if g.get("id")]
     trials = map_all(mondo_id, ">>mondo>>clinical_trials")
-    if not trials:
-        for par in map_all(mondo_id, ">>mondo>>mondoparent")[:2]:
-            trials = map_all(par.get("id"), ">>mondo>>clinical_trials")
-            if trials:
-                break
     out = {"gard": gard[0] if gard else None, "trial_count": len(trials)}
     cache[mondo_id] = out
     return out
