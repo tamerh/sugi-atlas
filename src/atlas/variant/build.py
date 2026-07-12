@@ -61,12 +61,12 @@ def _write(out_root, rel_slug, page_md):
         f.write(page_md)
 
 
-def build_gene(symbol, out_root):
-    """Build every buildable variant page for one gene + its index. Returns the
-    list of built variant records (for the index + summary)."""
-    hgnc = _hgnc_id(symbol)
+def enriched_records(symbol, hgnc=None):
+    """Every buildable variant for a gene, fully enriched — the single record-
+    assembly path shared by the static build AND the dynamic Sugi Variant app.
+    Returns [] if the gene has no HGNC id."""
+    hgnc = hgnc or _hgnc_id(symbol)
     if not hgnc:
-        print(f"  {symbol}: no HGNC id — skip")
         return []
     # Pass 1 — collect every buildable variant (pure ClinVar record).
     recs, seen_slug = [], set()
@@ -76,44 +76,46 @@ def build_gene(symbol, out_root):
             continue
         seen_slug.add(rec["canonical_slug"])
         recs.append(rec)
-    # Dedup ClinVar records of the SAME variant (same coding change): some records
-    # carry the protein form (→ p-canonical) and a duplicate record is c-only
-    # (→ c-canonical). Without this, the c-only page collides with the p-record's
-    # c-alias redirect ("generated-twice" — audit P2). The record WITH the protein
-    # form wins so the canonical page is the p-slug and the c-form is only an alias.
-    by_cform = {}
-    deduped = []
+    # Dedup ClinVar records of the SAME variant (same coding change): the record
+    # WITH the protein form wins so the canonical page is the p-slug and the
+    # c-form is only an alias ("generated-twice" — audit P2).
+    by_cform, deduped = {}, []
     for rec in recs:
         cf = rec.get("hgvs_c")
         if cf and cf in by_cform:
             kept = by_cform[cf]
             if rec.get("hgvs_p") and not kept.get("hgvs_p"):
-                deduped[deduped.index(kept)] = rec   # promote the p-form record
+                deduped[deduped.index(kept)] = rec
                 by_cform[cf] = rec
-            continue                                  # drop the duplicate
+            continue
         if cf:
             by_cform[cf] = rec
         deduped.append(rec)
     recs = deduped
-    # Per-gene enrichment context, fetched once and shared across the gene's
-    # variants (AlphaMissense map, residue index, gene ACMG context, structure,
-    # diagnostic panels; the patient digest is now per-condition, cached in ctx).
+    # Per-gene enrichment context, fetched once and shared across the gene's variants.
     ctx = {
-        "am": EN.gene_alphamissense(hgnc),
-        "spliceai": EN.gene_spliceai(hgnc),
-        "pharmgkb": EN.gene_pharmgkb(hgnc),
-        "has_civic": EN.gene_has_civic(hgnc),
-        "mavedb": EN.gene_mavedb(hgnc),
-        "positions": VC.build_position_index(recs),
-        "recs": recs,
-        "gene_context": EN.gene_context(hgnc),
-        "structure": EN.gene_structure(hgnc),
-        "pathways": EN.gene_pathways(hgnc),
+        "am": EN.gene_alphamissense(hgnc), "spliceai": EN.gene_spliceai(hgnc),
+        "pharmgkb": EN.gene_pharmgkb(hgnc), "has_civic": EN.gene_has_civic(hgnc),
+        "mavedb": EN.gene_mavedb(hgnc), "positions": VC.build_position_index(recs),
+        "recs": recs, "gene_context": EN.gene_context(hgnc),
+        "structure": EN.gene_structure(hgnc), "pathways": EN.gene_pathways(hgnc),
         "panels": EN.gene_panelapp(hgnc),
     }
-    # Pass 2 — enrich + render each.
     for rec in recs:
         VC.attach_enrichment(rec, ctx)
+    return recs
+
+
+def build_gene(symbol, out_root):
+    """Build every buildable variant page for one gene + its index. Returns the
+    list of built variant records (for the index + summary)."""
+    hgnc = _hgnc_id(symbol)
+    if not hgnc:
+        print(f"  {symbol}: no HGNC id — skip")
+        return []
+    recs = enriched_records(symbol, hgnc)
+    # Render + write each.
+    for rec in recs:
         meta = build_meta("variant", rec["canonical_slug"], VR._label(rec), _DATASETS)
         meta["gene"] = rec["gene_symbol"]
         meta["classification"] = rec["classification"]
