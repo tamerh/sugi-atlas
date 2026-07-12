@@ -70,39 +70,37 @@ def declarative_plain(v):
 def _patient_zone(v):
     """The 'For patients & families' section — plain-language + condition digest,
     every line reference-framed, ending in a counselor CTA."""
-    d = v.get("digest") or {}
+    d = v.get("digest") or {}   # the VARIANT's-condition digest (germline only)
     L = ["", "## For patients & families {#patients}", "",
          v.get("plain") or "", "",
          "*Reference information, not medical advice, and not a prediction for any "
          "individual. A genetic counselor or clinician can interpret what it means "
          "for you and your family.*"]
-    inh = (v.get("gene_context") or {}).get("inheritance") or d.get("inheritance") or []
     facts = []
-    if inh:
-        facts.append(("Typical inheritance", ", ".join(inh[:3])))
+    # Inheritance/onset/prevalence come ONLY from the variant's condition digest
+    # (audit P1) — so somatic/acquired conditions, which have no germline Orphanet
+    # entry, never get germline framing.
+    if d.get("inheritance"):
+        facts.append(("Typical inheritance (of this condition)", ", ".join(d["inheritance"][:3])))
     if d.get("onset"):
-        facts.append(("Age of onset (condition)", ", ".join(d["onset"])))
+        facts.append(("Age of onset (of this condition)", ", ".join(d["onset"])))
     if d.get("prevalence"):
         facts.append(("Prevalence", d["prevalence"]))
-    if v.get("gene_pl_count"):
-        facts.append(("You're not alone",
-                      f"{v['gene_pl_count']} other pathogenic/likely-pathogenic "
-                      f"{v.get('gene_symbol')} variants are cataloged in ClinVar"))
     cl = v.get("condition_links") or {}
     if cl.get("trial_count"):
         facts.append(("Clinical trials",
                       f"{cl['trial_count']} registered for this condition — see ClinicalTrials.gov"))
-    if v.get("panels"):
+    if d and v.get("panels"):    # panel line only alongside a germline condition
         n = len(v["panels"])
         facts.append(("Diagnostic panels",
                       f"{v['gene_symbol']} is a diagnostic-grade gene on "
                       f"{n} Genomics England panel" + ("s" if n != 1 else "")))
     if facts:
         L += ["", table(["", ""], facts)]
-    # top symptoms of the condition (HPO with frequency)
+    # top symptoms — of the variant's OWN condition (audit P1), only when present
     if d.get("phenotypes"):
-        L += ["", f"**Commonly reported features of {d.get('name','the condition')}** "
-              "(across patients; presentation varies):", ""]
+        L += ["", f"**Commonly reported features of {d.get('name','this condition')}** "
+              "(across patients with this condition; presentation varies):", ""]
         L += [f"- {p['term']}" + (f" — {p['freq']}" if p.get("freq") else "")
               for p in d["phenotypes"][:8]]
     # registry + counselor CTA

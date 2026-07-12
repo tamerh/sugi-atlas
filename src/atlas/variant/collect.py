@@ -130,16 +130,18 @@ def attach_enrichment(rec, ctx=None):
     rec["structural"] = EN.structural_context(rec.get("hgvs_p"), (ctx.get("structure") or {}).get("intervals"))
     rec["similar"] = EN.similar_variants(rec, ctx.get("recs") or [])
     rec["timeline"] = EN.submission_timeline(rec.get("submissions") or [])
-    rec["plain"] = EN.plain_summary(rec, ctx.get("digest"))
+    # patient digest routed via the VARIANT's own condition (audit P1) — cached
+    # per condition-MONDO; None for somatic/unannotated conditions (no germline
+    # framing). plain_summary is confidence-calibrated (audit P2).
+    rec["digest"] = EN.condition_digest(rec.get("conditions"), ctx.setdefault("digest_cache", {}))
+    rec["plain"] = EN.plain_summary(rec)
     rec["pharmgkb"] = EN.pharmgkb_for(rec.get("rsid"), ctx.get("pharmgkb") or {})
     rec["civic"] = EN.civic_for(rec.get("variation_id"), ctx.get("has_civic"))
     rec["mavedb"] = EN.mavedb_for(rec.get("hgvs_p"), ctx.get("mavedb") or {})
     # per-gene context is shared (attach the references for the renderer)
     rec["gene_context"] = ctx.get("gene_context")
     rec["structure"] = ctx.get("structure")
-    rec["digest"] = ctx.get("digest")
     rec["panels"] = ctx.get("panels")
-    rec["gene_pl_count"] = ctx.get("pl_count")
     # patient condition links (GARD + trials), routed via the variant's condition
     conds = rec.get("conditions") or []
     rec["condition_links"] = (EN.condition_links(conds[0].get("mondo_id"), ctx.setdefault("trials_cache", {}))

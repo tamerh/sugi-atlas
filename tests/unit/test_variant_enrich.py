@@ -94,14 +94,31 @@ def test_submission_timeline():
     assert not tl2["stable"]
 
 
-def test_plain_summary():
+def test_plain_summary_calibrated():
     from atlas.variant.enrich import plain_summary
-    s = plain_summary({"gene_symbol": "ACTA1", "classification": "Pathogenic",
-                       "submitter_count": 3, "conditions": [{"name": "nemaline myopathy"}]}, None)
-    assert "ACTA1" in s and "disease-causing" in s and "3 clinical labs" in s
-    conf = plain_summary({"gene_symbol": "X", "classification": "Conflicting classifications of pathogenicity",
-                          "submitter_count": 0, "conditions": []}, None)
-    assert "experts disagree" in conf
+    # strong review (2★) pathogenic → "considered disease-causing", variant condition
+    strong = plain_summary({"gene_symbol": "ACTA1", "classification": "Pathogenic",
+                            "review_status": "criteria provided, multiple submitters, no conflicts",
+                            "submitter_count": 3, "conditions": [{"name": "nemaline myopathy"}]})
+    assert "considered disease-causing" in strong and "3 clinical labs" in strong
+    assert "nemaline myopathy" in strong
+    # 1★ single-submitter pathogenic → hedged "limited review"
+    weak = plain_summary({"gene_symbol": "G", "classification": "Pathogenic",
+                          "review_status": "criteria provided, single submitter",
+                          "submitter_count": 1, "conditions": []})
+    assert "limited review" in weak
+    # in-silico-discordant pathogenic → "predictors disagree"
+    disc = plain_summary({"gene_symbol": "G", "classification": "Pathogenic",
+                          "review_status": "criteria provided, multiple submitters, no conflicts",
+                          "concordance": {"flags": ["AlphaMissense predicts likely-benign"]},
+                          "submitter_count": 4, "conditions": []})
+    assert "predictors disagree" in disc
+    # likely-pathogenic keeps the hedge; conflicting reads as disagreement
+    assert "likely disease-causing" in plain_summary(
+        {"gene_symbol": "G", "classification": "Likely pathogenic", "conditions": []})
+    assert "disagree" in plain_summary(
+        {"gene_symbol": "G", "classification": "Conflicting classifications of pathogenicity",
+         "conditions": []})
 
 
 # ── gnomAD v4.1 (by coordinate) + SpliceAI (both went live 2026-07-09) ────────

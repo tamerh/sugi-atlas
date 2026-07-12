@@ -424,32 +424,58 @@ def gene_variant_landscape(recs):
             "recurrent": recurrent, "n": len(recs), "residue_span": span}
 
 
-def gene_condition_digest(hgnc_id):
-    """Patient-facing digest of the gene's PRIMARY condition — routed via the
-    gene's best-annotated Orphanet disease (NOT the narrow ClinVar MONDO, which
-    is usually unannotated). Inheritance / onset / prevalence / HPO-with-frequency."""
-    diseases = [d for d in map_all(hgnc_id, ">>hgnc>>orphanet")
-                if (d.get("disorder_type") or "") == "Disease"]
-    if not diseases:
+def condition_digest(conditions, cache):
+    """Patient digest for the VARIANT's OWN condition (audit P1: not a gene-level
+    constant). Routes each of the variant's ClinVar-linked conditions through
+    Orphanet and returns the first that yields a germline Disease entry (climbing
+    one MONDO parent level for thinly-annotated subtypes). Crucially, SOMATIC/
+    acquired conditions (leukemia, mastocytosis…) have no Orphanet germline Disease
+    → they yield no digest → no germline inheritance/onset/HPO framing is projected
+    onto them. Cached per MONDO id."""
+    for c in conditions or []:
+        mid = c.get("mondo_id")
+        if not mid:
+            continue
+        if mid not in cache:
+            cache[mid] = _digest_via_mondo(mid) or _digest_via_parent(mid)
+        if cache[mid]:
+            return cache[mid]
+    return None
+
+
+def _digest_via_mondo(mondo_id):
+    orphas = [o for o in map_all(mondo_id, ">>mondo>>orphanet")
+              if (o.get("disorder_type") or "") == "Disease"]
+    if not orphas:
         return None
-    best = max(diseases, key=lambda d: int(d.get("phenotype_count") or 0))
-    o = _orphanet_entry(best.get("id"))
+    best = max(orphas, key=lambda o: int(o.get("phenotype_count") or 0))
+    return _build_orphanet_digest(best.get("id"), best.get("name"))
+
+
+def _digest_via_parent(mondo_id):
+    for par in map_all(mondo_id, ">>mondo>>mondoparent")[:2]:
+        d = _digest_via_mondo(par.get("id"))
+        if d:
+            return d
+    return None
+
+
+def _build_orphanet_digest(oid, fallback_name=None):
+    o = _orphanet_entry(oid)
     if not o:
         return None
     phen = sorted((o.get("phenotypes") or []),
                   key=lambda p: -(p.get("frequency_value") or 0))
     prev = (o.get("prevalences") or [{}])[0]
+    pc = prev.get("prevalence_class")
     return {
-        "name": o.get("name") or best.get("name"),
-        "definition": (o.get("definition") or "").strip(),
+        "name": o.get("name") or fallback_name,
         "inheritance": o.get("inheritance") or [],
         "onset": o.get("onset") or [],
-        "prevalence": (f"{prev.get('prevalence_class')} ({prev.get('geographic')})"
-                       if prev.get("prevalence_class")
-                       and prev.get("prevalence_class").lower() != "unknown" else None),
+        "prevalence": (f"{pc} ({prev.get('geographic')})"
+                       if pc and pc.lower() != "unknown" else None),
         "phenotypes": [{"term": p.get("hpo_term"), "freq": p.get("frequency")}
                        for p in phen[:8] if p.get("hpo_term")],
-        "n_phenotypes": len(o.get("phenotypes") or []),
     }
 
 
@@ -555,19 +581,43 @@ def submission_timeline(submissions):
             "stable": len(calls) <= 1}
 
 
-def plain_summary(rec, digest):
-    """Deterministic plain-language one-liner for patients (NOT an LLM)."""
+_STAR_N = {"practice guideline": 4, "reviewed by expert panel": 3,
+           "criteria provided, multiple submitters, no conflicts": 2,
+           "criteria provided, single submitter": 1,
+           "criteria provided, conflicting classifications": 1,
+           "no assertion criteria provided": 0, "no classification provided": 0}
+
+
+def review_stars(review_status):
+    return _STAR_N.get((review_status or "").strip().lower(), 0)
+
+
+def plain_summary(rec):
+    """Deterministic plain-language one-liner for patients (NOT an LLM). The
+    confidence phrasing is CALIBRATED to classification strength + review stars +
+    in-silico concordance (audit P2: don't flatten Likely-pathogenic, 1-star, and
+    computationally-discordant calls into a bare 'disease-causing'). The condition
+    is the VARIANT's own (audit P1: reconcile with the Summary)."""
     cls = (rec.get("classification") or "").lower()
+    stars = review_stars(rec.get("review_status"))
+    discordant = bool((rec.get("concordance") or {}).get("flags"))
     if "conflict" in cls:
-        meaning = "of uncertain / conflicting significance (experts disagree)"
+        meaning = "of uncertain or conflicting significance (clinical labs disagree on it)"
+    elif "likely pathogenic" in cls:
+        meaning = "considered likely disease-causing"
     elif "pathogenic" in cls:
-        meaning = "considered disease-causing"
+        if discordant:
+            meaning = "reported as disease-causing, though computational predictors disagree"
+        elif stars >= 2:
+            meaning = "considered disease-causing"
+        else:
+            meaning = "reported as disease-causing, but on limited review"
     else:
         meaning = f"classified as {rec.get('classification')}"
     gene = rec.get("gene_symbol")
     n = rec.get("submitter_count") or 0
-    who = (f" reported by {n} clinical lab" + ("s" if n != 1 else "")) if n else ""
-    cond = (digest or {}).get("name") or (rec.get("conditions") or [{}])[0].get("name")
+    who = (f", submitted by {n} clinical lab" + ("s" if n != 1 else "")) if n else ""
+    cond = (rec.get("conditions") or [{}])[0].get("name")
     link = f", and is linked to {cond}" if cond else ""
     return f"This is a change in the {gene} gene that is {meaning}{who}{link}."
 

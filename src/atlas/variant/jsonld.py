@@ -57,12 +57,13 @@ def _faq(rec):
         qas.append((f"How common is {label} in the general population?",
                     f"{label} is {g['band']} (gnomAD)."))
 
-    inh = (rec.get("gene_context") or {}).get("inheritance") \
-        or (rec.get("digest") or {}).get("inheritance") or []
+    dg = rec.get("digest") or {}
+    inh = dg.get("inheritance") or []
     if inh:
-        qas.append((f"How is {rec.get('gene_symbol')}-related disease inherited?",
-                    f"Typically {', '.join(inh[:2])} (ClinGen/GenCC/Orphanet). A "
-                    "genetic counselor can assess individual risk."))
+        cond = dg.get("name") or "this condition"
+        qas.append((f"How is {cond} inherited?",
+                    f"Typically {', '.join(inh[:2])} (Orphanet). A genetic "
+                    "counselor can assess individual risk for a family."))
 
     am = rec.get("alphamissense")
     if am and am.get("class"):

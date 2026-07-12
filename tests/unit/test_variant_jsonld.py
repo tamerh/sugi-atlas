@@ -13,7 +13,7 @@ _REC = {
     "conditions": [{"mondo_id": "MONDO:1", "name": "nemaline myopathy"}],
     "alphamissense": {"class": "likely_pathogenic", "score": "0.91"},
     "gnomad": {"band": "absent from gnomAD", "absent": True},
-    "gene_context": {"inheritance": ["Autosomal dominant"]},
+    "digest": {"name": "nemaline myopathy", "inheritance": ["Autosomal dominant"]},
 }
 
 

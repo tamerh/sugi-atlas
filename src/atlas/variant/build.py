@@ -78,8 +78,7 @@ def build_gene(symbol, out_root):
         recs.append(rec)
     # Per-gene enrichment context, fetched once and shared across the gene's
     # variants (AlphaMissense map, residue index, gene ACMG context, structure,
-    # the primary-condition digest, diagnostic panels, and the P/LP scale count).
-    pl_count = sum(1 for r in recs if VC._is_pathogenic(r.get("classification")))
+    # diagnostic panels; the patient digest is now per-condition, cached in ctx).
     ctx = {
         "am": EN.gene_alphamissense(hgnc),
         "spliceai": EN.gene_spliceai(hgnc),
@@ -90,9 +89,7 @@ def build_gene(symbol, out_root):
         "recs": recs,
         "gene_context": EN.gene_context(hgnc),
         "structure": EN.gene_structure(hgnc),
-        "digest": EN.gene_condition_digest(hgnc),
         "panels": EN.gene_panelapp(hgnc),
-        "pl_count": pl_count,
     }
     # Pass 2 — enrich + render each.
     for rec in recs:
