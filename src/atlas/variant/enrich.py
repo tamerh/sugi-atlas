@@ -73,24 +73,71 @@ def variant_coordinate(rec):
     return None
 
 
+def _coord_entry(coord, dataset):
+    """Attributes dict for a coordinate-keyed dataset via entry() — the ONLY
+    working access for gnomad_variant / alphamissense / conservation (they are
+    NOT map-chainable: `map(coord, '>>gnomad_variant')` returns 0). Audit Tier 1/2."""
+    if not coord:
+        return None
+    from atlas.biobtree import entry
+    try:
+        a = (entry(coord, dataset) or {}).get("Attributes") or {}
+    except Exception:
+        return None
+    if not a:
+        return None
+    # single-key Attributes wrapper (e.g. {"GnomadVariant": {...}})
+    return next(iter(a.values()), None) if len(a) == 1 else a
+
+
 def gnomad_frequency(rec):
-    """gnomAD v4.1 per-variant frequency — the ACMG BA1/BS1/PM2 layer. Queried by
-    coordinate (the rsID reverse-hop isn't live yet). Falls back to the dbSNP
-    global frequency when no genomic coordinate can be parsed (e.g. indels)."""
+    """gnomAD v4.1 per-variant frequency — the ACMG BA1/BS1/PM2 layer. Looked up
+    by coordinate via entry() (NOT map — that returns 0; audit Tier 1 false-Absent
+    bug). Surfaces popmax + faf + per-ancestry. Falls back to the dbSNP global
+    frequency only when no genomic coordinate can be parsed (e.g. indels)."""
     coord = variant_coordinate(rec)
     if coord:
-        g = map_all(coord, ">>gnomad_variant")
+        g = _coord_entry(coord, "gnomad_variant")
         if g:
-            af = _f(g[0].get("af"))
-            popmax = _f(g[0].get("af_grpmax"))
-            anc = g[0].get("grpmax_ancestry")
-            return {"af": g[0].get("af"), "popmax": popmax, "ancestry": anc,
+            af, popmax = _f(g.get("af")), _f(g.get("af_grpmax"))
+            anc = g.get("grpmax_ancestry")
+            pops = {k[3:]: g[k] for k in g if k.startswith("af_") and k != "af_grpmax" and g.get(k)}
+            return {"af": g.get("af"), "popmax": popmax, "ancestry": anc,
+                    "faf": g.get("faf"), "populations": pops,
                     "absent": False, "is_common": (popmax or 0) >= 0.05,
                     "band": _gnomad_band(af, popmax, anc), "source": "gnomAD v4.1"}
         return {"absent": True, "is_common": False, "popmax": None,
                 "band": "absent from gnomAD v4.1", "source": "gnomAD v4.1"}
     # fallback — dbSNP inline global frequency (no coordinate to key gnomAD v4.1)
     return gnomad_for(rec.get("rsid"))
+
+
+def alphamissense_for(coord):
+    """AlphaMissense for the variant, looked up BY COORDINATE (audit Tier 2: the
+    per-gene protein-keyed map uses a different isoform's numbering, so ~43% of
+    ASXL1 missense scores were missed). {class, score, short} or None."""
+    a = _coord_entry(coord, "alphamissense")
+    if not a or a.get("am_pathogenicity") is None:
+        return None
+    return {"class": a.get("am_class"), "score": str(a.get("am_pathogenicity")),
+            "short": a.get("protein_variant")}
+
+
+def conservation_for(coord):
+    """Per-position evolutionary conservation (phyloP / phastCons) via entry() on
+    the chr:pos (ref/alt-agnostic) key. The only computational signal for the
+    non-missense/splice -c- pages. GERP is left out (not populated on hg38)."""
+    if not coord:
+        return None
+    pos = ":".join(coord.split(":")[:2])          # chr:pos:ref:alt → chr:pos
+    a = _coord_entry(pos, "conservation")
+    if not a:
+        return None
+    phylop = _f(a.get("phylop"))
+    phastcons = _f(a.get("phastcons"))
+    if phylop is None and phastcons is None:
+        return None
+    return {"phylop": phylop, "phastcons": phastcons}
 
 
 def _f(x):
@@ -170,16 +217,19 @@ def submitter_consensus(submissions):
     return {"n": len(calls), "breakdown": dict(bd), "verdict": verdict}
 
 
-def concordance(classification, am_entry, gnomad, spliceai=None):
-    """Cross-source concordance readout: does the independent in-silico +
-    population evidence agree with ClinVar? Returns {lines, verdict, flags}.
-    Never a clinical determination — a description of evidence agreement."""
+def concordance(classification, am, gnomad, spliceai=None, conservation=None):
+    """Cross-source concordance readout: do the independent COMPUTATIONAL
+    predictors (AlphaMissense, SpliceAI, conservation) agree with ClinVar? Returns
+    {lines, verdict, flags}. Population rarity is shown but NOT counted as
+    concordant evidence (audit P2: PM2 is only supporting, and expected for almost
+    any rare variant — counting it inflated concordance, incl. on Conflicting
+    pages). Never a clinical determination."""
     cls = (classification or "").lower()
     clinvar_path = "pathogenic" in cls and "conflict" not in cls
     lines, flags, agree, total = [], [], 0, 0
 
-    if am_entry:
-        amclass, amscore = am_entry
+    if am:
+        amclass, amscore = am.get("class"), am.get("score")
         total += 1
         pretty = (amclass or "").replace("_", " ")
         if clinvar_path and amclass == "likely_pathogenic":
@@ -193,18 +243,6 @@ def concordance(classification, am_entry, gnomad, spliceai=None):
     else:
         lines.append("AlphaMissense — not scored (not a missense SNV)")
 
-    if gnomad:
-        total += 1
-        if gnomad.get("absent"):
-            if clinvar_path:
-                agree += 1
-            lines.append("Absent from gnomAD v4.1 — consistent with a rare pathogenic allele")
-        elif gnomad.get("is_common"):
-            flags.append(gnomad.get("band", "common in gnomAD"))
-            lines.append(f"**{gnomad['band']}** ⚠")
-        else:
-            lines.append(gnomad["band"][0].upper() + gnomad["band"][1:] + " (gnomAD v4.1)")
-
     if spliceai:
         total += 1
         if clinvar_path:
@@ -212,14 +250,41 @@ def concordance(classification, am_entry, gnomad, spliceai=None):
         lines.append(f"SpliceAI predicts **{(spliceai.get('effect') or '').replace('_', ' ')}** "
                      f"(Δ {spliceai.get('score')}) — a splice-altering effect consistent with pathogenicity")
 
-    if total == 0:
-        verdict = None
-    elif flags:
+    if conservation and conservation.get("phylop") is not None:
+        p = conservation["phylop"]
+        total += 1
+        if p >= 2:
+            if clinvar_path:
+                agree += 1
+            note = "highly conserved position (PP3-type support)"
+        elif p <= -2:
+            note = "fast-evolving / non-conserved position"
+        else:
+            note = "moderately conserved position"
+        pc = conservation.get("phastcons")
+        lines.append(f"Conservation: phyloP {p:g}"
+                     + (f", phastCons {pc:g}" if pc is not None else "") + f" — {note}")
+
+    # Population frequency — shown, but NEVER counted as concordant evidence.
+    if gnomad:
+        if gnomad.get("is_common"):
+            flags.append(gnomad.get("band", "common in gnomAD"))
+            lines.append(f"**{gnomad['band']}** ⚠")
+        elif gnomad.get("absent"):
+            lines.append("Absent from gnomAD v4.1 (very rare — ACMG PM2-supporting only)")
+        else:
+            lines.append(gnomad["band"][0].upper() + gnomad["band"][1:]
+                         + " (gnomAD v4.1 — PM2/BS1 context)")
+
+    if flags:
         verdict = "Evidence sources **disagree** — " + "; ".join(flags)
+    elif total == 0:
+        verdict = None
     elif agree == total and clinvar_path:
-        verdict = f"{agree} independent line{'s' if agree != 1 else ''} of evidence **concordant** with the ClinVar classification"
+        verdict = (f"{agree} independent predictor{'s' if agree != 1 else ''} "
+                   "**concordant** with the ClinVar classification")
     else:
-        verdict = "Mixed / partial evidence (see below)"
+        verdict = "Mixed / partial computational evidence (see below)"
     return {"lines": lines, "verdict": verdict, "flags": flags}
 
 

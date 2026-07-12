@@ -113,20 +113,23 @@ def attach_enrichment(rec, ctx=None):
     concordance, submitter consensus, same-residue hotspot. ctx carries the
     per-gene caches so this stays cheap across a gene's variants."""
     ctx = ctx or {}
-    am_map = ctx.get("am") or {}
-    short = EN.missense_short(rec.get("hgvs_p"))
-    am = am_map.get(short) if short else None
     coord = EN.variant_coordinate(rec)
-    gnomad = EN.gnomad_frequency(rec)   # gnomAD v4.1 by coordinate (dbSNP fallback)
     rec["coordinate"] = coord
-    rec["alphamissense"] = ({"short": short, "class": am[0], "score": am[1]} if am else None)
+    # All three are coordinate-keyed (entry-by-coordinate, not map — audit Tier 1/2)
+    am = EN.alphamissense_for(coord)              # by genomic key → fixes isoform-mismatch misses
+    gnomad = EN.gnomad_frequency(rec)             # by coordinate via entry() → fixes false-Absent
+    conservation = EN.conservation_for(coord)     # phyloP/phastCons — new
+    rec["alphamissense"] = am
     rec["gnomad"] = gnomad
+    rec["conservation"] = conservation
     rec["spliceai"] = EN.spliceai_for(coord, ctx.get("spliceai") or {})
     rec["consensus"] = EN.submitter_consensus(rec.get("submissions") or [])
-    rec["concordance"] = EN.concordance(rec.get("classification"), am, gnomad, rec.get("spliceai"))
+    rec["concordance"] = EN.concordance(rec.get("classification"), am, gnomad,
+                                        rec.get("spliceai"), conservation)
     rec["hotspot"] = EN.residue_hotspot(rec.get("hgvs_p"), ctx.get("positions"))
     # Batch 3 — per-variant derived (in-memory from the per-gene caches)
-    rec["am_percentile"] = am_map and (am and EN.am_percentile(am[1], am_map)) or None
+    am_map = ctx.get("am") or {}          # per-gene AM distribution (for the percentile)
+    rec["am_percentile"] = (EN.am_percentile(am["score"], am_map) if (am and am_map) else None)
     rec["structural"] = EN.structural_context(rec.get("hgvs_p"), (ctx.get("structure") or {}).get("intervals"))
     rec["similar"] = EN.similar_variants(rec, ctx.get("recs") or [])
     rec["timeline"] = EN.submission_timeline(rec.get("submissions") or [])

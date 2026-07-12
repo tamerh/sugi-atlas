@@ -31,17 +31,29 @@ def test_submitter_consensus():
 
 
 def test_concordance_agree_and_flag():
-    # ClinVar Pathogenic + AlphaMissense likely-pathogenic + absent from gnomAD → concordant
-    ok = concordance("Pathogenic", ("likely_pathogenic", "0.99"),
-                     {"absent": True, "is_common": False, "frequency": "", "band": "absent from gnomAD"})
+    # AM (now a dict) likely-pathogenic → the concordant predictor; absence is
+    # shown but NOT counted as concordant (audit P2)
+    ok = concordance("Pathogenic", {"class": "likely_pathogenic", "score": "0.99"},
+                     {"absent": True, "is_common": False, "band": "absent from gnomAD v4.1"})
     assert "concordant" in ok["verdict"].lower() and not ok["flags"]
-    # ClinVar Pathogenic but common in gnomAD → disagreement flagged
+    assert any("PM2" in ln for ln in ok["lines"])          # rarity framed as PM2-support only
+    # common in gnomAD → disagreement flagged
     bad = concordance("Pathogenic", None,
-                      {"absent": False, "is_common": True, "frequency": "0.2", "band": "common (gnomAD MAF 0.2)"})
+                      {"absent": False, "is_common": True, "band": "common (popmax 20%)"})
     assert bad["flags"] and "disagree" in bad["verdict"].lower()
     # AlphaMissense likely-benign vs ClinVar Pathogenic → discordant flag
-    disc = concordance("Pathogenic", ("likely_benign", "0.1"), None)
+    disc = concordance("Pathogenic", {"class": "likely_benign", "score": "0.1"}, None)
     assert disc["flags"]
+    # absence ALONE is not concordant evidence (no in-silico predictor) → no verdict
+    rare_only = concordance("Pathogenic", None, {"absent": True, "band": "absent from gnomAD v4.1"})
+    assert rare_only["verdict"] is None and not rare_only["flags"]
+
+
+def test_concordance_conservation_line():
+    c = concordance("Pathogenic", None, None, None,
+                    {"phylop": 8.5, "phastcons": 1.0})
+    assert any("highly conserved" in ln and "PP3" in ln for ln in c["lines"])
+    assert "concordant" in (c["verdict"] or "").lower()     # conservation is the concordant predictor
 
 
 def test_residue_hotspot():
