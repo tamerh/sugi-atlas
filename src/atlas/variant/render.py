@@ -180,6 +180,45 @@ def _num(s):
         return s
 
 
+def _mechanism_zone(v):
+    """'What this gene does' — the variant→gene→pathway→disease story. Explicitly
+    GENE-level (honest framing), Reactome disease-pathway callout as the headline."""
+    pw = v.get("pathways") or {}
+    if not (pw.get("pathways") or v.get("mechanism")):
+        return []
+    g = v.get("gene_symbol", "the gene")
+    L = ["", "## What this gene does {#gene-function}", "",
+         f"*Describes the biological roles of {g} (the gene this variant disrupts) — "
+         "not effects measured for this specific variant. A damaging variant is expected "
+         "to affect these functions and pathways; the degree depends on the variant.*", ""]
+    if v.get("mechanism"):
+        L += [f"**How this variant is thought to act:** {v['mechanism']}", ""]
+    dp = pw.get("disease_pathways") or []
+    if dp:
+        L.append(f"**Disease mechanism (Reactome):** {g} loss or alteration is curated in "
+                 + ", ".join(f"[{p['name']}](https://reactome.org/content/detail/{p['id']})"
+                             for p in dp[:3]) + ".")
+    pws = pw.get("pathways") or []
+    if pws:
+        L += ["", "### Pathways affected {#pathways}", "",
+              f"{g} participates in **{len(pws)} Reactome pathway"
+              + ("s" if len(pws) != 1 else "") + "** (⚕ = disease pathway):", "",
+              table(["Pathway (Reactome)", "Evidence"],
+                    [(("⚕ " if p["is_disease"] else "")
+                      + f"[{p['name']}](https://reactome.org/content/detail/{p['id']})",
+                      p["evidence"]) for p in pws[:10]])]
+    mf, bp = pw.get("go_mf") or [], pw.get("go_bp") or []
+    if mf or bp:
+        tier = "experimentally supported" if pw.get("go_experimental") else "annotated"
+        L += ["", f"### Molecular function & processes (GO — {tier}) {{#go}}", ""]
+        if mf:
+            L.append("**Molecular function:** " + ", ".join(g_["name"] for g_ in mf[:6]) + ".")
+        if bp:
+            L.append(("\n" if mf else "") + "**Biological process:** "
+                     + ", ".join(g_["name"] for g_ in bp[:6]) + ".")
+    return L
+
+
 def _mavedb_zone(v):
     m = v.get("mavedb")
     if not m:
@@ -272,9 +311,10 @@ def render_body(v, jsonld_tag=""):
                  "SpliceAI splice-impact prediction. Predictions, not a clinical "
                  "determination.*")
 
-    # Gene ACMG context + protein/structural context
+    # Gene ACMG context + protein/structural context + mechanism/pathways
     L += _gene_context_zone(v)
     L += _protein_zone(v)
+    L += _mechanism_zone(v)
 
     # Clinical significance + consensus + per-submitter table
     cons = v.get("consensus")

@@ -138,6 +138,8 @@ def attach_enrichment(rec, ctx=None):
     # framing). plain_summary is confidence-calibrated (audit P2).
     rec["digest"] = EN.condition_digest(rec.get("conditions"), ctx.setdefault("digest_cache", {}))
     rec["plain"] = EN.plain_summary(rec)
+    rec["pathways"] = ctx.get("pathways")
+    rec["mechanism"] = EN.mechanism_narrative(rec, ctx.get("pathways"))
     rec["pharmgkb"] = EN.pharmgkb_for(rec.get("rsid"), ctx.get("pharmgkb") or {})
     rec["civic"] = EN.civic_for(rec.get("variation_id"), ctx.get("has_civic"))
     rec["mavedb"] = EN.mavedb_for(rec.get("hgvs_p"), ctx.get("mavedb") or {})

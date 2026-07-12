@@ -207,3 +207,20 @@ def test_mavedb_for_dedups_by_score_set():
     assert {r["score_set"] for r in m} == {"urn:mavedb:81-a-1", "urn:mavedb:81-a-2"}
     assert mavedb_for("p.Gly1Arg", cache) is None
     assert mavedb_for(None, cache) is None
+
+
+# ── mechanism narrative (variant → gene → pathway → disease; deterministic) ───
+def test_mechanism_narrative_gates():
+    from atlas.variant.enrich import mechanism_narrative
+    rec = {"gene_symbol": "PTEN", "hgvs_p": "p.Arg173Cys", "variant_type": "single nucleotide variant",
+           "structural": {"features": ["the phosphatase domain"]},
+           "alphamissense": {"class": "likely_pathogenic", "score": "0.99"},
+           "conditions": [{"name": "Cowden syndrome 1"}]}
+    pw = {"disease_pathways": [{"id": "R-HSA-5674404", "name": "PTEN Loss of Function in Cancer"}],
+          "top_function": "protein tyrosine phosphatase activity"}
+    s = mechanism_narrative(rec, pw)
+    assert "alters PTEN at p.Arg173Cys" in s and "phosphatase domain" in s
+    assert "likely pathogenic" in s and "PTEN Loss of Function in Cancer" in s
+    assert "Cowden syndrome 1" in s and "thought to act" not in s   # (that label is in the render header)
+    # NO anchor (no disease pathway, no MF term) → no narrative (never hand-waves)
+    assert mechanism_narrative(rec, {"disease_pathways": [], "top_function": None}) is None

@@ -419,6 +419,80 @@ def spliceai_for(coord, cache):
     return hit
 
 
+# GO experimental-evidence ECO set (mirrors gene §7 s07_pathways).
+_GO_EXPERIMENTAL = {"ECO:0000314", "ECO:0000315", "ECO:0000316", "ECO:0000353",
+                    "ECO:0000270", "ECO:0000269", "ECO:0006056", "ECO:0007005",
+                    "ECO:0007007", "ECO:0007003"}
+_REACTOME_EV = {"TAS": "curated", "IEA": "electronic"}
+
+
+def gene_pathways(hgnc_id):
+    """Reactome pathways (disease-flagged, evidence-merged) + experimental GO
+    terms for the gene, fetched once. GENE-level context — 'the gene this variant
+    disrupts acts in these pathways', never a per-variant claim."""
+    rx = {}
+    for t in map_all(hgnc_id, ">>hgnc>>uniprot>>reactome"):
+        pid = t.get("id")
+        if not pid:
+            continue
+        ev = _REACTOME_EV.get((t.get("evidence") or "").strip(), "other")
+        cur = rx.get(pid)
+        best = "curated" if ev == "curated" or (cur and cur["evidence"] == "curated") else ev
+        rx[pid] = {"id": pid, "name": t.get("name") or (cur or {}).get("name"),
+                   "evidence": best,
+                   "is_disease": (t.get("is_disease_pathway") == "true") or bool(cur and cur["is_disease"])}
+    # disease pathways first, then curated, then by name
+    pathways = sorted(rx.values(), key=lambda p: (not p["is_disease"],
+                                                  p["evidence"] != "curated", p["name"] or ""))
+    go_rows = list(map_all(hgnc_id, ">>hgnc>>uniprot>>go"))
+    has_eco = any(r.get("evidence", "").startswith("ECO:") for r in go_rows)
+
+    def _pick(ns):
+        # experimental terms when ECO present; else top terms w/o the exp. claim
+        rows = [r for r in go_rows if r.get("type") == ns
+                and (not has_eco or r.get("evidence") in _GO_EXPERIMENTAL)]
+        return [{"id": r.get("id"), "name": r.get("name")} for r in rows if r.get("name")]
+
+    return {"pathways": pathways,
+            "disease_pathways": [p for p in pathways if p["is_disease"]],
+            "go_mf": _pick("molecular_function"),
+            "go_bp": _pick("biological_process"),
+            "go_experimental": has_eco,
+            "top_function": (_pick("molecular_function")[:1] or [{}])[0].get("name")}
+
+
+def mechanism_narrative(rec, pathways):
+    """Deterministic variant→gene→pathway→disease sentence (NOT an LLM). Only
+    fires with a real anchor (a Reactome disease pathway OR an experimental GO
+    molecular-function term). Gene-level, framed 'thought to act' — never 'causes'."""
+    disease_pw = (pathways or {}).get("disease_pathways") or []
+    top_fn = (pathways or {}).get("top_function")
+    if not (disease_pw or top_fn):
+        return None
+    gene = rec.get("gene_symbol")
+    pchange = rec.get("hgvs_p") or rec.get("hgvs_c")
+    vtype = (rec.get("variant_type") or "variant").lower()
+    lead = f"This {vtype} alters {gene} at {pchange}"
+    st = rec.get("structural") or {}
+    dom = next((f for f in (st.get("features") or []) if "domain" in f or "region" in f), None)
+    if dom:
+        lead += f", in {dom}"
+    parts = [lead + "."]
+    if top_fn:
+        parts.append(f" {gene}'s established role includes {top_fn}.")
+    am = rec.get("alphamissense")
+    if am and am.get("class") == "likely_pathogenic":
+        parts.append(f" AlphaMissense predicts this substitution is likely pathogenic ({am['score']}).")
+    if rec.get("spliceai"):
+        parts.append(" SpliceAI predicts a splice-altering effect.")
+    if disease_pw:
+        cond = (rec.get("conditions") or [{}])[0].get("name")
+        parts.append(f" Loss or alteration of {gene} function is curated by Reactome as acting "
+                     f"through **{disease_pw[0]['name']}**"
+                     + (f", the mechanism linked to {cond}" if cond else "") + ".")
+    return "".join(parts)
+
+
 def gene_pharmgkb(hgnc_id):
     """{rsID: {annotations, clinical}} pharmacogenomics for the gene, fetched once.
     Empty for the vast majority of genes (only pharmacogenes carry PGx)."""
