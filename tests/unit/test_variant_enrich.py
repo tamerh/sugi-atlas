@@ -224,3 +224,42 @@ def test_mechanism_narrative_gates():
     assert "Cowden syndrome 1" in s and "thought to act" not in s   # (that label is in the render header)
     # NO anchor (no disease pathway, no MF term) → no narrative (never hand-waves)
     assert mechanism_narrative(rec, {"disease_pathways": [], "top_function": None}) is None
+
+
+# ── REVEL (agreement signal, ClinGen tiers) + GERP (2026-07-13) ──────────────
+def test_revel_tier_thresholds():
+    from atlas.variant.enrich import _revel_tier
+    assert _revel_tier(0.955) == "PP3_Strong"
+    assert _revel_tier(0.80) == "PP3_Moderate"
+    assert _revel_tier(0.70) == "PP3_Supporting"
+    assert _revel_tier(0.40) == "indeterminate"
+    assert _revel_tier(0.20) == "BP4_Supporting"
+    assert _revel_tier(0.10) == "BP4_Moderate"
+    assert _revel_tier(0.005) == "BP4_Strong"
+
+
+def test_revel_is_agreement_not_a_second_vote():
+    from atlas.variant.enrich import concordance
+    am = {"class": "likely_pathogenic", "score": "0.99"}
+    revel = {"score": 0.955, "tier": "PP3_Strong", "direction": "pathogenic"}
+    c = concordance("Pathogenic", am, None, revel=revel)
+    # REVEL is shown as agreeing, but does NOT add a second concordant predictor
+    assert any("REVEL" in ln and "agrees with AlphaMissense" in ln for ln in c["lines"])
+    assert "1 independent predictor" in c["verdict"]        # AM only, not 2
+    # a benign REVEL vs pathogenic AM → "differs from" (still not a counted flag)
+    d = concordance("Pathogenic", am, None,
+                    revel={"score": 0.1, "tier": "BP4_Moderate", "direction": "benign"})
+    assert any("differs from AlphaMissense" in ln for ln in d["lines"])
+
+
+def test_conservation_gerp_and_nonmissense_counts():
+    from atlas.variant.enrich import concordance
+    # non-missense (am=None): conservation is the primary computational signal → counts
+    c = concordance("Pathogenic", None, None, None, {"phylop": 7.4, "gerp": 4.9, "phastcons": 1})
+    assert any("GERP 4.9" in ln for ln in c["lines"])
+    assert "concordant" in (c["verdict"] or "").lower()
+    # missense: conservation is only an agreement check (not counted → AM alone drives)
+    m = concordance("Pathogenic", {"class": "likely_pathogenic", "score": "0.9"}, None, None,
+                    {"phylop": 7.4, "gerp": 4.9, "phastcons": 1})
+    assert any("agrees" in ln for ln in m["lines"])
+    assert "1 independent predictor" in m["verdict"]         # AM only

@@ -20,7 +20,7 @@ from atlas.variant import collect as VC, render as VR, enrich as EN, jsonld as V
 
 _DATASETS = ("clinvar", "clingen_variant", "clingen_gene_validity", "clingen_dosage",
              "gencc", "mondo", "orphanet", "gard", "clinical_trials", "panelapp_gene",
-             "alphamissense", "spliceai", "conservation", "mavedb", "reactome", "go",
+             "alphamissense", "revel", "spliceai", "conservation", "mavedb", "reactome", "go",
              "dbsnp", "gnomad_variant", "gnomad_constraint", "uniprot", "pdb", "alphafold", "hgnc")
 _CLASS_ORDER = ["Pathogenic", "Likely pathogenic", "Pathogenic/Likely pathogenic",
                 "Conflicting classifications of pathogenicity"]

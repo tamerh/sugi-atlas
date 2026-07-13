@@ -126,9 +126,10 @@ def alphamissense_for(coord):
 
 
 def conservation_for(coord):
-    """Per-position evolutionary conservation (phyloP / phastCons) via entry() on
-    the chr:pos (ref/alt-agnostic) key. The only computational signal for the
-    non-missense/splice -c- pages. GERP is left out (not populated on hg38)."""
+    """Per-position evolutionary conservation (phyloP / GERP++ / phastCons) via
+    entry() on the chr:pos (ref/alt-agnostic) key. The ONLY computational signal
+    for the non-missense/splice/intronic pages. GERP may be missing where a
+    position isn't in the mammalian alignment → None, not zero."""
     if not coord:
         return None
     pos = ":".join(coord.split(":")[:2])          # chr:pos:ref:alt → chr:pos
@@ -137,9 +138,39 @@ def conservation_for(coord):
         return None
     phylop = _f(a.get("phylop"))
     phastcons = _f(a.get("phastcons"))
-    if phylop is None and phastcons is None:
+    gerp = _f(a.get("gerp"))
+    if phylop is None and phastcons is None and gerp is None:
         return None
-    return {"phylop": phylop, "phastcons": phastcons}
+    return {"phylop": phylop, "phastcons": phastcons, "gerp": gerp}
+
+
+# REVEL → ACMG evidence tier (ClinGen SVI / Pejaver 2022 calibrated thresholds).
+def _revel_tier(s):
+    if s >= 0.932:
+        return "PP3_Strong"
+    if s >= 0.773:
+        return "PP3_Moderate"
+    if s >= 0.644:
+        return "PP3_Supporting"
+    if s > 0.290:
+        return "indeterminate"
+    if s >= 0.183:
+        return "BP4_Supporting"
+    if s > 0.016:
+        return "BP4_Moderate"
+    return "BP4_Strong"
+
+
+def revel_for(coord):
+    """REVEL ensemble missense pathogenicity (0–1) by chr:pos:ref:alt, with its
+    ClinGen-calibrated ACMG tier + direction. Presented as an AGREEMENT signal
+    (not additive PP3 — see concordance)."""
+    a = _coord_entry(coord, "revel")
+    s = _f((a or {}).get("revel"))
+    if s is None:
+        return None
+    direction = "pathogenic" if s >= 0.644 else "benign" if s <= 0.290 else "indeterminate"
+    return {"score": s, "tier": _revel_tier(s), "direction": direction}
 
 
 def _f(x):
@@ -220,22 +251,24 @@ def submitter_consensus(submissions):
     return {"n": len(calls), "breakdown": dict(bd), "verdict": verdict}
 
 
-def concordance(classification, am, gnomad, spliceai=None, conservation=None):
-    """Cross-source concordance readout: do the independent COMPUTATIONAL
-    predictors (AlphaMissense, SpliceAI, conservation) agree with ClinVar? Returns
-    {lines, verdict, flags}. Population rarity is shown but NOT counted as
-    concordant evidence (audit P2: PM2 is only supporting, and expected for almost
-    any rare variant — counting it inflated concordance, incl. on Conflicting
-    pages). Never a clinical determination."""
+def concordance(classification, am, gnomad, spliceai=None, conservation=None, revel=None):
+    """Cross-source concordance readout: do the computational predictors agree with
+    ClinVar? Returns {lines, verdict, flags}. ClinGen-SVI framing: in-silico
+    predictors are NOT independent, so exactly ONE calibrated tool carries the
+    ACMG weight — AlphaMissense for missense, conservation for non-missense — and
+    REVEL (+ conservation, on missense) is shown as an AGREEMENT signal, never an
+    additive vote. Population rarity is shown but never counted (audit P2). Never a
+    clinical determination."""
     cls = (classification or "").lower()
     clinvar_path = "pathogenic" in cls and "conflict" not in cls
     lines, flags, agree, total = [], [], 0, 0
 
     if am:
         amclass, amscore = am.get("class"), am.get("score")
+        am_path = amclass == "likely_pathogenic"
         total += 1
         pretty = (amclass or "").replace("_", " ")
-        if clinvar_path and amclass == "likely_pathogenic":
+        if clinvar_path and am_path:
             agree += 1
             lines.append(f"AlphaMissense **{pretty}** ({amscore}) — concordant with the pathogenic call")
         elif clinvar_path and amclass == "likely_benign":
@@ -243,6 +276,13 @@ def concordance(classification, am, gnomad, spliceai=None, conservation=None):
             lines.append(f"AlphaMissense **{pretty}** ({amscore}) — ⚠ discordant with the pathogenic call")
         else:
             lines.append(f"AlphaMissense **{pretty}** ({amscore})")
+        # REVEL — an AGREEMENT check on AlphaMissense (NOT a second vote; ClinGen SVI)
+        if revel:
+            if revel["direction"] == "indeterminate":
+                rel = "indeterminate"
+            else:
+                rel = "agrees with" if (revel["direction"] == "pathogenic") == am_path else "differs from"
+            lines.append(f"REVEL {revel['score']} ({revel['tier']}) — {rel} AlphaMissense")
     else:
         lines.append("AlphaMissense — not scored (not a missense SNV)")
 
@@ -254,19 +294,23 @@ def concordance(classification, am, gnomad, spliceai=None, conservation=None):
                      f"(Δ {spliceai.get('score')}) — a splice-altering effect consistent with pathogenicity")
 
     if conservation and conservation.get("phylop") is not None:
-        p = conservation["phylop"]
-        total += 1
-        if p >= 2:
-            if clinvar_path:
+        p, gerp, pc = conservation["phylop"], conservation.get("gerp"), conservation.get("phastcons")
+        conserved = p >= 2
+        detail = ("phyloP %g" % p) + (", GERP %g" % gerp if gerp is not None else "") \
+            + (", phastCons %g" % pc if pc is not None else "")
+        if not am:
+            # non-missense/splice/intronic: conservation IS the primary computational
+            # signal (AlphaMissense/REVEL are missense-only) → it carries the weight.
+            total += 1
+            if conserved and clinvar_path:
                 agree += 1
-            note = "highly conserved position (PP3-type support)"
-        elif p <= -2:
-            note = "fast-evolving / non-conserved position"
+            note = ("highly conserved position (PP3-type support)" if conserved
+                    else "fast-evolving / non-conserved position" if p <= -2
+                    else "moderately conserved position")
+            lines.append(f"Conservation: {detail} — {note}")
         else:
-            note = "moderately conserved position"
-        pc = conservation.get("phastcons")
-        lines.append(f"Conservation: phyloP {p:g}"
-                     + (f", phastCons {pc:g}" if pc is not None else "") + f" — {note}")
+            # missense: conservation is an agreement check on AlphaMissense (not counted)
+            lines.append(f"Conservation: {detail} — {'conserved (agrees)' if conserved else 'low conservation'}")
 
     # Population frequency — shown, but NEVER counted as concordant evidence.
     if gnomad:
