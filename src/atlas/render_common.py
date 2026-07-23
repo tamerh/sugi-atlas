@@ -149,7 +149,14 @@ def _cell(c):
     if s.strip().lower() == "nan":          # biobtree returns the literal string
         return ""                           # "nan" for a missing value (e.g. an
                                             # ortholog row with no gene symbol)
-    return s.replace("|", "\\|")
+    # Escape '*' too: chemical / patent-compound names embed it (stereochem
+    # descriptors like '(R*)'), which markdown reads as emphasis and can leave a
+    # literal, unbalanced '**' in the rendered HTML (test_no_unbalanced_bold — a
+    # BindingDB ligand on CX3CR1 surfaced it in the full corpus). Table cells
+    # carry data + links only, never intentional bold/italic (verified corpus-
+    # wide: zero legitimate '**' cells), and no cell URL contains '*', so escaping
+    # every '*' in a cell is safe and closes the whole class at the one choke point.
+    return s.replace("|", "\\|").replace("*", "\\*")
 
 
 def more_line(total, shown, by=None):
