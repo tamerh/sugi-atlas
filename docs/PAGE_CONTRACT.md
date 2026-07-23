@@ -61,7 +61,7 @@ checks). Same stable-API discipline as the H2 IDs. Examples:
 | 3 | Identifiers | `#identifiers` | disease identifiers, synonyms, data availability |
 | 4 | Disease family | `#family` | Mondo broader term (parent) + subtypes (children); routes sparse subtype pages to the rich parent. No H3. |
 | 5 | Genetics & variants | `#genetics` | GWAS landscape, Variant details & tiers |
-| 6 | Genes & proteins | `#genes` | Mendelian/GenCC overlap & somatic drivers, Cohort genes→proteins, Protein-family classification, Interactions among cohort, Structural data, Expression context |
+| 6 | Genes & proteins | `#genes` | Mendelian/GenCC overlap & somatic drivers, Cohort genes→proteins, Protein-family classification, Interactions among cohort, Structural data, Expression context, Single-cell datasets (`#single-cell`, §18 — CZ CELLxGENE scRNA-seq availability, disease-direct) |
 | 7 | Function | `#function` | Pathway analysis |
 | 8 | Therapeutics | `#drugs` | Drugs indicated or in trials for this disease (`#indicated`, disease-direct ChEMBL indications — approved tabled as indicated, phase 2–3 listed separately as in-trials), Mechanistic alignment (`#mechanism-alignment`, indicated drugs × cohort genes), Drug-target analysis, Bioactivity/enzyme, Pharmacogenomics, Chemical tractability, Druggability pyramid, Undrugged target profiles |
 | 9 | Clinical trials & evidence | `#trials` | Clinical trials, CIViC |

@@ -13,7 +13,7 @@ from atlas.disease.sections import (
     s04_mendelian_overlap, s05_genes_proteins, s06_protein_families,
     s07_expression_context, s08_protein_interactions, s09_structural_data,
     s10_drug_targets, s11_bioactivity_enzyme, s12_pharmacogenomics,
-    s13_clinical_trials, s14_pathways,
+    s13_clinical_trials, s14_pathways, s18_single_cell,
 )
 
 _MODULES = (
@@ -21,7 +21,7 @@ _MODULES = (
     s04_mendelian_overlap, s05_genes_proteins, s06_protein_families,
     s07_expression_context, s08_protein_interactions, s09_structural_data,
     s10_drug_targets, s11_bioactivity_enzyme, s12_pharmacogenomics,
-    s13_clinical_trials, s14_pathways,
+    s13_clinical_trials, s14_pathways, s18_single_cell,
 )
 
 REGISTRY: "dict[str, Section]" = {m.SECTION.id: m.SECTION for m in _MODULES}

@@ -1290,6 +1290,37 @@ def r_undrugged_target_profiles(bundles):
     return "\n".join(out)
 
 
+# §18 single_cell -----------------------------------------------------------
+
+def r_single_cell(b):
+    """Disease-level single-cell data availability (CZ CELLxGENE). Count + the
+    largest datasets by cell number. Framed as datasets *annotated with* the
+    disease (some are broad multi-disease atlases). Elides to '' when none — no
+    'No data' placeholder, it's a bonus resource pointer, not a canonical fact."""
+    n = b.get("dataset_count") or 0
+    if not n:
+        return ""
+    tc = b.get("total_cells") or 0
+    out = ["## Single-cell datasets (CZ CELLxGENE)", "",
+           f"**{_i(n)} single-cell RNA-seq dataset{'s' if n != 1 else ''}** in CZ "
+           f"CELLxGENE {'is' if n == 1 else 'are'} annotated with this disease"
+           + (f" ({_i(tc)} cells total)" if tc else "")
+           + " — public datasets whose disease annotations include this condition "
+           "(some are broad multi-disease atlases, not disease-specific studies)."]
+    td = b.get("top_datasets") or []
+    if td:
+        out += ["",
+                capped_table(["Dataset (largest by cell count)", "Organism", "Cells"],
+                             [(_trunc(d.get("title") or "(untitled)", 60),
+                               d.get("organism") or "",
+                               _i(d.get("cells")) if d.get("cells") else "—")
+                              for d in td],
+                             None, total=n, noun="datasets")]
+    out += ["", "*Source: CZ CELLxGENE Census (CC BY 4.0) — explore at "
+            "[cellxgene.cziscience.com](https://cellxgene.cziscience.com/).*"]
+    return "\n".join(out)
+
+
 # Registry ------------------------------------------------------------------
 
 RENDER = {
@@ -1307,6 +1338,7 @@ RENDER = {
     "12": r_pharmacogenomics,
     "13": r_clinical_trials,
     "14": r_pathways,
+    "18": r_single_cell,
 }
 
 
@@ -1461,7 +1493,10 @@ def render_all(bundles):
         ("Genes & proteins", "genes",
          join(_cohort_empty_note(bundles),
               D(r_molecular_basis(bundles), "molecular-basis"), cohort_genes,
-              D(r_alliance_genes(bundles), "alliance-genes")),
+              D(r_alliance_genes(bundles), "alliance-genes"),
+              # Disease-direct (cohort-independent): scRNA-seq datasets annotated
+              # with this disease — cellular-level molecular data availability.
+              D(r_single_cell(bundles.get("18") or {}), "single-cell")),
          "No associated genes curated for this disease."),
         ("Function", "function", S("14", "pathways") if has_cohort else "",
          "No pathway enrichment — requires an associated-gene cohort."),

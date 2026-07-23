@@ -145,6 +145,7 @@ UPSTREAM = {
     "bgee_evidence":     ("Bgee",                                  "https://www.bgee.org/"),
     "fantom5_gene":      ("FANTOM5",                               "https://fantom.gsc.riken.jp/5/"),
     "fantom5_promoter":  ("FANTOM5",                               "https://fantom.gsc.riken.jp/5/"),
+    "cellxgene":         ("CZ CELLxGENE Census",                   "https://cellxgene.cziscience.com/"),
     "scxa":              ("EBI Single Cell Expression Atlas",      "https://www.ebi.ac.uk/gxa/sc/"),
     "scxa_expression":   ("EBI Single Cell Expression Atlas",      "https://www.ebi.ac.uk/gxa/sc/"),
     "scxa_gene_experiment": ("EBI Single Cell Expression Atlas",   "https://www.ebi.ac.uk/gxa/sc/"),

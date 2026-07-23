@@ -66,7 +66,7 @@ H3_IDS = {
                 "structural", "pathways", "indicated", "mechanism-alignment",
                 "molecular-basis", "alliance-genes", "drug-targets", "bioactivity",
                 "pharmacogenomics", "tractability", "druggability", "undrugged",
-                "clinical-trials"},
+                "clinical-trials", "single-cell"},
     "drug": {"drug-ids", "primary-targets", "bioactivity", "target-pathways",
              "indication-list", "drugcentral", "clinical-trials", "civic",
              "pharmacogenomics", "adverse-events", "sugi-predict", "related-mol"},
