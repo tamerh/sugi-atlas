@@ -80,6 +80,7 @@ H4_IDS = {
              "enzyme-ec", "rhea", "pdb", "alphafold", "sabdab",
              # §variants
              "clinvar", "top-pathogenic", "clingen-variants", "spliceai", "alphamissense", "dbsnp",
+             "sugi-variant",   # → sibling per-variant tool (sugi.bio/variant), gated to P/LP genes
              # §pathways / §interactions / §regulation
              "reactome", "reactome-categories", "go-categories", "go-experimental",
              "string", "intact", "signor", "corum", "cellphonedb", "interactome-enrichment",

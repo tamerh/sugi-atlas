@@ -49,8 +49,8 @@ checks). Same stable-API discipline as the H2 IDs. Examples:
 | 3 | Gene structure | `#gene-structure` | §2 transcripts, §11 expression (with §13 HPA expression nested as an H4 subsection), §9 regulation, functional-genomics, GeneRIFs |
 | 4 | Protein | `#protein` | §3 protein ids, §4 structure, residue map (dual-product → H3 `{#protein-<acc>}`, matches JSON-LD `@id`), §13 HPA (location/classes/antibody reliability) |
 | 5 | Function | `#function` | §7 pathways & GO, §8 interactions (incl. CORUM complexes) |
-| 6 | Disease & clinical | `#disease` | **Cancer significance** (intOGen+CIViC, folded here — NOT in Summary), §6 clinical variants (incl. ClinGen expert-panel) + §13 HPA cancer prognostics, §12 disease associations |
-| 7 | Drugs & pharmacology | `#drugs` | §10 drugs (GtoPdb, BindingDB, ChEMBL, PharmGKB) |
+| 6 | Disease & clinical | `#disease` | **Cancer significance** (intOGen+CIViC, folded here — NOT in Summary), §6 clinical variants (incl. ClinGen expert-panel + Sugi Variant per-variant cross-link `#sugi-variant`, gated to P/LP genes) + §13 HPA cancer prognostics, §12 disease associations |
+| 7 | Drugs & pharmacology | `#drugs` | §10 drugs (GtoPdb, BindingDB, ChEMBL, PharmGKB) + Sugi Predict cross-link (`#sugi-predict`) |
 | 8 | Related Atlas pages | `#related` | cross-entity mesh (forward + reverse) |
 
 ## DISEASE (8 H2 — consolidates the current 18)

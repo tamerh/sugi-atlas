@@ -629,6 +629,26 @@ def r_variants(b):
                        [(links.maybe_link(_rs(d["id"]), links.variant_link(_rs(d["id"]))),
                          d["pos"], d["change"], _maf(d),
                          d.get("variant_class") or "") for d in ds[:50]]))
+
+    # Sugi Variant cross-link — the sibling per-variant reference (sugi.bio/variant),
+    # its own sub-block at the end of the section (mirrors the Sugi Predict block in
+    # the drugs zone). Atlas gives ClinVar counts + a top sample here; Sugi Variant
+    # is the full per-variant deep-dive. Gated to genes in its corpus — those with
+    # Pathogenic/Likely-pathogenic ClinVar variants (== Sugi Variant's pathogenic
+    # gate) — so it never links to a gene with no variant index. Completes the loop:
+    # Variant already links back to Atlas gene/disease pages.
+    if (bd.get("Pathogenic", 0) + bd.get("Likely pathogenic", 0)) > 0:
+        from atlas.variant import gene_variants_url
+        vurl = gene_variants_url(b.get("symbol"))
+        if vurl:
+            L.append(f"\n### Per-variant reference — Sugi Variant {{#sugi-variant}}\n")
+            L.append(f"Explore {b.get('symbol')}'s pathogenic and likely-pathogenic "
+                     "variants individually — each with its ClinVar classification and "
+                     "conditions, applied ACMG criteria (ClinGen expert panel, where "
+                     "curated), the calibrated in-silico predictors (AlphaMissense, "
+                     "REVEL, SaProt, conservation), gnomAD frequency, and the "
+                     "predictor-disagreement QC signal — on "
+                     f"[Sugi Variant]({vurl}).")
     return "\n".join(L)
 
 
