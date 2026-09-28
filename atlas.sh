@@ -105,6 +105,30 @@ preflight() {
   ok "biobtree reachable at $BIOBTREE"
 }
 
+# A shipped corpus must be built against a CLEAN biobtree RELEASE tag — every page
+# stamps `biobtree_version` (appparams.biobtree_version), and a dev/untagged build
+# stamps "dev", which is not acceptable provenance for a release (2026-09-28: a
+# v1.11.3 regen shipped dev-stamped before this guard existed). Only prod + release
+# call this; test/sample may run against a dev biobtree. Override for dev iteration
+# ONLY with ATLAS_ALLOW_DEV_BIOBTREE=1.
+require_biobtree_release() {
+  local ver
+  ver=$(curl -fsS --max-time 10 "$BIOBTREE/ws/meta" 2>/dev/null \
+        | python -c 'import sys,json; print((json.load(sys.stdin).get("appparams") or {}).get("biobtree_version",""))' 2>/dev/null)
+  if [ "${ATLAS_ALLOW_DEV_BIOBTREE:-}" = "1" ]; then
+    warn "biobtree_version='${ver:-?}' — release-tag check BYPASSED (ATLAS_ALLOW_DEV_BIOBTREE=1); do not ship this corpus"
+    return 0
+  fi
+  if printf '%s' "$ver" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+    ok "biobtree release $ver (clean tag)"
+    return 0
+  fi
+  die "biobtree reports version '${ver:-<none>}' — a release/prod corpus MUST build
+    against a clean biobtree release tag (vX.Y.Z), or every page stamps a non-release
+    version (e.g. 'dev'). Ask the biobtree team to run/point at a tagged release build.
+    (Dev iteration only — NOT a release: ATLAS_ALLOW_DEV_BIOBTREE=1 ./atlas.sh …)"
+}
+
 # build <label> <genes-list> <diseases-list> <drugs-list> [<pathways-list>] → into $DIST
 build() {
   local label="$1" g="$2" s="$3" r="$4" p="${5:-}" w pcount=0
@@ -200,6 +224,7 @@ cmd_test() {
 prod_run() {
   say "PRODUCTION BUILD — $(date)"
   preflight
+  require_biobtree_release          # refuse a dev/untagged biobtree — pages must stamp a real release
   say "[1/4] pre-production check (dense build + tests)"
   build_dense; echo; unit; echo; integration
   ok "pre-production check green"
@@ -249,7 +274,7 @@ cmd_release() {
 $dirty"
   git rev-parse "$version" >/dev/null 2>&1 && die "tag $version already exists"
   say "RELEASE $version — gate: test all (dense build + unit + integration)"
-  preflight; build_dense; echo; unit; echo; integration
+  preflight; require_biobtree_release; build_dense; echo; unit; echo; integration
   ok "gate green"
   echo; say "tagging $version at $(git rev-parse --short HEAD)"
   git tag -a "$version" -m "Sugi Atlas pipeline $version"
