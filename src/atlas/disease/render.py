@@ -533,10 +533,27 @@ def r_variant_details(b):
         if cc:
             order = sorted(cc.items(), key=lambda kv: -kv[1])
             bl.append("\n" + ", ".join(f"{_i(v)} {k.lower()}" for k, v in order))
+        # Deep-link each pathogenic-tier variant's HGVS to its full per-variant
+        # reference on Sugi Variant (shared sugislug contract → always resolves).
+        # GWAS/benign/VUS rows aren't in Sugi Variant's corpus, so stay plain.
+        from atlas.variant import variant_page_url, in_variant_corpus
+
+        def _cv_hgvs(v):
+            name = v.get("hgvs")
+            if in_variant_corpus(v.get("classification")):
+                u = variant_page_url(name, v.get("gene"))
+                if u:
+                    return links.maybe_link(name, u)
+            return name
+
         bl += ["", table(["ClinVar", "Variant (HGVS)", "Gene", "Classification", "Review"],
                          [(v.get("id") or "",
-                           v.get("hgvs"), _glink(v.get("gene")), v.get("classification"),
+                           _cv_hgvs(v), _glink(v.get("gene")), v.get("classification"),
                            v.get("review_status")) for v in cv])]
+        if any(in_variant_corpus(v.get("classification")) for v in cv):
+            bl += ["", "*Pathogenic / likely-pathogenic variants link to their full "
+                   "per-variant reference — ACMG evidence, calibrated predictors, gnomAD "
+                   "frequency — on Sugi Variant.*"]
         return bl
 
     if cv and not gwas_present:

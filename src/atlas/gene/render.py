@@ -582,8 +582,16 @@ def r_variants(b):
              f"(≥ shown; pagination cap):\n")
     L.append(table(["Classification", "Count (floor)"], list(bd.items())))
     L.append(f"\n### Top pathogenic / likely-pathogenic ({len(b.get('top_pathogenic', []))}) {{#top-pathogenic}}\n")
+    # Deep-link each variant's HGVS to its Sugi Variant page (shared sugislug
+    # contract → resolves). These rows are all pathogenic/likely-pathogenic, i.e.
+    # in Sugi Variant's corpus; variant_page_url returns None only if unparseable.
+    from atlas.variant import variant_page_url
+
+    def _tp_hgvs(v):
+        u = variant_page_url(v.get("hgvs"))       # gene comes from the HGVS transcript
+        return links.maybe_link(v.get("hgvs"), u) if u else v.get("hgvs")
     L.append(table(["Variant ID", "HGVS", "Classification"],
-                   [(v["id"], v.get("hgvs"), v.get("classification")) for v in b.get("top_pathogenic", [])]))
+                   [(v["id"], _tp_hgvs(v), v.get("classification")) for v in b.get("top_pathogenic", [])]))
     # ClinGen VCEP expert-panel interpretations — ACMG calls reviewed by a Variant
     # Curation Expert Panel; a higher-authority tier than individual ClinVar
     # submissions. Summary breakdown (not a per-variant dump).
