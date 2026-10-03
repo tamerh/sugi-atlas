@@ -29,7 +29,11 @@ def _class_clause(b1, b6, b5=None):
     """'approved small-molecule tyrosine kinase inhibitor (ATC L01EA01)'."""
     from atlas.indication import molecule_approved
     bits = []
-    if molecule_approved(b1, b5):
+    # Don't call a drug "approved" in the lead when the FDA flag explicitly says no
+    # (audit: 926 phase-4 pages had FDA=no — non-US/historical/withdrawn, e.g. the
+    # withdrawn MAOI phenoxypropazine). Omit the approval adjective in that case; the
+    # nuanced status (reached phase 4, not FDA-approved) lives in At-a-glance + IDs.
+    if molecule_approved(b1, b5) and b1.get("is_fda_approved") is not False:
         bits.append("approved")
     elif b1.get("max_phase") == 3:
         bits.append("phase-3 clinical-stage")

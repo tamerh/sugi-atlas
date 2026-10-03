@@ -22,6 +22,7 @@ links._MANIFEST, so the module-global state can't race.
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from collections import Counter
@@ -69,6 +70,13 @@ def collect_one(spec):
             title = a.canonical_name or ident
         elif etype == "drug":
             a = resolve_drug(ident)
+            # Degenerate placeholder: pref_name never resolved, so the only "name" is
+            # the raw ChEMBL accession → the page would read "CHEMBLxxxx is a drug"
+            # with every section empty and evidence_score 0 (audit: 18 such shells
+            # shipped). Skip rather than publish a titleless shell.
+            if re.fullmatch(r"CHEMBL\d+", (a.canonical_name or "").strip(), re.I):
+                return {"ok": False, "entity": etype, "ident": ident,
+                        "error": "unnamed drug (no pref_name — ChEMBL-id-only shell)"}
             slug = drug_slug(a.canonical_name or ident)
             bundle = {sid: DRC.REGISTRY[sid].collect_fn(a) for sid in DRC.REGISTRY}
             id_keys = [a.chembl_id, a.parent_chembl, *(a.child_chembls or ())]

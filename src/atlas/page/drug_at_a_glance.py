@@ -23,13 +23,22 @@ def _format_int(n):
 def _status(b1, b5=None) -> str:
     """Development status from max_phase / FDA flag / Phase-4 trial signal."""
     from atlas.indication import has_phase4_trial
-    if b1.get("is_fda_approved") or b1.get("max_phase") == 4:
-        return "Approved (max clinical phase 4)"
+    fda = b1.get("is_fda_approved")
+    if fda:
+        return "FDA-approved (clinical phase 4)"
     mp = b1.get("max_phase")
     try:
         mp = int(float(mp))
     except (TypeError, ValueError):
         return ""
+    if mp == 4:
+        # ChEMBL max_phase 4 = reached regulatory approval somewhere/at some point,
+        # but the FDA flag says otherwise. When FDA=no (not just unknown) a bare
+        # "Approved" overstates — many are non-US, historical, or withdrawn (audit:
+        # 926 phase-4 pages had FDA=no, e.g. the withdrawn MAOI phenoxypropazine).
+        if fda is False:
+            return "Not FDA-approved (reached ChEMBL max clinical phase 4)"
+        return "Approved (max clinical phase 4)"          # FDA status unknown
     # ChEMBL under-phases some approved drugs (e.g. non-oncology oligonucleotides
     # like inclisiran); a registered Phase-4 trial only exists post-approval.
     if mp >= 3 and has_phase4_trial(b5):
