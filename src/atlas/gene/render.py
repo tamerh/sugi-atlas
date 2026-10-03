@@ -1337,15 +1337,12 @@ def r_expression(b):
     # redundant with the score and the pair reads as a contradiction (high score
     # next to a mid-looking rank) when it isn't.
     L.append("\n### Top tissues by expression {#tissue-expression}\n")
-    # Top 20 by expression score. The Bgee breadth + present-calls summary above
-    # already conveys the whole distribution; a 100-row score-ranked dump was the
-    # single biggest page-size contributor (81% of gene pages) and, for broadly/
-    # ubiquitously-expressed genes, 100 near-tied rows carried ~no extra signal
-    # (audit). The total is still reported in the caption.
+    # Bgee tissues are score-ranked with a long tail (median gene ~243 entities);
+    # show the top 100 by expression score.
     L.append(capped_table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
                           [(t.get("tissue") or "", t.get("anatomy_id") or "",
                             t.get("score"), t.get("quality")) for t in b.get("top_tissues", [])],
-                          20, total=b.get("tissue_count"),
+                          100, total=b.get("tissue_count"),
                           noun="tissues by Bgee expression score (0-100, higher = more expressed)"))
     # Single-cell (SCXA) — per-gene marker status + max expression across
     # single-cell experiments (biobtree #31: via the scxa_expression node).
