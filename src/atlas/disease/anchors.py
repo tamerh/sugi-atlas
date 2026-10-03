@@ -148,6 +148,17 @@ def resolve_mondo(name_or_id: str) -> Tuple[str, dict, Optional[str]]:
                 if r.get("id") == name_or_id:
                     canonical = r.get("name")
                     break
+        if not canonical:
+            # Last resort — biobtree has no Mondo name for this id (deprecated/odd
+            # term), but a GenCC curation on the same node carries the disease name
+            # (audit: 7 content-rich pages were titled with a raw MONDO id, e.g.
+            # MONDO:0011271 → GenCC "rigid spine muscular dystrophy 1"). Recover it so
+            # the page/title/JSON-LD is citable rather than reading "MONDO:0011271".
+            for g in map_all(name_or_id, ">>mondo>>gencc"):
+                t = (g.get("disease_title") or "").strip()
+                if t:
+                    canonical = t
+                    break
         return name_or_id, en, canonical
 
     resp = search(name_or_id, source="mondo")
