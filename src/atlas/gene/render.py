@@ -1035,6 +1035,21 @@ def r_drugs(b):
             L.append("\n*CIViC column: a representative evidence item (EID); "
                      "+N = additional CIViC items supporting the same association.*")
 
+    # CIViC AMP/ASCO/CAP clinical-actionability assertions — the TIERED summary
+    # (Tier I highest) per variant × disease, distinct from the per-item evidence
+    # above (which uses a separate A-E level). The headline "how actionable is this
+    # gene's variant, and at what tier" signal.
+    cas = b.get("civic_assertions") or []
+    if cas:
+        L.append("\n### Clinical-actionability assertions (CIViC AMP/ASCO/CAP) {#civic-assertions}\n")
+        L.append("Curated AMP/ASCO/CAP tier assertions — the clinical-actionability "
+                 "classification (Tier I highest) for this gene's variants, distilling "
+                 "the CIViC evidence above into a tiered call.\n")
+        L.append(capped_table(["Molecular profile", "Disease", "Type", "AMP tier", "Significance"],
+                              [(c.get("profile") or "", c.get("disease") or "", c.get("type") or "",
+                                c.get("tier") or "", c.get("significance") or "") for c in cas],
+                              ROW_CAP, noun="CIViC assertions"))
+
     # CIViC curated clinical variants — the named-variant catalogue (with variant
     # type) beneath the predictive evidence above. Compact name list.
     cvs = b.get("civic_variants") or []

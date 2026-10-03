@@ -137,6 +137,7 @@ CHAINS = (
     ">>hgnc>>gencc>>mondo>>clinical_trials",
     ">>hgnc>>clinvar>>mondo>>clinical_trials",
     ">>hgnc>>civic_evidence",
+    ">>hgnc>>civic>>civic_assertion",
     ">>hgnc>>civic>>civic_variant",
 )
 DATASETS = ("chembl_target", "chembl_molecule", "chembl_mechanism", "chembl_activity", "chembl_assay",
@@ -146,7 +147,7 @@ DATASETS = ("chembl_target", "chembl_molecule", "chembl_mechanism", "chembl_acti
             "bindingdb", "gtopdb", "pubchem_activity",
             "ctd_gene_interaction", "entrez",
             "clinical_trials", "mondo", "gencc", "clinvar", "uniprot", "hgnc",
-            "civic_evidence", "civic", "civic_variant")
+            "civic_evidence", "civic", "civic_assertion", "civic_variant")
 
 # ChEMBL assay type codes — single-letter classification we surface as a
 # breakdown ("how heavily this target is profiled, and by what experimental
@@ -583,6 +584,23 @@ def collect(a):
     bundle["civic_association_total"] = cstats["association_total"]
     bundle["civic_evidence_type_counts"] = cstats["evidence_type_counts"]
 
+    # CIViC AMP/ASCO/CAP clinical-actionability assertions — the curated, TIERED
+    # summary (Tier I-IV / Level A-D) that distills the raw civic_evidence items into
+    # the gold-standard actionability call. amp_category is NOT in civic_evidence (a
+    # separate A-E evidence scale), so this is net-new. Route: >>hgnc>>civic>>
+    # civic_assertion (the >>civic_evidence>>civic_assertion hop is dead). Empty for
+    # non-cancer genes.
+    assertions = {}
+    for r in map_all(a.hgnc_id, ">>hgnc>>civic>>civic_assertion", cap=5):
+        rid = r.get("id")
+        if not rid or rid in assertions:
+            continue
+        assertions[rid] = {"profile": r.get("molecular_profile"), "disease": r.get("disease"),
+                           "type": r.get("assertion_type"), "tier": r.get("amp_category"),
+                           "significance": r.get("significance")}
+    # Tier-ordered (lexical sort puts Tier I < II < III < IV, highest actionability first).
+    bundle["civic_assertions"] = sorted(assertions.values(), key=lambda d: (d.get("tier") or "zzz"))
+
     # CIViC curated CLINICAL VARIANTS (named, with variant_type) — the named-variant
     # catalogue beneath the predictive evidence above (EGFR: L858R, T790M, ex19del…).
     # Schema: id|name|gene|variant_types. Empty for non-cancer genes.
@@ -607,7 +625,7 @@ SECTION = Section(
                  "clickable CID/AID), clinical trials via disease route, CIViC "
                  "clinical evidence (drug × variant × indication precision triple)"),
     needs=("hgnc_id", "canonical_uniprot"),
-    produces=("canonical_uniprot", "chembl_targets", "molecules", "moa_drugs", "chembl_activities",
+    produces=("canonical_uniprot", "chembl_targets", "molecules", "moa_drugs", "civic_assertions", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",
