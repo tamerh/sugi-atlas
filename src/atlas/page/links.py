@@ -53,6 +53,13 @@ _MANIFEST = {k: {} for k in _ENTITY_TYPES}
 # page whose canonical name differs (synonym "schizoaffective disorder" →
 # /schizophrenia/). This lets a link render the page it ACTUALLY points to.
 _CANON = {k: {} for k in _ENTITY_TYPES}
+# Synonym/alias keys map — LOWER precedence than _MANIFEST (which holds only IDs +
+# each entity's OWN canonical name). A synonym fills an empty slot but NEVER shadows
+# an authoritative key, so one drug's alias ("panobinostat", listed on the vorinostat
+# page) can't hijack another drug's own-name link. The old flat last-writer-wins map
+# mislinked 1,214+ pages (e.g. Panobinostat → /drug/vorinostat/). Lookup: _MANIFEST
+# first, then _SYN.
+_SYN = {k: {} for k in _ENTITY_TYPES}
 _LOADED_FROM = None
 
 # Reverse-edge index {target_url: [[src_label, src_url, src_type, group], …]} —
@@ -80,11 +87,21 @@ def _norm(s):
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", (s or "").lower())).strip()
 
 
+_NAME_JUNK_RE = re.compile(r"^(sid|nsc|cid|gtpl|hsdb|unii|cas|zinc)\d+$")
+
+
+def _is_name_junk(nk):
+    """A normalized name_key that is a registry/substance ID, not a name — must not
+    become a resolvable alias (audit: 'SID144206870' was harvested as a drug synonym).
+    Drops bare numeric and SID/NSC/CID/UNII-style codes."""
+    return not nk or nk.isdigit() or bool(_NAME_JUNK_RE.match(nk.replace(" ", "")))
+
+
 def load(dist_root):
     """Load the manifest into process-global state. Idempotent per dist_root;
     safe to call at the start of every page build. Missing file → empty mesh
     (resolvers return None → plain text)."""
-    global _MANIFEST, _CANON, _LOADED_FROM
+    global _MANIFEST, _CANON, _SYN, _LOADED_FROM
     path = _manifest_path(dist_root)
     try:
         with open(path) as f:
@@ -92,9 +109,12 @@ def load(dist_root):
         _MANIFEST = {k: data.get(k) or {} for k in _ENTITY_TYPES}
         canon = data.get("canon") or {}
         _CANON = {k: canon.get(k) or {} for k in _ENTITY_TYPES}
+        syn = data.get("syn") or {}
+        _SYN = {k: syn.get(k) or {} for k in _ENTITY_TYPES}
     except (FileNotFoundError, json.JSONDecodeError):
         _MANIFEST = {k: {} for k in _ENTITY_TYPES}
         _CANON = {k: {} for k in _ENTITY_TYPES}
+        _SYN = {k: {} for k in _ENTITY_TYPES}
     _LOADED_FROM = dist_root
     return _MANIFEST
 
@@ -141,10 +161,11 @@ def indicated_drugs(dist_root, slug):
 
 def reset():
     """Clear the mesh (tests / fresh runs)."""
-    global _MANIFEST, _CANON, _REVERSE, _LOADED_FROM, _REVERSE_FROM
+    global _MANIFEST, _CANON, _SYN, _REVERSE, _LOADED_FROM, _REVERSE_FROM
     global _INDICATIONS, _INDICATIONS_FROM
     _MANIFEST = {k: {} for k in _ENTITY_TYPES}
     _CANON = {k: {} for k in _ENTITY_TYPES}
+    _SYN = {k: {} for k in _ENTITY_TYPES}
     _REVERSE = {}
     _LOADED_FROM = None
     _REVERSE_FROM = None
@@ -173,33 +194,46 @@ def upsert(dist_root, entity, slug, id_keys=(), name_keys=(), canonical=None):
         for k in _ENTITY_TYPES:
             data.setdefault(k, {})
         data.setdefault("canon", {}).setdefault(entity, {})
-        bucket = data[entity]
+        bucket = data[entity]                       # AUTHORITATIVE: IDs + own canonical name
+        syn = data.setdefault("syn", {}).setdefault(entity, {})   # synonyms (lower precedence)
         for k in id_keys:
             if k:
-                bucket[str(k)] = slug
+                bucket[str(k)] = slug               # IDs: verbatim, authoritative
+        canon_nk = _norm(canonical) if canonical else None
+        if canon_nk:
+            bucket[canon_nk] = slug                 # the entity's OWN name: authoritative
         for k in name_keys:
             nk = _norm(k)
-            if nk:
-                bucket[nk] = slug
+            # Drop the canonical name (already authoritative) + registry-ID junk; a
+            # synonym must never shadow an authoritative key (another entity's ID or
+            # own name), so skip if already claimed in bucket. Keep-first in syn.
+            if not nk or nk == canon_nk or _is_name_junk(nk) or nk in bucket:
+                continue
+            syn.setdefault(nk, slug)
         if canonical:
             data["canon"][entity][slug] = canonical
         write_json(path, data, indent=0, sort_keys=True)   # atomic — see atomicio
     # keep the live mesh current
     _MANIFEST.setdefault(entity, {}).update(bucket)
+    _SYN.setdefault(entity, {}).update(syn)
     if canonical:
         _CANON.setdefault(entity, {})[slug] = canonical
 
 
 def _lookup(entity, *keys):
-    bucket = _MANIFEST.get(entity) or {}
+    bucket = _MANIFEST.get(entity) or {}      # authoritative: IDs + own canonical names
+    syn = _SYN.get(entity) or {}              # synonyms (lower precedence)
     for k in keys:
         if k is None:
             continue
         if k in bucket:                       # verbatim ID
             return bucket[k]
         nk = _norm(k)
-        if nk and nk in bucket:               # normalized name
-            return bucket[nk]
+        if nk:
+            if nk in bucket:                  # normalized ID / own canonical name
+                return bucket[nk]
+            if nk in syn:                     # synonym — only when no authoritative match
+                return syn[nk]
     return None
 
 

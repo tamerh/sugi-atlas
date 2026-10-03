@@ -197,20 +197,40 @@ def _drain(label, pool, fn, specs):
 
 
 def _merge_manifest(collected, dist_dir):
-    """PHASE B — one writer builds the whole manifest from every key-set."""
+    """PHASE B — one writer builds the whole manifest from every key-set.
+
+    TWO PASSES so precedence is order-independent: pass 1 writes authoritative keys
+    (IDs verbatim + each entity's OWN canonical name); pass 2 writes synonyms/aliases
+    into a separate lower-precedence `syn` map that NEVER overwrites an authoritative
+    key. A flat last-writer-wins merge mislinked 1,214+ pages — a later drug's alias
+    clobbered an earlier drug's own-name key (e.g. Panobinostat → /drug/vorinostat/,
+    cancers → their pediatric-only subtype pages). Registry-ID junk (SID…/NSC…) is
+    dropped from aliases."""
     _types = ("gene", "disease", "drug", "pathway")
     manifest = {k: {} for k in _types}
     manifest["canon"] = {k: {} for k in _types}
+    manifest["syn"] = {k: {} for k in _types}
+    # Pass 1 — authoritative: IDs + the entity's own canonical name.
     for r in collected:
         bucket = manifest[r["entity"]]
         for k in r["id_keys"]:
-            bucket[k] = r["slug"]
-        for k in r["name_keys"]:
-            nk = links._norm(k)
-            if nk:
-                bucket[nk] = r["slug"]
+            if k:
+                bucket[str(k)] = r["slug"]
+        cnk = links._norm(r.get("canonical") or "")
+        if cnk:
+            bucket[cnk] = r["slug"]
         if r.get("canonical"):                       # audit #13 destination name
             manifest["canon"][r["entity"]][r["slug"]] = r["canonical"]
+    # Pass 2 — synonyms: fill-only, never shadow an authoritative key; keep-first.
+    for r in collected:
+        bucket = manifest[r["entity"]]
+        syn = manifest["syn"][r["entity"]]
+        cnk = links._norm(r.get("canonical") or "")
+        for k in r["name_keys"]:
+            nk = links._norm(k)
+            if not nk or nk == cnk or links._is_name_junk(nk) or nk in bucket:
+                continue
+            syn.setdefault(nk, r["slug"])
     write_json(os.path.join(dist_dir, "atlas", "manifest.json"),
                manifest, indent=0, sort_keys=True)
     return manifest
