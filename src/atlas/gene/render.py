@@ -9,7 +9,7 @@ reserved for the synthesis/executive-summary layer, not this.
   python3 render.py TP53 2        # collect §2 for TP53 and render it
   python3 render.py TP53 all      # render §1-§6
 """
-import sys, os, html
+import sys, os, html, re
 from atlas.gene import collect as C
 from atlas.render_common import table, phase_label, fnum, more_line, capped_table, pval
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
@@ -574,6 +574,37 @@ def r_orthologs(b):
     return "\n".join(L)
 
 
+_SPLICEAI_POS_RE = re.compile(r"^([^:]+):(\d+)")
+
+
+def _collapse_spliceai(rows_):
+    """Collapse SpliceAI's saturated positional grid into splice-region ranges:
+    consecutive genomic positions (gap ≤2) sharing the same effect + Δscore become
+    one 'chr:start–end' row with a site count (audit: 30 adjacent Δ=1.0000 rows on
+    one gene conveyed nothing). Scattered/unparseable predictions stay single rows."""
+    parsed, loose = [], []
+    for v in rows_:
+        m = _SPLICEAI_POS_RE.match(str(v.get("id") or ""))
+        if m:
+            parsed.append((m.group(1), int(m.group(2)), str(v.get("effect") or ""),
+                           str(v.get("score") or "")))
+        else:
+            loose.append((v.get("id") or "", v.get("effect"), v.get("score"), ""))
+    out, run = [], None   # run = [chrom, effect, score, start, end, n]
+    for chrom, pos, eff, sc in sorted(parsed):
+        if run and run[0] == chrom and run[1] == eff and run[2] == sc and pos <= run[4] + 2:
+            run[4], run[5] = pos, run[5] + 1
+        else:
+            if run:
+                out.append(run)
+            run = [chrom, eff, sc, pos, pos, 1]
+    if run:
+        out.append(run)
+    rendered = [((f"{c}:{s}" if s == e else f"{c}:{s}–{e}"), eff, sc, (str(n) if n > 1 else ""))
+                for c, eff, sc, s, e, n in out]
+    return rendered + loose
+
+
 def r_variants(b):
     L = ["## Clinical variants and AI predictions", ""]
     bd = b.get("clinvar_breakdown", {})
@@ -609,8 +640,8 @@ def r_variants(b):
                  "submissions.\n")
         L.append(table(["Assertion", "Variants"], b.get("clingen_variant_breakdown") or []))
     L.append("\n### SpliceAI {#spliceai}\n")
-    L.append(capped_table(["Variant", "Effect", "Δscore"],
-                          [(v["id"], v.get("effect"), v.get("score")) for v in b.get("top_spliceai", [])],
+    L.append(capped_table(["Position(s)", "Effect", "Δscore", "Sites"],
+                          _collapse_spliceai(b.get("top_spliceai", [])),
                           None, total=b.get("spliceai_total"), noun="predictions by Δscore"))
     L.append("\n### AlphaMissense {#alphamissense}\n")
     L.append(capped_table(["Variant", "Protein change", "am_pathogenicity"],
@@ -1277,12 +1308,15 @@ def r_expression(b):
     # redundant with the score and the pair reads as a contradiction (high score
     # next to a mid-looking rank) when it isn't.
     L.append("\n### Top tissues by expression {#tissue-expression}\n")
-    # Bgee tissues are score-ranked with a long tail (median gene ~243 entities);
-    # show the top 100 by expression score.
+    # Top 20 by expression score. The Bgee breadth + present-calls summary above
+    # already conveys the whole distribution; a 100-row score-ranked dump was the
+    # single biggest page-size contributor (81% of gene pages) and, for broadly/
+    # ubiquitously-expressed genes, 100 near-tied rows carried ~no extra signal
+    # (audit). The total is still reported in the caption.
     L.append(capped_table(["Tissue", "Anatomy ID", "Expression score", "Quality"],
                           [(t.get("tissue") or "", t.get("anatomy_id") or "",
                             t.get("score"), t.get("quality")) for t in b.get("top_tissues", [])],
-                          100, total=b.get("tissue_count"),
+                          20, total=b.get("tissue_count"),
                           noun="tissues by Bgee expression score (0-100, higher = more expressed)"))
     # Single-cell (SCXA) — per-gene marker status + max expression across
     # single-cell experiments (biobtree #31: via the scxa_expression node).
