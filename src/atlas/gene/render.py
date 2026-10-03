@@ -991,6 +991,20 @@ def r_drugs(b):
                                 f"{m['patent_count']:,}" if m.get("patent_count") else "")
                                for m in mols],
                               ROW_CAP, total=mc, noun="molecules by phase"))
+    # Curated mechanism-of-action drugs the bioactivity table misses — the modality
+    # gap (antibodies / ADCs / oligonucleotides), from ChEMBL's curated MOA. Named,
+    # phase-sorted, deduped against the table above (so it's net-new, not a repeat).
+    moa = b.get("moa_drugs") or []
+    if moa:
+        L.append("\n### Targeted drugs by mechanism of action (ChEMBL) {#chembl-moa}\n")
+        L.append("Drugs with a curated ChEMBL mechanism of action against this gene "
+                 "that the bioactivity set above does not surface — chiefly antibody, "
+                 "antibody–drug-conjugate, and oligonucleotide therapeutics (no "
+                 "bioactivity-assay target edge; e.g. monoclonals, siRNA).\n")
+        L.append(capped_table(["Drug", "Modality", "Max phase"],
+                              [(links.maybe_link(d.get("name"), links.drug_url(chembl_id=d["id"], name=d.get("name"))),
+                                d.get("type") or "", d.get("phase")) for d in moa],
+                              ROW_CAP, noun="curated-mechanism drugs"))
     # CIViC clinical evidence — drug × variant × indication (the precision-
     # medicine triple). Predictive associations only, deduped + ranked by CIViC
     # evidence level (A validated → E inferential). The Effect column separates

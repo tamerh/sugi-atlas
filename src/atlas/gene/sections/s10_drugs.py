@@ -117,6 +117,8 @@ def _affinity_nm(s):
 CHAINS = (
     ">>uniprot>>chembl_target",
     '>>chembl_target>>chembl_molecule[highestDevelopmentPhase>=1]',
+    ">>uniprot>>chembl_target>>chembl_mechanism>>chembl_molecule",   # curated MOA drugs (antibodies/oligos)
+    ">>hgnc>>chembl_mechanism>>chembl_molecule",                     # oligo/mRNA-target catch
     ">>uniprot>>chembl_activity",
     ">>uniprot>>chembl_target>>chembl_assay",
     ">>chembl_assay>>chembl_document",
@@ -137,7 +139,7 @@ CHAINS = (
     ">>hgnc>>civic_evidence",
     ">>hgnc>>civic>>civic_variant",
 )
-DATASETS = ("chembl_target", "chembl_molecule", "chembl_activity", "chembl_assay",
+DATASETS = ("chembl_target", "chembl_molecule", "chembl_mechanism", "chembl_activity", "chembl_assay",
             "chembl_document", "patent_compound", "cellosaurus",
             "pharmgkb_gene", "pharmgkb_clinical", "pharmgkb_variant",
             "pharmgkb_var_annotation", "pharmgkb_guideline",
@@ -187,6 +189,31 @@ def collect(a):
                               "phase": m.get("highestDevelopmentPhase")}
     bundle["molecules"] = sorted(drugs.values(), key=lambda d: _phase(d["phase"]), reverse=True)
     bundle["molecule_count"] = len(drugs)
+
+    # Curated mechanism-of-action drugs (ChEMBL) that the bioactivity list above
+    # MISSES — chiefly antibody / ADC / oligonucleotide therapeutics with no assay
+    # target edge (e.g. cetuximab→EGFR, inclisiran→PCSK9), plus any curated small
+    # molecule not caught. The reliable route is uniprot>>chembl_target>>
+    # chembl_mechanism>>chembl_molecule (EGFR→80, BRAF→17, TNF→adalimumab/…); the
+    # direct hgnc>>chembl_mechanism edge is spotty (0 on most genes) but uniquely
+    # catches mRNA-targeting oligos, so it's unioned in. Deduped against `drugs` by
+    # ChEMBL id so this is purely the modality gap, not a duplicate of the table above.
+    moa = {}
+    moa_chains = []
+    if uni:
+        moa_chains.append((uni, ">>uniprot>>chembl_target>>chembl_mechanism>>chembl_molecule"))
+    moa_chains.append((a.symbol, ">>hgnc>>chembl_mechanism>>chembl_molecule"))   # oligo catch
+    for root, chain in moa_chains:
+        for m in map_all(root, chain):
+            mid = m.get("id")
+            name = m.get("name")
+            # new only (not already in the bioactivity list), named (skip bare CHEMBL-id shells)
+            if (not mid or mid in drugs or mid in moa or not name
+                    or str(name).upper().startswith("CHEMBL")):
+                continue
+            moa[mid] = {"id": mid, "name": name, "type": m.get("type"),
+                        "phase": m.get("highestDevelopmentPhase")}
+    bundle["moa_drugs"] = sorted(moa.values(), key=lambda d: _phase(d["phase"]), reverse=True)
 
     # Patent literature coverage per phased molecule — chemistry IP intensity.
     # Each chembl_molecule maps to 0-N patent_compound records (PubChem CIDs);
@@ -580,7 +607,7 @@ SECTION = Section(
                  "clickable CID/AID), clinical trials via disease route, CIViC "
                  "clinical evidence (drug × variant × indication precision triple)"),
     needs=("hgnc_id", "canonical_uniprot"),
-    produces=("canonical_uniprot", "chembl_targets", "molecules", "chembl_activities",
+    produces=("canonical_uniprot", "chembl_targets", "molecules", "moa_drugs", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",
