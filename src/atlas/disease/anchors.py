@@ -178,6 +178,51 @@ def resolve_mondo(name_or_id: str) -> Tuple[str, dict, Optional[str]]:
                  or chosen.get("name"))
     return chosen["id"], en, canonical
 
+# A ClinVar record is a "large region CNV" when its HGVS is a genomic (NC_…:g.)
+# del/dup/ins/inv spanning ≥ _LARGE_CNV_BP. ClinVar annotates such a multi-gene
+# record to a SINGLE gene — often a bystander in the deleted region, not the disease
+# gene — so a gene whose ONLY ClinVar support is such a record is not a real
+# associated gene (audit: a 272 kb chr1 deletion put LDLRAP1 on the SELENON/
+# rigid-spine-MD disease, polluting its pathways/druggability). Fuzzy breakpoints
+# `(?_a)_(b_?)` are handled; transcript (NM_/NR_/NG_:c./n.), SNVs and small genomic
+# indels are localized and never match.
+_CNV_SPAN_RX = re.compile(
+    r'^NC_\d+\.\d+:g\.\(?\??_?(\d+)\)?_\(?(\d+)_?\??\)?(?:del|dup|ins|inv)', re.I)
+_LARGE_CNV_BP = 200_000
+
+
+def _is_large_cnv(hgvs_name: str) -> bool:
+    m = _CNV_SPAN_RX.match(hgvs_name or "")
+    return bool(m) and (int(m.group(2)) - int(m.group(1))) >= _LARGE_CNV_BP
+
+
+def _clinvar_cnv_only_genes(mondo_id: str) -> Set[str]:
+    """HGNC ids whose ONLY >>mondo>>clinvar records are large region CNVs — bystander
+    genes to subtract from the ClinVar cohort route. A gene with ≥1 localized record
+    (transcript/SNV/small-indel) is kept via that record.
+
+    The clinvar MAP projection carries `gene_symbol` + `name` (not hgnc_id), so we
+    partition by symbol, then resolve the FEW bystander symbols to HGNC ids to match
+    the cohort keys. Uncapped: a gene's localized record may sit beyond the default
+    page cap, and a false 'CNV-only' would wrongly drop a real gene."""
+    has_localized: Set[str] = set()
+    seen: Set[str] = set()
+    for r in map_all(mondo_id, ">>mondo>>clinvar", cap=None):
+        sym = (r.get("gene_symbol") or "").strip()
+        if not sym:
+            continue
+        seen.add(sym)
+        if not _is_large_cnv(r.get("name")):
+            has_localized.add(sym)
+    drop: Set[str] = set()
+    for sym in (seen - has_localized):             # bystander symbols → HGNC ids
+        for t in map_all(sym, ">>hgnc"):
+            hid = t.get("id")
+            if hid and str(hid).startswith("HGNC:"):
+                drop.add(hid)
+    return drop
+
+
 def _build_cohort(mondo_id: str):
     """Union the four evidence routes into a per-gene evidence map.
     Returns (cohort_hgnc_ids_ranked, evidence_map).
@@ -188,10 +233,16 @@ def _build_cohort(mondo_id: str):
     the COHORT_CAP retains the strongest-evidence subset.
     """
     evidence: Dict[str, Dict[str, bool]] = {}
+    # Genes whose only ClinVar support is a large multi-gene region CNV — excluded
+    # from the ClinVar route as bystanders. Subtractive: another route (GenCC/GWAS/
+    # CIViC) still seeds a genuinely-associated gene, so a corroborated gene survives.
+    cnv_only = _clinvar_cnv_only_genes(mondo_id)
     for flag, chain in _COHORT_ROUTES:
         for t in map_all(mondo_id, chain):
             h = t.get("id")
             if not h or not h.startswith("HGNC:"):
+                continue
+            if flag == "clinvar" and h in cnv_only:
                 continue
             # "alliance" is a corroboration-only flag (set later in resolve(),
             # never introduces a gene) — pre-seed it False so every gene's
