@@ -134,6 +134,13 @@ def phase_label(p):
         n = re.findall(r"\d", u)
         return "Early Phase " + n[0] if n else "Early Phase"
     nums = re.findall(r"PHASE\s*([0-9])", u)   # also matches already-formatted 'PHASE 3'
+    # Already-formatted combined phase ('Phase 1/2' → 'PHASE 1/2'): only the first
+    # digit follows the word PHASE, so collect the whole N/M run. Without this the
+    # label wasn't idempotent and a second pass turned 'Phase 1/2' into 'Phase 1',
+    # producing duplicate rows in phase tables (v1.11.7: 44% of drug pages).
+    m = re.match(r"^PHASE\s*([0-9](?:\s*/\s*[0-9])+)$", u)
+    if m:
+        nums = re.findall(r"[0-9]", m.group(1))
     if nums:
         return "Phase " + "/".join(nums)
     return (p or "").strip()                    # unknown label — leave as-is

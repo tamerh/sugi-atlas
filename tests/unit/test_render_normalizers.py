@@ -49,3 +49,14 @@ def test_trials_clause_grammar():
     assert _trials_clause({}, {"trial_count": 1}, joined=False) == " with 1 registered clinical trial"
     assert _trials_clause({}, {"trial_count": 0}) == ""
     assert _trials_clause({}, {}) == ""
+
+
+def test_phase_label_idempotent_on_combined_phases():
+    # v1.11.7: collect-time + render-time labelling turned 'Phase 1/2' into
+    # 'Phase 1', duplicating rows in phase tables.
+    from atlas.render_common import phase_label
+    for raw in ("PHASE1/PHASE2", "PHASE2/PHASE3", "PHASE2", "EARLY_PHASE1", "NaN", "Phase 3"):
+        once = phase_label(raw)
+        assert phase_label(once) == once
+    assert phase_label("PHASE1/PHASE2") == "Phase 1/2"
+    assert phase_label("Phase 2/3") == "Phase 2/3"
