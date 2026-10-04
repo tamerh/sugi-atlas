@@ -334,6 +334,24 @@ def _resolve_indications(mol: dict) -> Tuple[IndicationRecord, ...]:
     return tuple(sorted(out, key=lambda r: -r.max_phase))
 
 
+def _reconcile_fda(chembl_id: str, pubchem_flag: Optional[bool]) -> Optional[bool]:
+    """FDA approval with DrugCentral as the authority. PubChem's is_fda_approved
+    comes from the FIRST linked compound record only, so its "false" is unreliable
+    (v1.11.7 QA: ibuprofen, omeprazole, epinephrine read "Not FDA-approved" while
+    DrugCentral on the same page said "Approved: FDA"). DrugCentral's edge row
+    carries explicit fda/ema/pmda flags, so when it has a record its answer wins
+    (True/False); without one, PubChem True is trusted and PubChem False becomes
+    None (unknown) — never asserted as "not approved"."""
+    try:
+        hits = map_all(chembl_id, ">>chembl_molecule>>drugcentral")
+    except Exception:
+        hits = []
+    hit = next((r for r in hits if (r.get("id") or "").strip()), None)
+    if hit is not None:
+        return hit.get("fda_approved") in (True, "true")
+    return True if pubchem_flag else None
+
+
 def _resolve_chemistry(chembl_id: str):
     """pubchem + chebi descriptors. Returns a dict (empty for biologics with
     no small-mol CID)."""
@@ -422,7 +440,7 @@ def resolve(name_or_id: str) -> DrugAnchors:
         molecular_weight=chem["molecular_weight"],
         chebi_definition=chem["chebi_definition"],
         chebi_roles=chem["chebi_roles"],
-        is_fda_approved=chem["is_fda_approved"],
+        is_fda_approved=_reconcile_fda(chembl_id, chem["is_fda_approved"]),
     )
 
 

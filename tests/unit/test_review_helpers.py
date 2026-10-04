@@ -148,7 +148,9 @@ def test_non_human_ids_subtree_and_flags():
 # ── drug development-status label (approved vs phase-3 seed expansion) ────────
 def test_drug_status_label():
     from atlas.page.drug_at_a_glance import _status
-    assert _status({"is_fda_approved": True}) == "FDA-approved (clinical phase 4)"
+    assert _status({"is_fda_approved": True}) == "FDA-approved"
+    assert _status({"is_fda_approved": True}, None, {"approvals": ["FDA", "EMA"]}) == "FDA-approved (also EMA)"
+    assert _status({"is_fda_approved": False, "max_phase": 4}, None, {"approvals": ["EMA"]}) == "Approved (EMA); not FDA-approved"
     assert _status({"max_phase": 4}).startswith("Approved")          # FDA unknown → phase-4 signal
     # FDA explicitly no + phase 4 must NOT read as a bare "Approved" (the 926-page bug)
     assert _status({"max_phase": 4, "is_fda_approved": False}) == \

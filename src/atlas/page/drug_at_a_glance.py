@@ -20,22 +20,26 @@ def _format_int(n):
         return None
 
 
-def _status(b1, b5=None) -> str:
-    """Development status from max_phase / FDA flag / Phase-4 trial signal."""
+def _status(b1, b5=None, b14=None) -> str:
+    """Development status from the FDA flag (DrugCentral-reconciled in the drug
+    anchor — see drug.anchors._reconcile_fda), DrugCentral's other agencies, the
+    ChEMBL max_phase, and the Phase-4-trial signal."""
     from atlas.indication import has_phase4_trial
     fda = b1.get("is_fda_approved")
+    others = [x for x in ((b14 or {}).get("approvals") or []) if x != "FDA"]
     if fda:
-        return "FDA-approved (clinical phase 4)"
-    mp = b1.get("max_phase")
+        return "FDA-approved" + (f" (also {', '.join(others)})" if others else "")
     try:
-        mp = int(float(mp))
+        mp = int(float(b1.get("max_phase")))
     except (TypeError, ValueError):
+        mp = None
+    # fda is False only when DrugCentral authoritatively says "not FDA" — then name
+    # the agencies that DID approve it, if any.
+    if fda is False and others:
+        return f"Approved ({', '.join(others)}); not FDA-approved"
+    if mp is None:
         return ""
     if mp == 4:
-        # ChEMBL max_phase 4 = reached regulatory approval somewhere/at some point,
-        # but the FDA flag says otherwise. When FDA=no (not just unknown) a bare
-        # "Approved" overstates — many are non-US, historical, or withdrawn (audit:
-        # 926 phase-4 pages had FDA=no, e.g. the withdrawn MAOI phenoxypropazine).
         if fda is False:
             return "Not FDA-approved (reached ChEMBL max clinical phase 4)"
         return "Approved (max clinical phase 4)"          # FDA status unknown
@@ -60,7 +64,7 @@ def at_a_glance(bundle) -> str:
     bullets = []
 
     # Development status.
-    status = _status(b1, b5)
+    status = _status(b1, b5, bundle.get("14"))
     if status:
         bullets.append(f"**Status:** {status}")
 
