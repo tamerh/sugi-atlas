@@ -82,11 +82,8 @@ def at_a_glance(bundle) -> str:
     # Targets (§2 primary targets) — count + top symbols. Fall back to curated MOA
     # target genes for RNA therapeutics (inclisiran → PCSK9), which have no GtoPdb/
     # bioactivity target.
-    prim = b2.get("primary_targets") or []
-    genes = [t.get("gene_symbol") for t in prim if t.get("gene_symbol")]
-    if not genes:
-        genes = [g.get("gene_symbol") for g in (b2.get("mechanism_genes") or [])
-                 if g.get("gene_symbol")]
+    from atlas.page.drug_declarative import _curated_target_genes
+    genes = _curated_target_genes(b2)
     if genes:
         shown = ", ".join(genes[:3])
         extra = f" ({shown}…)" if len(genes) > 3 else f" ({shown})"

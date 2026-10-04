@@ -54,14 +54,34 @@ def _class_clause(b1, b6, b5=None):
     return s
 
 
+def _curated_target_genes(b2):
+    """Target genes for the lead / at-a-glance: ChEMBL curated mechanism-of-action
+    genes FIRST (the drug's actual mechanism targets — imatinib → ABL1, PDGFRB,
+    KIT; adalimumab → TNF), then any GtoPdb primary targets not already listed.
+    Previously GtoPdb led and MOA genes were only a fallback, so imatinib read
+    "targeting DDR1, DDR2, and ABL1" and adalimumab named no target at all."""
+    b2 = b2 or {}
+    out = []
+    for g in (b2.get("mechanism_genes") or []):
+        sym = g.get("gene_symbol")
+        if sym and sym not in out:
+            out.append(sym)
+    def _aff(t):
+        try:
+            return -float(t.get("affinity"))
+        except (TypeError, ValueError):
+            return 0.0
+    # GtoPdb rows arrive unordered; strongest affinity first (diazepam led with
+    # TRHR at pKi 5.2 ahead of its GABA-A α1-3 targets at ~7.8).
+    for t in sorted(b2.get("primary_targets") or [], key=_aff):
+        sym = t.get("gene_symbol")
+        if sym and sym not in out:
+            out.append(sym)
+    return out
+
+
 def _targets_clause(b2):
-    prim = (b2 or {}).get("primary_targets") or []
-    genes = [t.get("gene_symbol") for t in prim if t.get("gene_symbol")]
-    if not genes:
-        # Fallback to curated MOA target genes — the only target for RNA
-        # therapeutics (e.g. inclisiran → PCSK9), which have no GtoPdb/bioactivity.
-        genes = [g.get("gene_symbol") for g in ((b2 or {}).get("mechanism_genes") or [])
-                 if g.get("gene_symbol")]
+    genes = _curated_target_genes(b2)
     if not genes:
         return ""
     return " targeting " + _join(genes[:3])

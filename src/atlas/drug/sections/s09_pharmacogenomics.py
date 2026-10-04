@@ -44,7 +44,10 @@ def _clinical_annotations(pgx_id, pgx_name):
     out, seen = [], set()
     for g in related:
         sym = g.get("gene_symbol")
-        if not sym or "ClinicalAnnotation" not in (g.get("evidence_type") or ""):
+        ev = g.get("evidence_type") or ""
+        # PharmGKB renamed clinical annotations → "SummaryAnnotation"; matching only
+        # the old token rendered clinical annotations on 0 of 4,683 drug pages.
+        if not sym or not ("ClinicalAnnotation" in ev or "SummaryAnnotation" in ev):
             continue
         try:
             rows = map_all(sym, _CLINICAL_CHAIN)

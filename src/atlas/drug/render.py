@@ -168,6 +168,10 @@ def r_targets(b):
                                                                 hgnc_id=g.get("hgnc_id")))
                                for g in moa_genes)
             L.append(f"**Target gene{'s' if len(moa_genes) != 1 else ''}:** {links_}\n")
+        orgs = b.get("mechanism_organisms") or []
+        if orgs:
+            L.append(f"**Target organism{'s' if len(orgs) != 1 else ''}:** {', '.join(orgs)} "
+                     "(non-human mechanism target — e.g. an antimicrobial's pathogen enzyme)\n")
         L.append(table(["Mechanism of action", "Action type", "Target", "Target type"],
                        [(m.get("mechanism_of_action"), m.get("action_type"),
                          m.get("target_name"), m.get("target_type")) for m in moa]))
