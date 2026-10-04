@@ -503,7 +503,16 @@ def r_gwas_landscape(b):
 
 # §3 variant_details --------------------------------------------------------
 
-def r_variant_details(b):
+def _mendelian_disease(bundles):
+    """True when the disease has a GenCC-Definitive causal gene (cohort.causal_genes)."""
+    from atlas.disease.cohort import causal_genes
+    try:
+        return any("definitive" in (ev or "").lower() for _, ev in causal_genes(bundles))
+    except Exception:
+        return False
+
+
+def r_variant_details(b, clinvar_first=False):
     out = ["## Variant details and genetic-evidence tiers", ""]
     # This section tiers GWAS-derived variants (>>mondo>>gwas>>dbsnp). For
     # diseases with no GWAS (Mendelian / rare) it's empty — render a note, not
@@ -559,6 +568,12 @@ def r_variant_details(b):
     if cv and not gwas_present:
         out += _clinvar_block()
         return "\n".join(out)
+    # Mendelian disease (GenCC-Definitive causal gene): the curated ClinVar
+    # variants ARE the genetics headline — lead with them, GWAS tiers after
+    # (v1.11.7 cystic fibrosis led with GWAS rows; F508del sat below).
+    if cv and clinvar_first:
+        out += [*_clinvar_block(), ""]
+        cv = []
 
     if any(tc.values()):
         out += ["### Tier distribution (top 50 variants) {#tier-distribution}", ""]
@@ -1520,7 +1535,9 @@ def render_all(bundles):
          r_disease_family(bundles.get("1"), bundles.get("5")),
          "No broader Mondo term or subtypes recorded for this disease."),
         ("Genetics & variants", "genetics",
-         join(S("2", "gwas"), S("3", "variant-tiers")),
+         (join(D(r_variant_details(bundles["3"], clinvar_first=True), "variant-tiers"),
+               S("2", "gwas")) if _mendelian_disease(bundles)
+          else join(S("2", "gwas"), S("3", "variant-tiers"))),
          "No common-variant (GWAS) or curated variant data for this disease."),
         ("Genes & proteins", "genes",
          join(_cohort_empty_note(bundles),
