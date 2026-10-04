@@ -168,7 +168,9 @@ def _pathways(pgx_id):
     out = [{"id": r.get("id"), "name": (r.get("name") or "").strip(),
             "pk": r.get("is_pharmacokinetic") == "true",
             "pd": r.get("is_pharmacodynamic") == "true"}
-           for r in hits if r.get("id") and (r.get("name") or "").strip()]
+           for r in hits if r.get("id") and (r.get("name") or "").strip()
+           # PharmGKB drafts are titled "In Progress: …" — unfinished curation.
+           and not (r.get("name") or "").strip().lower().startswith("in progress")]
     out.sort(key=lambda p: p["name"].lower())
     return out
 

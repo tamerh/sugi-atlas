@@ -349,3 +349,11 @@ def test_render_without_labels_or_pathways_is_unchanged():
     assert "No CPIC/DPWG dosing guideline" in md
     assert R.r_pharmacogenomics({}) == ("## Pharmacogenomics\n\n"
                                         "*No PharmGKB pharmacogenomic data curated for this drug.*")
+
+
+def test_in_progress_pathways_dropped(monkeypatch):
+    from atlas.drug.sections import s09_pharmacogenomics as S9
+    monkeypatch.setattr(S9, "map_all", lambda r, c, **k: [
+        {"id": "PA1", "name": "In Progress: Drug X Pathway"},
+        {"id": "PA2", "name": "Warfarin Pathway, Pharmacodynamics", "is_pharmacodynamic": "true"}])
+    assert [p["id"] for p in S9._pathways("PA449082")] == ["PA2"]
