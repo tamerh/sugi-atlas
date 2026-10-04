@@ -973,6 +973,24 @@ def r_drugs(b):
     if tgts:
         L.append(f"**ChEMBL targets ({len(tgts)}):** "
                  + ", ".join(f"{t['id']} ({t.get('type')})" for t in tgts[:10]))
+    # Curated mechanism-of-action drugs — FIRST, ahead of the bioactivity screen:
+    # the drugs whose curated ChEMBL MOA target is this gene's own protein (single-
+    # protein targets only; family/complex targets excluded upstream), incl. the
+    # antibodies / oligonucleotides that bioactivity assays can't capture.
+    moa = b.get("moa_drugs") or []
+    if moa:
+        L.append("\n### Drugs by curated mechanism of action (ChEMBL) {#chembl-moa}\n")
+        L.append(f"Drugs whose curated ChEMBL mechanism of action targets the "
+                 f"{b.get('symbol') or 'gene'} protein itself — single-protein targets only "
+                 "(drugs acting on a protein family or complex that merely includes it are "
+                 "excluded). Includes antibodies and oligonucleotides that bioactivity "
+                 "screening does not capture.\n")
+        L.append(capped_table(["Drug", "Modality", "Max phase"],
+                              [(links.maybe_link(d.get("name"), links.drug_url(chembl_id=d["id"], name=d.get("name"))),
+                                d.get("type") or "",
+                                d.get("phase") if str(d.get("phase") or "").isdigit() and d.get("phase") != "0" else "—")
+                               for d in moa],
+                              ROW_CAP, noun="curated-mechanism drugs"))
     mols = b.get("molecules", [])
     mc = b.get("molecule_count", 0)
     if mols or mc:
@@ -991,20 +1009,6 @@ def r_drugs(b):
                                 f"{m['patent_count']:,}" if m.get("patent_count") else "")
                                for m in mols],
                               ROW_CAP, total=mc, noun="molecules by phase"))
-    # Curated mechanism-of-action drugs the bioactivity table misses — the modality
-    # gap (antibodies / ADCs / oligonucleotides), from ChEMBL's curated MOA. Named,
-    # phase-sorted, deduped against the table above (so it's net-new, not a repeat).
-    moa = b.get("moa_drugs") or []
-    if moa:
-        L.append("\n### Targeted drugs by mechanism of action (ChEMBL) {#chembl-moa}\n")
-        L.append("Drugs with a curated ChEMBL mechanism of action against this gene "
-                 "that the bioactivity set above does not surface — chiefly antibody, "
-                 "antibody–drug-conjugate, and oligonucleotide therapeutics (no "
-                 "bioactivity-assay target edge; e.g. monoclonals, siRNA).\n")
-        L.append(capped_table(["Drug", "Modality", "Max phase"],
-                              [(links.maybe_link(d.get("name"), links.drug_url(chembl_id=d["id"], name=d.get("name"))),
-                                d.get("type") or "", d.get("phase")) for d in moa],
-                              ROW_CAP, noun="curated-mechanism drugs"))
     # CIViC clinical evidence — drug × variant × indication (the precision-
     # medicine triple). Predictive associations only, deduped + ranked by CIViC
     # evidence level (A validated → E inferential). The Effect column separates
@@ -1045,10 +1049,20 @@ def r_drugs(b):
         L.append("Curated AMP/ASCO/CAP tier assertions — the clinical-actionability "
                  "classification (Tier I highest) for this gene's variants, distilling "
                  "the CIViC evidence above into a tiered call.\n")
-        L.append(capped_table(["Molecular profile", "Disease", "Type", "AMP tier", "Significance"],
-                              [(c.get("profile") or "", c.get("disease") or "", c.get("type") or "",
-                                c.get("tier") or "", c.get("significance") or "") for c in cas],
+        def _sig(c):
+            sig = c.get("significance") or ""
+            d = (c.get("direction") or "").strip()
+            if d and d.lower() != "supports":
+                sig = f"{sig} ({d.lower()})" if sig else d
+            return sig
+        L.append(capped_table(["Molecular profile", "Disease", "Therapy", "Type", "AMP tier", "Significance"],
+                              [(c.get("profile") or "", c.get("disease") or "",
+                                ", ".join(c.get("therapies") or [])
+                                + (" †" if c.get("companion_test") else ""),
+                                c.get("type") or "", c.get("tier") or "", _sig(c)) for c in cas],
                               ROW_CAP, noun="CIViC assertions"))
+        if any(c.get("companion_test") for c in cas):
+            L.append("\n*† an FDA-approved companion diagnostic exists for this assertion.*")
 
     # CIViC curated clinical variants — the named-variant catalogue (with variant
     # type) beneath the predictive evidence above. Compact name list.

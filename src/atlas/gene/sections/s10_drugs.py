@@ -165,6 +165,26 @@ _ASSAY_TYPE_NAMES = {
 # qualifier flags rather than affinity values.
 _AFFINITY_TYPES = {"ki", "ic50", "kd", "ec50"}
 
+# Counter-ion / hydrate words that make a salt form's ChEMBL name differ from its
+# parent (ABIVERTINIB MALEATE → ABIVERTINIB). Used only to dedupe display rows.
+_SALT_WORDS = {
+    "acetate", "besylate", "bitartrate", "bromide", "calcium", "chloride", "citrate",
+    "dihydrate", "dihydrochloride", "dimaleate", "dimesylate", "disodium", "esylate",
+    "fumarate", "hemifumarate", "hemihydrate", "hydrate", "hydrobromide",
+    "hydrochloride", "lactate", "magnesium", "malate", "maleate", "meglumine",
+    "mesylate", "monohydrate", "nitrate", "phosphate", "potassium", "sodium",
+    "succinate", "sulfate", "tartrate", "tosylate", "tromethamine", "trihydrate",
+    "anhydrous", "hcl",
+}
+
+
+def _salt_base(name):
+    toks = [t for t in re.split(r"[\s,]+", (name or "").lower()) if t]
+    while len(toks) > 1 and toks[-1] in _SALT_WORDS:
+        toks.pop()
+    return " ".join(toks)
+
+
 def _phase(d):
     return int(d) if (d or "").isdigit() else 0
 
@@ -191,30 +211,46 @@ def collect(a):
     bundle["molecules"] = sorted(drugs.values(), key=lambda d: _phase(d["phase"]), reverse=True)
     bundle["molecule_count"] = len(drugs)
 
-    # Curated mechanism-of-action drugs (ChEMBL) that the bioactivity list above
-    # MISSES — chiefly antibody / ADC / oligonucleotide therapeutics with no assay
-    # target edge (e.g. cetuximab→EGFR, inclisiran→PCSK9), plus any curated small
-    # molecule not caught. The reliable route is uniprot>>chembl_target>>
-    # chembl_mechanism>>chembl_molecule (EGFR→80, BRAF→17, TNF→adalimumab/…); the
-    # direct hgnc>>chembl_mechanism edge is spotty (0 on most genes) but uniquely
-    # catches mRNA-targeting oligos, so it's unioned in. Deduped against `drugs` by
-    # ChEMBL id so this is purely the modality gap, not a duplicate of the table above.
+    # Curated mechanism-of-action drugs (ChEMBL) whose MOA target IS this gene's
+    # protein. SINGLE PROTEIN chembl_targets only: a family / complex / complex-group
+    # target (GABA-A receptor, tubulin, proteasome, ribosome, Kv-channel family…)
+    # would hand every member gene the whole class's drug list (v1.11.7 QA: ~70% of
+    # rows were such inherited noise — bortezomib on 19S proteasome subunits,
+    # benzodiazepines on BZ-insensitive GABA subunits, metformin on 49 complex-I/IV
+    # genes). Listed in full — NOT deduped against the capped bioactivity table, so
+    # curated small molecules (gefitinib→EGFR, tamoxifen→ESR1) can't vanish below
+    # its row cap. The direct hgnc>>chembl_mechanism edge is added ONLY for
+    # oligonucleotides (mRNA-targeting, e.g. inclisiran→PCSK9 — no protein target).
+    # Salt forms (ABIVERTINIB MALEATE) collapse onto the parent name.
     moa = {}
-    moa_chains = []
-    if uni:
-        moa_chains.append((uni, ">>uniprot>>chembl_target>>chembl_mechanism>>chembl_molecule"))
-    moa_chains.append((a.symbol, ">>hgnc>>chembl_mechanism>>chembl_molecule"))   # oligo catch
-    for root, chain in moa_chains:
-        for m in map_all(root, chain):
-            mid = m.get("id")
-            name = m.get("name")
-            # new only (not already in the bioactivity list), named (skip bare CHEMBL-id shells)
-            if (not mid or mid in drugs or mid in moa or not name
-                    or str(name).upper().startswith("CHEMBL")):
-                continue
-            moa[mid] = {"id": mid, "name": name, "type": m.get("type"),
-                        "phase": m.get("highestDevelopmentPhase")}
-    bundle["moa_drugs"] = sorted(moa.values(), key=lambda d: _phase(d["phase"]), reverse=True)
+
+    def _add_moa(m):
+        name = (m.get("name") or "").strip()
+        if not name or name.upper().startswith("CHEMBL"):
+            return
+        key = _salt_base(name)
+        ph = m.get("highestDevelopmentPhase")
+        cur = moa.get(key)
+        if cur is None or _phase(ph) > _phase(cur["phase"]) or \
+                (_phase(ph) == _phase(cur["phase"]) and len(name) < len(cur["name"])):
+            moa[key] = {"id": m.get("id"), "name": name, "type": m.get("type"), "phase": ph}
+
+    for t in targets:
+        if (t.get("type") or "").upper() != "SINGLE PROTEIN":
+            continue
+        for m in map_all(t["id"], ">>chembl_target>>chembl_mechanism>>chembl_molecule"):
+            _add_moa(m)
+    for m in map_all(a.symbol, ">>hgnc>>chembl_mechanism>>chembl_molecule"):
+        if (m.get("type") or "").lower() == "oligonucleotide":
+            _add_moa(m)
+    bundle["moa_drugs"] = sorted(moa.values(), key=lambda d: (-_phase(d["phase"]), d["name"]))
+    # Bioactivity list: within a phase, curated-MOA drugs first, then by patent
+    # intensity — instead of CHEMBL-id order (which put levodopa/clotrimazole at
+    # the top of EGFR's phase-4 rows and pushed gefitinib past the row cap).
+    moa_keys = set(moa)
+    bundle["molecules"].sort(key=lambda d: (-_phase(d["phase"]),
+                                            _salt_base(d.get("name") or "") not in moa_keys,
+                                            d.get("name") or d["id"]))
 
     # Patent literature coverage per phased molecule — chemistry IP intensity.
     # Each chembl_molecule maps to 0-N patent_compound records (PubChem CIDs);
@@ -590,15 +626,29 @@ def collect(a):
     # separate A-E evidence scale), so this is net-new. Route: >>hgnc>>civic>>
     # civic_assertion (the >>civic_evidence>>civic_assertion hop is dead). Empty for
     # non-cancer genes.
+    # Guard (v1.11.7 QA): biobtree's hgnc→civic link is occasionally wrong (FDXR
+    # pointed at CIViC gene AR and rendered "AR AR-V7"), so keep only assertions whose
+    # molecular profile names THIS gene as a whole token — fusions like "EML4::ALK"
+    # still match ALK. Each kept assertion's entry adds the therapy (the map
+    # projection omits it, so predictive rows were ambiguous), direction and the
+    # FDA companion-diagnostic flag.
+    sym_rx = re.compile(rf"(?<![A-Za-z0-9-]){re.escape(a.symbol or '')}(?![A-Za-z0-9-])")
     assertions = {}
     for r in map_all(a.hgnc_id, ">>hgnc>>civic>>civic_assertion", cap=5):
         rid = r.get("id")
-        if not rid or rid in assertions:
+        prof = r.get("molecular_profile") or ""
+        if not rid or rid in assertions or not a.symbol or not sym_rx.search(prof):
             continue
-        assertions[rid] = {"profile": r.get("molecular_profile"), "disease": r.get("disease"),
+        try:
+            ea = (entry(rid, "civic_assertion").get("Attributes") or {}).get("CivicAssertion") or {}
+        except Exception:
+            ea = {}
+        assertions[rid] = {"profile": prof, "disease": r.get("disease"),
                            "type": r.get("assertion_type"), "tier": r.get("amp_category"),
-                           "significance": r.get("significance")}
-    # Tier-ordered (lexical sort puts Tier I < II < III < IV, highest actionability first).
+                           "significance": r.get("significance"),
+                           "therapies": [t for t in (ea.get("therapies") or []) if t],
+                           "direction": ea.get("assertion_direction"),
+                           "companion_test": ea.get("fda_companion_test") in (True, "true")}
     bundle["civic_assertions"] = sorted(assertions.values(), key=lambda d: (d.get("tier") or "zzz"))
 
     # CIViC curated CLINICAL VARIANTS (named, with variant_type) — the named-variant
