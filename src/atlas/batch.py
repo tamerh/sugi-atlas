@@ -63,6 +63,13 @@ def collect_one(spec):
             name_keys, title = [], ident
         elif etype == "disease":
             a = resolve_disease(ident)
+            # Obsolete Mondo term: biobtree has no record for the id ({"Empty": true}).
+            # Its content duplicates the live replacement page (v1.11.7 QA: MONDO:0011271
+            # duplicated congenital-myopathy-3-with-rigid-spine), and publishing it made
+            # the shared name route to the obsolete duplicate. Skip — the live term owns it.
+            if ((getattr(a, "mondo_entry", None) or {}).get("Attributes") or {}) == {"Empty": True}:
+                return {"ok": False, "entity": etype, "ident": ident,
+                        "error": "obsolete Mondo term (no biobtree record) — live replacement owns the page"}
             slug = disease_slug(a.canonical_name or ident)
             bundle = {sid: DC.REGISTRY[sid].collect_fn(a) for sid in DC.REGISTRY}
             id_keys = [a.mondo_id, a.efo_id]
