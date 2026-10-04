@@ -87,6 +87,22 @@ def gencc_rank(c):
     return _GENCC_RANK.get((c or "").strip().lower(), 0)
 
 
+# ClinVar review status → gold stars (ClinVar's own 0-4 scale). Used to rank
+# variant lists so expert-panel / multi-submitter calls lead instead of whatever
+# order biobtree returns (v1.11.7 BRCA1 led with "no assertion criteria" rows).
+_CLINVAR_STARS = {"practice guideline": 4, "reviewed by expert panel": 3,
+                  "criteria provided, multiple submitters, no conflicts": 2,
+                  "criteria provided, multiple submitters": 2,
+                  "criteria provided, conflicting classifications": 1,
+                  "criteria provided, conflicting interpretations": 1,
+                  "criteria provided, single submitter": 1}
+
+
+def clinvar_stars(review_status):
+    """ClinVar gold-star count (0-4) for a review_status string; unknown → 0."""
+    return _CLINVAR_STARS.get((review_status or "").strip().lower(), 0)
+
+
 def pval(s):
     """Tidy a GWAS-style p-value string for display: "8.000000e-11" → "8e-11",
     "1.500000e-08" → "1.5e-8". Passes non-numeric / empty through unchanged."""

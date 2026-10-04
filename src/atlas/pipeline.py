@@ -205,7 +205,7 @@ def collect_all(symbol):
 # variant/disease data". (Curated HGNC-keyed links — GenCC/ClinGen/CIViC — are
 # cleared defensively too; they're empty for ncRNA anyway.)
 _NONCODING_SCRUB = {
-    "6":  ("clinvar_total", "clinvar_breakdown", "top_pathogenic", "spliceai_total",
+    "6":  ("clinvar_total", "clinvar_breakdown", "top_pathogenic", "top_pathogenic_total", "spliceai_total",
            "top_spliceai", "alphamissense_total", "top_alphamissense", "dbsnp_sample"),
     # disease_trials are positional; civic_evidence_total / molecule_count /
     # is_drug_target also feed the evidence _SPEC + meta_facts, so clear them too
@@ -439,7 +439,12 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         # FAQPage JSON-LD (additive second script) — the Q&A shape assistants
         # extract most reliably, built from the title + description + TL;DR facts.
         from atlas.page.faq_jsonld import as_script_tag as _faq_script
-        faq_tag = _faq_script(meta.get("title"), meta.get("description"),
+        from atlas.page.meta_facts import plain_lead
+        # The FAQ answer is the FULL lead sentence, not the 155-char <meta
+        # description> (v1.11.7 answers ended mid-clause with "…").
+        faq_answer = (plain_lead(entity_type, bundle) if entity_type in ("gene", "disease", "drug")
+                      else "") or meta.get("description")
+        faq_tag = _faq_script(meta.get("title"), faq_answer,
                               meta.get("tldr"), f"https://sugi.bio/atlas/{entity_type}/{symbol}/")
         lead = ("## Summary {#summary}\n\n" + sentence + "\n\n" + jsonld_tag
                 + (("\n" + faq_tag) if faq_tag else "") + "\n\n")

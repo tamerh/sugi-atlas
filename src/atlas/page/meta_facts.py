@@ -104,7 +104,9 @@ _DECLARATIVE = {"gene": "atlas.page.declarative",
 def _meta_description(entity_type, bundle, limit=155):
     """Per-page <meta description>: the declarative lead, stripped of markdown and
     truncated at a word boundary. Each page gets a distinct description instead of
-    the generic site-wide fallback (audit: all 52k shared one)."""
+    the generic site-wide fallback (audit: all 52k shared one). `limit=None`
+    returns the whole sentence (the FAQ answer — a truncated "…" answer reads as
+    broken when an assistant quotes it)."""
     try:
         mod = importlib.import_module(_DECLARATIVE[entity_type])
         s = mod.declarative_sentence(bundle) or ""
@@ -113,9 +115,14 @@ def _meta_description(entity_type, bundle, limit=155):
     s = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", s)   # link → label
     s = re.sub(r"[*`_]", "", s)                      # drop emphasis
     s = re.sub(r"\s+", " ", s).strip()
-    if len(s) > limit:
+    if limit and len(s) > limit:
         s = s[:limit].rsplit(" ", 1)[0].rstrip(" ,;.") + "…"
     return s
+
+
+def plain_lead(entity_type, bundle):
+    """The full declarative lead as plain text (no markdown, no truncation)."""
+    return _meta_description(entity_type, bundle, limit=None)
 
 
 def entity_facts(entity_type, bundle):

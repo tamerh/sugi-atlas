@@ -612,7 +612,14 @@ def r_variants(b):
     L.append(f"{b.get('clinvar_total', 0)} variants total. Per-class counts are floors "
              f"(≥ shown; pagination cap):\n")
     L.append(table(["Classification", "Count (floor)"], list(bd.items())))
-    L.append(f"\n### Top pathogenic / likely-pathogenic ({len(b.get('top_pathogenic', []))}) {{#top-pathogenic}}\n")
+    tp = b.get("top_pathogenic") or []
+    tp_total = b.get("top_pathogenic_total") or len(tp)
+    L.append(f"\n### Top pathogenic / likely-pathogenic ({len(tp)}) {{#top-pathogenic}}\n")
+    if tp:
+        L.append(("Showing " + (f"the {len(tp)} best-reviewed of {tp_total:,}" if tp_total > len(tp)
+                                else f"all {tp_total:,}")
+                  + " pathogenic / likely-pathogenic ClinVar records, ranked by ClinVar "
+                  "review status (expert panel → multiple submitters → single submitter).\n"))
     # Deep-link each variant's HGVS to its Sugi Variant page (shared sugislug
     # contract → resolves). These rows are all pathogenic/likely-pathogenic, i.e.
     # in Sugi Variant's corpus; variant_page_url returns None only if unparseable.
@@ -621,8 +628,9 @@ def r_variants(b):
     def _tp_hgvs(v):
         u = variant_page_url(v.get("hgvs"))       # gene comes from the HGVS transcript
         return links.maybe_link(v.get("hgvs"), u) if u else v.get("hgvs")
-    L.append(table(["Variant ID", "HGVS", "Classification"],
-                   [(v["id"], _tp_hgvs(v), v.get("classification")) for v in b.get("top_pathogenic", [])]))
+    L.append(table(["Variant ID", "HGVS", "Classification", "Review"],
+                   [(v["id"], _tp_hgvs(v), v.get("classification"), v.get("review_status"))
+                    for v in tp]))
     # ClinGen VCEP expert-panel interpretations — ACMG calls reviewed by a Variant
     # Curation Expert Panel; a higher-authority tier than individual ClinVar
     # submissions. Summary breakdown (not a per-variant dump).

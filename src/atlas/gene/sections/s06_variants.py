@@ -3,6 +3,9 @@ import re
 
 from atlas.biobtree import entry, map_all, xref_counts
 from atlas.gene.sections.base import Section
+from atlas.render_common import clinvar_stars
+
+TOP_PATHOGENIC_CAP = 15
 
 
 def _dedup_disease_names(names):
@@ -50,20 +53,23 @@ def collect(a):
 
     classes = ["Pathogenic", "Likely pathogenic", "Uncertain significance",
                "Likely benign", "Benign"]
-    breakdown, top_path = {}, []
+    breakdown, plp = {}, []
     for cls in classes:
         rs = map_all(a.hgnc_id, f'>>hgnc>>clinvar[germline_classification=="{cls}"]')
         breakdown[cls] = len(rs)
         for t in rs:
             _add_overlap(t.get("gene_symbol"))
         if cls in ("Pathogenic", "Likely pathogenic"):
-            for t in rs:
-                if len(top_path) >= 30:
-                    break
-                top_path.append({"id": t["id"], "hgvs": t.get("name"),
-                                 "classification": t.get("germline_classification")})
+            plp += [{"id": t["id"], "hgvs": t.get("name"),
+                     "classification": t.get("germline_classification"),
+                     "review_status": t.get("review_status")} for t in rs]
     bundle["clinvar_breakdown"] = breakdown
-    bundle["top_pathogenic"] = top_path
+    # Best-reviewed first (ClinVar stars), Pathogenic before Likely pathogenic;
+    # stable on biobtree order within a tier. Capped — the full set is Sugi Variant's.
+    plp.sort(key=lambda v: (-clinvar_stars(v["review_status"]),
+                            v["classification"] != "Pathogenic"))
+    bundle["top_pathogenic_total"] = len(plp)
+    bundle["top_pathogenic"] = plp[:TOP_PATHOGENIC_CAP]
 
     sp = sorted(map_all(a.hgnc_id, ">>hgnc>>spliceai"),
                 key=lambda t: float(t.get("score") or 0), reverse=True)

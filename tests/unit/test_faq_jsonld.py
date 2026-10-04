@@ -37,3 +37,21 @@ def test_script_tag_is_valid_json():
     tag = as_script_tag("TP53", "desc", _TLDR, "https://sugi.bio/atlas/gene/TP53/")
     body = re.search(r">\n(.*)\n</script>", tag, re.S).group(1)
     assert json.loads(body)["@type"] == "FAQPage"
+
+
+def test_faq_answer_is_full_lead_not_truncated_meta():
+    # v1.11.7: the FAQ answer reused the 155-char <meta description> → ended in "…".
+    from atlas.page.meta_facts import plain_lead, _meta_description
+    bundle = {"1": {"canonical_name": "IMATINIB", "chembl_id": "CHEMBL941", "max_phase": 4,
+                    "is_fda_approved": True, "molecule_type": "Small molecule",
+                    "atc_codes": ["L01EA01"]},
+              "2": {"mechanism_genes": [{"gene_symbol": g} for g in ("ABL1", "PDGFRB", "KIT")]},
+              "4": {"indication_count": 52,
+                    "indications": [{"name": "chronic myelogenous leukemia"},
+                                    {"name": "gastrointestinal stromal tumor"}]},
+              "10": {"civic_association_total": 203,
+                     "civic_evidence": [{"profile": "BCR::ABL1 fusion", "disease": "Chronic Myeloid Leukemia"}]}}
+    full = plain_lead("drug", bundle)
+    assert len(full) > 155 and not full.endswith("…") and full.endswith(".")
+    assert _meta_description("drug", bundle).endswith("…")
+    assert "*" not in full
