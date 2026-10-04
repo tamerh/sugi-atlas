@@ -12,7 +12,7 @@ def test_am_hotspots_grouped_and_ranked():
         ("K13E", "1.0"), ("bogus", "1.0"), ("p.Y220C", "0.95")]]
     h = am_hotspots(rows)
     assert [x["residue"] for x in h] == ["R175", "G245", "K13", "Y220"]
-    assert h[0] == {"residue": "R175", "n": 3, "max": 1.0}
+    assert h[0] == {"residue": "R175", "n": 3, "max": 1.0, "mean": 0.99}
 
 
 B6 = {"symbol": "TP53", "clinvar_total": 3000,
@@ -21,7 +21,7 @@ B6 = {"symbol": "TP53", "clinvar_total": 3000,
                           "review_status": "reviewed by expert panel"}],
       "top_pathogenic_total": 1200, "clingen_variant_total": 50,
       "alphamissense_total": 4000, "am_lp_total": 1500, "am_lp_residues": 300,
-      "am_hotspots": [{"residue": "R175", "n": 6, "max": 1.0}]}
+      "am_hotspots": [{"residue": "R175", "n": 6, "mean": 0.981, "max": 1.0}]}
 
 
 def test_summary_lead_links_to_evidence_blocks():
@@ -43,7 +43,8 @@ def test_block_order_and_trims():
     assert md.index("Variant evidence") < md.index("{#clinvar}")
     assert md.index("{#top-pathogenic}") < md.index("{#sugi-variant}") < md.index("{#clingen-variants}")
     assert "dbsnp" not in md.lower()
-    assert "| R175 | 6 | 1 |" in md and "1,500 missense substitutions" in md
+    assert "| R175 | 6 | 0.981 | 1.000 |" in md and "1,500 missense substitutions" in md
+    assert "ranked by the number of likely-pathogenic substitutions" in md
     assert "/19" not in md
 
 
@@ -60,3 +61,27 @@ def test_pharmgkb_shell_rows_dropped():
     assert "rs2227983" in md and "rs712829" not in md
     md2 = R.r_drugs(dict(b, pharmgkb_variant=[{"name": "rs712829"}]))
     assert "{#pharmgkb-variants}" not in md2
+
+
+def test_spliceai_caps_after_collapsing_and_sorts_by_score():
+    # 50 adjacent Δ=1.0 sites (one region) + 15 scattered lower-Δ sites: v1.11.8-pre
+    # capped to 10 predictions first → everything merged into 1-2 rows.
+    adj = [{"id": f"17:{7670600 + i}:A:G", "effect": "donor_loss", "score": "1.0000"} for i in range(50)]
+    scat = [{"id": f"17:{7600000 + i * 1000}:A:G", "effect": "acceptor_gain",
+             "score": f"0.{90 - i:02d}00"} for i in range(15)]
+    b = dict(B6, top_spliceai=adj + scat, spliceai_total=1638)
+    md = R.r_variants(b)
+    sec = md[md.index("{#spliceai}"):md.index("{#alphamissense}")]
+    rows = [r for r in sec.splitlines() if r.startswith("| 17:")]
+    assert len(rows) == 10
+    assert rows[0].startswith("| 17:7670600–7670649 | donor_loss | 1.0000 | 50 |")
+    scores = [float(r.split("|")[3]) for r in rows]
+    assert scores == sorted(scores, reverse=True)
+    assert "59 predictions of 1,638" in sec
+
+
+def test_spliceai_run_not_broken_by_other_effect_at_same_site():
+    rows = ([{"id": f"17:{p}:A:G", "effect": "donor_loss", "score": "1.0000"} for p in range(100, 105)]
+            + [{"id": "17:102:A:T", "effect": "acceptor_gain", "score": "1.0000"}])
+    out = R._collapse_spliceai(rows)
+    assert ("17:100–104", "donor_loss", "1.0000", "5") in out

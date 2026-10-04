@@ -11,8 +11,11 @@ from atlas.gene.sections.base import Section
 from atlas.render_common import clinvar_stars, clinvar_id_num
 
 TOP_PATHOGENIC_CAP = 15
-SPLICEAI_CAP = 10
-AM_HOTSPOT_CAP = 10
+# SpliceAI: keep enough top-Δ predictions that, after the render collapses
+# adjacent sites into ranges, 10 distinct rows remain (TP53's top 10 were all
+# adjacent Δ=1.0 sites → 2 rows).
+SPLICEAI_CAP = 200
+AM_HOTSPOT_CAP = 20
 
 
 def _dedup_disease_names(names):
@@ -56,12 +59,15 @@ def am_hotspots(rows):
             sc = float(t.get("am_pathogenicity"))
         except (TypeError, ValueError):
             sc = 0.0
-        h = by.setdefault(pos, {"residue": f"{ref}{pos}", "n": 0, "max": 0.0, "_pos": pos})
+        h = by.setdefault(pos, {"residue": f"{ref}{pos}", "n": 0, "max": 0.0, "_pos": pos, "_sum": 0.0})
         h["n"] += 1
+        h["_sum"] += sc
         h["max"] = max(h["max"], sc)
-    out = sorted(by.values(), key=lambda h: (-h["n"], -h["max"], h["_pos"]))
+    for h in by.values():
+        h["mean"] = round(h["_sum"] / h["n"], 3)
+    out = sorted(by.values(), key=lambda h: (-h["n"], -h["mean"], h["_pos"]))
     for h in out:
-        h.pop("_pos")
+        h.pop("_pos"); h.pop("_sum")
     return out
 
 

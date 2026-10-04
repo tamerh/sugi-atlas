@@ -579,6 +579,9 @@ def r_orthologs(b):
 _SPLICEAI_POS_RE = re.compile(r"^([^:]+):(\d+)")
 
 
+SPLICEAI_ROWS = 10
+
+
 def _collapse_spliceai(rows_):
     """Collapse SpliceAI's saturated positional grid into splice-region ranges:
     consecutive genomic positions (gap ≤2) sharing the same effect + Δscore become
@@ -593,7 +596,10 @@ def _collapse_spliceai(rows_):
         else:
             loose.append((v.get("id") or "", v.get("effect"), v.get("score"), ""))
     out, run = [], None   # run = [chrom, effect, score, start, end, n]
-    for chrom, pos, eff, sc in sorted(parsed):
+    # Group by (chrom, effect, score) BEFORE position — sorting by position first
+    # let a different effect at the same site break a run (TP53 7670604–608 split
+    # into three rows).
+    for chrom, pos, eff, sc in sorted(parsed, key=lambda t: (t[0], t[2], t[3], t[1])):
         if run and run[0] == chrom and run[1] == eff and run[2] == sc and pos <= run[4] + 2:
             run[4], run[5] = pos, run[5] + 1
         else:
@@ -715,12 +721,25 @@ def r_variants(b, summary=""):
         L.append(ctx + " — a higher-authority tier than individual ClinVar "
                  "submissions.\n")
         L.append(table(["Assertion", "Variants"], b.get("clingen_variant_breakdown") or []))
-    sp = capped_table(["Position(s)", "Effect", "Δscore", "Sites"],
-                      _collapse_spliceai(b.get("top_spliceai", [])),
-                      None, total=b.get("spliceai_total"), noun="predictions by Δscore")
-    if sp:
+    # Collapse adjacent sites into ranges FIRST, then rank by Δscore and cap rows
+    # (capping before collapsing left TP53 with 2 rows).
+    def _key(r):                      # Δscore desc, then genomic position
+        try:
+            sc = -float(r[2])
+        except (TypeError, ValueError):
+            sc = 0.0
+        m = re.match(r"^(\w+):(\d+)", str(r[0]))
+        return (sc, m.group(1) if m else "~", int(m.group(2)) if m else 0)
+    runs = sorted(_collapse_spliceai(b.get("top_spliceai", [])), key=_key)
+    shown = runs[:SPLICEAI_ROWS]
+    if shown:
+        n_pred = sum(int(r[3] or 1) for r in shown)
+        total = b.get("spliceai_total") or 0
         L.append("\n### SpliceAI {#spliceai}\n")
-        L.append(sp)
+        L.append(f"Top {len(shown)} splice-impact sites by Δscore (adjacent positions with "
+                 f"the same effect merged into one range; {n_pred:,} predictions"
+                 + (f" of {total:,}" if total else "") + "):\n")
+        L.append(table(["Position(s)", "Effect", "Δscore", "Sites"], shown))
     # AlphaMissense — counts + hotspot residues (residues where the most amino-acid
     # substitutions are predicted likely pathogenic). Per-variant scores, nearly
     # all ≈1.000 in the old 30-row table, are Sugi Variant's job.
@@ -731,11 +750,15 @@ def r_variants(b, summary=""):
         scored = b.get("alphamissense_total") or 0
         L.append(f"{lp:,} missense substitutions predicted likely pathogenic"
                  + (f" (of {scored:,} scored)" if scored else "")
-                 + f", across {b.get('am_lp_residues') or len(hot):,} residues. Hotspot "
-                 "residues — the most likely-pathogenic substitutions (of those reachable "
-                 "by a single-nucleotide change):\n")
-        L.append(table(["Residue", "Likely-pathogenic substitutions", "Max am_pathogenicity"],
-                       [(h["residue"], h["n"], fnum(h["max"], 3)) for h in hot]))
+                 + f", across {b.get('am_lp_residues') or len(hot):,} residues. Top "
+                 f"{len(hot)} hotspot residues, ranked by the number of likely-pathogenic "
+                 "substitutions (of those reachable by a single-nucleotide change), then by "
+                 "mean score:\n")
+        L.append(table(["Residue", "Likely-pathogenic substitutions", "Mean am_pathogenicity",
+                        "Max am_pathogenicity"],
+                       [(h["residue"], h["n"],
+                         f"{h['mean']:.3f}" if h.get("mean") is not None else "",
+                         f"{h['max']:.3f}") for h in hot]))
     return "\n".join(L)
 
 
