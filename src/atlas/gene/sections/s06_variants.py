@@ -30,6 +30,14 @@ def _dedup_disease_names(names):
             by_base[base] = n
     return sorted(by_base.values())
 
+def _is_region_cnv(name):
+    """A ClinVar copy-number record named by genomic region ("GRCh38/hg38
+    3q26.1-26.33(chr3:…)x3", "NC_000017.10:g.(?_41196311)_(…)del") — usually a
+    multi-gene CNV, not a variant OF this gene. Ranked after gene-level variants."""
+    n = (name or "").strip()
+    return n.startswith(("GRCh", "NC_")) or bool(re.match(r"^Single allele\b", n))
+
+
 _PROT_VAR = re.compile(r"^(?:p\.)?([A-Z])(\d+)([A-Z])$")
 
 
@@ -99,6 +107,7 @@ def collect(a):
     # Best-reviewed first (ClinVar stars), Pathogenic before Likely pathogenic,
     # then earliest ClinVar id (established hallmark variants before recent ones). Capped — the full set is Sugi Variant's.
     plp.sort(key=lambda v: (-clinvar_stars(v["review_status"]),
+                            _is_region_cnv(v["hgvs"]),
                             v["classification"] != "Pathogenic", clinvar_id_num(v["id"])))
     bundle["top_pathogenic_total"] = len(plp)
     bundle["top_pathogenic"] = plp[:TOP_PATHOGENIC_CAP]

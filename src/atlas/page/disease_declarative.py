@@ -141,7 +141,8 @@ def _gene_list(syms, cg):
         return f"{syms[0]} and {syms[1]}"
     if len(syms) == 3:
         return f"{syms[0]}, {syms[1]}, and {syms[2]}"
-    return f"{syms[0]}, {syms[1]}, {syms[2]}, and {len(syms) - 3} other genes"
+    n = len(syms) - 3
+    return f"{syms[0]}, {syms[1]}, {syms[2]}, and {n} other gene{'s' if n != 1 else ''}"
 
 
 def _causal_clause(bundle):

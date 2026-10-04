@@ -58,3 +58,15 @@ def test_empty_gene_elides_subblocks():
     md = r_variants({"symbol": "X", "clinvar_total": 0, "clinvar_breakdown": {}})
     assert "No ClinVar records" in md
     assert "{#top-pathogenic}" not in md and "{#spliceai}" not in md
+
+
+def test_region_cnvs_rank_after_gene_variants(monkeypatch):
+    rows = [{"id": "150519", "name": "GRCh38/hg38 3q26.1-26.33(chr3:165158611-180130168)x3",
+             "germline_classification": "Pathogenic", "review_status": "no assertion criteria provided"},
+            {"id": "999999", "name": "NM_001(ACTL6A):c.1A>G (p.Met1Val)",
+             "germline_classification": "Likely pathogenic", "review_status": "no assertion criteria provided"}]
+    monkeypatch.setattr(S, "map_all", lambda r, c, **k: rows if '"Pathogenic"' in c else [])
+    monkeypatch.setattr(S, "xref_counts", lambda e: {})
+    b = S.collect(SimpleNamespace(symbol="ACTL6A", hgnc_id="HGNC:24124", hgnc_entry={},
+                                  canonical_transcript=None))
+    assert [v["id"] for v in b["top_pathogenic"]] == ["999999", "150519"]

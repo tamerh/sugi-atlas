@@ -217,3 +217,9 @@ def test_causal_clause_wording_by_disease_kind(monkeypatch):
     assert _causal_clause(mono) == " caused by CFTR (GenCC Definitive)"
     cf = {"1": {"child_count": 1}, "2": {"assoc_total": 37}}        # Mendelian w/ some GWAS
     assert _causal_clause(cf) == " caused by CFTR (GenCC Definitive)"
+
+
+def test_gene_list_singular_other():
+    from atlas.page.disease_declarative import _gene_list
+    assert _gene_list(["A", "B", "C", "D"], None) == "A, B, C, and 1 other gene"
+    assert _gene_list(["A", "B", "C", "D", "E"], None) == "A, B, C, and 2 other genes"
