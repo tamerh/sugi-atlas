@@ -1378,6 +1378,21 @@ def _cohort_empty_note(bundles):
             "(above).*")
 
 
+# A parent term counts as a CLINICAL ENTITY (its drugs are meaningful for a
+# subtype) only when it carries a rare-disease registry xref — Orphanet, GARD or
+# OMIM. Mondo grouping classes ("hereditary disease", "syndromic disease", "eye
+# disorder", "neoplasm") carry none; v1.11.7 rendered "hereditary disease" drugs
+# on 1,179 unrelated rare-disease pages and "syndromic disease" drugs on 725.
+_CLINICAL_ENTITY_XREFS = ("orphanet", "gard", "mim")
+
+
+def parent_is_clinical_entity(xref_counts):
+    """True when a Mondo term's xref counts mark it as a specific clinical entity
+    rather than a grouping class (see _CLINICAL_ENTITY_XREFS)."""
+    xc = xref_counts or {}
+    return any((xc.get(k) or 0) > 0 for k in _CLINICAL_ENTITY_XREFS)
+
+
 def _parent_drugs_indicated(bundles):
     """Sparse-subtype Therapeutics fallback: render the PARENT term's indicated
     drugs (injected as `_parent_indicated_drugs` in batch), clearly attributed to

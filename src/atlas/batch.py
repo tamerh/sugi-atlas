@@ -131,6 +131,17 @@ def collect_one(spec):
         return {"ok": False, "entity": etype, "ident": ident, "error": repr(e)}
 
 
+def _parent_is_clinical(cache_dir, pslug):
+    """Gate for the sparse-subtype parent-drug fallback: only a parent that is a
+    specific clinical entity (Orphanet/GARD/OMIM xref), not a Mondo grouping
+    class. Reads the parent's cached bundle; missing/unreadable → False."""
+    try:
+        pb = json.load(open(_cache_path(cache_dir, "disease", pslug)))["bundle"]
+    except (OSError, ValueError, KeyError):
+        return False
+    return DR.parent_is_clinical_entity((pb.get("1") or {}).get("xref_counts"))
+
+
 # ---- PHASE C: render one entity (parallel-safe; reads complete manifest) ----
 
 def render_one(spec):
@@ -157,7 +168,7 @@ def render_one(spec):
                 parent = (bundle.get("1") or {}).get("parent") or {}
                 pslug = (links._lookup("disease", parent.get("id"), parent.get("name"))
                          if parent else None)
-                if pslug and pslug != slug:
+                if pslug and pslug != slug and _parent_is_clinical(cache_dir, pslug):
                     pdrugs = links.indicated_drugs(dist_dir, pslug)
                     if pdrugs:
                         bundle["_parent_indicated_drugs"] = pdrugs
