@@ -376,10 +376,72 @@ def r_target_pathways(b):
     return "\n".join(L)
 
 
+# PharmGKB drug-label PGx levels, strongest regulatory requirement first; any
+# level not listed sorts after these (then labels with no level recorded).
+_PGX_LEVEL_ORDER = {"Testing Required": 0, "Testing Recommended": 1,
+                    "Actionable PGx": 2, "Informative PGx": 3, "No Clinical PGx": 4}
+_AGENCY_ORDER = {"FDA": 0, "EMA": 1, "PMDA": 2, "HCSC": 3, "Swissmedic": 4}
+_PGKB = "https://www.pharmgkb.org"
+
+
+def _label_rank(r):
+    lvl = r.get("level") or ""
+    return (_PGX_LEVEL_ORDER.get(lvl, 5 if lvl else 6),
+            _AGENCY_ORDER.get(r.get("source"), 9), r.get("source") or "",
+            ", ".join(r.get("genes") or []))
+
+
+def _label_guidance(r):
+    return ", ".join(w for k, w in (("has_prescribing_info", "prescribing"),
+                                    ("has_dosing_info", "dosing"),
+                                    ("has_alternate_drug", "alternate drug"))
+                     if r.get(k))
+
+
+def _pgx_labels_block(labels):
+    """PharmGKB annotations of regulatory drug labels: agency × PGx level × genes."""
+    if not labels:
+        return []
+    rows = [(r.get("source") or "",
+             r.get("level") or "—",
+             links.link_csv(", ".join(r.get("genes") or []),
+                            lambda s: links.gene_url(symbol=s)),
+             _label_guidance(r),
+             links.maybe_link(r.get("label_id") or "",
+                              f"{_PGKB}/labelAnnotation/{r['label_id']}"
+                              if r.get("label_id") else None))
+            for r in sorted(labels, key=_label_rank)]
+    return ["", "**PGx drug labels** — PharmGKB annotations of regulatory drug labels "
+            "(FDA / EMA / PMDA / Health Canada (HCSC) / Swissmedic) that carry "
+            "pharmacogenomic information, ordered by the label's PGx level "
+            "(*Testing Required* strongest → *No Clinical PGx*; — = no level "
+            "recorded). *Label guidance* = the label gives PGx prescribing / dosing / "
+            "alternate-drug information.", "",
+            capped_table(["Agency", "PGx level", "Gene(s)", "Label guidance", "PharmGKB"],
+                         rows, ROW_CAP, noun="label annotations")]
+
+
+def _pgx_pathways_block(pathways):
+    """PharmGKB curated PK/PD pathways for the drug (name + link)."""
+    if not pathways:
+        return []
+    items = []
+    for p in pathways:
+        kind = "/".join(k for k, f in (("pharmacokinetic", p.get("pk")),
+                                       ("pharmacodynamic", p.get("pd"))) if f)
+        items.append(f"- [{p['name']}]({_PGKB}/pathway/{p['id']})"
+                     + (f" — {kind}" if kind else ""))
+    return ["", f"**PharmGKB pathway{'s' if len(pathways) != 1 else ''}** — curated "
+            "pharmacokinetic / pharmacodynamic pathway diagrams for this drug:", "",
+            *items]
+
+
 def r_pharmacogenomics(b):
     L = ["## Pharmacogenomics", ""]
     g = b.get("guidelines") or []
     pa = b.get("pharmgkb_chemical_id")
+    labels = b.get("drug_labels") or []
+    pws = b.get("pathways") or []
     if not g and not pa:
         L.append("*No PharmGKB pharmacogenomic data curated for this drug.*")
         return "\n".join(L)
@@ -403,6 +465,7 @@ def r_pharmacogenomics(b):
     #                           plain-English sentence + PMID (resolved via the
     #                           drug's PGx genes; see s09). The latter is what the
     #                           old "see PharmGKB" tease pointed at — now aggregated.
+    L += _pgx_labels_block(labels)
     cl = b.get("clinical_annotations") or []
     vr = b.get("variant_annotations") or []
     vlink = links.variant_link
@@ -430,10 +493,44 @@ def r_pharmacogenomics(b):
                              if r.get("pmid") else "")
                             for r in vr],
                            ROW_CAP, noun="published findings")]
-    if not g and not cl and not vr and pa:
+    L += _pgx_pathways_block(pws)
+    if not g and not cl and not vr and not labels and not pws and pa:
         L.append("*No CPIC/DPWG dosing guideline or resolvable clinical / variant "
                  "annotations in PharmGKB for this molecule.*")
     return "\n".join(L)
+
+
+def r_mesh_pharmacology(b):
+    """NLM MeSH view of the drug: definition (scope note), Pharmacological
+    Action classes, broader heading(s). '' when there is no exact-name MeSH
+    match (s15) or the matched record has neither a definition nor an action."""
+    b = b or {}
+    mid = b.get("mesh_id")
+    defn = (b.get("definition") or "").strip()
+    acts = b.get("pharmacological_actions") or []
+    if not mid or not (defn or acts):
+        return ""
+    # MeSH names carry internal commas ("Analgesics, Opioid", "Antibodies,
+    # Monoclonal, Humanized"), so lists are `;`-joined. A Descriptor's scope note
+    # is a definition; a Supplementary Concept's is a shorter curator note.
+    supp = b.get("mesh_record_type") == "supplementary"
+    parts = []
+    if defn:
+        parts.append(f"**{'MeSH note' if supp else 'Definition (MeSH)'}:** {defn}")
+    if acts:
+        parts.append(f"**Pharmacological action:** {'; '.join(acts)}.")
+    br = b.get("broader_headings") or []
+    if br:
+        parts.append(f"**Broader MeSH heading{'s' if len(br) != 1 else ''}:** "
+                     f"{'; '.join(br)}.")
+    kind = "supplementary concept" if supp else "descriptor"
+    via = {"parent": f"the parent compound `{b.get('matched_chembl')}`",
+           "salt": f"this drug's salt/hydrate form `{b.get('matched_chembl')}`"
+           }.get(b.get("matched_via"))
+    how = f"exact-name match on {via}" if via else "exact-name match"
+    parts.append(f"*MeSH {kind} [{mid}](https://meshb.nlm.nih.gov/record/ui?ui={mid}) "
+                 f"“{b.get('mesh_name') or ''}” — {how}.*")
+    return "## MeSH pharmacological classification\n\n" + "\n\n".join(parts)
 
 
 def r_clinical_evidence(b):
@@ -632,6 +729,7 @@ RENDER = {
     "10": r_clinical_evidence,
     "13": r_faers,
     "14": r_drugcentral,
+    "15": r_mesh_pharmacology,
 }
 
 
@@ -678,7 +776,8 @@ def render_all(bundles):
               S("5", "clinical-trials"), S("10", "civic")),
          "No labelled indications, trials, or CIViC evidence."),
         ("Pharmacology", "pharmacology",
-         join(S("9", "pharmacogenomics"), S("13", "adverse-events")),
+         join(S("15", "mesh-pharmacology"), S("9", "pharmacogenomics"),
+              S("13", "adverse-events")),
          "No pharmacogenomic or adverse-event data."),
         ("Related molecules", "related-molecules", S("7", "related-mol"),
          "No competitor molecules sharing a primary target."),

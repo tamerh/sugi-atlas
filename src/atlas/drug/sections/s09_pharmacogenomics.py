@@ -10,8 +10,12 @@ PharmGKB chemical node cross-refs PubChem, so the drug reaches it by ID-join
     chembl_molecule >> pubchem >> pharmgkb >> pharmgkb_guideline
 
 The intermediate `pharmgkb` chemical node also carries clinical/variant
-annotation counts (gene-keyed annotations live on the gene pages). Empty for
-drugs with no curated PGx (e.g. newer targeted agents)."""
+annotation counts (gene-keyed annotations live on the gene pages), and its
+`drug_labels` — PharmGKB's annotations of regulatory drug labels (FDA / EMA /
+PMDA / HCSC / Swissmedic) with the label's PGx level ("Testing Required",
+"Actionable PGx", ...) and genes. Its curated PK/PD pathways hang off it via
+pharmgkb >> pharmgkb_pathway. Empty for drugs with no curated PGx (e.g. newer
+targeted agents)."""
 from atlas.biobtree import map_all, entry
 from atlas.section import Section
 
@@ -19,6 +23,7 @@ _CHEMICAL_CHAIN = ">>chembl_molecule>>pubchem>>pharmgkb"
 _GUIDELINE_CHAIN = ">>chembl_molecule>>pubchem>>pharmgkb>>pharmgkb_guideline"
 _CLINICAL_CHAIN = ">>hgnc>>pharmgkb_clinical"   # gene → its PharmGKB clinical annotations
 _VARANN_CHAIN = ">>hgnc>>pharmgkb_var_annotation"  # gene → per-publication variant annotations
+_PATHWAY_CHAIN = ">>pharmgkb>>pharmgkb_pathway"   # PharmGKB chemical → its PK/PD pathways
 
 
 def _int(v):
@@ -120,6 +125,54 @@ def _variant_annotations(pgx_id, pgx_name):
     return out
 
 
+def _drug_labels(pgx_id):
+    """The PharmGKB chemical's regulatory drug-label annotations: one row per
+    (agency, label annotation) with the PGx level and the genes it names. Rows
+    with neither a PGx level nor a gene carry no pharmacogenomic content (an
+    annotated label that names no gene) and are dropped. Field names as served
+    by biobtree's PharmgkbDrugLabel."""
+    if not pgx_id:
+        return []
+    try:
+        ce = entry(pgx_id, "pharmgkb")
+        labels = ((ce.get("Attributes") or {}).get("Pharmgkb") or {}).get("drug_labels") or []
+    except Exception:
+        return []
+    out = []
+    for l in labels:
+        level = (l.get("testing_level") or "").strip()
+        genes = [g for g in (l.get("genes") or []) if g]
+        if not level and not genes:
+            continue
+        out.append({
+            "label_id": l.get("label_id"),
+            "source": (l.get("source") or "").strip(),
+            "level": level,
+            "genes": genes,
+            "has_prescribing_info": bool(l.get("has_prescribing_info")),
+            "has_dosing_info": bool(l.get("has_dosing_info")),
+            "has_alternate_drug": bool(l.get("has_alternate_drug")),
+        })
+    return out
+
+
+def _pathways(pgx_id):
+    """PharmGKB's curated pharmacokinetic / pharmacodynamic pathways for the
+    chemical (pharmgkb >> pharmgkb_pathway), sorted by name."""
+    if not pgx_id:
+        return []
+    try:
+        hits = map_all(pgx_id, _PATHWAY_CHAIN)
+    except Exception:
+        return []
+    out = [{"id": r.get("id"), "name": (r.get("name") or "").strip(),
+            "pk": r.get("is_pharmacokinetic") == "true",
+            "pd": r.get("is_pharmacodynamic") == "true"}
+           for r in hits if r.get("id") and (r.get("name") or "").strip()]
+    out.sort(key=lambda p: p["name"].lower())
+    return out
+
+
 def collect(a):
     chem = map_all(a.chembl_id, _CHEMICAL_CHAIN, cap=1)
     c0 = chem[0] if chem else {}
@@ -142,6 +195,8 @@ def collect(a):
         "variant_annotations": _variant_annotations(c0.get("id"), pgx_name),
         "guidelines": guidelines,
         "guideline_count": len(guidelines),
+        "drug_labels": _drug_labels(c0.get("id")),
+        "pathways": _pathways(c0.get("id")),
     }
 
 
@@ -149,13 +204,17 @@ SECTION = Section(
     id="9", name="pharmacogenomics",
     description=("Drug-level pharmacogenomics: CPIC / DPWG genotype-guided dosing "
                  "guidelines (drug × pharmacogene) via the graph path "
-                 "chembl_molecule→pubchem→pharmgkb→pharmgkb_guideline"),
+                 "chembl_molecule→pubchem→pharmgkb→pharmgkb_guideline, plus "
+                 "PharmGKB regulatory drug-label PGx annotations and PK/PD pathways"),
     needs=("chembl_id",),
     produces=("pharmgkb_chemical_id", "clinical_annotation_count",
               "variant_annotation_count", "clinical_annotations",
-              "variant_annotations", "guidelines", "guideline_count"),
+              "variant_annotations", "guidelines", "guideline_count",
+              "drug_labels", "pathways"),
     datasets=("chembl_molecule", "pubchem", "pharmgkb", "pharmgkb_guideline",
-              "hgnc", "pharmgkb_clinical", "pharmgkb_var_annotation"),
-    chains=(_CHEMICAL_CHAIN, _GUIDELINE_CHAIN, _CLINICAL_CHAIN, _VARANN_CHAIN),
+              "hgnc", "pharmgkb_clinical", "pharmgkb_var_annotation",
+              "pharmgkb_pathway"),
+    chains=(_CHEMICAL_CHAIN, _GUIDELINE_CHAIN, _CLINICAL_CHAIN, _VARANN_CHAIN,
+            _PATHWAY_CHAIN),
     collect_fn=collect,
 )
