@@ -194,3 +194,24 @@ def test_missing_bundle_sections_default_to_unknown_gene():
     """Even a near-empty bundle should not crash."""
     s = declarative_sentence({})
     assert s == "**?** is a gene."
+
+
+def test_causal_clause_wording_by_disease_kind(monkeypatch):
+    # v1.11.7: complex traits read "SLE … caused by variants in SAT1 and TREX1".
+    import atlas.disease.cohort as C
+    from atlas.page.disease_declarative import _causal_clause
+    monkeypatch.setattr(C, "causal_genes", lambda b: [("TREX1", "GenCC Definitive"), ("SAT1", "GenCC Strong")])
+    poly = {"1": {"child_count": 0}, "2": {"assoc_total": 120}}
+    umb = {"1": {"child_count": 12}, "2": {"assoc_total": 0}}
+    mono = {"1": {"child_count": 0}, "2": {"assoc_total": 2}}
+    assert _causal_clause(poly) == " whose monogenic forms are linked to TREX1 and SAT1"
+    assert _causal_clause(umb) == " whose subtypes are caused by variants in TREX1 and SAT1"
+    assert _causal_clause(mono) == " caused by variants in TREX1 and SAT1"
+    soft = {"1": {"child_count": 2}, "2": {"assoc_total": 61}}      # epilepsy-like
+    assert _causal_clause(soft) == " caused by variants in TREX1 and SAT1"   # has a Definitive gene
+    monkeypatch.setattr(C, "causal_genes", lambda b: [("SHROOM4", "OMIM")])
+    assert _causal_clause(soft) == " whose monogenic forms are linked to SHROOM4"
+    monkeypatch.setattr(C, "causal_genes", lambda b: [("CFTR", "GenCC Definitive")])
+    assert _causal_clause(mono) == " caused by CFTR (GenCC Definitive)"
+    cf = {"1": {"child_count": 1}, "2": {"assoc_total": 37}}        # Mendelian w/ some GWAS
+    assert _causal_clause(cf) == " caused by CFTR (GenCC Definitive)"

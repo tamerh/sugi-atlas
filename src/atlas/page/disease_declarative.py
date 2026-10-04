@@ -124,24 +124,53 @@ def _pathway_clause(b14):
     return f" The dominant Reactome pathway is *{name}* ({top['gene_count']} cohort genes)."
 
 
+# Polygenic test, calibrated on real bundles (biobtree v2.12.0): Mendelian
+# diseases carry up to ~60 GWAS associations (sickle cell 60, DMD 47, CF 37) but
+# are anchored by a GenCC-Definitive gene; complex traits start at ~60 (epilepsy
+# 61 → SHROOM4, ALS 169, SLE 1,562). So: ≥100 GWAS hits is polygenic outright;
+# ≥20 is polygenic unless a causal gene is GenCC Definitive.
+_POLYGENIC_GWAS = 100
+_POLYGENIC_GWAS_SOFT = 20
+_UMBRELLA_SUBTYPES = 5    # ≥ this many Mondo subtypes → an umbrella/grouping term
+
+
+def _gene_list(syms, cg):
+    if len(syms) == 1:
+        return syms[0]
+    if len(syms) == 2:
+        return f"{syms[0]} and {syms[1]}"
+    if len(syms) == 3:
+        return f"{syms[0]}, {syms[1]}, and {syms[2]}"
+    return f"{syms[0]}, {syms[1]}, {syms[2]}, and {len(syms) - 3} other genes"
+
+
 def _causal_clause(bundle):
-    """' caused by …' clause for monogenic diseases — the headline fact for a
-    Mendelian condition. Driven by the high-confidence causal set (on-disease
-    GenCC Definitive/Strong, or OMIM Mendelian overlap). '' for polygenic /
-    GWAS-only diseases, so it never appears where it wouldn't be true."""
+    """Causal-gene clause for the lead, driven by the high-confidence causal set
+    (on-disease GenCC Definitive/Strong, or OMIM Mendelian overlap). '' when none.
+
+    "caused by" is only asserted for a specific (non-umbrella), non-polygenic
+    disease. A complex trait (see _POLYGENIC_GWAS) whose curated genes are its
+    rare MONOGENIC forms gets "whose monogenic forms are linked to …" — v1.11.7 read "SLE …
+    caused by variants in SAT1 and TREX1", "Alopecia areata … caused by SMCHD1 and
+    TRPS1". An umbrella term (≥5 subtypes) gets "whose subtypes are caused by …",
+    which stays true for genetic umbrellas (Charcot-Marie-Tooth)."""
     from atlas.disease.cohort import causal_genes
     cg = causal_genes(bundle)
     if not cg:
         return ""
     syms = [s for s, _ in cg]
+    b1 = bundle.get("1") or {}
+    b2 = bundle.get("2") or {}
+    genes = _gene_list(syms, cg)
+    n_gwas = b2.get("assoc_total") or 0
+    definitive = any("definitive" in (ev or "").lower() for _, ev in cg)
+    if n_gwas >= _POLYGENIC_GWAS or (n_gwas >= _POLYGENIC_GWAS_SOFT and not definitive):
+        return f" whose monogenic forms are linked to {genes}"
+    if (b1.get("child_count") or 0) >= _UMBRELLA_SUBTYPES:
+        return f" whose subtypes are caused by variants in {genes}"
     if len(syms) == 1:
         return f" caused by {syms[0]} ({cg[0][1]})"
-    if len(syms) == 2:
-        return f" caused by variants in {syms[0]} and {syms[1]}"
-    if len(syms) == 3:
-        return f" caused by variants in {syms[0]}, {syms[1]}, and {syms[2]}"
-    return (f" caused by variants in {syms[0]}, {syms[1]}, {syms[2]}, "
-            f"and {len(syms) - 3} other genes")
+    return f" caused by variants in {genes}"
 
 
 def declarative_sentence(bundle):
