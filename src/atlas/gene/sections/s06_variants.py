@@ -1,11 +1,18 @@
-"""§6 — variants: ClinVar (per-class breakdown + top pathogenic), SpliceAI, AlphaMissense, dbSNP sample."""
+"""§6 — variants: ClinVar (per-class breakdown + best-reviewed pathogenic), ClinGen
+expert panels, SpliceAI, AlphaMissense (counts + hotspot residues).
+
+Per-variant depth (every rsID / every AlphaMissense score) is Sugi Variant's job;
+this section summarises. The dbSNP sample table was dropped in v1.11.8: an
+arbitrary ~300-rsID slice (8% of gene-page bytes) that missed the famous SNPs."""
 import re
 
 from atlas.biobtree import entry, map_all, xref_counts
 from atlas.gene.sections.base import Section
-from atlas.render_common import clinvar_stars
+from atlas.render_common import clinvar_stars, clinvar_id_num
 
 TOP_PATHOGENIC_CAP = 15
+SPLICEAI_CAP = 10
+AM_HOTSPOT_CAP = 10
 
 
 def _dedup_disease_names(names):
@@ -23,14 +30,39 @@ def _dedup_disease_names(names):
             by_base[base] = n
     return sorted(by_base.values())
 
+_PROT_VAR = re.compile(r"^(?:p\.)?([A-Z])(\d+)([A-Z])$")
+
+
+def am_hotspots(rows):
+    """Group AlphaMissense likely-pathogenic substitutions by residue → hotspot
+    list [{residue: 'R175', n: 19, max: 1.0}], most-intolerant first (substitution
+    count, then max score, then position). Rows whose protein_variant isn't a
+    simple missense ('R175H') are skipped."""
+    by = {}
+    for t in rows:
+        m = _PROT_VAR.match((t.get("protein_variant") or "").strip())
+        if not m:
+            continue
+        ref, pos = m.group(1), int(m.group(2))
+        try:
+            sc = float(t.get("am_pathogenicity"))
+        except (TypeError, ValueError):
+            sc = 0.0
+        h = by.setdefault(pos, {"residue": f"{ref}{pos}", "n": 0, "max": 0.0, "_pos": pos})
+        h["n"] += 1
+        h["max"] = max(h["max"], sc)
+    out = sorted(by.values(), key=lambda h: (-h["n"], -h["max"], h["_pos"]))
+    for h in out:
+        h.pop("_pos")
+    return out
+
+
 CHAINS = (
     '>>hgnc>>clinvar[germline_classification=="<class>"]',  # 5 classes
     ">>hgnc>>spliceai",
     '>>transcript>>alphamissense[am_class=="likely_pathogenic"]',
-    ">>hgnc>>entrez>>dbsnp",  # via entrez (hgnc>>dbsnp empty — BIOBTREE_ISSUES.md)
 )
-DATASETS = ("clinvar", "spliceai", "alphamissense", "dbsnp", "entrez", "transcript",
-            "hgnc", "clingen_variant")
+DATASETS = ("clinvar", "spliceai", "alphamissense", "transcript", "hgnc", "clingen_variant")
 
 def collect(a):
     bundle = {"section": "06_variants", "symbol": a.symbol, "hgnc_id": a.hgnc_id}
@@ -64,10 +96,10 @@ def collect(a):
                      "classification": t.get("germline_classification"),
                      "review_status": t.get("review_status")} for t in rs]
     bundle["clinvar_breakdown"] = breakdown
-    # Best-reviewed first (ClinVar stars), Pathogenic before Likely pathogenic;
-    # stable on biobtree order within a tier. Capped — the full set is Sugi Variant's.
+    # Best-reviewed first (ClinVar stars), Pathogenic before Likely pathogenic,
+    # then earliest ClinVar id (established hallmark variants before recent ones). Capped — the full set is Sugi Variant's.
     plp.sort(key=lambda v: (-clinvar_stars(v["review_status"]),
-                            v["classification"] != "Pathogenic"))
+                            v["classification"] != "Pathogenic", clinvar_id_num(v["id"])))
     bundle["top_pathogenic_total"] = len(plp)
     bundle["top_pathogenic"] = plp[:TOP_PATHOGENIC_CAP]
 
@@ -76,7 +108,7 @@ def collect(a):
     for t in sp:
         _add_overlap(t.get("gene_symbol"))
     bundle["top_spliceai"] = [{"id": t["id"], "effect": t.get("effect"),
-                               "score": t.get("score")} for t in sp[:30]]
+                               "score": t.get("score")} for t in sp[:SPLICEAI_CAP]]
     bundle["overlap_genes"] = sorted(overlap)
 
     ct = a.canonical_transcript
@@ -85,8 +117,10 @@ def collect(a):
         bundle["alphamissense_total"] = xref_counts(entry(ct, "transcript")).get("alphamissense", 0)
         am = sorted(map_all(ct, '>>transcript>>alphamissense[am_class=="likely_pathogenic"]'),
                     key=lambda t: float(t.get("am_pathogenicity") or 0), reverse=True)
-        bundle["top_alphamissense"] = [{"id": t["id"], "variant": t.get("protein_variant"),
-                                        "am_pathogenicity": t.get("am_pathogenicity")} for t in am[:30]]
+        bundle["am_lp_total"] = len(am)
+        hot = am_hotspots(am)
+        bundle["am_lp_residues"] = len(hot)
+        bundle["am_hotspots"] = hot[:AM_HOTSPOT_CAP]
 
     # ClinGen VCEP expert-panel interpretations — ACMG calls reviewed by a
     # Variant Curation Expert Panel, a higher authority tier than raw ClinVar
@@ -107,34 +141,14 @@ def collect(a):
         bundle["clingen_variant_diseases"] = _dedup_disease_names(
             r.get("disease") for r in cg if r.get("disease"))
 
-    # dbSNP rsIDs via ENTREZ (direct hgnc>>dbsnp unbacked; see BIOBTREE_ISSUES.md).
-    # The map projection now carries gnomAD population MAF + variant class (#56),
-    # so surface the COMMON/frequent variants first (most informative) rather than
-    # an arbitrary slice of ultra-rare ones.
-    dbs = map_all(a.hgnc_id, ">>hgnc>>entrez>>dbsnp", cap=2)
-
-    def _freq(t):
-        try:
-            return float(t.get("gnomad_frequency"))
-        except (TypeError, ValueError):
-            return None
-    rows = [{"id": t["id"], "pos": f"{t.get('chromosome')}:{t.get('position')}",
-             "change": f"{t.get('ref_allele')}>{t.get('alt_allele')}",
-             "gnomad": _freq(t), "is_common": t.get("is_common") == "true",
-             "variant_class": t.get("variant_class")} for t in dbs]
-    # gnomAD-frequency first (highest MAF), then the rest — a frequency-bearing
-    # variant (a real population polymorphism) is far more useful than a singleton.
-    rows.sort(key=lambda r: (r["gnomad"] is None, -(r["gnomad"] or 0.0)))
-    bundle["dbsnp_sample"] = rows[:50]
-    bundle["dbsnp_sampled"] = len(dbs)
     return bundle
 
 SECTION = Section(
     id="6", name="variants",
-    description="ClinVar variants (per-class breakdown), SpliceAI splice impact, AlphaMissense pathogenicity, dbSNP sample",
+    description="ClinVar variants (per-class breakdown), SpliceAI splice impact, AlphaMissense hotspot residues",
     needs=("hgnc_id", "hgnc_entry", "canonical_transcript"),
-    produces=("clinvar_total", "clinvar_breakdown", "top_pathogenic", "top_spliceai",
-              "alphamissense_total", "top_alphamissense", "dbsnp_sample",
+    produces=("clinvar_total", "clinvar_breakdown", "top_pathogenic", "top_pathogenic_total",
+              "top_spliceai", "alphamissense_total", "am_lp_total", "am_lp_residues", "am_hotspots",
               "clingen_variant_total", "clingen_variant_breakdown",
               "clingen_variant_vceps", "clingen_variant_diseases", "overlap_genes"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

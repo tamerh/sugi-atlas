@@ -102,6 +102,27 @@ def _gene_disease(b12) -> str:
     return f"**Gene–disease (curated):** {disease} ({classification}, {source}){more}"
 
 
+def _phase_num(p):
+    try:
+        return float(p)
+    except (TypeError, ValueError):
+        return -1.0
+
+
+def approved_moa_drugs(b10):
+    """§10 curated-MOA drugs at ChEMBL max phase 4 (approved), in collector order."""
+    return [d for d in ((b10 or {}).get("moa_drugs") or [])
+            if d.get("name") and _phase_num(d.get("phase")) >= 4]
+
+
+def _mendelian(b12):
+    """True when the gene has a Definitive/Strong curated gene–disease relationship."""
+    for c in ((b12 or {}).get("clingen_validity") or []) + ((b12 or {}).get("gencc") or []):
+        if (c.get("classification") or "").strip().lower() in ("definitive", "strong"):
+            return True
+    return False
+
+
 def at_a_glance(bundle) -> str:
     """Compose the `## At a glance` markdown block from a full bundle dict.
 
@@ -176,6 +197,32 @@ def at_a_glance(bundle) -> str:
         extra = f" — {mc:,} molecules with ChEMBL bioactivity" if mc else ""
         bullets.append(f"**Druggable target:** yes{extra}"
                        + evidence.rank_clause("gene", "drug_count", mc))
+
+    # Approved drugs acting on THIS protein — ChEMBL curated mechanism of action on
+    # a single-protein target (§10 moa_drugs), max phase 4. The drug headline a
+    # reader expects ("what's approved against EGFR?"); bioactivity counts above
+    # don't answer it.
+    appr = approved_moa_drugs(b10)
+    if appr:
+        from atlas.render_common import display_name
+        names = [display_name(d["name"]) for d in appr[:3]]
+        more = f", +{len(appr) - 3} more" if len(appr) > 3 else ""
+        bullets.append(f"**Approved drugs (ChEMBL mechanism of action):** {len(appr)} — "
+                       + ", ".join(names) + more)
+
+    # Pharmacogenomics (PharmGKB) — CPIC/DPWG dosing guidelines are the clinical
+    # headline for pharmacogenes (CYP2C19: 37) and were absent from the Summary.
+    pgg = b10.get("pharmgkb_guideline") or []
+    if pgg:
+        drugs = []
+        for g in pgg:
+            for d in (g.get("chemical_names") or "").split(","):
+                d = d.strip()
+                if d and d.lower() not in (x.lower() for x in drugs):
+                    drugs.append(d)
+        eg = f" (e.g. {', '.join(drugs[:3])})" if drugs else ""
+        bullets.append(f"**Pharmacogenomics (PharmGKB):** {len(pgg)} CPIC/DPWG dosing "
+                       f"guideline{'s' if len(pgg) != 1 else ''}{eg}")
 
     # Precision-oncology evidence (CIViC) — curated variant–drug associations.
     civ_total = b10.get("civic_association_total") or 0
@@ -279,7 +326,11 @@ def at_a_glance(bundle) -> str:
     # Notable callout — deterministic anomaly: heavily sequenced (many ClinVar
     # variants) yet no curated precision-oncology actionability. A "studied but
     # not yet actionable" observation no single source states.
-    if cv_total >= 50 and civ_total == 0:
+    # Only for genes where CIViC is the expected next layer: not pharmacogenes
+    # (their actionability is PGx guidelines) and not Mendelian disease genes
+    # (GenCC/ClinGen Definitive/Strong) — v1.11.7 fired it on 13,037 genes incl.
+    # CYP2C19 and CFTR, where "no CIViC evidence" is beside the point.
+    if cv_total >= 50 and civ_total == 0 and not pgg and not _mendelian(b12):
         bullets.append(f"**Notable:** {cv_total:,} clinical variants but no curated "
                        f"precision-oncology (CIViC) evidence yet")
 

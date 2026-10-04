@@ -115,6 +115,19 @@ def at_a_glance(bundle) -> str:
         bullets.append(f"**Clinical trials:** {_format_int(tr)}"
                        + evidence.rank_clause("disease", "trial_count", tr))
 
+    # Approved drugs indicated for THIS disease (ChEMBL drug_indication via the
+    # merge-phase index, injected at render as `_indicated_drugs`; the same tiered
+    # `approved` flag the #indicated table uses). Disease-direct only — never the
+    # parent-term fallback.
+    appr = [r for r in (bundle.get("_indicated_drugs") or [])
+            if r.get("approved") and r.get("name")]
+    if appr:
+        from atlas.render_common import display_name
+        names = [display_name(r["name"]) for r in appr[:3]]
+        more = f", +{_format_int(len(appr) - 3)} more" if len(appr) > 3 else ""
+        bullets.append(f"**Approved drugs (ChEMBL indications):** {_format_int(len(appr))} — "
+                       + ", ".join(names) + more)
+
     # Precision-medicine evidence (CIViC, §13) — subtype–drug associations.
     civ = b13.get("civic_association_total") or 0
     if civ:
@@ -145,7 +158,7 @@ def at_a_glance(bundle) -> str:
     # Notable callouts — deterministic anomaly observations across the disease's
     # own counts (the kind of "what to notice here" line a curator writes).
     phased = b10.get("phased_count") or 0
-    if tr >= 10 and phased == 0:
+    if tr >= 10 and phased == 0 and not appr:
         bullets.append(f"**Notable:** {_format_int(tr)} clinical trials but no "
                        f"approved drug yet")
     if hp > 0 and gc == 0:

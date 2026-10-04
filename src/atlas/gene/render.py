@@ -605,17 +605,70 @@ def _collapse_spliceai(rows_):
     return rendered + loose
 
 
-def r_variants(b):
-    L = ["## Clinical variants and AI predictions", ""]
+def r_variants_summary(bundle):
+    """One-paragraph lead for the gene's Genetic-variants block: what variant
+    evidence exists for this gene and where it lives on the page (ClinVar,
+    ClinGen, CIViC, PharmGKB, GWAS are spread over the #disease and #drugs
+    zones) plus the Sugi Variant hand-off. '' when there is no variant evidence."""
+    b6 = bundle.get("6") or {}
+    b10 = bundle.get("10") or {}
+    b12 = bundle.get("12") or {}
+    bd = b6.get("clinvar_breakdown") or {}
+    plp = (bd.get("Pathogenic") or 0) + (bd.get("Likely pathogenic") or 0)
+    parts = []
+    if b6.get("clinvar_total"):
+        parts.append(f"[{b6['clinvar_total']:,} ClinVar records](#clinvar) "
+                     f"({plp:,} pathogenic / likely pathogenic)")
+    if b6.get("clingen_variant_total"):
+        parts.append(f"[{b6['clingen_variant_total']:,} ClinGen expert-panel "
+                     f"interpretations](#clingen-variants)")
+    if b10.get("civic_variant_total"):
+        n = b10["civic_variant_total"]
+        parts.append(f"[{n:,} CIViC cancer variant{'s' if n != 1 else ''}](#civic-variants)")
+    pgg = len(b10.get("pharmgkb_guideline") or [])
+    pgc = len(b10.get("pharmgkb_clinical") or [])
+    if pgg:
+        parts.append(f"[{pgg:,} PharmGKB dosing guideline{'s' if pgg != 1 else ''}](#pharmgkb-guidelines)")
+    elif pgc:
+        parts.append(f"[{pgc:,} PharmGKB clinical annotation{'s' if pgc != 1 else ''}](#pharmgkb-clinical)")
+    if b12.get("gwas_total"):
+        n = b12["gwas_total"]
+        parts.append(f"[{n:,} GWAS association{'s' if n != 1 else ''}](#gwas-assoc)")
+    if not parts:
+        return ""
+    s = f"**Variant evidence for {b6.get('symbol') or 'this gene'}:** " + "; ".join(parts) + "."
+    url = _sugi_variant_url(b6)
+    if url:
+        s += f" Per-variant detail is on [Sugi Variant]({url})."
+    return s
+
+
+def _sugi_variant_url(b):
+    """Sugi Variant gene URL, gated to genes in its corpus (≥1 P/LP ClinVar
+    variant == Sugi Variant's pathogenic gate), else None."""
+    bd = b.get("clinvar_breakdown") or {}
+    if (bd.get("Pathogenic") or 0) + (bd.get("Likely pathogenic") or 0) <= 0:
+        return None
+    from atlas.variant import gene_variants_url
+    return gene_variants_url(b.get("symbol"))
+
+
+def r_variants(b, summary=""):
+    L = ["## Genetic variants", ""]
+    if summary:
+        L.append(summary)
     bd = b.get("clinvar_breakdown", {})
     L.append("\n### ClinVar {#clinvar}\n")
-    L.append(f"{b.get('clinvar_total', 0)} variants total. Per-class counts are floors "
-             f"(≥ shown; pagination cap):\n")
-    L.append(table(["Classification", "Count (floor)"], list(bd.items())))
+    if b.get("clinvar_total"):
+        L.append(f"{b.get('clinvar_total', 0):,} variants total. Per-class counts are floors "
+                 f"(≥ shown; pagination cap):\n")
+        L.append(table(["Classification", "Count (floor)"], list(bd.items())))
+    else:
+        L.append("No ClinVar records for this gene.")
     tp = b.get("top_pathogenic") or []
     tp_total = b.get("top_pathogenic_total") or len(tp)
-    L.append(f"\n### Top pathogenic / likely-pathogenic ({len(tp)}) {{#top-pathogenic}}\n")
-    if tp:
+    if tp:                       # no empty "Top pathogenic (0)" heading
+        L.append(f"\n### Top pathogenic / likely-pathogenic ({len(tp)}) {{#top-pathogenic}}\n")
         L.append(("Showing " + (f"the {len(tp)} best-reviewed of {tp_total:,}" if tp_total > len(tp)
                                 else f"all {tp_total:,}")
                   + " pathogenic / likely-pathogenic ClinVar records, ranked by ClinVar "
@@ -631,6 +684,19 @@ def r_variants(b):
     L.append(table(["Variant ID", "HGVS", "Classification", "Review"],
                    [(v["id"], _tp_hgvs(v), v.get("classification"), v.get("review_status"))
                     for v in tp]))
+    # Sugi Variant cross-link — the sibling per-variant reference (sugi.bio/variant),
+    # directly under the ClinVar sample it extends (it used to sit at the end of
+    # the section, under a 50-row dbSNP table). Gated to genes in its corpus.
+    vurl = _sugi_variant_url(b)
+    if vurl:
+        L.append(f"\n### Per-variant reference — Sugi Variant {{#sugi-variant}}\n")
+        L.append(f"Explore {b.get('symbol')}'s pathogenic and likely-pathogenic "
+                 "variants individually — each with its ClinVar classification and "
+                 "conditions, applied ACMG criteria (ClinGen expert panel, where "
+                 "curated), the calibrated in-silico predictors (AlphaMissense, "
+                 "REVEL, SaProt, conservation), gnomAD frequency, and the "
+                 "predictor-disagreement QC signal — on "
+                 f"[Sugi Variant]({vurl}).")
     # ClinGen VCEP expert-panel interpretations — ACMG calls reviewed by a Variant
     # Curation Expert Panel; a higher-authority tier than individual ClinVar
     # submissions. Summary breakdown (not a per-variant dump).
@@ -647,55 +713,27 @@ def r_variants(b):
         L.append(ctx + " — a higher-authority tier than individual ClinVar "
                  "submissions.\n")
         L.append(table(["Assertion", "Variants"], b.get("clingen_variant_breakdown") or []))
-    L.append("\n### SpliceAI {#spliceai}\n")
-    L.append(capped_table(["Position(s)", "Effect", "Δscore", "Sites"],
-                          _collapse_spliceai(b.get("top_spliceai", [])),
-                          None, total=b.get("spliceai_total"), noun="predictions by Δscore"))
-    L.append("\n### AlphaMissense {#alphamissense}\n")
-    L.append(capped_table(["Variant", "Protein change", "am_pathogenicity"],
-                          [(v["id"], v.get("variant"), v.get("am_pathogenicity")) for v in b.get("top_alphamissense", [])],
-                          None, total=b.get("alphamissense_total"), noun="scored, likely-pathogenic"))
-    ds = b.get("dbsnp_sample", [])
-    if ds:
-        shown = min(50, len(ds))
-        sampled = b.get("dbsnp_sampled", 0)
-        of = f" of ~{sampled:,} sampled via entrez" if sampled > shown else " via entrez"
-        L.append(f"\n### dbSNP variants (showing {shown}{of}) {{#dbsnp}}\n")
-        L.append("Population variants with gnomAD minor-allele frequency where "
-                 "available (frequency-bearing variants shown first); blank MAF = "
-                 "not reported in gnomAD (typically very rare).\n")
-
-        def _maf(d):
-            f = d.get("gnomad")
-            if f is None:
-                return ""
-            return f"{f:.2%}" if f >= 0.0001 else f"{f:.1e}"
-        def _rs(i):                       # biobtree returns "RS123"; dbSNP convention is "rs123"
-            return ("rs" + i[2:]) if i[:2].upper() == "RS" else i
-        L.append(table(["Variant", "Position", "Change", "gnomAD MAF", "Class"],
-                       [(links.maybe_link(_rs(d["id"]), links.variant_link(_rs(d["id"]))),
-                         d["pos"], d["change"], _maf(d),
-                         d.get("variant_class") or "") for d in ds[:50]]))
-
-    # Sugi Variant cross-link — the sibling per-variant reference (sugi.bio/variant),
-    # its own sub-block at the end of the section (mirrors the Sugi Predict block in
-    # the drugs zone). Atlas gives ClinVar counts + a top sample here; Sugi Variant
-    # is the full per-variant deep-dive. Gated to genes in its corpus — those with
-    # Pathogenic/Likely-pathogenic ClinVar variants (== Sugi Variant's pathogenic
-    # gate) — so it never links to a gene with no variant index. Completes the loop:
-    # Variant already links back to Atlas gene/disease pages.
-    if (bd.get("Pathogenic", 0) + bd.get("Likely pathogenic", 0)) > 0:
-        from atlas.variant import gene_variants_url
-        vurl = gene_variants_url(b.get("symbol"))
-        if vurl:
-            L.append(f"\n### Per-variant reference — Sugi Variant {{#sugi-variant}}\n")
-            L.append(f"Explore {b.get('symbol')}'s pathogenic and likely-pathogenic "
-                     "variants individually — each with its ClinVar classification and "
-                     "conditions, applied ACMG criteria (ClinGen expert panel, where "
-                     "curated), the calibrated in-silico predictors (AlphaMissense, "
-                     "REVEL, SaProt, conservation), gnomAD frequency, and the "
-                     "predictor-disagreement QC signal — on "
-                     f"[Sugi Variant]({vurl}).")
+    sp = capped_table(["Position(s)", "Effect", "Δscore", "Sites"],
+                      _collapse_spliceai(b.get("top_spliceai", [])),
+                      None, total=b.get("spliceai_total"), noun="predictions by Δscore")
+    if sp:
+        L.append("\n### SpliceAI {#spliceai}\n")
+        L.append(sp)
+    # AlphaMissense — counts + hotspot residues (residues where the most amino-acid
+    # substitutions are predicted likely pathogenic). Per-variant scores, nearly
+    # all ≈1.000 in the old 30-row table, are Sugi Variant's job.
+    hot = b.get("am_hotspots") or []
+    lp = b.get("am_lp_total") or 0
+    if lp:
+        L.append("\n### AlphaMissense {#alphamissense}\n")
+        scored = b.get("alphamissense_total") or 0
+        L.append(f"{lp:,} missense substitutions predicted likely pathogenic"
+                 + (f" (of {scored:,} scored)" if scored else "")
+                 + f", across {b.get('am_lp_residues') or len(hot):,} residues. Hotspot "
+                 "residues — the most likely-pathogenic substitutions (of those reachable "
+                 "by a single-nucleotide change):\n")
+        L.append(table(["Residue", "Likely-pathogenic substitutions", "Max am_pathogenicity"],
+                       [(h["residue"], h["n"], fnum(h["max"], 3)) for h in hot]))
     return "\n".join(L)
 
 
@@ -1113,7 +1151,15 @@ def r_drugs(b):
 
     # PharmGKB variant pages — variant-level aggregations with PharmGKB's
     # composite score + count of clinical annotations.
-    pgv = b.get("pharmgkb_variant") or []
+    # Drop shell rows (no level, no clinical annotations, no drugs) — v1.11.7 had
+    # 3,863 of 6,753 rows empty, and on 943 pages the table was nothing else.
+    def _cnt(v):
+        try:
+            return int(v.get("clinical_annotation_count") or 0)
+        except (TypeError, ValueError):
+            return 0
+    pgv = [v for v in (b.get("pharmgkb_variant") or [])
+           if v.get("level_of_evidence") or _cnt(v) or v.get("associated_drugs")]
     if pgv:
         L.append("\n### PharmGKB variants {#pharmgkb-variants}\n")
         L.append(capped_table(

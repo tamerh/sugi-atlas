@@ -103,6 +103,16 @@ def clinvar_stars(review_status):
     return _CLINVAR_STARS.get((review_status or "").strip().lower(), 0)
 
 
+def clinvar_id_num(vid):
+    """Numeric ClinVar variation id for tie-breaking (lower = submitted earlier —
+    the long-established founder/hallmark variants: BRCA1 185delAG is 17662, CFTR
+    F508del 7105). Non-numeric → sorts last."""
+    try:
+        return int(str(vid).strip())
+    except (TypeError, ValueError):
+        return float("inf")
+
+
 def pval(s):
     """Tidy a GWAS-style p-value string for display: "8.000000e-11" → "8e-11",
     "1.500000e-08" → "1.5e-8". Passes non-numeric / empty through unchanged."""

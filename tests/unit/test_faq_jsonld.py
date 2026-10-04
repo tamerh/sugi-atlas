@@ -55,3 +55,10 @@ def test_faq_answer_is_full_lead_not_truncated_meta():
     assert len(full) > 155 and not full.endswith("…") and full.endswith(".")
     assert _meta_description("drug", bundle).endswith("…")
     assert "*" not in full
+
+
+def test_key_facts_no_double_period():
+    from atlas.page.faq_jsonld import build_faq
+    f = build_faq("MALAT1", "d", ["Gene type: non-coding (lncRNA) — no protein product."], "u")
+    a = f["mainEntity"][1]["acceptedAnswer"]["text"]
+    assert ".." not in a and a.endswith("product.")

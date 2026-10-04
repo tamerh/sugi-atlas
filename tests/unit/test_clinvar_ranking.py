@@ -40,3 +40,21 @@ def test_gene_top_pathogenic_ranked_and_capped(monkeypatch):
     assert len(ids) == S.TOP_PATHOGENIC_CAP and b["top_pathogenic_total"] == 24
     md = r_variants(b)
     assert "the 15 best-reviewed of 24" in md and "| Review |" in md
+
+
+def test_tie_broken_by_earliest_clinvar_id(monkeypatch):
+    # BRCA1: all top rows are expert-panel; founder 185delAG (17662) must beat 125465
+    # (string order put "125465" < "17662").
+    rows = [{"id": i, "name": i, "germline_classification": "Pathogenic",
+             "review_status": "reviewed by expert panel"} for i in ("125465", "17662", "9999x")]
+    monkeypatch.setattr(S, "map_all", lambda r, c, **k: rows if '"Pathogenic"' in c else [])
+    monkeypatch.setattr(S, "xref_counts", lambda e: {})
+    b = S.collect(SimpleNamespace(symbol="BRCA1", hgnc_id="HGNC:1100", hgnc_entry={},
+                                  canonical_transcript=None))
+    assert [v["id"] for v in b["top_pathogenic"]] == ["17662", "125465", "9999x"]
+
+
+def test_empty_gene_elides_subblocks():
+    md = r_variants({"symbol": "X", "clinvar_total": 0, "clinvar_breakdown": {}})
+    assert "No ClinVar records" in md
+    assert "{#top-pathogenic}" not in md and "{#spliceai}" not in md

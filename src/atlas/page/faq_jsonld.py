@@ -14,7 +14,10 @@ def build_faq(title, description, tldr, url):
     """FAQPage dict, or None when there's nothing worth asking."""
     title = (title or "").strip()
     description = (description or "").strip()
-    facts = [f.strip() for f in (tldr or []) if f and f.strip()]
+    # Strip each fact's own trailing period — they're joined with "; " and the
+    # answer adds one (v1.11.7: "…no protein product..").
+    facts = [f.strip().rstrip(".").rstrip() for f in (tldr or []) if f and f.strip()]
+    facts = [f for f in facts if f]
     if not title or not (description or facts):
         return None
     qas = []

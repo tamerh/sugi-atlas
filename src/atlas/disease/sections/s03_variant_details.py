@@ -4,7 +4,7 @@ Tier 4 intronic-intergenic)."""
 import re, html
 from atlas.section import Section
 from atlas.biobtree import map_all, entry
-from atlas.render_common import clinvar_stars
+from atlas.render_common import clinvar_stars, clinvar_id_num
 
 CHAINS   = (">>mondo>>gwas>>dbsnp", ">>mondo>>clinvar")
 DATASETS = ("mondo", "gwas", "dbsnp", "clinvar")
@@ -195,7 +195,7 @@ def collect(a):
             "review_status": r.get("review_status"),
         })
     cv_variants.sort(key=lambda v: (_cv_rank(v["classification"]),
-                                    -clinvar_stars(v["review_status"]), v["gene"] or ""))
+                                    -clinvar_stars(v["review_status"]), clinvar_id_num(v["id"])))
 
     return {
         "section": "03_variant_details",

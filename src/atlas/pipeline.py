@@ -206,7 +206,7 @@ def collect_all(symbol):
 # cleared defensively too; they're empty for ncRNA anyway.)
 _NONCODING_SCRUB = {
     "6":  ("clinvar_total", "clinvar_breakdown", "top_pathogenic", "top_pathogenic_total", "spliceai_total",
-           "top_spliceai", "alphamissense_total", "top_alphamissense", "dbsnp_sample"),
+           "top_spliceai", "alphamissense_total", "am_lp_total", "am_lp_residues", "am_hotspots"),
     # disease_trials are positional; civic_evidence_total / molecule_count /
     # is_drug_target also feed the evidence _SPEC + meta_facts, so clear them too
     # (audit #14: non-coding genes carried inherited drug/civic counts in the
@@ -289,8 +289,10 @@ def render_all(bundle):
         ("Disease & clinical", "disease",
          (nc_disease if noncoding
           else join(D(R.r_cancer_overview(bundle), "cancer"),
+                    D(R.r_variants(bundle["6"], summary=R.r_variants_summary(bundle)),
+                      "variants"),
                     D(R.r_hpa_cancer(bundle), "hpa-cancer"),
-                    S("6", "variants"), S("12", "disease-assoc"), nc_disease)),
+                    S("12", "disease-assoc"), nc_disease)),
          "No curated disease, variant, or cancer-driver associations."),
         ("Drugs & pharmacology", "drugs",
          (nc_drugs if noncoding else join(S("10", "drug-data"), nc_drugs)),
