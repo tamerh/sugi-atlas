@@ -165,7 +165,10 @@ def _causal_clause(bundle):
     n_gwas = b2.get("assoc_total") or 0
     definitive = any("definitive" in (ev or "").lower() for _, ev in cg)
     if n_gwas >= _POLYGENIC_GWAS or (n_gwas >= _POLYGENIC_GWAS_SOFT and not definitive):
-        return f" whose monogenic forms are linked to {genes}"
+        # Cancers: the curated genes are germline predisposition genes →
+        # "hereditary forms" (breast cancer → BRCA1/BARD1, prostate → HOXB13).
+        kind = "hereditary" if b1.get("is_cancer") else "monogenic"
+        return f" whose {kind} forms are linked to {genes}"
     if (b1.get("child_count") or 0) >= _UMBRELLA_SUBTYPES:
         return f" whose subtypes are caused by variants in {genes}"
     if len(syms) == 1:

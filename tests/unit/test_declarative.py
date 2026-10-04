@@ -207,6 +207,8 @@ def test_causal_clause_wording_by_disease_kind(monkeypatch):
     assert _causal_clause(poly) == " whose monogenic forms are linked to TREX1 and SAT1"
     assert _causal_clause(umb) == " whose subtypes are caused by variants in TREX1 and SAT1"
     assert _causal_clause(mono) == " caused by variants in TREX1 and SAT1"
+    cancer = {"1": {"child_count": 6, "is_cancer": True}, "2": {"assoc_total": 626}}
+    assert _causal_clause(cancer) == " whose hereditary forms are linked to TREX1 and SAT1"
     soft = {"1": {"child_count": 2}, "2": {"assoc_total": 61}}      # epilepsy-like
     assert _causal_clause(soft) == " caused by variants in TREX1 and SAT1"   # has a Definitive gene
     monkeypatch.setattr(C, "causal_genes", lambda b: [("SHROOM4", "OMIM")])
