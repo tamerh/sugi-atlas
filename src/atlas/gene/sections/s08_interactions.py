@@ -119,8 +119,20 @@ def collect(a):
          if g and g.upper() != _self})
 
     bg = map_all(uni, ">>uniprot>>biogrid_interaction", cap=_PPI_CAP) if uni else []
-    bundle["biogrid"] = [{"partner": t.get("interactor_b_symbol"),
-                          "method": t.get("experimental_system")} for t in bg[:30]]
+    # The map projection carries only interactor_b_symbol; when THIS gene is
+    # interactor B the partner (A) isn't exposed, so those rows printed the gene
+    # itself as its own partner (v1.11.7 TP53: "TP53 (…)" ×9 of 15). Keep distinct
+    # non-self partners (first-seen method) across all fetched rows.
+    seen_bg, biogrid = set(), []
+    for t in bg:
+        p = (t.get("interactor_b_symbol") or "").strip()
+        if not p or p.upper() == _self or p.upper() in seen_bg:
+            continue
+        seen_bg.add(p.upper())
+        biogrid.append({"partner": p, "method": t.get("experimental_system")})
+        if len(biogrid) >= 30:
+            break
+    bundle["biogrid"] = biogrid
     bundle["biogrid_count"] = biogrid_n or len(bg)
 
     # (ESM2 / Diamond cross-species similarity moved to §5 orthologs — there they

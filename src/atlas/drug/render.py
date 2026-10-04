@@ -299,6 +299,9 @@ def r_indications(b):
               _tbl(trials, "Disease (in trials)")]
     if not named:
         n = b.get("indication_count") or 0
+        if not n:       # v1.11.7: "**0 indication records** carry no mapped disease name"
+            L.append("No ChEMBL drug-indication records for this molecule.")
+            return "\n".join(L)
         L.append(f"**{_i(n)} indication record{'s' if n != 1 else ''}** "
                  f"carr{'y' if n != 1 else 'ies'} no mapped disease name "
                  "(EFO/MeSH-only); none shown.")

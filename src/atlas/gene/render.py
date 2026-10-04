@@ -118,7 +118,9 @@ def r_transcripts(b):
     if ts:
         L.append("\n" + ", ".join(f"`{t['id']}`" for t in ts))
     n = b.get("refseq_mrna_count", 0)
-    L.append(f"\n**RefSeq mRNA: {n}{_cap(n)}** — MANE Select: `{b.get('mane_select_refseq')}`")
+    mane = b.get("mane_select_refseq")
+    mane = mane if mane and str(mane) not in ("None", "nan") else None   # v1.11.7: "`None`"
+    L.append(f"\n**RefSeq mRNA: {n}{_cap(n)}**" + (f" — MANE Select: `{mane}`" if mane else ""))
     L.append(", ".join(f"`{x}`" for x in b.get("refseq_mrna", [])))
     L.append(_labeled("CCDS", (f"`{x}`" for x in b.get("ccds", []))))
     L.append("\n### Canonical transcript exons {#canonical-exons}\n")
@@ -1644,15 +1646,23 @@ def r_hpa_expression(bundle):
     L = ["### HPA expression {#hpa-expression}", ""]
     if spec:
         L.append(f"RNA tissue specificity: **{spec}**\n")
-    if any(r.get("protein_level") for r in exp):
+    # Brain Atlas sub-regions → one summary line; the table keeps the consensus
+    # tissues / cells so non-brain expression stays visible.
+    regions = [r for r in exp if r.get("brain_region")]
+    tissues = [r for r in exp if not r.get("brain_region")]
+    if any(r.get("protein_level") for r in tissues):
         L.append(capped_table(["Tissue / cell", "Axis", "nTPM", "Protein (IHC)"],
                               [(r.get("entity"), r.get("axis"), r.get("ntpm"), r.get("protein_level"))
-                               for r in exp],
-                              ROW_CAP, total=b.get("hpa_expression_total"), noun="HPA entities by nTPM"))
-    else:
+                               for r in tissues],
+                              ROW_CAP, total=len(tissues), noun="HPA tissues / cells by nTPM"))
+    elif tissues:
         L.append(capped_table(["Tissue / cell", "Axis", "nTPM"],
-                              [(r.get("entity"), r.get("axis"), r.get("ntpm")) for r in exp],
-                              ROW_CAP, total=b.get("hpa_expression_total"), noun="HPA entities by nTPM"))
+                              [(r.get("entity"), r.get("axis"), r.get("ntpm")) for r in tissues],
+                              ROW_CAP, total=len(tissues), noun="HPA tissues / cells by nTPM"))
+    if regions:
+        top = ", ".join(f"{r.get('entity')} ({r.get('ntpm')})" for r in regions[:5])
+        L.append(f"\n**Brain sub-regions (HPA Brain Atlas):** detected in {len(regions):,}; "
+                 f"highest nTPM — {top}.")
     return "\n".join(L)
 
 

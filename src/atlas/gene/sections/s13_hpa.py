@@ -65,9 +65,14 @@ def collect(a):
         "top_tissues": at.get("top_tissues") or [],   # ["Placenta|61.8", ...]
     }
     # Per-tissue/cell expression — nTPM, highest first; IHC protein_level when present.
+    # HPA Brain Atlas sub-regions (~190 per gene: "Area postrema", "Nucleus
+    # gracilis") carry a "|NAME:" id instead of an UBERON tissue id. They're
+    # flagged so the render can summarise them in one line instead of letting them
+    # fill the whole tissue table (v1.11.7 GFAP: 60 of 60 rows were brain nuclei).
     exp = [{"entity": r.get("entity_name"), "axis": r.get("axis"),
             "ntpm": r.get("ntpm"), "protein_level": r.get("protein_level"),
-            "reliability": r.get("reliability")}
+            "reliability": r.get("reliability"),
+            "brain_region": "|NAME:" in (r.get("id") or "")}
            for r in map_all(a.symbol, ">>hgnc>>hpa>>hpa_expression")]
     exp.sort(key=lambda r: -_num(r.get("ntpm")))
     # Drop "not detected" rows — they're noise: a not-expressed gene (ZNF735)
