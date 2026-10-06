@@ -21,16 +21,30 @@ def test_zero_indications_plain_sentence():
     assert "No ChEMBL drug-indication records" in md
 
 
-def test_biogrid_drops_self_and_dedupes(monkeypatch):
-    rows = [{"interactor_b_symbol": s, "experimental_system": m} for s, m in [
-        ("TP53", "Affinity Capture-Western"), ("MDM2", "Affinity Capture-Western"),
-        ("tp53", "Reconstituted Complex"), ("MDM2", "Two-hybrid"), ("RCHY1", "Two-hybrid")]]
-    monkeypatch.setattr(S8, "map_all",
-                        lambda r, c, **k: rows if "biogrid" in c else [])
-    monkeypatch.setattr(S8, "entry", lambda *a, **k: {}, raising=False)
-    b = S8.collect(SimpleNamespace(symbol="TP53", canonical_uniprot="P04637", hgnc_id="HGNC:11998"))
-    assert [x["partner"] for x in b["biogrid"]] == ["MDM2", "RCHY1"]
-    assert b["biogrid"][0]["method"] == "Affinity Capture-Western"
+def test_biogrid_human_partners_either_side_ranked(monkeypatch):
+    # Projection has only interactor_b_symbol; the full entry has both sides + organisms.
+    recs = {
+        "1": ("TP53", "P04637", 9606, "MDM2", "Q00987", 9606, "Affinity Capture-Western"),
+        "2": ("RCHY1", "Q96PM5", 9606, "TP53", "P04637", 9606, "Two-hybrid"),     # TP53 is B
+        "3": ("TP53", "P04637", 9606, "MDM2", "Q00987", 9606, "Reconstituted Complex"),
+        "4": ("TP53", "P04637", 9606, "XRS2", "P33301", 559292, "Synthetic Rescue"),  # yeast
+        "5": ("TP53", "P04637", 9606, "TP53", "P04637", 9606, "Two-hybrid"),     # self
+    }
+    rows = [{"id": k, "interactor_b_symbol": v[3]} for k, v in recs.items()]
+    def fake_entry(i, ds):
+        a = recs[i]
+        return {"Attributes": {"BiogridInteraction": {
+            "interactor_a_symbol": a[0], "interactor_a_id": a[1], "interactor_a_organism": a[2],
+            "interactor_b_symbol": a[3], "interactor_b_id": a[4], "interactor_b_organism": a[5],
+            "experimental_system": a[6]}}}
+    monkeypatch.setattr(S8, "entry", fake_entry)
+    out = S8._biogrid_partners(rows, "TP53", "P04637")
+    assert [(x["partner"], x["records"]) for x in out] == [("MDM2", 2), ("RCHY1", 1)]
+    md = R.r_interactions({"biogrid": out, "biogrid_count": 6159})
+    assert "BioGRID (6,159 interactions; top human partners by supporting records)" in md
+    assert "MDM2 (Affinity Capture-Western; 2 records)" in md and "RCHY1 (Two-hybrid)" in md
+    md = R.r_interactions({"biogrid": out, "biogrid_count": 6159, "biogrid_sampled": 600})
+    assert "by supporting records in a sample of 600 records)" in md
 
 
 def test_hpa_brain_regions_collapsed():
@@ -43,3 +57,10 @@ def test_hpa_brain_regions_collapsed():
     assert "| Liver | tissue | 5.0 |" in md and "| Astrocytes | cell | 900.0 |" in md
     assert "| Nucleus 0 |" not in md
     assert "**Brain sub-regions (HPA Brain Atlas):** detected in 80; highest nTPM — Nucleus 0 (20000)" in md
+
+
+def test_no_none_for_missing_transcript_or_uniprot():
+    md = R.r_transcripts({"refseq_mrna_count": 0, "canonical_transcript": None})
+    assert "`None`" not in md and "{#canonical-exons}" not in md
+    md = R.r_protein_ids({"canonical_uniprot": None, "reviewed_uniprot": []})
+    assert "`None`" not in md and "No reviewed (Swiss-Prot) UniProt entry" in md

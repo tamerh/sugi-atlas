@@ -58,6 +58,40 @@ def _uniprot_symbol(uni):
     return sym
 
 
+_HUMAN = 9606
+_BIOGRID_CAP = 5            # map pages → up to ~600 interaction records
+_BIOGRID_PARTNERS = 30
+
+
+def _biogrid_partners(rows, symbol, uniprot):
+    """Human BioGRID partners of a gene from its interaction records → [{partner,
+    method, records}], most-supported first (then name). Non-human or cross-species
+    records and self-interactions are dropped."""
+    me_sym, me_uni = (symbol or "").upper(), (uniprot or "").upper()
+    agg = {}
+    for t in rows:
+        try:
+            r = ((entry(t["id"], "biogrid_interaction").get("Attributes") or {})
+                 .get("BiogridInteraction") or {})
+        except Exception:
+            continue
+        if r.get("interactor_a_organism") != _HUMAN or r.get("interactor_b_organism") != _HUMAN:
+            continue
+        a_sym, b_sym = (r.get("interactor_a_symbol") or "").strip(), (r.get("interactor_b_symbol") or "").strip()
+        a_me = a_sym.upper() == me_sym or (r.get("interactor_a_id") or "").upper() == me_uni
+        b_me = b_sym.upper() == me_sym or (r.get("interactor_b_id") or "").upper() == me_uni
+        if a_me == b_me:                 # self-interaction, or neither side is this gene
+            continue
+        p = b_sym if a_me else a_sym
+        if not p:
+            continue
+        h = agg.setdefault(p.upper(), {"partner": p, "method": r.get("experimental_system"),
+                                       "records": 0})
+        h["records"] += 1
+    out = sorted(agg.values(), key=lambda h: (-h["records"], h["partner"].upper()))
+    return out[:_BIOGRID_PARTNERS]
+
+
 def collect(a):
     bundle = {"section": "08_interactions", "symbol": a.symbol}
     uni = a.canonical_uniprot
@@ -118,20 +152,18 @@ def collect(a):
         {g for t in ia for g in (t.get("protein_a_gene"), t.get("protein_b_gene"))
          if g and g.upper() != _self})
 
-    bg = map_all(uni, ">>uniprot>>biogrid_interaction", cap=_PPI_CAP) if uni else []
-    # The map projection carries only interactor_b_symbol; when THIS gene is
-    # interactor B the partner (A) isn't exposed, so those rows printed the gene
-    # itself as its own partner (v1.11.7 TP53: "TP53 (…)" ×9 of 15). Keep distinct
-    # non-self partners (first-seen method) across all fetched rows.
-    seen_bg, biogrid = set(), []
-    for t in bg:
-        p = (t.get("interactor_b_symbol") or "").strip()
-        if not p or p.upper() == _self or p.upper() in seen_bg:
-            continue
-        seen_bg.add(p.upper())
-        biogrid.append({"partner": p, "method": t.get("experimental_system")})
-        if len(biogrid) >= 30:
-            break
+    # Larger sample than the other PPI sources: partners are ranked by supporting
+    # records, and 200 records (ID order) left EGFR with one AP-MS paper's singletons.
+    bg = map_all(uni, ">>uniprot>>biogrid_interaction", cap=_BIOGRID_CAP) if uni else []
+    # The map projection carries only `interactor_b_symbol` — no interactor A and no
+    # organisms (biobtree #60). So (1) when THIS gene is interactor B its partner was
+    # invisible (v1.11.7 TP53 listed itself 9×), and (2) cross-species records were
+    # indistinguishable (v1.11.8 BRCA1's 15 "partners" were all yeast genes from a
+    # BRCA1-in-yeast screen). Workaround: read each fetched record's full entry, keep
+    # human–human interactions, take the side that isn't this gene, and rank partners
+    # by supporting records. ~200 local entry calls per gene (≈0.5 s).
+    biogrid = _biogrid_partners(bg, a.symbol, uni)
+    bundle["biogrid_sampled"] = len(bg)
     bundle["biogrid"] = biogrid
     bundle["biogrid_count"] = biogrid_n or len(bg)
 

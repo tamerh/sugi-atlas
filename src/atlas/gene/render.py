@@ -123,10 +123,12 @@ def r_transcripts(b):
     L.append(f"\n**RefSeq mRNA: {n}{_cap(n)}**" + (f" — MANE Select: `{mane}`" if mane else ""))
     L.append(", ".join(f"`{x}`" for x in b.get("refseq_mrna", [])))
     L.append(_labeled("CCDS", (f"`{x}`" for x in b.get("ccds", []))))
-    L.append("\n### Canonical transcript exons {#canonical-exons}\n")
-    L.append(f"`{b.get('canonical_transcript')}` — {b.get('canonical_exon_count', 0)} exons\n")
-    L.append(table(["Exon", "Start", "End"],
-                   [(e["id"], e.get("start"), e.get("end")) for e in b.get("canonical_exons", [])]))
+    ct = b.get("canonical_transcript")
+    if ct and str(ct) not in ("None", "nan"):     # v1.11.8: "`None` — 0 exons" on ~1.2k pages
+        L.append("\n### Canonical transcript exons {#canonical-exons}\n")
+        L.append(f"`{ct}` — {b.get('canonical_exon_count', 0)} exons\n")
+        L.append(table(["Exon", "Start", "End"],
+                       [(e["id"], e.get("start"), e.get("end")) for e in b.get("canonical_exons", [])]))
     return "\n".join(L)
 
 
@@ -154,9 +156,11 @@ def r_protein_ids(b):
     if pn:
         L.append(f"**{pn}** — `{b.get('canonical_uniprot')}` "
                  f"(reviewed: {', '.join(b.get('reviewed_uniprot', []))})")
-    else:
+    elif b.get("canonical_uniprot") and str(b.get("canonical_uniprot")) != "None":
         L.append(f"**Canonical reviewed UniProt:** `{b.get('canonical_uniprot')}`"
                  f" (reviewed: {', '.join(b.get('reviewed_uniprot', []))})")
+    else:                                         # v1.11.8: "`None` (reviewed: )"
+        L.append("No reviewed (Swiss-Prot) UniProt entry for this gene.")
     alt = b.get("alternative_names") or []
     if alt:
         L.append(f"\n**Alternative names:** " + ", ".join(alt))
@@ -930,8 +934,15 @@ def r_interactions(b):
     L.append(capped_table(["A", "B", "Type", "Score"],
                           [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])],
                           40, total=b.get("intact_count"), noun="interactions by confidence"))
-    L.append(_labeled(f"BioGRID ({b.get('biogrid_count', 0)})",
-                      (f"{x.get('partner')} ({x.get('method')})" for x in b.get("biogrid", [])[:15])))
+    def _bg(x):
+        n = x.get("records") or 0
+        return (f"{x.get('partner')} ({x.get('method')}"
+                + (f"; {n} records" if n > 1 else "") + ")")
+    bg_n, bg_s = b.get("biogrid_count") or 0, b.get("biogrid_sampled") or 0
+    sample = f" in a sample of {bg_s:,} records" if bg_s and bg_n > bg_s else ""
+    L.append(_labeled(f"BioGRID ({bg_n:,} interactions; top human partners "
+                      f"by supporting records{sample})",
+                      (_bg(x) for x in b.get("biogrid", [])[:15])))
     L.append("\n### SIGNOR signaling {#signor}\n")
     L.append(capped_table(["A", "Effect", "B", "Mechanism"],
                           [(s.get("a"), s.get("effect"), s.get("b"), s.get("mechanism")) for s in b.get("signor", [])],
