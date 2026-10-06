@@ -40,8 +40,9 @@ def _mechanisms(chembl_id, child_ids=()):
       chembl_target>>uniprot>>hgnc — SINGLE PROTEIN targets only (a family/complex,
       e.g. diazepam's GABA-A receptor group, stays a named target and is not
       expanded into every member gene). Adalimumab → TNF; imatinib → ABL1/PDGFRB/KIT.
-    - A single-protein target with no human gene is a pathogen/non-human target:
-      its organism is returned (isoniazid → Mycobacterium tuberculosis)."""
+    - A target with no human gene is a pathogen/non-human target: its organism is
+      returned, for any target type (isoniazid → Mycobacterium tuberculosis,
+      telaprevir's NS3/NS4A complex → hepatitis C virus)."""
     if not chembl_id:
         return [], [], []
     ids = [chembl_id] + [c for c in (child_ids or ()) if c and c != chembl_id][:5]
@@ -69,15 +70,20 @@ def _mechanisms(chembl_id, child_ids=()):
             _add_gene(r.get("id"))                       # nucleic-acid targets
         for t in map_all(mid, ">>chembl_molecule>>chembl_mechanism>>chembl_target", cap=2):
             tid = t.get("id")
-            if not tid or tid in seen_tgt or (t.get("type") or "").upper() != "SINGLE PROTEIN":
+            if not tid or tid in seen_tgt:
                 continue
             seen_tgt.add(tid)
-            hg = [x.get("id") for x in map_all(tid, ">>chembl_target>>uniprot>>hgnc", cap=1)
-                  if (x.get("id") or "").startswith("HGNC:")]
-            if hg:
-                for h in hg[:1]:
-                    _add_gene(h)
-                continue
+            if (t.get("type") or "").upper() == "SINGLE PROTEIN":
+                hg = [x.get("id") for x in map_all(tid, ">>chembl_target>>uniprot>>hgnc", cap=1)
+                      if (x.get("id") or "").startswith("HGNC:")]
+                if hg:
+                    for h in hg[:1]:
+                        _add_gene(h)
+                    continue
+            # Organism for any non-human target, whatever its type — a viral PROTEIN
+            # COMPLEX (telaprevir → HCV NS3/NS4A) is as much a pathogen target as a
+            # single protein. Human families/complexes resolve to Homo sapiens and are
+            # skipped. (biobtree v2.13.0 now emits these targets' metadata, #61.)
             for tx in map_all(tid, ">>chembl_target>>taxonomy", cap=1):
                 org = (tx.get("name") or "").strip()
                 if org and org != "Homo sapiens" and org not in organisms:

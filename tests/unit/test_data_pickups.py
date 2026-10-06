@@ -96,3 +96,22 @@ def test_drug_mechanisms_salt_children_genes_and_organisms(monkeypatch):
     assert len(moa) == 1                                   # found via the salt form
     assert [g["gene_symbol"] for g in genes] == ["ABL1"]   # single protein → gene; complex not expanded
     assert orgs == ["Mycobacterium tuberculosis"]
+
+
+def test_drug_mechanisms_complex_target_organism(monkeypatch):
+    # telaprevir: HCV NS3/NS4A is a PROTEIN COMPLEX — organism still reported; a human
+    # complex (Homo sapiens) is not, and complexes are never expanded into genes.
+    from atlas.drug.sections import s02_targets as S
+    def fake(root, chain, **k):
+        if chain == ">>chembl_molecule>>chembl_mechanism>>chembl_target":
+            return [{"id": "CPX_HCV", "type": "PROTEIN COMPLEX"},
+                    {"id": "CPX_HUMAN", "type": "PROTEIN COMPLEX GROUP"}]
+        if chain == ">>chembl_target>>taxonomy":
+            return [{"name": {"CPX_HCV": "Orthohepacivirus hominis",
+                              "CPX_HUMAN": "Homo sapiens"}[root]}]
+        if chain == ">>chembl_target>>uniprot>>hgnc":
+            raise AssertionError("complexes must not be expanded into genes")
+        return []
+    monkeypatch.setattr(S, "map_all", fake)
+    moa, genes, orgs = S._mechanisms("CHEMBL231813")
+    assert genes == [] and orgs == ["Orthohepacivirus hominis"]
