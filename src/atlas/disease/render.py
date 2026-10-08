@@ -246,7 +246,12 @@ def _same_text(a, b):
     if not na or not nb:
         return False
     k = min(60, len(na), len(nb))
-    return na[:k] in nb or nb[:k] in na
+    if na[:k] in nb or nb[:k] in na:
+        return True
+    # Near-identical copies (British/American spelling: "characterised" vs
+    # "characterized" on Norman-Roberts syndrome) — compare the openings fuzzily.
+    from difflib import SequenceMatcher
+    return SequenceMatcher(None, na[:200], nb[:200]).ratio() >= 0.9
 
 
 def r_clinical_description(b):

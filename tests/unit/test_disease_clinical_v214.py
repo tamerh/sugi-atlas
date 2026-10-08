@@ -73,3 +73,11 @@ def test_biogrid_uses_projection_without_entry_calls(monkeypatch):
              "interactor_b_symbol": "XRS2", "interactor_b_organism": "559292", "experimental_system": "Synthetic Rescue"}]
     out = S8._biogrid_partners(rows, "TP53", "P04637")
     assert [x["partner"] for x in out] == ["RCHY1"]
+
+
+def test_same_text_tolerates_spelling_variants():
+    o = "Lissencephaly syndrome, Norman-Roberts type is characterised by the association of lissencephaly type I with craniofacial anomalies."
+    m = o.replace("characterised", "characterized")
+    assert DR._same_text(m, o)
+    assert not DR._same_text("A progressive neurodegenerative disease of the brain.",
+                             "A degenerative disease of the BRAIN characterized by dementia.")
