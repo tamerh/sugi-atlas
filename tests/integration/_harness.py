@@ -97,7 +97,7 @@ H4_IDS = {
              "pubchem-bioassay", "ctd", "chembl-assays", "cellosaurus", "gene-trials",
              "sugi-predict"},
     "disease": {  # clinical / genetics
-              "prevalence", "hpo-features", "gwas-associations", "gwas-studies",
+              "prevalence", "hpo-features", "wikidata-symptoms", "gwas-associations", "gwas-studies",
               "clinvar-variants", "tier-distribution", "maf-distribution",
               "consequences", "top-variants",
               # genes & proteins

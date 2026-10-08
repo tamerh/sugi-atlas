@@ -238,6 +238,17 @@ def r_epidemiology(b):
                 for p in shown])])
 
 
+def _same_text(a, b):
+    """True when two definitions are the same text (one contains the other's
+    opening, punctuation/case-insensitive) — avoids printing Mondo's verbatim copy
+    of Orphanet or MeSH as a second paragraph."""
+    na, nb = (re.sub(r"[^a-z0-9]", "", (x or "").lower()) for x in (a, b))
+    if not na or not nb:
+        return False
+    k = min(60, len(na), len(nb))
+    return na[:k] in nb or nb[:k] in na
+
+
 def r_clinical_description(b):
     """Curated clinical-description paragraph(s) for the Clinical-features zone.
     Two independent authorities, shown source-labelled — both when both exist:
@@ -249,9 +260,19 @@ def r_clinical_description(b):
     orph = (b.get("orphanet_definition") or "").strip()
     if orph:
         parts.append(f"**Orphanet:** {orph}")
+    # Mondo's own definition (biobtree v2.14.0) — every disease gets a curated
+    # description, not only those with Orphanet/MeSH text. Skipped when it merely
+    # repeats Orphanet's (Mondo often imports it verbatim).
+    mondo = (b.get("mondo_definition") or "").strip()
+    if mondo and not _same_text(mondo, orph):
+        parts.append(f"**Mondo:** {mondo}")
     mesh = (b.get("mesh_scope_note") or "").strip()
-    if mesh:
+    if mesh and not _same_text(mesh, mondo):
         parts.append(f"**MeSH:** {mesh}")
+    # Disease Ontology definition — fallback only (it overlaps Mondo/MeSH heavily).
+    do = (b.get("doid_definition") or "").strip()
+    if do and not (orph or mondo or mesh):
+        parts.append(f"**Disease Ontology:** {do}")
     # Inheritance / onset (Orphanet) — the defining genetic axis of a Mendelian
     # disease; a concise line under the description.
     io = []
@@ -274,18 +295,32 @@ def r_symptoms(b):
     presentation of a disease, so it gets a first-class section right after the
     summary rather than being buried under identifiers."""
     phs = b.get("phenotypes") or []
-    if not phs:
+    wsym = b.get("wikidata_symptoms") or []
+    if not phs and not wsym:
         return ""
-    total = b.get("phenotype_count") or len(phs)
-    return "\n".join(
-        ["## Signs & symptoms", "",
-         "### Clinical features (HPO) {#hpo-features}", "",
-         f"{total} HPO clinical feature{'s' if total != 1 else ''} (curated from "
-         f"Orphanet + OMIM/Mondo; top {min(ROW_CAP, len(phs))} shown, Orphanet "
-         "frequencies first):", "",
-         table(["HPO ID", "Term", "Frequency"],
-               [(p.get("hpo_id"), p.get("hpo_term"), p.get("frequency") or "—")
-                for p in phs[:ROW_CAP]])])
+    out = ["## Signs & symptoms", ""]
+    if phs:
+        total = len(phs)
+        out += ["### Clinical features (HPO) {#hpo-features}", "",
+                f"{total} HPO clinical feature{'s' if total != 1 else ''} (curated from "
+                f"Orphanet + OMIM; top {min(ROW_CAP, len(phs))} shown, Orphanet "
+                "frequencies first):", "",
+                table(["HPO ID", "Term", "Frequency"],
+                      [(p.get("hpo_id"), p.get("hpo_term"), p.get("frequency") or "—")
+                       for p in phs[:ROW_CAP]])]
+    # Wikidata P780 — the common-disease layer HPO (rare-disease curated) lacks.
+    # Crowd-curated general knowledge, so kept apart from the curated table and
+    # labelled; never merged into HPO counts or JSON-LD signOrSymptom.
+    if wsym:
+        names = [links.maybe_link(x["name"], f"https://www.wikidata.org/wiki/{x['qid']}")
+                 for x in wsym[:ROW_CAP]]
+        out += (["", ""] if phs else []) + [
+            "### Common symptoms (Wikidata) {#wikidata-symptoms}", "",
+            (f"{len(wsym)} symptoms and signs" if len(wsym) != 1 else "1 symptom or sign")
+            + " listed on Wikidata (property P780): " + ", ".join(names) + ".", "",
+            "*General-knowledge, crowd-curated data (CC0) — a common-disease symptom "
+            "summary, not clinical-grade curation.*"]
+    return "\n".join(out)
 
 
 def r_molecular_basis(bundles):
@@ -1528,7 +1563,7 @@ def render_all(bundles):
          join(D(r_clinical_description(bundles["1"]), "clinical-description"),
               D(r_epidemiology(bundles["1"]), "epidemiology"),
               D(r_symptoms(bundles["1"]), "symptoms")),
-         "No curated clinical features (HPO via Orphanet/OMIM/Mondo, or MeSH) "
+         "No curated clinical description or features (Orphanet, Mondo, MeSH, HPO, Wikidata) "
          "for this disease."),
         ("Identifiers", "identifiers", S("1", "disease-ids"), None),
         ("Disease family", "family",

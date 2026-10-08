@@ -41,14 +41,15 @@ def _looks_like_description(note):
 
 
 CHAINS   = (">>mondo>>efo", ">>mondo>>mesh", ">>mondo>>mim", ">>mondo>>orphanet",
-            ">>mondo>>doid", ">>mondo>>sctid", ">>mondo>>umls", ">>mondo>>ncit",
+            ">>mondo>>doid", ">>mondo>>wikidata_symptom", ">>doid>>wikidata_symptom", ">>mondo>>sctid", ">>mondo>>umls", ">>mondo>>ncit",
             ">>mondo>>medgen", ">>mondo>>icd10cm", ">>mondo>>icd11",
             ">>mondo>>gard", ">>mondo>>meddra", ">>mondo>>nord",
             ">>mondo>>uberon", ">>mondo>>mondochild",
             ">>mim>>hpo", ">>mondo>>hpo")
 DATASETS = ("mondo", "efo", "mesh", "mim", "orphanet",
             "doid", "sctid", "umls", "ncit", "medgen",
-            "icd10cm", "icd11", "gard", "meddra", "nord", "uberon", "mondochild", "hpo")
+            "icd10cm", "icd11", "gard", "meddra", "nord", "uberon", "mondochild", "hpo",
+            "wikidata_symptom")
 
 def collect(a):
     # HPO clinical features. Orphanet's curated list (with frequency bands) is the
@@ -82,6 +83,18 @@ def collect(a):
         _add_hpo(oid, ">>mim>>hpo")
     if a.mondo_id:
         _add_hpo(a.mondo_id, ">>mondo>>hpo")
+    # Never list the disease as its own clinical feature (HPO has disease-named
+    # classes, e.g. HP:0002511 "Alzheimer disease"; v1.11.9 showed it on ~439 pages
+    # as the only feature). biobtree v2.14.0 stopped emitting the Mondo equivalence
+    # as mondo>>hpo; this guards the other routes too.
+    def _nm(n):        # case/punct-insensitive; Roman type numerals → digits ("type II" = "type 2")
+        n = re.sub(r"\btype\s+(iv|iii|ii|i)\b",
+                   lambda m: "type " + {"i": "1", "ii": "2", "iii": "3", "iv": "4"}[m.group(1)],
+                   (n or "").lower())
+        return re.sub(r"[^a-z0-9]", "", n)
+    _self_names = {_nm(n) for n in (a.canonical_name, a.name, *(a.synonyms or ())) if n}
+    phenotypes = [p for p in phenotypes
+                  if _nm(p.get("hpo_term")) not in _self_names]
     # Orphanet (with frequency) sorts first; OMIM/Mondo extras (no frequency) after.
     phenotypes.sort(key=lambda p: float(p.get("frequency_value") or 0), reverse=True)
 
@@ -166,6 +179,44 @@ def collect(a):
         mesh_note_fallback = mesh_note_fallback or note
     mesh_scope_note = mesh_scope_note or mesh_note_fallback
 
+    # Curated textual definitions (biobtree v2.14.0): Mondo's own, and the Disease
+    # Ontology's (DO's often names the hallmark symptoms — used only as a fallback
+    # when neither Orphanet, Mondo nor MeSH describe the disease).
+    from atlas.disease.anchors import _mondo_attrs
+    mondo_definition = (_mondo_attrs(a.mondo_entry or {}).get("definition") or "").strip()
+    doid_ids, doid_definition = [], ""
+    if a.mondo_id:
+        try:
+            doid_ids = [r.get("id") for r in map_all(a.mondo_id, ">>mondo>>doid") if r.get("id")]
+        except Exception:
+            doid_ids = []
+    for did in doid_ids[:2]:
+        try:
+            att = (entry(did, "doid").get("Attributes") or {}).get("Ontology") or {}
+        except Exception:
+            continue
+        doid_definition = (att.get("definition") or "").strip()
+        if doid_definition:
+            break
+
+    # Common-disease symptoms (Wikidata P780, CC0; biobtree v2.14.0). Crowd-curated
+    # general knowledge — rendered apart from the curated HPO table and labelled as
+    # such. Reached via Mondo AND via the DO term: many common diseases are only
+    # DO-mapped in Wikidata (type 2 diabetes → polyuria/polydipsia/polyphagia).
+    symptoms, seen_q = [], set()
+    roots = ([(a.mondo_id, ">>mondo>>wikidata_symptom")] if a.mondo_id else []) + \
+            [(d, ">>doid>>wikidata_symptom") for d in doid_ids[:2]]
+    for root, chain in roots:
+        try:
+            hits = map_all(root, chain)
+        except Exception:
+            continue
+        for r in hits:
+            q, nm = r.get("id"), (r.get("name") or "").strip()
+            if q and nm and q not in seen_q:
+                seen_q.add(q)
+                symptoms.append({"qid": q, "name": nm})
+
     bundle = {
         "section": "01_disease_ids",
         "name": a.name,
@@ -198,6 +249,9 @@ def collect(a):
         "orphanet_inheritance": list(oa.get("inheritance") or []),
         "orphanet_onset": list(oa.get("onset") or []),
         "mesh_scope_note": mesh_scope_note,
+        "mondo_definition": mondo_definition,
+        "doid_definition": doid_definition,
+        "wikidata_symptoms": symptoms,
         "is_cancer": a.is_cancer,
         "child_count": child_count,
         "sibling_count": sibling_count,
@@ -223,6 +277,7 @@ SECTION = Section(
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",
+              "mondo_definition", "doid_definition", "wikidata_symptoms",
               "orphanet_definition", "orphanet_inheritance", "orphanet_onset",
               "child_count", "parent", "other_parents", "ancestors", "children", "siblings",
               "xref_counts", "is_cancer"),

@@ -70,12 +70,16 @@ def _biogrid_partners(rows, symbol, uniprot):
     me_sym, me_uni = (symbol or "").upper(), (uniprot or "").upper()
     agg = {}
     for t in rows:
-        try:
-            r = ((entry(t["id"], "biogrid_interaction").get("Attributes") or {})
-                 .get("BiogridInteraction") or {})
-        except Exception:
-            continue
-        if r.get("interactor_a_organism") != _HUMAN or r.get("interactor_b_organism") != _HUMAN:
+        r = t
+        if not t.get("interactor_a_symbol"):
+            # biobtree < v2.14.0 projected only interactor_b_symbol — read the entry.
+            try:
+                r = ((entry(t["id"], "biogrid_interaction").get("Attributes") or {})
+                     .get("BiogridInteraction") or {})
+            except Exception:
+                continue
+        if str(r.get("interactor_a_organism")) != str(_HUMAN) or \
+                str(r.get("interactor_b_organism")) != str(_HUMAN):
             continue
         a_sym, b_sym = (r.get("interactor_a_symbol") or "").strip(), (r.get("interactor_b_symbol") or "").strip()
         a_me = a_sym.upper() == me_sym or (r.get("interactor_a_id") or "").upper() == me_uni
@@ -159,9 +163,9 @@ def collect(a):
     # organisms (biobtree #60). So (1) when THIS gene is interactor B its partner was
     # invisible (v1.11.7 TP53 listed itself 9×), and (2) cross-species records were
     # indistinguishable (v1.11.8 BRCA1's 15 "partners" were all yeast genes from a
-    # BRCA1-in-yeast screen). Workaround: read each fetched record's full entry, keep
-    # human–human interactions, take the side that isn't this gene, and rank partners
-    # by supporting records. ~200 local entry calls per gene (≈0.5 s).
+    # BRCA1-in-yeast screen). biobtree v2.14.0 projects both interactors + organisms;
+    # keep human–human interactions, take the side that isn't this gene, and rank
+    # partners by supporting records (older projections fall back to the entry).
     biogrid = _biogrid_partners(bg, a.symbol, uni)
     bundle["biogrid_sampled"] = len(bg)
     bundle["biogrid"] = biogrid
