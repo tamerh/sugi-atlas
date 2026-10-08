@@ -238,6 +238,9 @@ def r_epidemiology(b):
                 for p in shown])])
 
 
+WIKIDATA_MAX_HPO = 10      # show Wikidata symptoms only when HPO has fewer features
+
+
 def _same_text(a, b):
     """True when two definitions are the same text (one contains the other's
     opening, punctuation/case-insensitive) — avoids printing Mondo's verbatim copy
@@ -300,7 +303,11 @@ def r_symptoms(b):
     presentation of a disease, so it gets a first-class section right after the
     summary rather than being buried under identifiers."""
     phs = b.get("phenotypes") or []
-    wsym = b.get("wikidata_symptoms") or []
+    # Wikidata only where HPO is sparse: it fills the common-disease gap (asthma,
+    # Alzheimer's, Crohn's have 0 HPO features) but on rare diseases with a rich
+    # curated list it adds one thin term next to 40-60 HPO features (Leigh
+    # syndrome → "vomiting"). Sample: 17 of 40 diseases keep it.
+    wsym = (b.get("wikidata_symptoms") or []) if len(phs) < WIKIDATA_MAX_HPO else []
     if not phs and not wsym:
         return ""
     out = ["## Signs & symptoms", ""]

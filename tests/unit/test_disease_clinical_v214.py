@@ -81,3 +81,10 @@ def test_same_text_tolerates_spelling_variants():
     assert DR._same_text(m, o)
     assert not DR._same_text("A progressive neurodegenerative disease of the brain.",
                              "A degenerative disease of the BRAIN characterized by dementia.")
+
+
+def test_wikidata_hidden_when_hpo_is_rich():
+    w = [{"qid": "Q127076", "name": "vomiting"}]
+    rich = [{"hpo_id": f"HP:{i:07d}", "hpo_term": f"t{i}"} for i in range(DR.WIKIDATA_MAX_HPO)]
+    assert "{#wikidata-symptoms}" not in DR.r_symptoms({"phenotypes": rich, "wikidata_symptoms": w})
+    assert "{#wikidata-symptoms}" in DR.r_symptoms({"phenotypes": rich[:9], "wikidata_symptoms": w})
