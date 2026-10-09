@@ -252,6 +252,7 @@ def collect(a):
         "mondo_definition": mondo_definition,
         "doid_definition": doid_definition,
         "wikidata_symptoms": symptoms,
+        "doid_ids": doid_ids[:2],          # → the disease's Wikidata link (via P699)
         "is_cancer": a.is_cancer,
         "child_count": child_count,
         "sibling_count": sibling_count,
@@ -277,7 +278,7 @@ SECTION = Section(
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",
-              "mondo_definition", "doid_definition", "wikidata_symptoms",
+              "mondo_definition", "doid_definition", "wikidata_symptoms", "doid_ids",
               "orphanet_definition", "orphanet_inheritance", "orphanet_onset",
               "child_count", "parent", "other_parents", "ancestors", "children", "siblings",
               "xref_counts", "is_cancer"),

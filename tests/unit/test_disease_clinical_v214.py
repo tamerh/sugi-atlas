@@ -22,10 +22,15 @@ def test_doid_definition_only_as_fallback():
 
 def test_wikidata_symptoms_block_separate_and_labelled():
     w = [{"qid": "Q86", "name": "headache"}, {"qid": "Q186889", "name": "nausea"}]
-    md = DR.r_symptoms({"wikidata_symptoms": w})
+    md = DR.r_symptoms({"wikidata_symptoms": w, "doid_ids": ["DOID:6364"]})
     assert "{#wikidata-symptoms}" in md and "{#hpo-features}" not in md
-    assert "[headache](https://www.wikidata.org/wiki/Q86)" in md
+    assert "| headache |" in md and "| nausea |" in md          # plain text table
+    assert "wikidata.org/wiki/Q86" not in md                    # no per-symptom links
+    assert md.count("wikidata.org") == 1                        # one link: the disease
+    assert "haswbstatement%3AP699%3DDOID%3A6364" in md
     assert "crowd-curated" in md and "2 symptoms and signs" in md
+    md = DR.r_symptoms({"wikidata_symptoms": w, "wikidata_qid": "Q11081"})
+    assert "[Wikidata](https://www.wikidata.org/wiki/Q11081)" in md
     assert "1 symptom or sign listed" in DR.r_symptoms({"wikidata_symptoms": w[:1]})
     md = DR.r_symptoms({"phenotypes": [{"hpo_id": "HP:0002315", "hpo_term": "Headache"}],
                         "wikidata_symptoms": w})

@@ -241,6 +241,20 @@ def r_epidemiology(b):
 WIKIDATA_MAX_HPO = 10      # show Wikidata symptoms only when HPO has fewer features
 
 
+def _wikidata_disease_url(b):
+    """Link to the disease's own Wikidata item: direct by QID when known, else a
+    Wikidata search on its Disease Ontology id (haswbstatement P699), else None."""
+    q = (b.get("wikidata_qid") or "").strip()
+    if q:
+        return f"https://www.wikidata.org/wiki/{q}"
+    for d in b.get("doid_ids") or []:
+        if d:
+            from urllib.parse import quote
+            return ("https://www.wikidata.org/w/index.php?search="
+                    + quote(f"haswbstatement:P699={d}"))
+    return None
+
+
 def _same_text(a, b):
     """True when two definitions are the same text (one contains the other's
     opening, punctuation/case-insensitive) — avoids printing Mondo's verbatim copy
@@ -324,14 +338,20 @@ def r_symptoms(b):
     # Crowd-curated general knowledge, so kept apart from the curated table and
     # labelled; never merged into HPO counts or JSON-LD signOrSymptom.
     if wsym:
-        names = [links.maybe_link(x["name"], f"https://www.wikidata.org/wiki/{x['qid']}")
-                 for x in wsym[:ROW_CAP]]
+        # Plain text, one table — the per-symptom Wikidata items are near-empty
+        # pages, so they aren't linked. One link to the DISEASE's Wikidata item
+        # (where the P780 statements live): direct when biobtree supplies its QID,
+        # else Wikidata's own search on the disease's DOID (P699), which resolves
+        # to that single item.
+        n = len(wsym)
+        url = _wikidata_disease_url(b)
+        src = links.maybe_link("Wikidata", url) if url else "Wikidata"
         out += (["", ""] if phs else []) + [
             "### Common symptoms (Wikidata) {#wikidata-symptoms}", "",
-            (f"{len(wsym)} symptoms and signs" if len(wsym) != 1 else "1 symptom or sign")
-            + " listed on Wikidata (property P780): " + ", ".join(names) + ".", "",
-            "*General-knowledge, crowd-curated data (CC0) — a common-disease symptom "
-            "summary, not clinical-grade curation.*"]
+            (f"{n} symptoms and signs" if n != 1 else "1 symptom or sign")
+            + f" listed for this disease on {src} (property P780) — general-knowledge, "
+            "crowd-curated data (CC0), not clinical-grade curation:", "",
+            table(["Symptom or sign"], [(x["name"],) for x in wsym[:ROW_CAP]])]
     return "\n".join(out)
 
 
