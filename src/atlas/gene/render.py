@@ -875,7 +875,7 @@ def r_pathways(b):
     L.append(capped_table(["ID", "Pathway", "Evidence"],
                           [(p["id"],
                             (p.get("name") or "") + (" ⚕" if p.get("is_disease") else ""),
-                            p.get("evidence")) for p in b.get("reactome", [])],
+                            p.get("evidence") or "—") for p in b.get("reactome", [])],
                           ROW_CAP, total=b.get("reactome_count"), noun="pathways"))
     L.append(f"\n**MSigDB gene sets: {b.get('msigdb_total', 0)}** (showing top):")
     L.append(", ".join(f"`{m['name']}`" for m in b.get("msigdb", [])[:15]))

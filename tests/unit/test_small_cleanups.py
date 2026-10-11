@@ -64,3 +64,17 @@ def test_no_none_for_missing_transcript_or_uniprot():
     assert "`None`" not in md and "{#canonical-exons}" not in md
     md = R.r_protein_ids({"canonical_uniprot": None, "reviewed_uniprot": []})
     assert "`None`" not in md and "No reviewed (Swiss-Prot) UniProt entry" in md
+
+
+def test_reactome_evidence_keeps_strongest_tier():
+    import glob, importlib
+    from atlas.gene.sections import s07_pathways as S7
+    rx = {}
+    S7._merge_reactome(rx, {"id": "R-HSA-1", "name": "p", "evidence": "IEA"})
+    S7._merge_reactome(rx, {"id": "R-HSA-1", "name": "p"})                  # route w/o evidence
+    assert rx["R-HSA-1"]["evidence"] == "electronic"
+    S7._merge_reactome(rx, {"id": "R-HSA-1", "name": "p", "evidence": "TAS"})
+    S7._merge_reactome(rx, {"id": "R-HSA-1", "name": "p", "evidence": "IEA"})
+    assert rx["R-HSA-1"]["evidence"] == "curated"
+    S7._merge_reactome(rx, {"id": "R-HSA-2", "name": "q"})
+    assert rx["R-HSA-2"]["evidence"] == ""

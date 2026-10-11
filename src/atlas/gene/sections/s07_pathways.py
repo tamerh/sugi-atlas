@@ -42,6 +42,7 @@ _NS_ABBR = {"biological_process": "BP", "molecular_function": "MF",
 
 
 _REACTOME_EVIDENCE = {"TAS": "curated", "IEA": "electronic"}
+_EV_RANK = {"curated": 2, "electronic": 1}
 
 
 def _merge_reactome(rx, t):
@@ -50,9 +51,12 @@ def _merge_reactome(rx, t):
     pid = t.get("id")
     if not pid:
         return
-    ev = _REACTOME_EVIDENCE.get((t.get("evidence") or "").strip(), "other")
+    ev = _REACTOME_EVIDENCE.get((t.get("evidence") or "").strip(), "")
     cur = rx.get(pid)
-    best = "curated" if (ev == "curated" or (cur and cur["evidence"] == "curated")) else ev
+    # Keep the strongest tier seen across routes (curated > electronic > unknown).
+    # Previously a later route with no evidence code overwrote an earlier "IEA"
+    # with "other" (~3.6k rows in v1.11.11).
+    best = max(ev, (cur or {}).get("evidence") or "", key=lambda e: _EV_RANK.get(e, 0))
     rx[pid] = {
         "name": t.get("name") or (cur or {}).get("name"),
         "evidence": best,
