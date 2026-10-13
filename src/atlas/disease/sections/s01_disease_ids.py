@@ -56,11 +56,19 @@ def _wikidata_qid(mondo_id):
     Alzheimer's → Q11081. '' when unmapped."""
     if not mondo_id:
         return ""
-    try:
-        rows = map_all(mondo_id, ">>mondo>>wikidata")
-    except Exception:
-        return ""
-    return next((r["id"] for r in rows if re.fullmatch(r"Q\d+", r.get("id") or "")), "")
+    # Direct first, then via the Disease Ontology id: many Wikidata disease items
+    # carry DOID (P699) but not the Mondo id (type 2 diabetes, asthma), so the
+    # direct edge alone covered only ~9% of the sample. Scoped chains throughout
+    # (a bare id can resolve to the wrong namespace — MONDO:0005148 searches to EFO).
+    for chain in (">>mondo>>wikidata", ">>mondo>>doid>>wikidata"):
+        try:
+            rows = map_all(mondo_id, chain)
+        except Exception:
+            continue
+        q = next((r["id"] for r in rows if re.fullmatch(r"Q\d+", r.get("id") or "")), "")
+        if q:
+            return q
+    return ""
 
 
 def collect(a):
