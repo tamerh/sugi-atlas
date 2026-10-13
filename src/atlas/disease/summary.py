@@ -111,12 +111,14 @@ def inheritance_phrase(modes):
     for m in modes:
         lo = m.lower()
         if re.search(r"autosomal|x-linked|y-linked|semidominant|semi-dominant", lo):
-            pattern.append(lo.replace(" inheritance", ""))
+            pattern.append(re.sub(r"\b([xy])-linked", lambda m: m.group(1).upper() + "-linked",
+                                  lo.replace(" inheritance", "")))
         else:
             other.append(lo.replace(" inheritance", ""))
     if pattern:
-        joined = " or ".join(pattern[:3])
-        art = "an" if joined[:1] in "aeiou" else "a"
+        p3 = pattern[:3]
+        joined = " or ".join(p3) if len(p3) < 3 else f"{p3[0]}, {p3[1]}, or {p3[2]}"
+        art = "an" if joined[:1].lower() in "aeiox" else "a"     # "an X-linked"
         return f"inherited in {art} {joined} pattern"
     return "with " + " or ".join(other[:2]) + " inheritance"
 
@@ -145,3 +147,18 @@ def _plain_lower(term):
     """Lower-case an HPO label for running text unless it holds an acronym
     ("Abnormal EEG")."""
     return bool(term) and not re.search(r"\b[A-Z]{2,}\b", term[1:])
+
+
+# Mondo's templated gene-defined subtype definition: "Any autosomal dominant
+# nonsyndromic deafness in which the cause of the disease is a mutation in the
+# DIAPH1 gene." It only restates the causal gene; the useful part is the class.
+_MONDO_TEMPLATE = re.compile(
+    r"^Any (.+?) in which the cause of the disease is (?:a mutation|mutations|a variation) in the \S+ gene",
+    re.I)
+
+
+def templated_class(text):
+    """'autosomal dominant nonsyndromic deafness' from Mondo's templated
+    definition, else ''."""
+    m = _MONDO_TEMPLATE.match((text or "").strip())
+    return m.group(1).strip() if m else ""

@@ -167,12 +167,11 @@ def _indications_clause(b4):
     ChEMBL indication list mixes phase-4 approvals with phase 1–3 trial diseases,
     and "indicated across 9 conditions" on a phase-3 drug (poziotinib) claimed
     approvals that don't exist."""
-    inds = (b4 or {}).get("indications") or []
-    if not inds:
-        return ""
-    appr = [i for i in inds if i.get("approved")]
-    trial = [i for i in inds if not i.get("approved")]
+    from atlas.indication import indication_tiers
+    appr, trial = indication_tiers(b4)        # same rows/counts as the table
     na, nt = len(appr), len(trial)
+    if not na and not nt:
+        return ""
     if na:
         names = _indication_names(appr)
         s = f"; approved for {na} indication" + ("s" if na != 1 else "")

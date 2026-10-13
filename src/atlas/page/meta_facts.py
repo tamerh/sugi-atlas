@@ -55,7 +55,12 @@ def _alt_names(entity_type, b1):
         src = (b1.get("hgnc") or {}).get("aliases")
         title = (b1.get("hgnc") or {}).get("symbol")
     elif entity_type == "disease":
-        src = b1.get("synonyms")
+        # Mondo synonyms + the Orphanet preferred name, which often is the form
+        # people search ("Mobius syndrome" vs Mondo's renamed term).
+        src = list(b1.get("synonyms") or [])
+        on = (b1.get("orphanet_name") or "").strip()
+        if on and on.lower() not in {x.lower() for x in src}:
+            src = [on] + src
         title = b1.get("canonical_name")
     else:
         src = b1.get("alt_names")        # drug brand / INN synonyms

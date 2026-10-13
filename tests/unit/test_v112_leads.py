@@ -41,7 +41,7 @@ def test_intact_render_partner_table():
 # ── drug lead / JSON-LD ─────────────────────────────────────────────────────
 
 def _inds(*rows):
-    return {"indications": [{"name": n, "approved": a} for n, a in rows],
+    return {"indications": [{"name": n, "approved": a, "max_phase": 4 if a else 3} for n, a in rows],
             "indication_count": len(rows)}
 
 
@@ -68,8 +68,8 @@ def test_drug_lead_names_the_mechanism():
 
 def test_drug_jsonld_treats_only_approved():
     from atlas.page.drug_jsonld import _treats
-    b4 = {"indications": [{"name": "asthma", "approved": True},
-                          {"name": "copd", "approved": False}]}
+    b4 = {"indications": [{"name": "asthma", "approved": True, "max_phase": 4},
+                          {"name": "copd", "approved": False, "max_phase": 3}]}
     assert [t["name"] for t in _treats(b4)] == ["asthma"]
 
 
@@ -151,6 +151,7 @@ def test_summary_helpers():
     from atlas.disease import summary as S
     assert S.inheritance_phrase(["Autosomal dominant", "Autosomal recessive"]) == \
         "inherited in an autosomal dominant or autosomal recessive pattern"
+    assert S.inheritance_phrase(["X-linked recessive"]) == "inherited in an X-linked recessive pattern"
     assert S.inheritance_phrase(["Mitochondrial inheritance"]) == "with mitochondrial inheritance"
     assert S._uncap_mesh("A degenerative disease of the BRAIN marked by DEMENTIA in HIV and AIDS.") == \
         "A degenerative disease of the brain marked by dementia in HIV and AIDS."
@@ -228,3 +229,30 @@ def test_umbrella_lead_names_subtype_genes():
     b["4"]["subtype_gene_total"] = 150
     s = declarative_sentence(b)
     assert "whose subtypes are caused by variants in PRPH2, BEST1, RHO, and 147 other genes" in s
+
+
+def test_redirects_from_slug_history():
+    from atlas.redirects import compute
+    hist = {"disease": {"old-name": "MONDO:1", "same": "MONDO:2", "gone": "MONDO:3"},
+            "gene": {"C1orf159": "HGNC:26062"}}
+    built = [("disease", "new-name", "MONDO:1"), ("disease", "same", "MONDO:2"),
+             ("gene", "C1orf159", "HGNC:26062")]
+    rd, upd = compute(hist, built)
+    assert rd == {"disease": {"old-name": "new-name"}}
+    assert upd["disease"]["new-name"] == "MONDO:1" and upd["disease"]["old-name"] == "MONDO:1"
+    # an old slug re-used by a live page is not redirected
+    rd2, _ = compute({"disease": {"x": "MONDO:9"}}, [("disease", "x", "MONDO:8"), ("disease", "y", "MONDO:9")])
+    assert rd2 == {}
+
+
+def test_mondo_templated_definition_becomes_class():
+    from atlas.page.disease_declarative import declarative_sentence
+    b = _bundle("Focal segmental glomerulosclerosis 5",
+                gencc=[("INF2", "Strong", ["Autosomal dominant"])],
+                mondo_definition="Any focal segmental glomerulosclerosis in which the cause of the "
+                                 "disease is a mutation in the INF2 gene.")
+    s = declarative_sentence(b)
+    assert s.startswith("**Focal segmental glomerulosclerosis 5** (MONDO:0000001) is a form of focal "
+                        "segmental glomerulosclerosis caused by INF2 (GenCC Strong), inherited in an "
+                        "autosomal dominant pattern.")
+    assert "in which the cause" not in s

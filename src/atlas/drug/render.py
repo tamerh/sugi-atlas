@@ -238,33 +238,15 @@ def r_bioactivity(b):
 
 
 def r_indications(b):
-    inds = b.get("indications") or []
-    # Keep only rows with a real disease name (drop raw EFO/MeSH/MP ids), then
-    # dedup by (name, MONDO) — the source repeats the same disease across xrefs.
-    named, seen = [], set()
-    for i in inds:
-        nm = (i.get("name") or "").strip()
-        if not nm or is_ontology_id(nm):
-            continue
-        key = (nm.lower(), i.get("mondo_id") or "")
-        if key in seen:
-            continue
-        seen.add(key)
-        named.append(i)
-    # Tier on the per-indication `approved` flag (computed in s04 via
-    # atlas.indication): phase 4, or an anticancer drug at phase 3 vs a cancer
-    # (imatinib→CML). Heavily-trialed drugs (aspirin's phase-2/3 cancers) stay
-    # investigational — they must NOT read as approved.
-    # Investigational tier floors at phase 2 to match the disease-side indication
-    # index (batch._build_indication_index drops phase ≤1 as exploratory noise —
-    # 90% fail). Keeping the same floor on both sides means a drug↔disease trial
-    # link shown here also appears on that disease's page, and vice-versa.
-    approved, trials = [], []
-    for i in named:
-        if i.get("approved"):
-            approved.append(i)
-        elif 2 <= (i.get("max_phase") or 0) <= 3:
-            trials.append(i)
+    # Named, deduped, tiered rows — shared with the lead / FAQ / JSON-LD
+    # (atlas.indication.indication_tiers): approved = phase 4, or an anticancer
+    # drug at phase 3 vs a cancer (imatinib→CML); trials = phase 2–3 (the
+    # disease-side indication index's floor, so a drug↔disease trial link shown
+    # here also appears on that disease's page). Heavily-trialed drugs (aspirin's
+    # phase-2/3 cancers) stay investigational — they must NOT read as approved.
+    from atlas.indication import indication_tiers, named_indications
+    approved, trials = indication_tiers(b)
+    named = named_indications(b)
 
     def _efo(i):
         # The efo_id field often just repeats the MONDO id (no real EFO xref) —

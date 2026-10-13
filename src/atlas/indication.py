@@ -93,3 +93,32 @@ def approved_indication(atc_codes, phase, disease_name, molecule_approved):
             and is_cancer_disease(disease_name)):
         return True
     return False
+
+
+def named_indications(b4):
+    """Indications with a real disease name (raw EFO/MeSH/MP ids dropped), deduped
+    by (name, MONDO) — the source repeats a disease across xrefs."""
+    from atlas.render_common import is_ontology_id
+    named, seen = [], set()
+    for i in (b4 or {}).get("indications") or []:
+        nm = (i.get("name") or "").strip()
+        if not nm or is_ontology_id(nm):
+            continue
+        key = (nm.lower(), i.get("mondo_id") or "")
+        if key in seen:
+            continue
+        seen.add(key)
+        named.append(i)
+    return named
+
+
+def indication_tiers(b4):
+    """(approved, trials) — the drug's named indications deduped by (name, MONDO)
+    and tiered on the per-indication `approved` flag; trials are phase 2–3 (the
+    disease-side index's floor). The single source for the indications table,
+    the lead's counts, the FAQ and JSON-LD `treats`, so they can't disagree
+    (v1.12 QA: 88 leads counted raw rows — acetaminophen "12" vs a table of 5)."""
+    named = named_indications(b4)
+    approved = [i for i in named if i.get("approved")]
+    trials = [i for i in named if not i.get("approved") and 2 <= (i.get("max_phase") or 0) <= 3]
+    return approved, trials

@@ -61,7 +61,7 @@ def _uniprot_symbol(uni):
 
 
 _HUMAN = 9606
-_INTACT_CAP = 3             # own-gene rows are a minority on some genes (see _intact_partners)
+_INTACT_CAP = 10            # pages (~125 records each); own-gene rows can be a minority (see _intact_partners)
 _BIOGRID_CAP = 5            # map pages → up to ~600 interaction records
 _BIOGRID_PARTNERS = 30
 

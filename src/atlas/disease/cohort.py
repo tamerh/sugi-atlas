@@ -54,6 +54,11 @@ def is_chromosomal_anomaly(name):
     return bool(_CHROMOSOMAL.search(name or ""))
 
 
+# Antisense / divergent / intronic transcripts overlapping a coding gene pick up
+# its ClinVar records ("CFTR-related disorder … CFTR, CFTR-AS1, and CFTR-AS2").
+_NONCODING_NEIGHBOR = re.compile(r"-(AS|DT|IT|OT)\d*$")
+
+
 def _clinvar_tier_applies(bundle):
     """The ClinVar-only causal tier is for gene-defined rare diseases. Not for a
     chromosomal syndrome (region CNVs), a common/complex trait (≥20 GWAS
@@ -119,7 +124,8 @@ def causal_genes(bundle):
         b5 = bundle.get("5") or {}
         clinvar_genes = sorted(
             g.get("symbol") for g in (b5.get("genes") or [])
-            if g.get("symbol") and (g.get("evidence") or {}).get("clinvar"))
+            if g.get("symbol") and (g.get("evidence") or {}).get("clinvar")
+            and not _NONCODING_NEIGHBOR.search(g["symbol"]))
         if 0 < len(clinvar_genes) <= 5:
             out = [(s, "ClinVar-linked") for s in clinvar_genes]
     return out

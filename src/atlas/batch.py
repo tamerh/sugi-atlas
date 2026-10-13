@@ -457,6 +457,18 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None, pathwa
     ind = _build_indication_index(ok, dist_dir, cache_dir)
     print(f"[B] indication index: {len(ind)} diseases with ≥1 indicated drug")
     _write_evidence(ok, dist_dir)
+    # Slug history → atlas/redirects.json (renamed pages: old URL → new URL).
+    from atlas import redirects as RD
+    _pref = {"gene": "HGNC:", "disease": "MONDO:", "drug": "CHEMBL"}
+    built = []
+    for r in ok:
+        pre = _pref.get(r["entity"])
+        ident = next((k for k in r.get("id_keys") or [] if pre and k.startswith(pre)), None)
+        if ident:
+            built.append((r["entity"], r["slug"], ident))
+    rd = RD.write(dist_dir, built)
+    print(f"[B] redirects: " + ", ".join(f"{et} {len(m)}" for et, m in rd.items()) if rd
+          else "[B] redirects: none")
 
     gen_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     specs_c = [(r["entity"], r["slug"], dist_dir, cache_dir, gen_at) for r in ok]

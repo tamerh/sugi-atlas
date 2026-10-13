@@ -304,9 +304,13 @@ def declarative_sentence(bundle):
     inh = S.inheritance_phrase(inheritance_modes(bundle)[0])
     defn, src = S.definition(b1)
     pred = S.definition_predicate(defn, name)
+    form_of = S.templated_class(defn)        # "Any <class> in which … the X gene"
+    if form_of:
+        defn = pred = ""                     # restates the causal gene: use the class
 
     if causal or inh:
-        sentence = f"{head} is a {klass}{umbrella}{causal}"
+        what = f"a form of {form_of}" if form_of else f"a {klass}"
+        sentence = f"{head} is {what}{umbrella}{causal}"
         if inh:
             sentence += ("," if causal else "") + f" {inh}"
         sentence += "."
@@ -317,7 +321,8 @@ def declarative_sentence(bundle):
         if umbrella:
             sentence += f" It is an umbrella term covering {n_sub} Mondo subtypes."
     else:
-        sentence = f"{head} is a {klass}{umbrella}."
+        sentence = (f"{head} is a form of {form_of}{umbrella}." if form_of
+                    else f"{head} is a {klass}{umbrella}.")
         if defn:
             sentence += " " + _with_source(defn, src)
     sentence += _features_clause(b1)

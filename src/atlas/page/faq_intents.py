@@ -106,9 +106,8 @@ def _drug(bundle, title):
             parts.append(f"Target organism: {_join(orgs[:3])}.")
         qas.append((f"What is the mechanism of action of {title}?", " ".join(parts)))
 
-    inds = b4.get("indications") or []
-    appr = [i for i in inds if i.get("approved")]
-    trial = [i for i in inds if not i.get("approved")]
+    from atlas.indication import indication_tiers
+    appr, trial = indication_tiers(b4)
     if appr:
         names = _indication_names(appr, k=8)
         qas.append((f"What is {title} approved for?",
