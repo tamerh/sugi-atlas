@@ -87,7 +87,7 @@ H4_IDS = {
              "string", "intact", "signor", "corum", "cellphonedb", "interactome-enrichment",
              "collectri", "jaspar", "mirdb",
              # §expression / §disease-assoc / §ncrna
-             "fantom5-promoters", "tissue-expression", "scxa", "hpa-expression",
+             "fantom5-promoters", "tissue-expression", "gtex-egene", "regional-constraint", "scxa", "hpa-expression",
              "cross-species-homologs", "mouse-phenotypes", "ncrna-go",
              "gencc", "clingen", "hpo", "gwas-assoc", "efo", "mesh", "panelapp",
              # §drug-data

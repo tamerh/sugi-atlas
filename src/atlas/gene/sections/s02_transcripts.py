@@ -31,7 +31,13 @@ def collect(a):
         return bundle
 
     tr = map_all(a.ensembl_id, ">>ensembl>>transcript")
-    bundle["ensembl_transcripts"] = [{"id": t["id"], "biotype": t.get("biotype")} for t in tr]
+    # biotype + (biobtree v2.16 lite projection) MANE Select / MANE Plus Clinical
+    # flags and the transcript support level (TSL 1 = all splice junctions
+    # supported by an mRNA; 5 = none).
+    bundle["ensembl_transcripts"] = [{"id": t["id"], "biotype": t.get("biotype"),
+                                      "mane_select": t.get("mane_select") == "true",
+                                      "mane_plus_clinical": t.get("mane_plus_clinical") == "true",
+                                      "tsl": t.get("tsl") or ""} for t in tr]
     bundle["ensembl_transcript_count"] = len(tr)
 
     rs = map_all(a.ensembl_id, '>>ensembl>>refseq[type=="mRNA"]')

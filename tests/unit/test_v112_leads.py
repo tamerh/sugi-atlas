@@ -271,3 +271,49 @@ def test_drug_indications_render_matches_lead_counts():
     assert "**1 approved indication.**" in md and "**1 disease in clinical trials**" in md
     assert _indications_clause(b4) == ("; approved for 1 indication (diabetes mellitus), "
                                        "and in clinical trials for 1 other condition")
+
+
+# ── biobtree v2.16 data ─────────────────────────────────────────────────────
+
+def test_rmc_render_and_glance():
+    from atlas.gene.render import r_functional_genomics, rmc_summary
+    from atlas.page.at_a_glance import at_a_glance
+    rmc = {"transcript": "ENST1", "regions": [
+        {"chrom": "2", "start": 100, "end": 199, "obs": 37, "exp": 154.9, "oe": 0.24, "p": 2.7e-21, "constrained": True},
+        {"chrom": "2", "start": 200, "end": 299, "obs": 141, "exp": 185.4, "oe": 0.76, "p": None, "constrained": False}]}
+    assert rmc_summary(rmc)[:2] == (2, 1)
+    md = r_functional_genomics({"gnomad_rmc": rmc})
+    assert "{#regional-constraint}" in md and "| 2:100–199 | 37 / 154.9 | 0.24 | yes (p 2.7e-21) |" in md
+    g = at_a_glance({"3": {"gnomad_rmc": rmc}})
+    assert "**Regional missense constraint (gnomAD):** 1 of 2 regions constrained (≈46% of expected missense variation)" in g
+    one = {"transcript": "ENST2", "regions": [{"chrom": "17", "start": 1, "end": 9, "oe": 0.885, "constrained": False}]}
+    assert "no regional variation along `ENST2` — one region, missense o/e 0.89." in r_functional_genomics({"gnomad_rmc": one})
+
+
+def test_gtex_egene_render_and_glance():
+    from atlas.gene.render import r_expression
+    from atlas.page.at_a_glance import at_a_glance
+    g = {"tested": 95, "egenes": [
+        {"tissue": "Skin Sun Exposed Lower leg", "type": "sqtl", "q": 6.1e-7, "slope": "0.581", "lead_variant": "17:7673183:G:A"},
+        {"tissue": "Lung", "type": "eqtl", "q": 0.004, "slope": "-1.17", "lead_variant": "17:1:A:C"}]}
+    md = r_expression({"symbol": "TP53", "gtex_egene": g})
+    assert "(eQTL) in **1** tissue and its splicing (sQTL) in **1**" in md
+    assert "| Skin Sun Exposed Lower leg | sqtl | 6.1e-07 | +0.58 | 17:7673183:G:A |" in md
+    assert "**GTEx eGene:** eQTL in 1 tissue, sQTL in 1 (q < 0.05)" in at_a_glance({"11": {"gtex_egene": g}})
+
+
+def test_transcripts_mane_tsl():
+    from atlas.gene.render import r_transcripts
+    md = r_transcripts({"ensembl_transcript_count": 3, "ensembl_transcripts": [
+        {"id": "ENST2", "biotype": "protein_coding", "tsl": "2"},
+        {"id": "ENST1", "biotype": "protein_coding", "mane_select": True, "tsl": "1"},
+        {"id": "ENST3", "biotype": "protein_coding", "mane_plus_clinical": True, "tsl": "NA"}]})
+    assert "**MANE Select:** `ENST1` · **MANE Plus Clinical:** `ENST3`" in md
+    assert "TSL 1: 1, TSL 2: 1" in md
+    assert "`ENST1`, `ENST3`, `ENST2`" in md
+
+
+def test_disease_jsonld_wikidata_sameas():
+    from atlas.page.disease_jsonld import same_as_urls
+    assert "https://www.wikidata.org/wiki/Q11081" in same_as_urls(
+        {"1": {"mondo_id": "MONDO:0004975", "wikidata_qid": "Q11081"}})

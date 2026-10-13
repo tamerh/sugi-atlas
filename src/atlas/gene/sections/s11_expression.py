@@ -1,6 +1,6 @@
 """§11 — expression: Bgee gene-level + bgee_evidence per-tissue scores,
 FANTOM5 CAGE (gene + alternative promoters), single-cell datasets (scxa)."""
-from atlas.biobtree import map_all
+from atlas.biobtree import map_all, entry
 from atlas.gene.sections.base import Section
 
 CHAINS = (
@@ -20,10 +20,37 @@ def _int(x):
     try: return int(x)
     except (TypeError, ValueError): return 0
 
+def _gtex_egene(ens):
+    """GTEx v10 eGene calls (biobtree v2.16 `gtex_egene`): tissues where this
+    gene's expression (eQTL) or splicing (sQTL) is significantly associated with
+    a nearby variant (q < 0.05). The entry carries every tested tissue; keep the
+    significant ones, strongest first."""
+    if not ens:
+        return {}
+    try:
+        e = (entry(ens, "gtex_egene").get("Attributes") or {}).get("GtexEgene") or {}
+    except Exception:
+        return {}
+    rows = e.get("tissues") or []
+    sig = []
+    for t in rows:
+        try:
+            q = float(t.get("qval"))
+        except (TypeError, ValueError):
+            continue
+        if t.get("is_egene") is True or str(t.get("is_egene")).lower() == "true" or q < 0.05:
+            sig.append({"tissue": (t.get("tissue") or "").replace("_", " "),
+                        "type": (t.get("qtl_type") or "").lower(), "q": q,
+                        "slope": t.get("slope"), "lead_variant": t.get("lead_variant")})
+    sig.sort(key=lambda t: (t["q"], t["tissue"]))
+    return {"tested": len(rows), "egenes": sig}
+
+
 def collect(a):
     bundle = {"section": "11_expression", "symbol": a.symbol}
     ens = a.ensembl_id
 
+    bundle["gtex_egene"] = _gtex_egene(ens)
     bgee = map_all(ens, ">>ensembl>>bgee") if ens else []
     if bgee:
         b = bgee[0]
@@ -84,6 +111,6 @@ SECTION = Section(
     id="11", name="expression",
     description="Bgee per-tissue expression + FANTOM5 CAGE (gene + alt promoters) + single-cell datasets",
     needs=("ensembl_id",),
-    produces=("bgee", "top_tissues", "fantom5", "fantom5_promoters", "single_cell"),
+    produces=("bgee", "top_tissues", "fantom5", "fantom5_promoters", "single_cell", "gtex_egene"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

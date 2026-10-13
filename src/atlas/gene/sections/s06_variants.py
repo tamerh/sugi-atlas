@@ -78,6 +78,13 @@ CHAINS = (
 )
 DATASETS = ("clinvar", "spliceai", "alphamissense", "transcript", "hgnc", "clingen_variant")
 
+def _int(x):
+    try:
+        return int(x)
+    except (TypeError, ValueError):
+        return 0
+
+
 def collect(a):
     bundle = {"section": "06_variants", "symbol": a.symbol, "hgnc_id": a.hgnc_id}
     xc = xref_counts(a.hgnc_entry)
@@ -108,13 +115,17 @@ def collect(a):
         if cls in ("Pathogenic", "Likely pathogenic"):
             plp += [{"id": t["id"], "hgvs": t.get("name"),
                      "classification": t.get("germline_classification"),
-                     "review_status": t.get("review_status")} for t in rs]
+                     "review_status": t.get("review_status"),
+                     "submitters": _int(t.get("number_submitters"))} for t in rs]
     bundle["clinvar_breakdown"] = breakdown
     # Best-reviewed first (ClinVar stars), Pathogenic before Likely pathogenic,
     # then earliest ClinVar id (established hallmark variants before recent ones). Capped — the full set is Sugi Variant's.
+    # Within a star tier, more submitting labs first (biobtree v2.16 projects
+    # number_submitters) — independent reports are the stronger consensus.
     plp.sort(key=lambda v: (-clinvar_stars(v["review_status"]),
                             _is_region_cnv(v["hgvs"]),
-                            v["classification"] != "Pathogenic", clinvar_id_num(v["id"])))
+                            v["classification"] != "Pathogenic", -(v.get("submitters") or 0),
+                            clinvar_id_num(v["id"])))
     bundle["top_pathogenic_total"] = len(plp)
     bundle["top_pathogenic"] = plp[:TOP_PATHOGENIC_CAP]
 

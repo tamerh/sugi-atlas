@@ -51,6 +51,18 @@ DATASETS = ("mondo", "efo", "mesh", "mim", "orphanet",
             "icd10cm", "icd11", "gard", "meddra", "nord", "uberon", "mondochild", "hpo",
             "wikidata_symptom")
 
+def _wikidata_qid(mondo_id):
+    """The disease's own Wikidata item (biobtree v2.16: mondo >> wikidata) —
+    Alzheimer's → Q11081. '' when unmapped."""
+    if not mondo_id:
+        return ""
+    try:
+        rows = map_all(mondo_id, ">>mondo>>wikidata")
+    except Exception:
+        return ""
+    return next((r["id"] for r in rows if re.fullmatch(r"Q\d+", r.get("id") or "")), "")
+
+
 def collect(a):
     # HPO clinical features. Orphanet's curated list (with frequency bands) is the
     # primary source, but many diseases — especially Mendelian/rare ones with an
@@ -252,6 +264,7 @@ def collect(a):
         "mondo_definition": mondo_definition,
         "doid_definition": doid_definition,
         "wikidata_symptoms": symptoms,
+        "wikidata_qid": _wikidata_qid(a.mondo_id),
         "doid_ids": doid_ids[:2],          # → the disease's Wikidata link (via P699)
         "is_cancer": a.is_cancer,
         "child_count": child_count,
@@ -279,6 +292,7 @@ SECTION = Section(
               "orphanet_name", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",
               "mondo_definition", "doid_definition", "wikidata_symptoms", "doid_ids",
+              "wikidata_qid",
               "orphanet_definition", "orphanet_inheritance", "orphanet_onset",
               "child_count", "parent", "other_parents", "ancestors", "children", "siblings",
               "xref_counts", "is_cancer"),

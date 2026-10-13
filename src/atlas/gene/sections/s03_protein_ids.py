@@ -6,7 +6,7 @@ CC ('comments') is the curated free-text description set: function,
 subunit, subcellular_location, tissue_specificity, disease, ptm, etc.
 Closes the audit's #1 content gap. Per-canonical-uniprot, single entry call."""
 from collections import Counter
-from atlas.biobtree import map_all
+from atlas.biobtree import map_all, entry
 from atlas.gene.sections.base import Section
 from atlas.page.uniprot_cc import fetch_cc, strip_evidence_codes
 
@@ -30,6 +30,50 @@ CHAINS = (
 DATASETS = ("uniprot", "ensembl", "refseq", "interpro", "pfam", "antibody",
             "ufeature", "brenda", "rhea", "entrez", "clingen_dosage", "depmap",
             "depmap_dependency", "gnomad_constraint", "generif")
+
+def _f(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def _regional_constraint(a):
+    """gnomAD regional missense constraint (RMC) on the gene's transcript —
+    biobtree v2.16 `transcript >> gnomad_rmc`. A gene whose missense constraint
+    varies along the protein is split into regions with their own observed /
+    expected missense counts; `constrained` regions are significantly depleted
+    (a strong pathogenicity prior). One region = no regional variation. The map
+    row carries only start/oe/flag, so each region's entry supplies the bounds,
+    counts and p-value (≤ a few dozen per gene)."""
+    if not a.ensembl_id:
+        return {}
+    try:
+        rows = map_all(a.ensembl_id, ">>ensembl>>transcript>>gnomad_rmc")
+    except Exception:
+        return {}
+    if not rows:
+        return {}
+    by_tx = {}
+    for r in rows:
+        by_tx.setdefault(r.get("transcript"), []).append(r)
+    ct = getattr(a, "canonical_transcript", None)
+    tx = ct if ct in by_tx else max(by_tx, key=lambda k: len(by_tx[k]))
+    regions = []
+    for r in by_tx[tx]:
+        try:
+            e = (entry(r["id"], "gnomad_rmc").get("Attributes") or {}).get("GnomadRmc") or {}
+        except Exception:
+            e = {}
+        regions.append({"chrom": (e.get("chromosome") or "").replace("chr", ""),
+                        "start": e.get("start") or int(r["id"].rsplit(":", 1)[-1]),
+                        "end": e.get("end"), "obs": _f(e.get("obs")), "exp": _f(e.get("exp")),
+                        "oe": _f(e.get("oe") or r.get("oe")),
+                        "p": _f(e.get("oe_chisq_p")),
+                        "constrained": str(e.get("constrained", r.get("constrained"))).lower() == "true"})
+    regions.sort(key=lambda g: int(g["start"] or 0))
+    return {"transcript": tx, "regions": regions}
+
 
 def collect(a):
     bundle = {
@@ -185,6 +229,7 @@ def collect(a):
     # headline trio directly.
     gc = map_all(a.hgnc_id, ">>hgnc>>gnomad_constraint", cap=1)
     bundle["gnomad_constraint"] = gc[0] if gc else {}
+    bundle["gnomad_rmc"] = _regional_constraint(a)
 
     # GeneRIFs — NCBI per-gene PMID-anchored claims. ~hundreds per popular gene;
     # cap at top-40 (insertion order from biobtree ~ chronological). Each entry
@@ -218,7 +263,7 @@ SECTION = Section(
               "brenda_ec", "brenda_kinetics", "brenda_kinetics_total", "rhea_reactions",
               "cc", "isoforms", "protein_name",
               "alternative_names", "ncbi_summary", "entrez_id",
-              "clingen_dosage", "depmap", "depmap_lines", "gnomad_constraint",
+              "clingen_dosage", "depmap", "depmap_lines", "gnomad_constraint", "gnomad_rmc",
               "generifs"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
     # refseq_protein follows the same REVIEWED-only fluctuation as

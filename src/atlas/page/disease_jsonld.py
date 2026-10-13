@@ -80,6 +80,9 @@ def same_as_urls(bundle: dict) -> list:
             continue
         for ident in (obo.get(ds) or []):
             out.append(builder(ident))
+    # Wikidata — the entity hub knowledge graphs and AI assistants key on.
+    if b1.get("wikidata_qid"):
+        out.append(f"https://www.wikidata.org/wiki/{b1['wikidata_qid']}")
     return out
 
 

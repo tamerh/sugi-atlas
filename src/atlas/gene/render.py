@@ -115,8 +115,25 @@ def r_transcripts(b):
     breakdown = ", ".join(f"{c} {bt}" for bt, c in sorted(bc.items(), key=lambda kv: -kv[1]))
     L.append(f"**Ensembl transcripts: {b.get('ensembl_transcript_count', 0)}**"
              + (f" — {breakdown}" if breakdown else ""))
+    # MANE Select / Plus Clinical — the clinical reporting transcripts — named
+    # first; TSL breakdown (1 = best-supported).
+    ms = [t["id"] for t in ts if t.get("mane_select")]
+    mp = [t["id"] for t in ts if t.get("mane_plus_clinical")]
+    if ms or mp:
+        L.append("\n" + " · ".join(
+            ([f"**MANE Select:** `{ms[0]}`"] if ms else [])
+            + ([f"**MANE Plus Clinical:** " + ", ".join(f"`{x}`" for x in mp)] if mp else [])))
+    tsl = {}
+    for t in ts:
+        v = str(t.get("tsl") or "").strip()
+        if v and v.upper() not in ("NA", "NONE"):
+            tsl[v] = tsl.get(v, 0) + 1
+    if tsl:
+        L.append("\n**Transcript support level (Ensembl TSL; 1 = fully mRNA-supported):** "
+                 + ", ".join(f"TSL {k}: {v}" for k, v in sorted(tsl.items())))
     if ts:
-        L.append("\n" + ", ".join(f"`{t['id']}`" for t in ts))
+        order = sorted(ts, key=lambda t: (not t.get("mane_select"), not t.get("mane_plus_clinical")))
+        L.append("\n" + ", ".join(f"`{t['id']}`" for t in order))
     n = b.get("refseq_mrna_count", 0)
     mane = b.get("mane_select_refseq")
     mane = mane if mane and str(mane) not in ("None", "nan") else None   # v1.11.7: "`None`"
@@ -281,6 +298,44 @@ def r_protein_ids(b):
     return "\n".join(L)
 
 
+def rmc_summary(rmc):
+    """(n_regions, n_constrained, share of expected missense variation in
+    constrained regions) for gnomAD RMC; None when there is no RMC data."""
+    regs = (rmc or {}).get("regions") or []
+    if not regs:
+        return None
+    cons = [r for r in regs if r.get("constrained")]
+    tot = sum(r.get("exp") or 0 for r in regs)
+    share = (sum(r.get("exp") or 0 for r in cons) / tot) if tot else None
+    return len(regs), len(cons), share
+
+
+def _regional_constraint(rmc):
+    regs = rmc.get("regions") or []
+    n, k, share = rmc_summary(rmc)
+    tx = rmc.get("transcript")
+    if n == 1:
+        oe = regs[0].get("oe")
+        return ("\n**Regional missense constraint (gnomAD RMC):** no regional variation "
+                f"along `{tx}` — one region" + (f", missense o/e {oe:.2f}" if oe is not None else "")
+                + ".")
+    head = (f"\n### Regional missense constraint (gnomAD) {{#regional-constraint}}\n\n"
+            f"`{tx}` splits into {n} regions with different missense tolerance; "
+            f"**{k} {'is' if k == 1 else 'are'} missense-constrained**"
+            + (f" (≈{share:.0%} of the expected missense variation)" if share and k else "")
+            + ". Missense variants in a constrained region (low observed/expected) are "
+              "more likely to be pathogenic. [gnomAD](https://gnomad.broadinstitute.org/)\n")
+    rows = []
+    for r in regs:
+        loc = f"{r.get('chrom')}:{r.get('start'):,}–{r['end']:,}" if r.get("end") else f"{r.get('chrom')}:{r.get('start')}"
+        oe = r.get("oe")
+        rows.append((loc,
+                     f"{r['obs']:.0f} / {r['exp']:.1f}" if r.get("obs") is not None and r.get("exp") else "—",
+                     f"{oe:.2f}" if oe is not None else "—",
+                     ("yes" + (f" (p {r['p']:.1e})" if r.get("p") is not None else "")) if r.get("constrained") else "no"))
+    return head + "\n" + table(["Region (GRCh38)", "Missense obs / exp", "o/e", "Constrained"], rows)
+
+
 def r_functional_genomics(b):
     """ClinGen dosage sensitivity + DepMap CRISPR fitness — gene-level signals
     for variant interpretation (dosage) and drug-target prioritization (depmap).
@@ -303,7 +358,8 @@ def r_functional_genomics(b):
                   or dm.get("common_essential") == "true")
     gc = b.get("gnomad_constraint") or {}
     has_gc = gc.get("pli") not in (None, "") or gc.get("loeuf") not in (None, "")
-    if not cd and not dm_notable and not has_gc:
+    rmc = (b.get("gnomad_rmc") or {}).get("regions") or []
+    if not cd and not dm_notable and not has_gc and not rmc:
         return ""
     L = ["## Functional genomics", ""]
     if has_gc:
@@ -320,6 +376,8 @@ def r_functional_genomics(b):
                      "loss-of-function intolerance (pLI ≥ 0.9 = LoF-intolerant; lower "
                      "LOEUF = more constrained). "
                      "[gnomAD](https://gnomad.broadinstitute.org/)")
+    if rmc:
+        L.append(_regional_constraint(b.get("gnomad_rmc")))
     if cd:
         haplo = cd.get("haplo_score", "")
         triplo = cd.get("triplo_score", "")
@@ -684,7 +742,8 @@ def r_variants(b, summary=""):
         L.append(("Showing " + (f"the {len(tp)} best-reviewed of {tp_total:,}" if tp_total > len(tp)
                                 else f"all {tp_total:,}")
                   + " pathogenic / likely-pathogenic ClinVar records, ranked by ClinVar "
-                  "review status (expert panel → multiple submitters → single submitter).\n"))
+                  "review status (expert panel → multiple submitters → single submitter), "
+                  "then by number of submitting labs.\n"))
     # Deep-link each variant's HGVS to its Sugi Variant page (shared sugislug
     # contract → resolves). These rows are all pathogenic/likely-pathogenic, i.e.
     # in Sugi Variant's corpus; variant_page_url returns None only if unparseable.
@@ -693,8 +752,10 @@ def r_variants(b, summary=""):
     def _tp_hgvs(v):
         u = variant_page_url(v.get("hgvs"))       # gene comes from the HGVS transcript
         return links.maybe_link(v.get("hgvs"), u) if u else v.get("hgvs")
-    L.append(table(["Variant ID", "HGVS", "Classification", "Review"],
+    sub = any(v.get("submitters") for v in tp)
+    L.append(table(["Variant ID", "HGVS", "Classification", "Review"] + (["Submitters"] if sub else []),
                    [(v["id"], _tp_hgvs(v), v.get("classification"), v.get("review_status"))
+                    + ((v.get("submitters") or "",) if sub else ())
                     for v in tp]))
     # Sugi Variant cross-link — the sibling per-variant reference (sugi.bio/variant),
     # directly under the ClinVar sample it extends (it used to sit at the end of
@@ -1444,6 +1505,43 @@ def r_drugs(b):
     return "\n".join(L)
 
 
+def _slope(x):
+    try:
+        return f"{float(x):+.2f}"
+    except (TypeError, ValueError):
+        return ""
+
+
+def gtex_counts(g):
+    """(eQTL tissues, sQTL tissues) for the GTEx eGene calls."""
+    eg = (g or {}).get("egenes") or []
+    return (len({t["tissue"] for t in eg if t.get("type") == "eqtl"}),
+            len({t["tissue"] for t in eg if t.get("type") == "sqtl"}))
+
+
+def _gtex_egene(b):
+    g = b.get("gtex_egene") or {}
+    eg = g.get("egenes") or []
+    if not g.get("tested"):
+        return ""
+    sym = b.get("symbol") or "This gene"
+    ne, ns = gtex_counts(g)
+    out = ["\n### Genetic regulation across tissues (GTEx eQTL / sQTL) {#gtex-egene}\n"]
+    if not eg:
+        out.append(f"{sym} is not an eGene in any GTEx v10 tissue: no tissue shows a variant "
+                   "significantly associated with its expression or splicing (q < 0.05).")
+        return "\n".join(out)
+    out.append(f"{sym} is an **eGene** in GTEx v10 — its expression is genetically regulated "
+               f"(eQTL) in **{ne}** tissue{'s' if ne != 1 else ''} and its splicing (sQTL) in "
+               f"**{ns}** (q < 0.05). Strongest associations first; slope = normalized effect of the "
+               "lead variant's alternative allele.\n")
+    out.append(capped_table(["Tissue", "QTL", "q-value", "Slope", "Lead variant"],
+                            [(t["tissue"], t["type"], f"{t['q']:.1e}", _slope(t.get("slope")),
+                              t.get("lead_variant") or "") for t in eg],
+                            20, noun="significant tissue × QTL associations"))
+    return "\n".join(out)
+
+
 def top_tissue_names(rows, k=5):
     """The k highest-scoring distinct tissues — the one-line "where is it
     expressed" answer above the 100-row Bgee table. Laterality and duplicate
@@ -1479,6 +1577,7 @@ def r_expression(b):
     top = top_tissue_names(b.get("top_tissues") or [])
     if top:
         L.append(f"\n**Highest expression (Bgee):** {', '.join(top)}.")
+    L.append(_gtex_egene(b))
     fp = b.get("fantom5_promoters") or []
     if fp:
         L.append("\n### FANTOM5 promoters {#fantom5-promoters}\n")

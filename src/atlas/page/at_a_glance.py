@@ -186,6 +186,21 @@ def at_a_glance(bundle) -> str:
         bullets.append(f"**Clinical variants (ClinVar):** {cv_total:,} total{detail}"
                        + evidence.rank_clause("gene", "variant_count", cv_total))
 
+    # Regional missense constraint (gnomAD RMC) — only when the gene actually
+    # splits into regions with constrained stretches (SCN2A: 8 of 17).
+    from atlas.gene.render import rmc_summary, gtex_counts
+    rs = rmc_summary((bundle.get("3") or {}).get("gnomad_rmc"))
+    if rs and rs[0] > 1 and rs[1]:
+        n, k, share = rs
+        bullets.append(f"**Regional missense constraint (gnomAD):** {k} of {n} regions constrained"
+                       + (f" (≈{share:.0%} of expected missense variation)" if share else ""))
+    # GTEx eGene — tissues where the gene's expression / splicing is genetically
+    # regulated (eQTL / sQTL).
+    ne, ns = gtex_counts((bundle.get("11") or {}).get("gtex_egene"))
+    if ne or ns:
+        bullets.append(f"**GTEx eGene:** eQTL in {ne} tissue{'s' if ne != 1 else ''}, "
+                       f"sQTL in {ns} (q < 0.05)")
+
     # Phenotypes (HPO) — clinical feature count across associated conditions.
     hpo = b12.get("hpo_total") or 0
     if hpo:
