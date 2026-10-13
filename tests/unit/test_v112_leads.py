@@ -256,3 +256,18 @@ def test_mondo_templated_definition_becomes_class():
                         "segmental glomerulosclerosis caused by INF2 (GenCC Strong), inherited in an "
                         "autosomal dominant pattern.")
     assert "in which the cause" not in s
+
+
+def test_drug_indications_render_matches_lead_counts():
+    from atlas.drug.render import r_indications
+    from atlas.page.drug_declarative import _indications_clause
+    b4 = {"indication_count": 5, "indications": [
+        {"name": "diabetes mellitus", "mondo_id": "MONDO:1", "max_phase": 4, "approved": True},
+        {"name": "diabetes mellitus", "mondo_id": "MONDO:1", "max_phase": 4, "approved": True},
+        {"name": "obesity", "mondo_id": "MONDO:2", "max_phase": 3, "approved": False},
+        {"name": "EFO:0000001", "max_phase": 2, "approved": False},
+        {"name": None, "max_phase": 4, "approved": True}]}
+    md = r_indications(b4)
+    assert "**1 approved indication.**" in md and "**1 disease in clinical trials**" in md
+    assert _indications_clause(b4) == ("; approved for 1 indication (diabetes mellitus), "
+                                       "and in clinical trials for 1 other condition")

@@ -288,7 +288,7 @@ def r_indications(b):
                  f"carr{'y' if n != 1 else 'ies'} no mapped disease name "
                  "(EFO/MeSH-only); none shown.")
     else:
-        dropped = len(inds) - len(named)
+        dropped = len(b.get("indications") or []) - len(named)
         if dropped > 0:
             L.append(f"\n*{dropped} further indication record"
                      f"{'s' if dropped != 1 else ''} had no mapped disease name "
