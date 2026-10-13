@@ -58,8 +58,10 @@ def _targets(b2: dict) -> list:
 
 
 def _treats(b4: dict) -> list:
+    """Approved indications only — trial-stage diseases are not "treats" (3,352
+    pages asserted trial diseases, 1,944 of them for drugs with no approval)."""
     out = []
-    for i in (b4.get("indications") or [])[:10]:
+    for i in [i for i in (b4.get("indications") or []) if i.get("approved")][:10]:
         name = i.get("name")
         mondo = i.get("mondo_id")
         if not name and not mondo:
@@ -83,6 +85,16 @@ def _description(b1: dict, b2: dict, b6: dict) -> str:
              if t.get("gene_symbol")][:3]
     tgt = (" targeting " + ", ".join(genes)) if genes else ""
     return f"{name} — {klass}{tgt}."
+
+
+def _lead_description(bundle: dict) -> str:
+    """The page lead as plain text — the same mechanism / approval / indication
+    facts the reader sees, instead of a second, divergent target list."""
+    from atlas.page.meta_facts import plain_lead
+    try:
+        return plain_lead("drug", bundle)
+    except Exception:
+        return ""
 
 
 def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
@@ -114,7 +126,7 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "name": name,
         "identifier": b1.get("chembl_id"),
         "url": page,
-        "description": _description(b1, b2, b6),
+        "description": _lead_description(bundle) or _description(b1, b2, b6),
         "alternateName": alts[:12] or None,
         "drugClass": pharma_class(roles),  # audit #9: None if no pharma role
         "sameAs": same_as_urls(b1) or None,

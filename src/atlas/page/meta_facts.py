@@ -115,6 +115,10 @@ def _meta_description(entity_type, bundle, limit=155):
     s = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", s)   # link → label
     s = re.sub(r"[*`_]", "", s)                      # drop emphasis
     s = re.sub(r"\s+", " ", s).strip()
+    if limit:
+        # The snippet carries no room for accession ids — "Cystic fibrosis is a
+        # disease caused by CFTR…", not "Cystic fibrosis (MONDO:0009061) is…".
+        s = re.sub(r" \((?:MONDO:|HGNC:|CHEMBL)[^)]*\)", "", s, count=1)
     if limit and len(s) > limit:
         s = s[:limit].rsplit(" ", 1)[0].rstrip(" ,;.") + "…"
     return s

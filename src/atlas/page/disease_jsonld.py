@@ -137,7 +137,12 @@ def _associated_genes(bundle: dict) -> list:
     the cohort genes' symbols + HGNC id + their canonical UniProt — enough for
     an AI agent to follow back to NCBI/UniProt without paginating the page."""
     b5 = bundle.get("5") or {}
-    genes = b5.get("genes") or []
+    genes = list(b5.get("genes") or [])
+    # Causal genes first (CFTR, not SLC11A1, leads cystic fibrosis's list); the
+    # cohort order is otherwise kept.
+    from atlas.disease.cohort import causal_genes
+    rank = {sym: i for i, (sym, _) in enumerate(causal_genes(bundle))}
+    genes.sort(key=lambda g: rank.get(g.get("symbol"), len(rank)))
     out = []
     for g in genes[:50]:  # full cohort
         sym = g.get("symbol")
@@ -181,6 +186,17 @@ def _summary_description(bundle: dict) -> str:
     return f"{name}{cancer}{suffix}."
 
 
+def _lead_description(bundle: dict) -> str:
+    """The page lead as plain text: definition, causal gene, inheritance, key
+    features — what "What is X?" should be answered with (the old description was
+    counts only: "Cystic fibrosis (37 GWAS associations, …)")."""
+    from atlas.page.meta_facts import plain_lead
+    try:
+        return plain_lead("disease", bundle)
+    except Exception:
+        return ""
+
+
 def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
     """Compose the schema.org MedicalCondition JSON-LD dict from a full
     collector bundle. Skips fields whose value is None/empty."""
@@ -196,7 +212,7 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "identifier": b1.get("mondo_id"),
         "url": canonical_page,
         "alternateName": (b1.get("synonyms") or [])[:20] or None,
-        "description": _summary_description(bundle),
+        "description": _lead_description(bundle) or _summary_description(bundle),
         "sameAs": same_as_urls(bundle) or None,
         "associatedGene": _associated_genes(bundle) or None,
         "drug": _drugs(bundle) or None,

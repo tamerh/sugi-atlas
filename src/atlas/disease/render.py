@@ -271,7 +271,7 @@ def _same_text(a, b):
     return SequenceMatcher(None, na[:200], nb[:200]).ratio() >= 0.9
 
 
-def r_clinical_description(b):
+def r_clinical_description(b, bundles=None):
     """Curated clinical-description paragraph(s) for the Clinical-features zone.
     Two independent authorities, shown source-labelled — both when both exist:
     Orphanet (disease-specific, the rare-disease tail) and MeSH (main descriptors,
@@ -302,6 +302,13 @@ def r_clinical_description(b):
     onset = b.get("orphanet_onset") or []
     if inh:
         io.append(f"**Inheritance:** {', '.join(inh)}")
+    elif bundles:
+        # No Orphanet annotation: the GenCC mode of inheritance recorded for the
+        # disease's Definitive/Strong genes (2,483 pages had it only in a table).
+        from atlas.page.disease_declarative import inheritance_modes
+        gm, _src = inheritance_modes(bundles)
+        if gm:
+            io.append(f"**Inheritance:** {', '.join(gm)} (GenCC)")
     if onset:
         io.append(f"**Onset:** {', '.join(onset)}")
     if io:
@@ -1592,7 +1599,7 @@ def render_all(bundles):
 
     spec = [
         ("Clinical features", "clinical",
-         join(D(r_clinical_description(bundles["1"]), "clinical-description"),
+         join(D(r_clinical_description(bundles["1"], bundles), "clinical-description"),
               D(r_epidemiology(bundles["1"]), "epidemiology"),
               D(r_symptoms(bundles["1"]), "symptoms")),
          "No curated clinical description or features (Orphanet, Mondo, MeSH, HPO, Wikidata) "

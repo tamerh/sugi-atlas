@@ -446,8 +446,10 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         # description> (v1.11.7 answers ended mid-clause with "…").
         faq_answer = (plain_lead(entity_type, bundle) if entity_type in ("gene", "disease", "drug")
                       else "") or meta.get("description")
+        from atlas.page.faq_intents import intent_qas
         faq_tag = _faq_script(meta.get("title"), faq_answer,
-                              meta.get("tldr"), f"https://sugi.bio/atlas/{entity_type}/{symbol}/")
+                              meta.get("tldr"), f"https://sugi.bio/atlas/{entity_type}/{symbol}/",
+                              intent_qas(entity_type, bundle, meta.get("title")))
         lead = ("## Summary {#summary}\n\n" + sentence + "\n\n" + jsonld_tag
                 + (("\n" + faq_tag) if faq_tag else "") + "\n\n")
 

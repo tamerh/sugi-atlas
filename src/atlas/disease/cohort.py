@@ -41,6 +41,34 @@ def disease_tokens(s):
 _CAUSAL_GENCC_FLOOR = 5
 
 
+# Chromosomal (contiguous-gene) syndromes: a ClinVar record on a 2q13 deletion
+# lists every gene in the region, so "caused by RGPD8" is an artefact of how the
+# CNV was submitted, not a causal gene.
+_CHROMOSOMAL = re.compile(
+    r"micro(?:deletion|duplication)|\b(?:deletion|duplication|trisomy|monosomy|"
+    r"tetrasomy|triploidy|uniparental disomy|ring chromosome)\b|"
+    r"\b(?:chromosome )?(?:[1-9]|1[0-9]|2[0-2]|x|y)[pq]\d", re.I)
+
+
+def is_chromosomal_anomaly(name):
+    return bool(_CHROMOSOMAL.search(name or ""))
+
+
+def _clinvar_tier_applies(bundle):
+    """The ClinVar-only causal tier is for gene-defined rare diseases. Not for a
+    chromosomal syndrome (region CNVs), a common/complex trait (≥20 GWAS
+    associations: asthma → CARD11, MDD → TDO2 were ClinVar artefacts), or an
+    umbrella term (its genes belong to the subtypes)."""
+    b1 = bundle.get("1") or {}
+    if is_chromosomal_anomaly(b1.get("canonical_name") or b1.get("name")):
+        return False
+    if ((bundle.get("2") or {}).get("assoc_total") or 0) >= 20:
+        return False
+    if (b1.get("child_count") or 0) >= 5:
+        return False
+    return True
+
+
 def causal_genes(bundle):
     """High-confidence causal gene(s) for a disease page, strongest-first:
     genes GenCC-curated Definitive/Strong for THIS disease's exact Mondo id, or
@@ -79,7 +107,7 @@ def causal_genes(bundle):
     # cohort via the ClinVar germline route FOR THIS DISEASE are the causal
     # candidates. Bounded to a focused set (≤5) so a polygenic / cancer cohort with
     # many ClinVar genes never claims them all causal; labelled weaker than GenCC.
-    if not out:
+    if not out and _clinvar_tier_applies(bundle):
         b5 = bundle.get("5") or {}
         clinvar_genes = sorted(
             g.get("symbol") for g in (b5.get("genes") or [])

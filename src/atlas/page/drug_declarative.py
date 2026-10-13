@@ -7,10 +7,11 @@ summary so it dominates the first-extracted text AI agents pick up.
 Shape (sub-clauses drop silently when data is absent):
 
   **Imatinib** (CHEMBL941) is an approved small-molecule tyrosine kinase
-  inhibitor (ATC L01EA01) targeting ABL1, DDR1, and DDR2; indicated across
-  52 conditions including chronic myelogenous leukemia and gastrointestinal
-  stromal tumor; with CIViC clinical evidence for 203 variant-indication
-  associations (e.g. BCR::ABL1 fusion in chronic myeloid leukemia).
+  inhibitor (ATC L01EA01) targeting ABL1, DDR1, and DDR2; approved for 5
+  indications including chronic myelogenous leukemia and gastrointestinal
+  stromal tumor, and in clinical trials for 47 other conditions; with CIViC
+  clinical evidence for 203 variant-indication associations (e.g. BCR::ABL1
+  fusion in chronic myeloid leukemia).
 """
 
 
@@ -80,11 +81,41 @@ def _curated_target_genes(b2):
     return out
 
 
+def _lc_first(t):
+    """Lower-case a mechanism's first letter unless it starts an acronym or a
+    symbol ("Tubulin stabiliser" → "tubulin…", but "HMG-CoA…", "DNA…" kept)."""
+    if len(t) > 1 and t[0].isupper() and t[1].islower():
+        return t[0].lower() + t[1:]
+    return t
+
+
+def _mechanism_names(b2, k=2):
+    out = []
+    for m in (b2 or {}).get("mechanisms") or []:
+        t = (m.get("mechanism_of_action") or "").strip().rstrip(".")
+        if t and t.lower() not in {x.lower() for x in out}:
+            out.append(t)
+    return [_lc_first(t) for t in out[:k]], len(out)
+
+
 def _targets_clause(b2):
+    """'that acts as a solute carrier family 12 member 1 inhibitor, targeting
+    SLC12A1' — the curated ChEMBL mechanism first (what the drug DOES; it also
+    names family/complex targets such as VEGFR or GABA-A that resolve to no single
+    gene), then the target genes."""
     genes = _curated_target_genes(b2)
-    if not genes:
-        return ""
-    return " targeting " + _join(genes[:3])
+    moa, n_moa = _mechanism_names(b2)
+    s = ""
+    if moa:
+        art = "an" if moa[0][:1].lower() in "aeiou" else "a"
+        s = f" that acts as {art} " + " and ".join(moa)
+        if n_moa > len(moa):
+            s += f" (+{n_moa - len(moa)} more curated mechanism" + ("s" if n_moa - len(moa) != 1 else "") + ")"
+        if genes:
+            s += ","
+    if genes:
+        s += " targeting " + _join(genes[:3])
+    return s
 
 
 def _near(a, b):
@@ -96,11 +127,7 @@ def _near(a, b):
     return hi.startswith(lo) and (len(hi) == len(lo) or not hi[len(lo)].isalnum())
 
 
-def _indications_clause(b4):
-    n = (b4 or {}).get("indication_count") or 0
-    inds = (b4 or {}).get("indications") or []
-    if not n:
-        return ""
+def _indication_names(inds, k=2):
     # Dedup by name (audit #11: indications cross-walked from both EFO and MeSH
     # can resolve to the same disease → "including neoplasm and neoplasm"); skip
     # blank and raw ontology-id names. Also skip a name that is a prefix-relative
@@ -117,9 +144,33 @@ def _indications_clause(b4):
             continue                             # "osteoarthritis, knee" etc.
         seen.add(nm)
         names.append(nm)
-        if len(names) == 2:
+        if len(names) == k:
             break
-    s = f"; indicated across {n} condition" + ("s" if n != 1 else "")
+    return names
+
+
+def _indications_clause(b4):
+    """Approved indications and trial-stage diseases are reported separately: the
+    ChEMBL indication list mixes phase-4 approvals with phase 1–3 trial diseases,
+    and "indicated across 9 conditions" on a phase-3 drug (poziotinib) claimed
+    approvals that don't exist."""
+    inds = (b4 or {}).get("indications") or []
+    if not inds:
+        return ""
+    appr = [i for i in inds if i.get("approved")]
+    trial = [i for i in inds if not i.get("approved")]
+    na, nt = len(appr), len(trial)
+    if na:
+        names = _indication_names(appr)
+        s = f"; approved for {na} indication" + ("s" if na != 1 else "")
+        if names:
+            s += (" including " if na > len(names) else " (") + _join(names) + \
+                 ("" if na > len(names) else ")")
+        if nt:
+            s += f", and in clinical trials for {nt} other condition" + ("s" if nt != 1 else "")
+        return s
+    names = _indication_names(trial)
+    s = f"; investigated in clinical trials for {nt} condition" + ("s" if nt != 1 else "")
     if names:
         s += " including " + _join(names)
     return s

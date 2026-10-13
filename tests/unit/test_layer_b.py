@@ -467,7 +467,7 @@ def test_drug_moa_targets_render_and_lead():
     md = DR.r_targets(b2)
     assert "Mechanism of action (ChEMBL curated)" in md and "PCSK9 mRNA RNAi inhibitor" in md
     assert "No target linkage" not in md            # MOA counts as linkage
-    assert _targets_clause(b2) == " targeting PCSK9"
+    assert _targets_clause(b2) == " that acts as a PCSK9 mRNA RNAi inhibitor, targeting PCSK9"
 
 
 def test_cross_species_homolog_virus_classifier():

@@ -76,7 +76,14 @@ def at_a_glance(bundle) -> str:
         items = ", ".join(f"{sym} ({lbl})" for sym, lbl in shown)
         if len(cg) > len(shown):
             items += f" (+{len(cg) - len(shown)} more)"
-        bullets.append(f"**Causal gene{'s' if len(cg) != 1 else ''}:** {items}")
+        if all(lbl == "ClinVar-linked" for _, lbl in cg):
+            # ClinVar-only tier: pathogenic submissions, not a curated gene–disease
+            # validity call — say what the evidence is.
+            items = ", ".join(sym for sym, _ in shown) + (
+                f" (+{len(cg) - len(shown)} more)" if len(cg) > len(shown) else "")
+            bullets.append(f"**Genes with pathogenic ClinVar variants:** {items}")
+        else:
+            bullets.append(f"**Causal gene{'s' if len(cg) != 1 else ''}:** {items}")
 
     # Umbrella / grouping term — many Mondo children (cardiomyopathy: 12) vs a
     # leaf disease (1). Tells the reader this page spans subtypes.
@@ -87,8 +94,15 @@ def at_a_glance(bundle) -> str:
     # Cohort genes (§5) — size of the associated-gene set this page aggregates.
     gc = b5.get("gene_count") or 0
     if gc:
-        bullets.append(f"**Cohort genes:** {_format_int(gc)}"
-                       + evidence.rank_clause("disease", "gene_count", gc))
+        # The cohort is capped (anchors.COHORT_CAP); at the cap the count is a
+        # selection size, not a measure — so no corpus ranking ("75 (top 1%)").
+        from atlas.disease.anchors import COHORT_CAP
+        if gc >= COHORT_CAP:
+            bullets.append(f"**Cohort genes:** {_format_int(gc)} (strongest-evidence "
+                           "selection; the list is capped)")
+        else:
+            bullets.append(f"**Cohort genes:** {_format_int(gc)}"
+                           + evidence.rank_clause("disease", "gene_count", gc))
 
     # GWAS associations (§2) — common-variant genetics.
     ga = b2.get("assoc_total") or 0

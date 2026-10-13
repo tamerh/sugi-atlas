@@ -13,6 +13,8 @@ per gene instead of up to 60 pages of pagination per source per gene.
 For TP53 (14,764 STRING rows): ~150 → 3 biobtree calls for the PPI block.
 No content change — page renders the same top-30 + true total count.
 """
+import re
+
 from atlas.biobtree import map_all, entry, xref_counts
 from atlas.gene.sections.base import Section
 
@@ -59,6 +61,7 @@ def _uniprot_symbol(uni):
 
 
 _HUMAN = 9606
+_INTACT_CAP = 3             # own-gene rows are a minority on some genes (see _intact_partners)
 _BIOGRID_CAP = 5            # map pages → up to ~600 interaction records
 _BIOGRID_PARTNERS = 30
 
@@ -94,6 +97,51 @@ def _biogrid_partners(rows, symbol, uniprot):
         h["records"] += 1
     out = sorted(agg.values(), key=lambda h: (-h["records"], h["partner"].upper()))
     return out[:_BIOGRID_PARTNERS]
+
+
+_MI_TERM = re.compile(r'\(([^()]*)\)\s*$')
+
+
+# Human HGNC symbols are upper-case apart from the "orf" family (C1orf159); IntAct
+# rows from mouse/rat hosts carry MGI/RGD-style symbols (Tuba3a, Ccnd1).
+_HUMAN_SYMBOL = re.compile(r"[A-Z0-9][A-Z0-9-]*|C[0-9XY]+orf[0-9]+[A-Z0-9-]*")
+
+
+def _intact_partners(rows, symbol, uniprot=None):
+    """One row per human IntAct partner of THIS gene, best MIscore first.
+
+    biobtree cross-references some IntAct records to every protein in the same
+    publication/complex (EBI-10992821 → 56 UniProt entries), so the map returns
+    pairs that don't involve the queried protein at all (TMEM126A's table was
+    28/28 foreign pairs) and the same pair once per experiment. The lite map
+    projection carries only the two gene symbols, so keep records where this
+    gene is side A or B, take the other side as the partner, drop self-edges and
+    non-human symbols, and collapse to one row per partner (best score, number of
+    supporting records)."""
+    sym = (symbol or "").upper()
+    if not sym:
+        return []
+    out = {}
+    for t in rows:
+        ga, gb = t.get("protein_a_gene") or "", t.get("protein_b_gene") or ""
+        if ga.upper() == sym:
+            gene = gb
+        elif gb.upper() == sym:
+            gene = ga
+        else:
+            continue
+        if not gene or gene.upper() == sym or not _HUMAN_SYMBOL.fullmatch(gene):
+            continue
+        m = _MI_TERM.search(t.get("interaction_type") or "")
+        kind = m.group(1) if m else (t.get("interaction_type") or "")
+        cur = out.get(gene)
+        if cur is None:
+            out[gene] = cur = {"partner": gene, "score": t.get("confidence_score"),
+                               "type": kind, "records": 0}
+        cur["records"] += 1
+        if _f(t.get("confidence_score")) > _f(cur["score"]):
+            cur["score"], cur["type"] = t.get("confidence_score"), kind
+    return sorted(out.values(), key=lambda p: (-_f(p["score"]), -p["records"], p["partner"]))
 
 
 def collect(a):
@@ -142,19 +190,16 @@ def collect(a):
     bundle["string"] = string
     bundle["string_count"] = string_n or len(st)
 
-    ia = map_all(uni, ">>uniprot>>intact", cap=_PPI_CAP) if uni else []
-    ia.sort(key=lambda t: _f(t.get("confidence_score")), reverse=True)
-    bundle["intact"] = [{"a": t.get("protein_a_gene"), "b": t.get("protein_b_gene"),
-                         "type": t.get("interaction_type"),
-                         "score": t.get("confidence_score")} for t in ia[:30]]
+    ia = map_all(uni, ">>uniprot>>intact", cap=_INTACT_CAP) if uni else []
+    intact = _intact_partners(ia, a.symbol)
+    bundle["intact"] = intact[:30]
+    bundle["intact_partner_count"] = len(intact)
+    bundle["intact_sampled"] = len(ia)
     bundle["intact_count"] = intact_n or len(ia)
-    # Full distinct IntAct (physical) partner symbols — the gene set for
-    # interaction-partner ORA on the page (render-time, atlas.ora). Self-edges
-    # excluded; symbols are looked up against the precomputed membership table.
-    _self = (a.symbol or "").upper()
-    bundle["interaction_partners"] = sorted(
-        {g for t in ia for g in (t.get("protein_a_gene"), t.get("protein_b_gene"))
-         if g and g.upper() != _self})
+    # Distinct human IntAct partner symbols — the gene set for interaction-partner
+    # ORA on the page (render-time, atlas.ora); looked up against the precomputed
+    # membership table.
+    bundle["interaction_partners"] = sorted({p["partner"] for p in intact})
 
     # Larger sample than the other PPI sources: partners are ranked by supporting
     # records, and 200 records (ID order) left EGFR with one AP-MS paper's singletons.

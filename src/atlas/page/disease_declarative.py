@@ -121,7 +121,7 @@ def _pathway_clause(b14):
     NOISE = {"disease", "signal transduction", "metabolism", "metabolism of proteins"}
     if name.lower() in NOISE:
         return ""
-    return f" The dominant Reactome pathway is *{name}* ({top['gene_count']} cohort genes)."
+    return f" The dominant Reactome pathway is *{name}* ({top['gene_count']} associated genes)."
 
 
 # Polygenic test, calibrated on real bundles (biobtree v2.12.0): Mendelian
@@ -145,50 +145,127 @@ def _gene_list(syms, cg):
     return f"{syms[0]}, {syms[1]}, {syms[2]}, and {n} other gene{'s' if n != 1 else ''}"
 
 
-def _causal_clause(bundle):
-    """Causal-gene clause for the lead, driven by the high-confidence causal set
-    (on-disease GenCC Definitive/Strong, or OMIM Mendelian overlap). '' when none.
-
-    "caused by" is only asserted for a specific (non-umbrella), non-polygenic
-    disease. A complex trait (see _POLYGENIC_GWAS) whose curated genes are its
-    rare MONOGENIC forms gets "whose monogenic forms are linked to …" — v1.11.7 read "SLE …
-    caused by variants in SAT1 and TREX1", "Alopecia areata … caused by SMCHD1 and
-    TRPS1". An umbrella term (≥5 subtypes) gets "whose subtypes are caused by …",
-    which stays true for genetic umbrellas (Charcot-Marie-Tooth)."""
+def causal_kind(bundle):
+    """(kind, causal genes) — how the curated genes relate to THIS disease:
+      "caused"    a specific, non-polygenic disease: "caused by CFTR"
+      "forms"     a complex trait whose curated genes are its rare monogenic
+                  (or, for cancers, hereditary) forms
+      "subtypes"  an umbrella term (≥5 Mondo subtypes)
+      "clinvar"   pathogenic ClinVar submissions only (no curated validity call)
+      None        no causal genes
+    One decision shared by the lead, the inheritance fallback and the FAQ, so a
+    polygenic disease is never "caused by" / "inherited" anywhere on the page."""
     from atlas.disease.cohort import causal_genes
     cg = causal_genes(bundle)
     if not cg:
-        return ""
-    syms = [s for s, _ in cg]
+        return None, cg
     b1 = bundle.get("1") or {}
-    b2 = bundle.get("2") or {}
-    genes = _gene_list(syms, cg)
-    n_gwas = b2.get("assoc_total") or 0
+    n_gwas = (bundle.get("2") or {}).get("assoc_total") or 0
     definitive = any("definitive" in (ev or "").lower() for _, ev in cg)
     if n_gwas >= _POLYGENIC_GWAS or (n_gwas >= _POLYGENIC_GWAS_SOFT and not definitive):
+        return "forms", cg
+    if (b1.get("child_count") or 0) >= _UMBRELLA_SUBTYPES:
+        return "subtypes", cg
+    if all(lbl == "ClinVar-linked" for _, lbl in cg):
+        return "clinvar", cg
+    return "caused", cg
+
+
+def _causal_clause(bundle):
+    """Causal-gene clause for the lead, driven by causal_kind(). '' when none.
+
+    v1.11.7 read "SLE … caused by variants in SAT1 and TREX1"; a complex trait's
+    curated genes are its rare monogenic forms, an umbrella's belong to its
+    subtypes, and a ClinVar-only gene is reported as evidence, not cause."""
+    kind, cg = causal_kind(bundle)
+    if not kind:
+        return ""
+    syms = [s for s, _ in cg]
+    genes = _gene_list(syms, cg)
+    if kind == "forms":
         # Cancers: the curated genes are germline predisposition genes →
         # "hereditary forms" (breast cancer → BRCA1/BARD1, prostate → HOXB13).
-        kind = "hereditary" if b1.get("is_cancer") else "monogenic"
-        return f" whose {kind} forms are linked to {genes}"
-    if (b1.get("child_count") or 0) >= _UMBRELLA_SUBTYPES:
+        k = "hereditary" if (bundle.get("1") or {}).get("is_cancer") else "monogenic"
+        return f" whose {k} forms are linked to {genes}"
+    if kind == "subtypes":
         return f" whose subtypes are caused by variants in {genes}"
+    if kind == "clinvar":
+        return f" with pathogenic variants reported in {genes} (ClinVar)"
     if len(syms) == 1:
         return f" caused by {syms[0]} ({cg[0][1]})"
     return f" caused by variants in {genes}"
 
 
+def inheritance_modes(bundle):
+    """(modes, source): Orphanet's disease-level inheritance, else — only for a
+    disease its causal genes actually cause — their GenCC mode (type 2 diabetes
+    must not inherit GCK-MODY's "autosomal dominant")."""
+    from atlas.disease.summary import inheritance
+    b1 = bundle.get("1") or {}
+    orph = inheritance(b1)
+    if orph:
+        return orph, "Orphanet"
+    kind, cg = causal_kind(bundle)
+    if kind != "caused":
+        return [], ""
+    gm = inheritance({}, bundle.get("4"), cg)
+    return gm, ("GenCC" if gm else "")
+
+
+def _with_source(text, src):
+    """'… short stature.' + Orphanet → '… short stature (Orphanet).'"""
+    if not text:
+        return ""
+    if text.endswith("."):
+        return f"{text[:-1]} ({src})."
+    return f"{text} ({src})."
+
+
+def _features_clause(b1):
+    from atlas.disease.summary import key_features
+    terms, src = key_features(b1)
+    if not terms:
+        return ""
+    lst = ", ".join(terms[:-1]) + (", and " if len(terms) > 2 else " and ") + terms[-1] \
+        if len(terms) > 1 else terms[0]
+    if src == "HPO":
+        return f" Its most frequent clinical features (HPO) include {lst}."
+    return f" Commonly reported symptoms (Wikidata) include {lst}."
+
+
+def _evidence_sentence(b1, b2, b4, b5, b13):
+    """'This page aggregates 43 associated genes (37 GWAS associations across 4
+    studies) and 1,441 registered clinical trials.' — the Atlas evidence counts,
+    kept out of the defining first sentence."""
+    ev = _evidence_clause(b1, b2, b4, b5)            # " with N cohort genes (…)"
+    ev = ev[len(" with "):] if ev.startswith(" with ") else ev
+    ev = ev.replace("cohort gene", "associated gene")
+    tr = _trials_clause(b1, b13, joined=bool(ev))     # " and N trials" / " with N trials"
+    if not ev and not tr:
+        return ""
+    body = ev + (tr if ev else tr[len(" with "):])
+    return f" This page aggregates {body}."
+
+
 def declarative_sentence(bundle):
     """Compose the disease lead from a full bundle dict {section_id: bundle_dict}.
 
+    Order: what the disease is (class, causal gene, inheritance), its curated
+    definition, its key clinical features, then the Atlas evidence counts. The
+    first sentence/definition is what search snippets and AI answers quote, so
+    it carries the facts readers ask for ("is X hereditary", "what is X")
+    rather than cohort counts.
+
     Sources used:
-      bundle["1"]  — canonical_name, mondo_id, is_cancer, xref_counts (clinvar, clinical_trials)
+      bundle["1"]  — name, mondo_id, is_cancer, definitions, inheritance, HPO, Wikidata
       bundle["2"]  — assoc_total, study_total
-      bundle["4"]  — somatic_driver_genes (cancer only)
-      bundle["5"]  — gene_count, cohort_function_summary
-      bundle["13"] — trial_drugs (top therapeutic interventions)
+      bundle["4"]  — GenCC causal genes + mode of inheritance, somatic drivers
+      bundle["5"]  — gene_count
+      bundle["13"] — trial_count, trial_drugs, CIViC
       bundle["14"] — top_pathways (dominant pathway, when clearly so)
 
-    Returns a single Markdown sentence (no trailing newline)."""
+    Returns Markdown (no trailing newline)."""
+    from atlas.disease import summary as S
     b1  = bundle.get("1")  or {}
     b2  = bundle.get("2")  or {}
     b4  = bundle.get("4")  or {}
@@ -200,22 +277,34 @@ def declarative_sentence(bundle):
     mondo_id = b1.get("mondo_id")
     klass = _disease_class(b1)
 
-    parens = [mondo_id] if mondo_id else []
     head = f"**{name.capitalize() if name == name.lower() else name}**"
-    if parens:
-        head += f" ({', '.join(parens)})"
+    if mondo_id:
+        head += f" ({mondo_id})"
 
-    sentence = f"{head} is a {klass}"
     n_sub = b1.get("child_count") or 0       # umbrella / grouping term?
-    if n_sub >= 5:
-        sentence += f" (an umbrella term covering {n_sub} Mondo subtypes)"
+    umbrella = f" (an umbrella term covering {n_sub} Mondo subtypes)" if n_sub >= 5 else ""
     causal = _causal_clause(bundle)          # " caused by CFTR (GenCC Definitive)"
-    ev = _evidence_clause(b1, b2, b4, b5)    # " with N cohort genes (…)"
-    if causal and ev:
-        ev = "," + ev                        # "…Definitive), with N cohort genes"
-    sentence += causal + ev
-    sentence += _trials_clause(b1, b13, joined=bool(causal or ev))
-    sentence += "."
+    inh = S.inheritance_phrase(inheritance_modes(bundle)[0])
+    defn, src = S.definition(b1)
+    pred = S.definition_predicate(defn, name)
+
+    if causal or inh:
+        sentence = f"{head} is a {klass}{umbrella}{causal}"
+        if inh:
+            sentence += ("," if causal else "") + f" {inh}"
+        sentence += "."
+        if defn:
+            sentence += " " + _with_source(f"It is {pred}" if pred else defn, src)
+    elif pred:
+        sentence = f"{head} is " + _with_source(pred, src)
+        if umbrella:
+            sentence += f" It is an umbrella term covering {n_sub} Mondo subtypes."
+    else:
+        sentence = f"{head} is a {klass}{umbrella}."
+        if defn:
+            sentence += " " + _with_source(defn, src)
+    sentence += _features_clause(b1)
+    sentence += _evidence_sentence(b1, b2, b4, b5, b13)
     sentence += _pathway_clause(b14)
     sentence += _civic_subtype_clause(b13)
     sentence += _drugs_clause(b13)

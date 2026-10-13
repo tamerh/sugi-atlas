@@ -41,13 +41,21 @@ def collect(a):
     # disease), this respects the Mondo boundary, so it's the precise source for
     # the "causal gene" claim: a neonatal-diabetes / MODY gene curated under its
     # own Mondo id won't leak onto the type-2-diabetes page. One extra call.
-    dg = {}
+    dg, moi = {}, {}
     for r in map_all(a.mondo_id, ">>mondo>>gencc"):
         sym = r.get("gene_symbol")
         cls = r.get("classification_title")
         if sym and (sym not in dg or gencc_rank(cls) > gencc_rank(dg[sym])):
             dg[sym] = cls
-    bundle["disease_gencc"] = [{"symbol": s, "classification": c} for s, c in dg.items()]
+        # Mode of inheritance per gene, from its Definitive/Strong records — the
+        # inheritance fallback when Orphanet has none (2,483 pages).
+        m = (r.get("moi_title") or "").strip()
+        if sym and m and m.lower() != "unknown" and gencc_rank(cls) >= gencc_rank("Strong"):
+            moi.setdefault(sym, [])
+            if m not in moi[sym]:
+                moi[sym].append(m)
+    bundle["disease_gencc"] = [{"symbol": s, "classification": c, "moi": moi.get(s, [])}
+                               for s, c in dg.items()]
 
     # Orphanet: any cohort gene with a >>hgnc>>orphanet hit. Bounded by cohort.
     orphanet_genes = []

@@ -931,9 +931,21 @@ def r_interactions(b):
                             s.get("partner"), s.get("score")) for s in b.get("string", [])],
                           40, total=b.get("string_count"), noun="interactions by confidence (×1000)"))
     L.append("\n### IntAct {#intact}\n")
-    L.append(capped_table(["A", "B", "Type", "Score"],
-                          [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in b.get("intact", [])],
-                          40, total=b.get("intact_count"), noun="interactions by confidence"))
+    ia = b.get("intact") or []
+    if ia and "partner" in ia[0]:
+        n = b.get("intact_partner_count") or len(ia)
+        tot, smp = b.get("intact_count") or 0, b.get("intact_sampled") or 0
+        sample = f", in a sample of {smp:,} of {tot:,} records" if tot > smp else ""
+        L.append(f"Human interaction partners of {self_sym} in IntAct, one row per partner "
+                 f"(best MIscore; records = supporting IntAct interaction records{sample}).\n")
+        L.append(capped_table(["Partner", "Interaction type", "MIscore", "Records"],
+                              [(i["partner"], i.get("type") or "—", i.get("score"),
+                                i.get("records")) for i in ia],
+                              40, total=n, noun="partners by confidence"))
+    else:
+        L.append(capped_table(["A", "B", "Type", "Score"],
+                              [(i.get("a"), i.get("b"), i.get("type"), i.get("score")) for i in ia],
+                              40, total=b.get("intact_count"), noun="interactions by confidence"))
     def _bg(x):
         n = x.get("records") or 0
         return (f"{x.get('partner')} ({x.get('method')}"
