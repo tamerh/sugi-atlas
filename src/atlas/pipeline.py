@@ -300,7 +300,14 @@ def render_all(bundle):
     ]
     return emit_canonical(spec, anchors={"protein": protein_a})
 
-_CTRL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")  # control chars (keep \t,\n)
+_CTRL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")  # C0/C1 controls (keep \t,\n)
+
+
+# Windows-1252 punctuation that reached us mis-decoded as C1 control characters
+# (Orphanet: "Shprintzen\x96Goldberg"). YAML rejects C1 controls in a scalar, so
+# one such byte broke a page's whole frontmatter in the v1.12.0 build.
+_CP1252_C1 = {0x91: "‘", 0x92: "’", 0x93: "“", 0x94: "”", 0x96: "–", 0x97: "—",
+              0x85: "…", 0x95: "•", 0x99: "™", 0xA0: " "}
 
 
 def _yaml_escape(s):
@@ -309,7 +316,8 @@ def _yaml_escape(s):
     # — a value with a literal/ trailing backslash (e.g. a truncated Mondo
     # synonym `…(formerly cutaneous \"`) would otherwise escape the closing quote
     # and break the whole frontmatter block.
-    return _CTRL.sub("", str(s)).replace("\\", "\\\\").replace('"', '\\"')
+    s = str(s).translate(_CP1252_C1)       # "Shprintzen\x96Goldberg" → en dash
+    return _CTRL.sub("", s).replace("\\", "\\\\").replace('"', '\\"')
 
 _ZERO_LABEL = re.compile(r"^\*\*[^*\n]+ \(0\):\*\*\s*$")
 _HEADING = re.compile(r"^(#{3,5}) .*?(?:\{#([a-z0-9-]+)\})?\s*$")
@@ -348,7 +356,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     the deterministic declarative lead sentence and Updated-date line are
     prepended above the LLM summary. Required for the AI-friendly page shape;
     legacy callers that don't pass it get the prior (no-lead) layout."""
-    body_md = prune_empty(body_md)
+    body_md = prune_empty(body_md).translate(_CP1252_C1)
     fm = ["---"]
     for k in ("title", "identifier", "symbol", "entity_type", "description",
               "generated_at", "atlas_version", "atlas_commit", "biobtree_version",
@@ -498,8 +506,8 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
         disclosure = (f"*Summary written by {model} from the deterministic data below. "
                       f"Facts in the tables that follow are the authoritative source.*")
         return (head + lead + disclosure + "\n\n"
-                + summary_text.strip() + "\n\n" + body_md + related_tail + "\n")
-    return head + lead + body_md + related_tail + "\n"
+                + summary_text.strip() + "\n\n" + body_md + related_tail + "\n").translate(_CP1252_C1)
+    return (head + lead + body_md + related_tail + "\n").translate(_CP1252_C1)
 
 def run_summary(body_md, symbol, model, kind="gene"):
     key = B.api_key()

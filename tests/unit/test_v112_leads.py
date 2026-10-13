@@ -317,3 +317,11 @@ def test_disease_jsonld_wikidata_sameas():
     from atlas.page.disease_jsonld import same_as_urls
     assert "https://www.wikidata.org/wiki/Q11081" in same_as_urls(
         {"1": {"mondo_id": "MONDO:0004975", "wikidata_qid": "Q11081"}})
+
+
+def test_cp1252_c1_chars_do_not_break_frontmatter():
+    import yaml
+    from atlas.pipeline import _yaml_escape
+    v = _yaml_escape("Shprintzen\x96Goldberg omphalocele syndrome \x85")
+    assert v == "Shprintzen–Goldberg omphalocele syndrome …"
+    assert yaml.safe_load(f'd: "{v}"')["d"] == v
