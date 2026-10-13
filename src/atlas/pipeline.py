@@ -311,6 +311,36 @@ def _yaml_escape(s):
     # and break the whole frontmatter block.
     return _CTRL.sub("", str(s)).replace("\\", "\\\\").replace('"', '\\"')
 
+_ZERO_LABEL = re.compile(r"^\*\*[^*\n]+ \(0\):\*\*\s*$")
+_HEADING = re.compile(r"^(#{3,5}) .*?(?:\{#([a-z0-9-]+)\})?\s*$")
+
+
+def prune_empty(md):
+    """Drop body furniture that carries no content: '**Orphanet (0):**' label
+    lines and H3–H5 headings with nothing beneath them before the next heading
+    of the same or higher level (64% of gene pages had at least one — HPO,
+    SIGNOR, PDB). H2s are the frozen page contract and are never touched; a
+    heading whose anchor is linked from the page is kept."""
+    lines = [l for l in md.split("\n") if not _ZERO_LABEL.match(l)]
+    linked = set(re.findall(r"\]\(#([a-z0-9-]+)\)", md))
+    while True:
+        drop = set()
+        for i, l in enumerate(lines):
+            m = _HEADING.match(l)
+            if not m or (m.group(2) and m.group(2) in linked):
+                continue
+            lvl, j = len(m.group(1)), i + 1
+            while j < len(lines) and not lines[j].strip():
+                j += 1
+            nxt = re.match(r"^(#{1,6}) ", lines[j]) if j < len(lines) else None
+            if j >= len(lines) or (nxt and len(nxt.group(1)) <= lvl):
+                drop.add(i)
+        if not drop:
+            break
+        lines = [l for i, l in enumerate(lines) if i not in drop]
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines))
+
+
 def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     """Hugo-frontmatter + declarative lead + (optional) AI summary + body.
 
@@ -318,6 +348,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     the deterministic declarative lead sentence and Updated-date line are
     prepended above the LLM summary. Required for the AI-friendly page shape;
     legacy callers that don't pass it get the prior (no-lead) layout."""
+    body_md = prune_empty(body_md)
     fm = ["---"]
     for k in ("title", "identifier", "symbol", "entity_type", "description",
               "generated_at", "atlas_version", "atlas_commit", "biobtree_version",
@@ -406,12 +437,21 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
             ncbi = (b3.get("ncbi_summary") or "").strip()
             if ncbi:
                 import re as _re
+                # NCBI carries two kinds of summary: RefSeq-curated text and the
+                # Alliance of Genome Resources' automated GO-based description
+                # ("Predicted to be located in membrane."). Label which one it is
+                # (6,910 automated summaries were labelled "RefSeq curated").
+                tag = _re.search(r'\[(?:provided|supplied) by([^\]]*)\]\.?\s*$', ncbi, flags=_re.I)
+                automated = bool(tag and "alliance" in tag.group(1).lower()) or \
+                    bool(_re.match(r"(Predicted to|Enables|Involved in|Located in|Acts upstream)", ncbi))
                 ncbi = _re.sub(r'\s*\[(?:provided|supplied) by[^\]]*\]\.?\s*$',
                                '', ncbi, flags=_re.I).strip()
                 eid = b3.get("entrez_id")
                 src = (f"[NCBI Gene {eid}](https://www.ncbi.nlm.nih.gov/gene/{eid})"
                        if eid else "NCBI Gene")
-                sentence += f"\n\n{ncbi}\n\n*Source: {src} — RefSeq curated summary.*"
+                kind = ("automated summary from GO annotations (Alliance of Genome Resources)"
+                        if automated else "RefSeq curated summary")
+                sentence += f"\n\n{ncbi}\n\n*Source: {src} — {kind}.*"
             # "At a glance" itemised digest — intro block (bold label, not a
             # ## section). Elides if nothing qualifies.
             from atlas.page.at_a_glance import at_a_glance

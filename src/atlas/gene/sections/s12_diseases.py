@@ -3,17 +3,26 @@ complex disease (GWAS). Multi-hop disease routes are the showcase of this sectio
 from atlas.biobtree import map_all, xref_counts
 from atlas.gene.sections.base import Section
 
+# Disease links via ClinVar only from this gene's own (likely) pathogenic records —
+# not VUS/benign/conflicting ones, and not copy-number records whose multi-megabase
+# span merely covers the gene (C1orf159 → OX40 deficiency via a 5.6-Mb deletion;
+# AKAP8 → long QT from VUS). 2,252 gene pages listed such diseases.
+_CV_PATHOGENIC = ('[germline_classification.contains("athogenic") && '
+                  '!germline_classification.contains("onflicting") && '
+                  '!type.contains("copy number")]')
+
+
 CHAINS = (
     ">>hgnc>>mim",                                # gene MIM
-    ">>hgnc>>clinvar>>mondo>>mim",                # disease-phenotype MIMs (3-hop)
+    ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>mim",                # disease-phenotype MIMs (3-hop)
     ">>hgnc>>gencc",                              # curated gene-disease
-    ">>hgnc>>clinvar>>mondo", ">>hgnc>>gencc>>mondo",
-    ">>hgnc>>clinvar>>orphanet", ">>hgnc>>clinvar>>mondo>>orphanet",
-    ">>hgnc>>hpo", ">>hgnc>>clinvar>>mondo>>hpo",
+    ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo", ">>hgnc>>gencc>>mondo",
+    ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>orphanet", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>orphanet",
+    ">>hgnc>>hpo", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>hpo",
     ">>hgnc>>gwas",
-    ">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar>>mondo>>gwas_study",
+    ">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>gwas_study",
     ">>hgnc>>gwas>>efo",                          # EFO-canonical GWAS trait names
-    ">>hgnc>>clinvar>>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh",   # MeSH disease categories
+    ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh",   # MeSH disease categories
     ">>hgnc>>intogen",                            # cancer-driver classification (LoF/Act)
     ">>hgnc>>civic",                              # CIViC gene-level curated narrative
     ">>hgnc>>clingen_gene_validity",              # ClinGen expert-panel gene-disease validity
@@ -26,6 +35,14 @@ DATASETS = ("mim", "gencc", "mondo", "orphanet", "hpo", "gwas", "gwas_study", "e
 # PanelApp diagnostic-grade rating order (green = high-confidence diagnostic,
 # amber = moderate, red = low — usually filtered out upstream).
 _PANEL_RANK = {"green": 0, "amber": 1, "red": 2}
+
+def _pval(p):
+    try:
+        v = float(p)
+        return v if v == v else 1.0
+    except (TypeError, ValueError):
+        return 1.0
+
 
 def collect(a):
     bundle = {"section": "12_diseases", "symbol": a.symbol}
@@ -58,7 +75,7 @@ def collect(a):
     bundle["gene_omim"] = [f"MIM:{t['id']}" for t in map_all(a.hgnc_id, ">>hgnc>>mim")]
     # Disease-phenotype OMIM IDs come through MONDO (gene>>mim is only the gene).
     bundle["disease_omim"] = [f"MIM:{t['id']}" for t in
-                              map_all(a.hgnc_id, ">>hgnc>>clinvar>>mondo>>mim")]
+                              map_all(a.hgnc_id, ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>mim")]
     bundle["gencc"] = [{"disease": t.get("disease_title"),
                         "classification": t.get("classification_title"),
                         "inheritance": t.get("moi_title")}
@@ -66,27 +83,30 @@ def collect(a):
 
     # MONDO: union curated (gencc) + clinical (clinvar) routes.
     mondo = {}
-    for ch in (">>hgnc>>clinvar>>mondo", ">>hgnc>>gencc>>mondo"):
+    for ch in (">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo", ">>hgnc>>gencc>>mondo"):
         for t in map_all(a.hgnc_id, ch):
             mondo[t["id"]] = t.get("name") or mondo.get(t["id"])
     bundle["mondo"] = [{"id": k, "name": v} for k, v in mondo.items()]
 
     # Orphanet: union direct (clinvar) + via-mondo (carries names).
     orph = {}
-    for ch in (">>hgnc>>clinvar>>orphanet", ">>hgnc>>clinvar>>mondo>>orphanet"):
+    for ch in (">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>orphanet", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>orphanet"):
         for t in map_all(a.hgnc_id, ch):
             orph[t["id"]] = t.get("name") or orph.get(t["id"])
     bundle["orphanet"] = [{"id": f"Orphanet:{k}", "name": v} for k, v in orph.items()]
 
     # HPO: gene-level (hgnc>>hpo) + disease-level (via mondo).
     hpo = {}
-    for ch in (">>hgnc>>hpo", ">>hgnc>>clinvar>>mondo>>hpo"):
+    for ch in (">>hgnc>>hpo", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>hpo"):
         for t in map_all(a.hgnc_id, ch):
             hpo[t["id"]] = t.get("name") or hpo.get(t["id"])
     bundle["hpo"] = [{"id": k, "name": v} for k, v in hpo.items()]
     bundle["hpo_total"] = xc.get("hpo", len(hpo))
 
     gwas = map_all(a.hgnc_id, ">>hgnc>>gwas")
+    # Strongest association first — the render shows the top 30, and ID order hid
+    # the lead hits (97% of gene GWAS tables were unsorted).
+    gwas.sort(key=lambda t: _pval(t.get("p_value")))
     bundle["gwas"] = [{"id": t["id"], "trait": t.get("disease_trait"),
                        "p_value": t.get("p_value")} for t in gwas]
     bundle["gwas_total"] = xc.get("gwas", len(gwas))
@@ -108,7 +128,7 @@ def collect(a):
     # (mondo>>gwas_study). The disease route catches genes whose GWAS aren't
     # gene-mapped directly (e.g. AR: hgnc>>gwas empty) but reach studies via disease.
     gws = {}
-    for ch in (">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar>>mondo>>gwas_study"):
+    for ch in (">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>gwas_study"):
         for t in map_all(a.hgnc_id, ch):
             gws[t["id"]] = 1
     bundle["gwas_studies"] = list(gws)
@@ -119,7 +139,7 @@ def collect(a):
     # Tree numbers (e.g. C04.700.600) classify the descriptor into the MeSH
     # category hierarchy — useful for rollup to top-level disease groupings.
     mesh = {}
-    for ch in (">>hgnc>>clinvar>>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh"):
+    for ch in (">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh"):
         for t in map_all(a.hgnc_id, ch):
             mesh[t["id"]] = t  # later route wins on dupes (gencc carries class info too)
     def _msort(t):

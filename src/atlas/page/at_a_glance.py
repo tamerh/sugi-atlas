@@ -191,12 +191,26 @@ def at_a_glance(bundle) -> str:
     if hpo:
         bullets.append(f"**Phenotypes (HPO):** {hpo:,}")
 
-    # Druggable target — drug-discovery headline flag.
-    if _truthy(b10.get("is_drug_target")):
-        mc = b10.get("molecule_count") or 0
-        extra = f" — {mc:,} molecules with ChEMBL bioactivity" if mc else ""
-        bullets.append(f"**Druggable target:** yes{extra}"
+    # Druggability. "Druggable target: yes" used to fire on any ChEMBL target
+    # record — 1,928 of 2,543 such genes had no curated drug (LMNA: 823 screening
+    # molecules). Now: a curated mechanism-of-action drug (on the protein or a small
+    # complex containing it) makes it a drug target; otherwise report the
+    # bioactivity count for what it is.
+    mc = b10.get("molecule_count") or 0
+    n_moa = len(b10.get("moa_drugs") or [])
+    n_cx = len(b10.get("complex_moa_drugs") or [])
+    if n_moa or n_cx:
+        bits = []
+        if n_moa:
+            bits.append(f"{n_moa:,} curated mechanism-of-action drug" + ("s" if n_moa != 1 else ""))
+        if n_cx:
+            bits.append(f"{n_cx:,} via a complex or family")
+        bullets.append(f"**Drug target:** yes — {', '.join(bits)}"
+                       + (f"; {mc:,} molecules with ChEMBL bioactivity" if mc else "")
                        + evidence.rank_clause("gene", "drug_count", mc))
+    elif _truthy(b10.get("is_drug_target")) and mc:
+        bullets.append(f"**ChEMBL bioactivity:** {mc:,} clinical-phase molecule"
+                       + ("s" if mc != 1 else "") + " tested; no curated mechanism-of-action drug")
 
     # Approved drugs acting on THIS protein — ChEMBL curated mechanism of action on
     # a single-protein target (§10 moa_drugs), max phase 4. The drug headline a
@@ -209,6 +223,15 @@ def at_a_glance(bundle) -> str:
         more = f", +{len(appr) - 3} more" if len(appr) > 3 else ""
         bullets.append(f"**Approved drugs (ChEMBL mechanism of action):** {len(appr)} — "
                        + ", ".join(names) + more)
+    cx_appr = [d for d in (b10.get("complex_moa_drugs") or [])
+               if d.get("name") and _phase_num(d.get("phase")) >= 4]
+    if cx_appr:
+        from atlas.render_common import display_name
+        names = [display_name(d["name"]) for d in cx_appr[:3]]
+        more = f", +{len(cx_appr) - 3} more" if len(cx_appr) > 3 else ""
+        bullets.append(f"**Approved drugs acting on a complex or family including it:** "
+                       f"{len(cx_appr)} — " + ", ".join(names) + more
+                       + f" ({cx_appr[0].get('target')})")
 
     # Pharmacogenomics (PharmGKB) — CPIC/DPWG dosing guidelines are the clinical
     # headline for pharmacogenes (CYP2C19: 37) and were absent from the Summary.

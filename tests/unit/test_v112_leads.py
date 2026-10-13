@@ -199,3 +199,22 @@ def test_faq_drug_unapproved_and_gene_exons():
     assert dict(intent_qas("gene", gene, "TP53"))["How many exons does TP53 have?"] == (
         "The canonical Ensembl transcript of TP53 (ENST00000269305) has 11 exons. "
         "TP53 has 40 annotated Ensembl transcripts.")
+
+
+# ── page hygiene ────────────────────────────────────────────────────────────
+
+def test_prune_empty_headings_and_zero_labels():
+    from atlas.pipeline import prune_empty
+    md = "\n".join([
+        "## Disease & clinical {#disease}", "",
+        "### HPO {#hpo}", "",
+        "### SIGNOR {#signor}", "",
+        "#### Sub {#sub}", "",
+        "### GWAS {#gwas-assoc}", "", "| a |", "",
+        "**Orphanet (0):**", "**Mondo (2):** x, y", "",
+        "### Linked {#linked}", "",
+        "## Next {#next}", "", "see [here](#linked)"])
+    out = prune_empty(md)
+    assert "{#hpo}" not in out and "{#signor}" not in out and "{#sub}" not in out
+    assert "{#disease}" in out and "{#gwas-assoc}" in out and "{#linked}" in out
+    assert "Orphanet (0)" not in out and "**Mondo (2):** x, y" in out

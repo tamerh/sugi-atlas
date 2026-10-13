@@ -152,7 +152,7 @@ def _gene(bundle, title):
         qas.append((f"How many exons does {title} have?", a))
 
     moa = [d for d in (b10.get("moa_drugs") or []) if d.get("name")]
-    if moa:
+    if moa and any(_phase(d.get("phase")) > 0 for d in moa):
         appr = [d for d in moa if _phase(d.get("phase")) >= 4]
         clin = [d for d in moa if 0 < _phase(d.get("phase")) < 4]
         parts = []
@@ -167,6 +167,15 @@ def _gene(bundle, title):
                            f"{_join(names)}{_more(len(clin), len(names))}.")
         if parts:
             qas.append((f"What drugs target {title}?", " ".join(parts)))
+    cx = [d for d in (b10.get("complex_moa_drugs") or []) if d.get("name") and _phase(d.get("phase")) >= 4]
+    if cx:
+        names = [display_name(d["name"]) for d in cx[:8]]
+        a = (f"Approved drugs acting on a protein complex or family that includes {title} "
+             f"({cx[0].get('target')}): {_join(names)}{_more(len(cx), len(names))}.")
+        if qas and qas[-1][0] == f"What drugs target {title}?":
+            qas[-1] = (qas[-1][0], qas[-1][1] + " " + a)
+        else:
+            qas.append((f"What drugs target {title}?", a))
     return qas
 
 

@@ -192,6 +192,41 @@ def _f(x):
     try: return float(x)
     except (TypeError, ValueError): return float("inf")
 
+# Complex / family MOA targets small enough to be specific: the K-ATP channel
+# (Kir6.2 + SUR1: sulfonylureas → KCNJ11), VEGFR (3), voltage-gated Na⁺ channel α
+# (9). Larger groups — GABA-A (19 subunits), proteasome, ribosome, complex I —
+# would hand every subunit the class's drug list (the v1.11.7 noise), so skip.
+_COMPLEX_MAX_MEMBERS = 10
+
+
+def _complex_moa_drugs(targets, single_keys):
+    """Curated-MOA drugs whose target is a small protein complex / family that
+    includes this protein — listed apart from the single-protein table, with the
+    complex named. Drugs already on the single-protein list are skipped."""
+    out = {}
+    for t in targets:
+        if (t.get("type") or "").upper() == "SINGLE PROTEIN" or not t.get("id"):
+            continue
+        members = len(map_all(t["id"], ">>chembl_target>>uniprot", cap=1))
+        if not members or members > _COMPLEX_MAX_MEMBERS:
+            continue
+        for m in map_all(t["id"], ">>chembl_target>>chembl_mechanism>>chembl_molecule"):
+            name = (m.get("name") or "").strip()
+            if not name or name.upper().startswith("CHEMBL"):
+                continue
+            key = _salt_base(name)
+            if key in single_keys:
+                continue
+            ph = m.get("highestDevelopmentPhase")
+            cur = out.get(key)
+            if cur is None or _phase(ph) > _phase(cur["phase"]) or \
+                    (_phase(ph) == _phase(cur["phase"]) and len(name) < len(cur["name"])):
+                out[key] = {"id": m.get("id"), "name": name, "type": m.get("type"), "phase": ph,
+                            "target": t.get("title"), "target_type": t.get("type"),
+                            "members": members}
+    return sorted(out.values(), key=lambda d: (-_phase(d["phase"]), d["name"]))
+
+
 def collect(a):
     bundle = {"section": "10_drugs", "symbol": a.symbol}
     uni = a.canonical_uniprot
@@ -244,6 +279,7 @@ def collect(a):
         if (m.get("type") or "").lower() == "oligonucleotide":
             _add_moa(m)
     bundle["moa_drugs"] = sorted(moa.values(), key=lambda d: (-_phase(d["phase"]), d["name"]))
+    bundle["complex_moa_drugs"] = _complex_moa_drugs(targets, set(moa))
     # Bioactivity list: within a phase, curated-MOA drugs first, then by patent
     # intensity — instead of CHEMBL-id order (which put levodopa/clotrimazole at
     # the top of EGFR's phase-4 rows and pushed gefitinib past the row cap).
@@ -675,7 +711,7 @@ SECTION = Section(
                  "clickable CID/AID), clinical trials via disease route, CIViC "
                  "clinical evidence (drug × variant × indication precision triple)"),
     needs=("hgnc_id", "canonical_uniprot"),
-    produces=("canonical_uniprot", "chembl_targets", "molecules", "moa_drugs", "civic_assertions", "chembl_activities",
+    produces=("canonical_uniprot", "chembl_targets", "molecules", "moa_drugs", "complex_moa_drugs", "civic_assertions", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",

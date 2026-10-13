@@ -1085,6 +1085,22 @@ def r_drugs(b):
                                 d.get("phase") if str(d.get("phase") or "").isdigit() and d.get("phase") != "0" else "—")
                                for d in moa],
                               ROW_CAP, noun="curated-mechanism drugs"))
+    # Drugs whose curated target is a small complex / family containing this protein
+    # (sulfonylureas → K-ATP channel → KCNJ11). Separate and labelled: the drug acts
+    # on the assembly, not necessarily on this subunit alone.
+    cx = b.get("complex_moa_drugs") or []
+    if cx:
+        sym = b.get("symbol") or "this gene"
+        L.append("\n### Drugs acting on a complex or family that includes this protein {#chembl-moa-complex}\n")
+        L.append(f"Curated ChEMBL mechanism-of-action drugs whose target is a protein complex or "
+                 f"family of ≤10 members that includes {sym} — the drug acts on the assembly or "
+                 "class, not necessarily on this subunit alone.\n")
+        L.append(capped_table(["Drug", "Target (ChEMBL)", "Members", "Max phase"],
+                              [(links.maybe_link(d.get("name"), links.drug_url(chembl_id=d["id"], name=d.get("name"))),
+                                d.get("target") or "", d.get("members") or "",
+                                d.get("phase") if str(d.get("phase") or "").isdigit() and d.get("phase") != "0" else "—")
+                               for d in cx],
+                              ROW_CAP, noun="drugs via a complex or family"))
     mols = b.get("molecules", [])
     mc = b.get("molecule_count", 0)
     if mols or mc:
@@ -1428,6 +1444,27 @@ def r_drugs(b):
     return "\n".join(L)
 
 
+def top_tissue_names(rows, k=5):
+    """The k highest-scoring distinct tissues — the one-line "where is it
+    expressed" answer above the 100-row Bgee table. Laterality and duplicate
+    entries collapse ("left testis" / "right testis" → "testis")."""
+    out = []
+    for t in sorted(rows, key=lambda r: -_score(r.get("score"))):
+        nm = re.sub(r"^(left|right) ", "", (t.get("tissue") or "").strip(), flags=re.I)
+        if nm and nm.lower() not in {x.lower() for x in out}:
+            out.append(nm)
+        if len(out) == k:
+            break
+    return out
+
+
+def _score(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def r_expression(b):
     L = ["## Expression profiles", ""]
     bg = b.get("bgee")
@@ -1439,6 +1476,9 @@ def r_expression(b):
         L.append(f"\n**FANTOM5 (CAGE):** breadth **{f5.get('breadth')}**, "
                  f"TPM avg {f5.get('tpm_average')} / max {f5.get('tpm_max')}, "
                  f"expressed in {f5.get('samples_expressed')} samples.")
+    top = top_tissue_names(b.get("top_tissues") or [])
+    if top:
+        L.append(f"\n**Highest expression (Bgee):** {', '.join(top)}.")
     fp = b.get("fantom5_promoters") or []
     if fp:
         L.append("\n### FANTOM5 promoters {#fantom5-promoters}\n")
