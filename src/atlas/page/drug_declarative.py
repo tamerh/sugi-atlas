@@ -13,6 +13,7 @@ Shape (sub-clauses drop silently when data is absent):
   clinical evidence for 203 variant-indication associations (e.g. BCR::ABL1
   fusion in chronic myeloid leukemia).
 """
+import re
 
 
 def _join(names):
@@ -39,6 +40,8 @@ def _class_clause(b1, b6, b5=None):
     elif b1.get("max_phase") == 3:
         bits.append("phase-3 clinical-stage")
     mtype = (b1.get("molecule_type") or "").lower()
+    if mtype == "unknown":                   # "an approved unknown targeting SNAP25"
+        mtype = ""
     roles = (b6 or {}).get("chebi_roles") or []
     # Lead with the best PHARMACOLOGICAL ChEBI role as the functional class
     # (audit #9: roles[0] can be 'environmental contaminant'/'mutagen'); molecule
@@ -116,6 +119,16 @@ def _targets_clause(b2):
     if genes:
         s += " targeting " + _join(genes[:3])
     return s
+
+
+def _mesh_action_clause(b15):
+    """Fallback when ChEMBL names no mechanism or target (1,250 leads named none):
+    the MeSH pharmacological actions — "(MeSH pharmacological action: diuretics)"."""
+    pa = [p for p in ((b15 or {}).get("pharmacological_actions") or []) if p][:3]
+    if not pa:
+        return ""
+    names = [p if re.search(r"[A-Z]{2}", p) else p.lower() for p in pa]
+    return f" (MeSH pharmacological action{'s' if len(names) != 1 else ''}: {', '.join(names)})"
 
 
 def _near(a, b):
@@ -207,7 +220,8 @@ def declarative_sentence(bundle):
 
     sentence = f"{head} is a{'n' if _class_clause(b1, b6, b5)[:1].lower() in 'aeiou' else ''} "
     sentence += _class_clause(b1, b6, b5)
-    sentence += _targets_clause(b2)
+    tc = _targets_clause(b2)
+    sentence += tc or _mesh_action_clause(bundle.get("15"))
     sentence += _indications_clause(b4)
     sentence += _civic_clause(b10)
     sentence += "."

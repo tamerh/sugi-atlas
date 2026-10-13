@@ -14,6 +14,40 @@ CHAINS   = (">>mondo>>orphanet", ">>orphanet>>hgnc", ">>orphanet>>mim",
 DATASETS = ("mondo", "orphanet", "mim", "gencc", "hgnc", "intogen", "civic")
 
 
+# Umbrella terms: GenCC Definitive/Strong genes curated on the term's subtypes
+# (three levels down). "Inherited retinal dystrophy" named CLN3/UBAP1L/IMPG1 as
+# cohort genes while ABCA4 and RPE65 — curated on its subtypes — were absent.
+_SUBTYPE_MIN = 5
+_SUBTYPE_DEPTH = 3
+_SUBTYPE_TOP = 25
+
+
+def _subtype_genes(mondo_id):
+    if not mondo_id:
+        return [], 0
+    try:
+        if len(map_all(mondo_id, ">>mondo>>mondochild")) < _SUBTYPE_MIN:
+            return [], 0
+    except Exception:
+        return [], 0
+    per_gene = {}
+    for depth in range(1, _SUBTYPE_DEPTH + 1):
+        chain = ">>mondo" + ">>mondochild" * depth + ">>gencc"
+        try:
+            rows = map_all(mondo_id, chain)
+        except Exception:
+            continue
+        for r in rows:
+            if gencc_rank(r.get("classification_title")) < gencc_rank("Strong"):
+                continue
+            sym, dis = r.get("gene_symbol"), (r.get("disease_title") or "").strip()
+            if sym and dis:
+                per_gene.setdefault(sym, set()).add(dis)
+    ranked = sorted(per_gene.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+    return [{"symbol": g, "subtypes": len(ds), "examples": sorted(ds)[:3]}
+            for g, ds in ranked[:_SUBTYPE_TOP]], len(per_gene)
+
+
 def collect(a):
     # disease_name lets the render prefer each cohort gene's GenCC record FOR
     # THIS disease over a stronger off-disease one (audit follow-up: BRCA2's
@@ -56,6 +90,7 @@ def collect(a):
                 moi[sym].append(m)
     bundle["disease_gencc"] = [{"symbol": s, "classification": c, "moi": moi.get(s, [])}
                                for s, c in dg.items()]
+    bundle["subtype_genes"], bundle["subtype_gene_total"] = _subtype_genes(a.mondo_id)
 
     # Orphanet: any cohort gene with a >>hgnc>>orphanet hit. Bounded by cohort.
     orphanet_genes = []
@@ -146,6 +181,7 @@ SECTION = Section(
                  "(intOGen, CIViC). High-confidence target subset."),
     needs=("mondo_id", "cohort", "cohort_evidence", "is_cancer", "orphanet_ids", "omim_ids"),
     produces=("disease_name", "gencc_genes", "disease_gencc", "orphanet_genes",
-              "omim_genes", "somatic_driver_genes", "dual_evidence_genes"),
+              "omim_genes", "somatic_driver_genes", "dual_evidence_genes",
+              "subtype_genes", "subtype_gene_total"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )

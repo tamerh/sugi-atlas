@@ -716,6 +716,17 @@ def r_mendelian_overlap(b):
                                 if (g.get("civic") or {}).get("id") else ""))
                               for g in sg],
                              ROW_CAP, noun="somatic driver genes")]
+    st = b.get("subtype_genes") or []
+    if st:
+        tot = b.get("subtype_gene_total") or len(st)
+        out += ["", "### Genes curated across subtypes (GenCC) {#subtype-genes}", "",
+                "Genes with a Definitive or Strong GenCC gene–disease validity "
+                "classification for this term's subtypes (up to three levels down), "
+                "ranked by the number of subtypes they are curated for.", "",
+                capped_table(["Gene", "Subtypes", "Example subtypes"],
+                             [(_glink(g.get("symbol")), g.get("subtypes"),
+                               _trunc("; ".join(g.get("examples") or []), 90)) for g in st],
+                             ROW_CAP, total=tot, noun="genes")]
     gc = b.get("gencc_genes") or []
     if gc:
         # Collapse to one row per gene (audit #13: cohort fan-out pulls every
@@ -769,6 +780,10 @@ def r_genes_proteins(b):
                 "Treated as the disease's stated causal gene to populate the "
                 "molecular and therapeutic sections — not a curated gene–disease "
                 "validity assertion.*"]
+    if ev.get("orphanet") and not any(v for k, v in ev.items() if k != "orphanet"):
+        out += ["",
+                "*Genes from Orphanet's curated gene–disease associations — no GWAS / "
+                "GenCC / ClinVar / CIViC route resolved for this disease.*"]
     if ev and any(ev.values()):              # skip the all-zero partition (no cohort)
         out += ["", "### Evidence partition {#evidence-partition}", ""]
         out.append(table(["Subset", "Genes"],

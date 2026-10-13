@@ -80,7 +80,8 @@ def _description(b1: dict, b2: dict, b6: dict) -> str:
     from atlas.render_common import display_name
     name = display_name(b1.get("canonical_name") or b1.get("chembl_id") or "?")
     roles = (b6 or {}).get("chebi_roles") or []
-    klass = pharma_class(roles, fallback=(b1.get("molecule_type") or "drug"))
+    mt = b1.get("molecule_type") or ""
+    klass = pharma_class(roles, fallback=(mt if mt.lower() != "unknown" else "") or "drug")
     genes = [t.get("gene_symbol") for t in (b2.get("primary_targets") or [])
              if t.get("gene_symbol")][:3]
     tgt = (" targeting " + ", ".join(genes)) if genes else ""

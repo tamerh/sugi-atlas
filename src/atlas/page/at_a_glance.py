@@ -231,7 +231,8 @@ def at_a_glance(bundle) -> str:
         more = f", +{len(cx_appr) - 3} more" if len(cx_appr) > 3 else ""
         bullets.append(f"**Approved drugs acting on a complex or family including it:** "
                        f"{len(cx_appr)} — " + ", ".join(names) + more
-                       + f" ({cx_appr[0].get('target')})")
+                       + " (" + "; ".join(list(dict.fromkeys(
+                           d.get("target") for d in cx_appr if d.get("target")))[:2]) + ")")
 
     # Pharmacogenomics (PharmGKB) — CPIC/DPWG dosing guidelines are the clinical
     # headline for pharmacogenes (CYP2C19: 37) and were absent from the Summary.

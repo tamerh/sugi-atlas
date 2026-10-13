@@ -388,6 +388,30 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
 
     cohort_full, evidence = _build_cohort(mondo_id)
 
+    # Orphanet curated gene–disease associations — ONLY when no structured route
+    # resolved (319 diseases with an empty cohort have them: BPES type 1 → FOXL2,
+    # ALK-positive ALCL → ALK). Curator-asserted direct >>mondo>>orphanet rows only
+    # (the OMIM-hop candidates can be a sibling form). `orphanet_causing` marks the
+    # "Disease-causing germline mutation(s) in" associations — the causal tier;
+    # susceptibility / modifier / candidate genes stay plain cohort members.
+    if not cohort_full and orph_rows and not orph_from_omim:
+        seeded = []
+        for r in orph_rows[:3]:
+            try:
+                genes = map_all(r["id"], ">>orphanet>>hgnc")
+            except Exception:
+                continue
+            for g in genes[:10]:
+                hid = g.get("id") or ""
+                if not hid.startswith("HGNC:") or hid in evidence:
+                    continue
+                evidence[hid] = {f: False for f, _ in _COHORT_ROUTES}
+                evidence[hid]["alliance"] = False
+                evidence[hid]["orphanet"] = True
+                evidence[hid]["orphanet_causing"] = (g.get("evidence") or "").lower().startswith("disease-causing")
+                seeded.append(hid)
+        cohort_full = tuple(seeded)
+
     # Definitional gene fallback — ONLY when no structured route resolved. A
     # rare/Mendelian disease's causal gene is frequently named only in the
     # Orphanet clinical definition (italicized; see _definitional_genes). Recover

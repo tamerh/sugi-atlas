@@ -43,6 +43,13 @@ def _disease(bundle, title):
                        f"forms are linked to {genes}."),
              "subtypes": f"{title} is an umbrella term; its subtypes are caused by "
                          f"variants in {genes}."}.get(kind)
+    st = [g for g in ((bundle.get("4") or {}).get("subtype_genes") or []) if g.get("symbol")]
+    if st and kind in ("subtypes", None) and (b1.get("child_count") or 0) >= 5:
+        tot = max((bundle.get("4") or {}).get("subtype_gene_total") or 0, len(st))
+        top = _join([f"{g['symbol']} ({g['subtypes']} subtypes)" for g in st[:5]])
+        cause = (f"{title} is an umbrella term covering {b1.get('child_count')} Mondo subtypes. "
+                 f"GenCC curates {tot} genes as Definitive or Strong causes of its subtypes; "
+                 f"the most frequent are {top}.")
     if cause:
         if phrase:
             cause += f" It is {phrase} ({src})."
@@ -171,7 +178,8 @@ def _gene(bundle, title):
     if cx:
         names = [display_name(d["name"]) for d in cx[:8]]
         a = (f"Approved drugs acting on a protein complex or family that includes {title} "
-             f"({cx[0].get('target')}): {_join(names)}{_more(len(cx), len(names))}.")
+             f"({'; '.join(list(dict.fromkeys(d.get('target') for d in cx if d.get('target')))[:2])}): "
+             f"{_join(names)}{_more(len(cx), len(names))}.")
         if qas and qas[-1][0] == f"What drugs target {title}?":
             qas[-1] = (qas[-1][0], qas[-1][1] + " " + a)
         else:

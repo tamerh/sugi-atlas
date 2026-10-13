@@ -218,3 +218,13 @@ def test_prune_empty_headings_and_zero_labels():
     assert "{#hpo}" not in out and "{#signor}" not in out and "{#sub}" not in out
     assert "{#disease}" in out and "{#gwas-assoc}" in out and "{#linked}" in out
     assert "Orphanet (0)" not in out and "**Mondo (2):** x, y" in out
+
+
+def test_umbrella_lead_names_subtype_genes():
+    from atlas.page.disease_declarative import declarative_sentence
+    b = _bundle("inherited retinal dystrophy", children=40)
+    b["4"]["subtype_genes"] = [{"symbol": s, "subtypes": n, "examples": []}
+                               for s, n in (("PRPH2", 10), ("BEST1", 10), ("RHO", 10), ("RPE65", 8))]
+    b["4"]["subtype_gene_total"] = 150
+    s = declarative_sentence(b)
+    assert "whose subtypes are caused by variants in PRPH2, BEST1, RHO, and 147 other genes" in s

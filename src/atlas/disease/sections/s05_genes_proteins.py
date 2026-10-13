@@ -13,7 +13,8 @@ CHAINS   = (">>hgnc>>ensembl>>uniprot",         # reused via gene collectors
             ">>mondo>>doid>>alliance_disease")  # Alliance/DO gene→disease associations
 DATASETS = ("hgnc", "ensembl", "uniprot", "doid", "alliance_disease")
 
-_EVIDENCE_KEYS = ("gwas", "gencc", "clinvar", "civic_evidence", "definitional")
+_EVIDENCE_KEYS = ("gwas", "gencc", "clinvar", "civic_evidence", "definitional",
+                  "orphanet", "orphanet_causing")
 
 
 def _classify(ev: dict) -> str:
@@ -27,6 +28,8 @@ def _classify(ev: dict) -> str:
     # gene never carries another flag, and gets its own bucket.
     if ev.get("definitional") and not (g or gc or cv or ci):
         return "definitional"
+    if ev.get("orphanet") and not (g or gc or cv or ci):
+        return "orphanet"
     n = sum((g, gc, cv, ci))
     if n >= 3:
         return "multi_evidence"
@@ -52,7 +55,7 @@ def collect(a):
     g3_by = {b.get("symbol"): b for b in g3_bundles}
 
     summary = {"gwas_only": 0, "gwas_and_gencc": 0, "gwas_and_clinvar": 0,
-               "civic_only": 0, "multi_evidence": 0, "definitional": 0}
+               "civic_only": 0, "multi_evidence": 0, "definitional": 0, "orphanet": 0}
     genes = []
     seen_canonical = set()
     from atlas.page.uniprot_cc import first_sentence

@@ -179,7 +179,7 @@ def _causal_clause(bundle):
     subtypes, and a ClinVar-only gene is reported as evidence, not cause."""
     kind, cg = causal_kind(bundle)
     if not kind:
-        return ""
+        return _subtype_gene_clause(bundle)
     syms = [s for s, _ in cg]
     genes = _gene_list(syms, cg)
     if kind == "forms":
@@ -188,12 +188,29 @@ def _causal_clause(bundle):
         k = "hereditary" if (bundle.get("1") or {}).get("is_cancer") else "monogenic"
         return f" whose {k} forms are linked to {genes}"
     if kind == "subtypes":
-        return f" whose subtypes are caused by variants in {genes}"
+        # Prefer the genes curated across the subtypes (ranked by how many they
+        # cover) over the few curated on the umbrella term itself (inherited
+        # retinal dystrophy: PRPH2/BEST1/RHO, not CLN3/UBAP1L/IMPG1).
+        return _subtype_gene_clause(bundle) or f" whose subtypes are caused by variants in {genes}"
     if kind == "clinvar":
         return f" with pathogenic variants reported in {genes} (ClinVar)"
     if len(syms) == 1:
         return f" caused by {syms[0]} ({cg[0][1]})"
     return f" caused by variants in {genes}"
+
+
+def _subtype_gene_clause(bundle):
+    """Umbrella term with no curated gene of its own: name the genes GenCC
+    curates across its subtypes ("whose subtypes are caused by variants in
+    PRPH2, BEST1, RHO, and 147 other genes")."""
+    b1 = bundle.get("1") or {}
+    b4 = bundle.get("4") or {}
+    st = [g.get("symbol") for g in (b4.get("subtype_genes") or []) if g.get("symbol")]
+    if (b1.get("child_count") or 0) < _UMBRELLA_SUBTYPES or not st:
+        return ""
+    total = max(b4.get("subtype_gene_total") or 0, len(st))
+    syms = st[:3] + [""] * (total - min(3, len(st)))
+    return f" whose subtypes are caused by variants in {_gene_list(syms, None)}"
 
 
 def inheritance_modes(bundle):

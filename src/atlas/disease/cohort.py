@@ -107,6 +107,14 @@ def causal_genes(bundle):
     # cohort via the ClinVar germline route FOR THIS DISEASE are the causal
     # candidates. Bounded to a focused set (≤5) so a polygenic / cancer cohort with
     # many ClinVar genes never claims them all causal; labelled weaker than GenCC.
+    # Orphanet tier — "Disease-causing germline mutation(s) in" associations for a
+    # disease whose cohort came only from Orphanet (anchors fallback).
+    if not out:
+        b5 = bundle.get("5") or {}
+        orph = sorted(g.get("symbol") for g in (b5.get("genes") or [])
+                      if g.get("symbol") and (g.get("evidence") or {}).get("orphanet_causing"))
+        if 0 < len(orph) <= 5:
+            out = [(s, "Orphanet disease-causing") for s in orph]
     if not out and _clinvar_tier_applies(bundle):
         b5 = bundle.get("5") or {}
         clinvar_genes = sorted(
