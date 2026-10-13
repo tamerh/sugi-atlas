@@ -72,7 +72,7 @@ def declarative_sentence(bundle):
 
     symbol  = b1.get("symbol") or "?"
     hgnc    = b1.get("hgnc") or {}
-    name    = hgnc.get("name") or ""
+    name    = " ".join((hgnc.get("name") or "").split())   # HGNC names can carry stray spaces
     hgnc_id = b1.get("hgnc_id")
     location = hgnc.get("location")
     klass   = _gene_class(b1)

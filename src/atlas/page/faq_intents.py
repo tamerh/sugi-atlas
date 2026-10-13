@@ -91,6 +91,8 @@ def _drug(bundle, title):
     moa = []
     for m in b2.get("mechanisms") or []:
         t = (m.get("mechanism_of_action") or "").strip().rstrip(".")
+        if t.lower() in ("unknown", "not applicable", "n/a", "none"):
+            continue
         if t and t.lower() not in {x.lower() for x in moa}:
             moa.append(t)
     genes = (list(dict.fromkeys(g.get("gene_symbol") for g in b2.get("mechanism_genes") or []

@@ -325,3 +325,16 @@ def test_cp1252_c1_chars_do_not_break_frontmatter():
     v = _yaml_escape("Shprintzen\x96Goldberg omphalocele syndrome \x85")
     assert v == "Shprintzen–Goldberg omphalocele syndrome …"
     assert yaml.safe_load(f'd: "{v}"')["d"] == v
+
+
+def test_drug_lead_unknown_mechanism_and_phase3_with_phase4_rows():
+    from atlas.page.drug_declarative import declarative_sentence, _targets_clause
+    assert _targets_clause({"mechanisms": [{"mechanism_of_action": "Unknown"}]}) == ""
+    b = {"1": {"canonical_name": "ACETYLCARNITINE", "chembl_id": "CHEMBL1", "max_phase": 3,
+               "molecule_type": "Small molecule"},
+         "2": {"mechanisms": [{"mechanism_of_action": "Unknown"}]},
+         "4": {"indications": [{"name": "adhd", "approved": True, "max_phase": 4}]}}
+    s = declarative_sentence(b)
+    assert "unknown" not in s.lower()
+    assert "phase-3 clinical-stage" in s and "approved for" not in s
+    assert "with phase-4 (approval-stage) ChEMBL records for 1 indication (adhd)" in s

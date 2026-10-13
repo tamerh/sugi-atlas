@@ -92,10 +92,15 @@ def _lc_first(t):
     return t
 
 
+_NO_MECHANISM = {"", "unknown", "not applicable", "n/a", "none"}
+
+
 def _mechanism_names(b2, k=2):
     out = []
     for m in (b2 or {}).get("mechanisms") or []:
         t = (m.get("mechanism_of_action") or "").strip().rstrip(".")
+        if t.lower() in _NO_MECHANISM:       # ChEMBL "Unknown" → "acts as an unknown"
+            continue
         if t and t.lower() not in {x.lower() for x in out}:
             out.append(t)
     return [_lc_first(t) for t in out[:k]], len(out)
@@ -167,7 +172,7 @@ def _indication_names(inds, k=2):
     return names
 
 
-def _indications_clause(b4):
+def _indications_clause(b4, molecule_approved=True):
     """Approved indications and trial-stage diseases are reported separately: the
     ChEMBL indication list mixes phase-4 approvals with phase 1–3 trial diseases,
     and "indicated across 9 conditions" on a phase-3 drug (poziotinib) claimed
@@ -179,7 +184,12 @@ def _indications_clause(b4):
         return ""
     if na:
         names = _indication_names(appr)
-        s = f"; approved for {na} indication" + ("s" if na != 1 else "")
+        # ChEMBL can log a phase-4 indication on a molecule that is itself only
+        # phase 3 (acetylcarnitine, artemisinin): "a phase-3 clinical-stage …
+        # approved for 1 indication" contradicts itself, so state the record.
+        verb = ("approved for" if molecule_approved
+                else "with phase-4 (approval-stage) ChEMBL records for")
+        s = f"; {verb} {na} indication" + ("s" if na != 1 else "")
         if names:
             s += (" including " if na > len(names) else " (") + _join(names) + \
                  ("" if na > len(names) else ")")
@@ -226,7 +236,12 @@ def declarative_sentence(bundle):
     sentence += _class_clause(b1, b6, b5)
     tc = _targets_clause(b2)
     sentence += tc or _mesh_action_clause(bundle.get("15"))
-    sentence += _indications_clause(b4)
+    # "approved for" unless the class clause called the molecule phase-3 —
+    # same test as _class_clause's "approved" adjective, plus non-FDA phase 4.
+    from atlas.indication import molecule_approved, _int_phase
+    mol_ok = ((molecule_approved(b1, b5) and b1.get("is_fda_approved") is not False)
+              or (_int_phase(b1.get("max_phase")) or 0) >= 4)
+    sentence += _indications_clause(b4, molecule_approved=mol_ok)
     sentence += _civic_clause(b10)
     sentence += "."
     return sentence

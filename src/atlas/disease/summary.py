@@ -35,6 +35,7 @@ def _first_sentences(text, limit=_DEF_MAX):
     """Leading sentence(s) of a definition, within `limit` characters. A sentence
     ends at '. ' followed by a capital (abbreviations like "e.g. the" don't)."""
     text = " ".join((text or "").split())
+    text = re.sub(r"\s+([,;:.])", r"\1", text)   # source text: "fatal , epileptic"
     parts = re.split(r"(?<=[.!?])\s+(?=[A-Z(])", text)
     out = ""
     for p in parts:
