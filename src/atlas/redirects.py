@@ -50,14 +50,14 @@ def compute(history, built):
 
 
 def write(dist_dir, built, history_path=HISTORY):
-    """Compute + write atlas/redirects.json and fold this run's slugs into the
-    history file. Returns the redirect map."""
+    """Compute + write atlas/redirects.json, and the history updated with this
+    run's slugs to <dist>/slug_history.json. The repo copy is never touched by a
+    build (a tracked file changing under a sample/prod run blocks the release
+    tag); after a full prod build, copy dist/slug_history.json over
+    data/corpus/slug_history.json and commit it. Returns the redirect map."""
     redirects, updated = compute(load_history(history_path), built)
     with open(os.path.join(dist_dir, "atlas", "redirects.json"), "w") as f:
         json.dump(redirects, f, indent=1, sort_keys=True)
-    try:
-        with open(history_path, "w") as f:
-            json.dump(updated, f, indent=0, sort_keys=True)
-    except OSError:
-        pass
+    with open(os.path.join(dist_dir, "slug_history.json"), "w") as f:
+        json.dump(updated, f, indent=0, sort_keys=True)
     return redirects
