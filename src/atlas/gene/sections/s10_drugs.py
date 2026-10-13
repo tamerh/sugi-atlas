@@ -174,7 +174,8 @@ _SALT_WORDS = {
     "hydrochloride", "lactate", "magnesium", "malate", "maleate", "meglumine",
     "mesylate", "monohydrate", "nitrate", "phosphate", "potassium", "sodium",
     "succinate", "sulfate", "tartrate", "tosylate", "tromethamine", "trihydrate",
-    "anhydrous", "hcl",
+    "anhydrous", "hcl", "benzoate", "besilate", "mesilate", "pamoate", "oxalate",
+    "gluconate", "hyclate", "xinafoate",
 }
 
 

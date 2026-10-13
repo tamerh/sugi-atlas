@@ -106,8 +106,13 @@ def _targets_clause(b2):
     SLC12A1' — the curated ChEMBL mechanism first (what the drug DOES; it also
     names family/complex targets such as VEGFR or GABA-A that resolve to no single
     gene), then the target genes."""
-    genes = _curated_target_genes(b2)
     moa, n_moa = _mechanism_names(b2)
+    # With a curated mechanism, name only its genes: GtoPdb's primary-target list
+    # can contradict it (bepridil, a calcium-channel blocker, "targeting KCNT1 and
+    # KCNQ4"). Without one, the GtoPdb targets are the best available.
+    genes = ([g.get("gene_symbol") for g in (b2 or {}).get("mechanism_genes") or []
+              if g.get("gene_symbol")] if moa else _curated_target_genes(b2))
+    genes = list(dict.fromkeys(genes))
     s = ""
     if moa:
         art = "an" if moa[0][:1].lower() in "aeiou" else "a"

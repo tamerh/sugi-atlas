@@ -93,7 +93,9 @@ def _drug(bundle, title):
         t = (m.get("mechanism_of_action") or "").strip().rstrip(".")
         if t and t.lower() not in {x.lower() for x in moa}:
             moa.append(t)
-    genes = _curated_target_genes(b2)
+    genes = (list(dict.fromkeys(g.get("gene_symbol") for g in b2.get("mechanism_genes") or []
+                                if g.get("gene_symbol")))
+             if moa else _curated_target_genes(b2))       # same rule as the lead
     orgs = b2.get("mechanism_organisms") or []
     if moa or genes:
         parts = []
