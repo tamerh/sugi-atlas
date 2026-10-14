@@ -142,6 +142,16 @@ def _drugs_clause(b13, indicated=None):
     return f" Drugs most tested in its clinical trials include {_name_list(names)}."
 
 
+# Polygenic test, calibrated on real bundles (biobtree v2.12.0): Mendelian
+# diseases carry up to ~60 GWAS associations (sickle cell 60, DMD 47, CF 37) but
+# are anchored by a GenCC-Definitive gene; complex traits start at ~60 (epilepsy
+# 61 → SHROOM4, ALS 169, SLE 1,562). So: ≥100 GWAS hits is polygenic outright;
+# ≥20 is polygenic unless a causal gene is GenCC Definitive.
+_POLYGENIC_GWAS = 100
+_POLYGENIC_GWAS_SOFT = 20
+_UMBRELLA_SUBTYPES = 5    # ≥ this many Mondo subtypes → an umbrella/grouping term
+
+
 def _gene_list(syms, cg):
     if len(syms) == 1:
         return syms[0]
