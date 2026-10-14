@@ -53,7 +53,7 @@ def apply(dist_dir, pages, registry_path=REGISTRY, today=None):
     Returns (changed, unchanged) counts."""
     today = today or datetime.now(timezone.utc).date().isoformat()
     prev = load(registry_path)
-    out, changed = {}, 0
+    out = {}
     for et, slug in pages:
         p = os.path.join(dist_dir, "atlas", et, slug, "index.md")
         try:
@@ -64,10 +64,10 @@ def apply(dist_dir, pages, registry_path=REGISTRY, today=None):
         key = f"{et}/{slug}"
         new, entry = stamp(md, key, prev, today)
         out[key] = entry
-        changed += entry[1] == today
         if new != md:
             with open(p, "w", encoding="utf-8") as f:
                 f.write(new)
     with open(os.path.join(dist_dir, "content_dates.json"), "w") as f:
         json.dump(out, f, indent=0, sort_keys=True)
+    changed = sum(1 for e in out.values() if e[1] == today)
     return changed, len(out) - changed
