@@ -193,3 +193,13 @@ def test_lastmod_from_content_hash():
     assert 'lastmod: "2026-10-13"' in out and e[1] == "2026-10-13"
     out, e = stamp(md2.replace("body", "new body"), "gene/X", {"gene/X": [content_hash(md), "2026-10-13"]}, "2026-11-01")
     assert 'lastmod: "2026-11-01"' in out
+
+
+def test_complex_disease_lead_inheritance_attaches_to_familial_forms():
+    from atlas.page.disease_declarative import declarative_sentence
+    b = _dz("amyotrophic lateral sclerosis", "Amyotrophic lateral sclerosis",
+            ["Autosomal dominant", "Autosomal recessive"], [("FUS", "Definitive", [])])
+    b["2"] = {"assoc_total": 169}
+    s = declarative_sentence(b)
+    assert ("whose monogenic forms are linked to FUS; its familial forms are inherited in an "
+            "autosomal dominant or autosomal recessive pattern.") in s

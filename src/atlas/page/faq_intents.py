@@ -54,8 +54,11 @@ def _disease(bundle, title):
                  f"the most frequent are {top}.")
     if cause:
         if phrase:
-            cause += (f" It has {phrase[5:]} ({src})." if phrase.startswith("with ")
-                      else f" It is {phrase} ({src}).")
+            if kind in ("forms", "subtypes"):
+                cause += f" Its {'subtypes' if kind == 'subtypes' else 'familial forms'} are {phrase} ({src})."
+            else:
+                cause += (f" It has {phrase[5:]} ({src})." if phrase.startswith("with ")
+                          else f" It is {phrase} ({src}).")
         qas.append((f"What causes {title}?", cause))
     if phrase:
         n_gwas = (bundle.get("2") or {}).get("assoc_total") or 0

@@ -94,7 +94,8 @@ def _trials_clause(b1, b13, joined=False):
 # procedures done ON patients with the disease (tonsillectomy → dexmedetomidine),
 # not treatments OF it. Name-matched: trial_drugs carry no ATC code.
 _PROCEDURAL = re.compile(
-    r"^(dexmedetomidine|propofol|midazolam|ketamine|esketamine|fentanyl|remifentanil|"
+    r"^(dexmedetomidine|propofol|midazolam|remimazolam|ketamine|esketamine|fentanyl|remifentanil|"
+    r"hydromorphone|oxycodone|nalbuphine|tramadol|"
     r"sufentanil|alfentanil|morphine|sevoflurane|desflurane|isoflurane|lidocaine|bupivacaine|"
     r"levobupivacaine|ropivacaine|mepivacaine|ondansetron|granisetron|palonosetron|"
     r"droperidol|sugammadex|rocuronium|cisatracurium|vecuronium|neostigmine|"
@@ -348,7 +349,15 @@ def declarative_sentence(bundle):
     if causal or inh:
         what = f"a form of {form_of}" if form_of else f"a {klass}"
         sentence = f"{head} is {what}{umbrella}{causal}"
-        if inh:
+        complex_ = causal_kind(bundle)[0] in ("forms", "subtypes") or \
+            ((b2.get("assoc_total") or 0) >= _POLYGENIC_GWAS_SOFT and not causal)
+        if inh and complex_:
+            # A complex disease / umbrella: the modes describe its familial forms or
+            # subtypes, not the disease as a whole (ALS "… linked to FUS, inherited in
+            # an autosomal dominant …" read as if ALS itself were inherited).
+            who = "subtypes" if causal_kind(bundle)[0] == "subtypes" else "familial forms"
+            sentence += f"; its {who} are {inh}" if causal else f" whose familial forms are {inh}"
+        elif inh:
             sentence += ("," if causal else "") + f" {inh}"
         sentence += "."
         if defn:
