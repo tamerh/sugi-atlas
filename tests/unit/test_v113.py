@@ -203,3 +203,8 @@ def test_complex_disease_lead_inheritance_attaches_to_familial_forms():
     s = declarative_sentence(b)
     assert ("whose monogenic forms are linked to FUS; its familial forms are inherited in an "
             "autosomal dominant or autosomal recessive pattern.") in s
+
+
+def test_anhydrous_with_comma_separator():
+    from atlas.render_common import display_name
+    assert display_name("SODIUM PHOSPHATE, DIBASIC, ANHYDROUS") == "Sodium Phosphate, Dibasic"

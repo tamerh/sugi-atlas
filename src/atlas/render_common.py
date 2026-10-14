@@ -72,7 +72,7 @@ def display_name(s):
     if not (s and isinstance(s, str)):
         return s
     # ChEMBL's "DOCETAXEL ANHYDROUS" parent names: show the generic name.
-    s = re.sub(r"\s+anhydrous$", "", s, flags=re.I) or s
+    s = re.sub(r"[,\s]+anhydrous$", "", s, flags=re.I) or s
     if not s.isupper():
         return s
     if " " not in s and any(c.isdigit() for c in s):   # single-token code — preserve
