@@ -509,6 +509,10 @@ def run(genes, diseases, drugs, dist_dir, cache_dir, workers, limit=None, pathwa
         if not r.get("ok"):
             print(f"    RENDER-FAIL {r['entity']}:{r.get('slug')} — {r.get('error')}")
     print(f"[C] rendered {len(rok)}/{len(specs_c)} in {time.time()-t1:.1f}s")
+    # Per-page lastmod from a content hash (sitemaps: generated_at changes every run).
+    from atlas import lastmod as LM
+    ch, same = LM.apply(dist_dir, [(r["entity"], r["slug"]) for r in rok])
+    print(f"[C] lastmod: {ch} changed/new, {same} unchanged since the registry")
     print(f"[batch] done in {time.time()-t0:.1f}s — {len(rok)} pages published")
     return {"collected": len(ok), "rendered": len(rok), "skipped": len(failed)}
 

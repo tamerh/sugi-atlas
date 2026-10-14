@@ -338,3 +338,9 @@ def test_drug_lead_unknown_mechanism_and_phase3_with_phase4_rows():
     assert "unknown" not in s.lower()
     assert "phase-3 clinical-stage" in s and "approved for" not in s
     assert "with phase-4 (approval-stage) ChEMBL records for 1 indication (adhd)" in s
+
+
+def test_retired_slugs():
+    from atlas.redirects import retired
+    hist = {"drug": {"imd-0354": "CHEMBL9", "aspirin": "CHEMBL25", "old-aspirin": "CHEMBL25"}}
+    assert retired(hist, [("drug", "aspirin", "CHEMBL25")]) == {"drug": ["imd-0354"]}

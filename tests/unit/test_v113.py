@@ -182,3 +182,14 @@ def test_anhydrous_dropped_from_display_names():
     assert display_name("DOCETAXEL ANHYDROUS") == "Docetaxel"
     assert display_name("Lisinopril anhydrous") == "Lisinopril"
     assert display_name("ABT199") == "ABT199"
+
+
+def test_lastmod_from_content_hash():
+    from atlas.lastmod import stamp, content_hash
+    md = '---\ntitle: "X"\ngenerated_at: "2026-10-13T10:00:00+00:00"\natlas_version: "v1.13.0"\n---\nbody\n'
+    md2 = md.replace("2026-10-13T10:00:00", "2026-11-01T09:00:00").replace("v1.13.0", "v1.14.0")
+    assert content_hash(md) == content_hash(md2)                 # stamps ignored
+    out, e = stamp(md2, "gene/X", {"gene/X": [content_hash(md), "2026-10-13"]}, "2026-11-01")
+    assert 'lastmod: "2026-10-13"' in out and e[1] == "2026-10-13"
+    out, e = stamp(md2.replace("body", "new body"), "gene/X", {"gene/X": [content_hash(md), "2026-10-13"]}, "2026-11-01")
+    assert 'lastmod: "2026-11-01"' in out
