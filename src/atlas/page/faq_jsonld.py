@@ -47,4 +47,5 @@ def as_script_tag(title, description, tldr, url, extra=None):
     faq = build_faq(title, description, tldr, url, extra)
     if not faq:
         return ""
-    return f'<script type="application/ld+json">\n{json.dumps(faq, indent=2)}\n</script>'
+    # Minified inline (the pretty form was ~18% of page bytes across JSON-LD blocks).
+    return f'<script type="application/ld+json">\n{json.dumps(faq, ensure_ascii=False, separators=(",", ":"))}\n</script>'

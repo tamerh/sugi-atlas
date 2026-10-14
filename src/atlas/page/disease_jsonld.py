@@ -302,7 +302,7 @@ def as_script_tag(jsonld: dict) -> str:
     buries the readable lead. The full graph stays in the entity.jsonld
     sidecar (see `as_jsonld_string`)."""
     from atlas.page.jsonld_inline import compact_for_inline
-    body = json.dumps(compact_for_inline(jsonld), indent=2)
+    body = json.dumps(compact_for_inline(jsonld), ensure_ascii=False, separators=(",", ":"))
     return f'<script type="application/ld+json">\n{body}\n</script>'
 
 

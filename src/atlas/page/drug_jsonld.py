@@ -152,7 +152,7 @@ def as_script_tag(jsonld: dict) -> str:
     the full graph stays in the entity.jsonld sidecar."""
     from atlas.page.jsonld_inline import compact_for_inline
     return (f'<script type="application/ld+json">\n'
-            f'{json.dumps(compact_for_inline(jsonld), indent=2)}\n</script>')
+            f'{json.dumps(compact_for_inline(jsonld), ensure_ascii=False, separators=(",", ":"))}\n</script>')
 
 
 def as_jsonld_string(jsonld: dict) -> str:
