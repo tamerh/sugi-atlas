@@ -114,3 +114,20 @@ def test_article_agreement_in_definition_predicate():
     assert definition_predicate("An disease or disorder caused by a helminth.", "x") == \
         "a disease or disorder caused by a helminth."
     assert definition_predicate("A inherited disorder of the eye.", "x") == "an inherited disorder of the eye."
+
+
+def test_umbrella_subtype_approved_drugs():
+    from atlas.disease.render import r_drugs_indicated as r_indicated_drugs
+    from atlas.page.faq_intents import intent_qas
+    from atlas.page.disease_declarative import _drugs_clause
+    b = _dz("breast cancer")
+    b["_indicated_drugs"] = [{"name": "ASPIRIN", "url": "/atlas/drug/aspirin/", "max_phase": 3,
+                              "approved": False, "late": False}]
+    b["_subtype_approved_drugs"] = [{"name": "PALBOCICLIB", "url": "/atlas/drug/palbociclib/",
+                                     "subtypes": ["breast carcinoma"]}]
+    md = r_indicated_drugs(b)
+    assert "**1 drug approved for its subtypes**" in md and "breast carcinoma" in md
+    a = dict(intent_qas("disease", b, "Breast cancer"))["What drugs are approved for Breast cancer?"]
+    assert a.startswith("No drug is recorded as approved for Breast cancer as a whole")
+    assert _drugs_clause({}, b["_indicated_drugs"], b["_subtype_approved_drugs"]) == \
+        " Drugs approved for its subtypes include palbociclib."

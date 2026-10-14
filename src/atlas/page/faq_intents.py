@@ -95,6 +95,17 @@ def _disease(bundle, title):
                   f"(often labelled uses ChEMBL records at phase 3; check the label): "
                   f"{_join(names)}{_more(len(late), len(names))}.")
         qas.append((f"What drugs are approved for {title}?", a))
+    sub = [r for r in (bundle.get("_subtype_approved_drugs") or []) if r.get("name")]
+    if sub and not appr:
+        names = [f"{display_name(r['name'])} ({r['subtypes'][0]})" for r in sub[:8]]
+        extra = (f"No drug is recorded as approved for {title} as a whole; drugs approved "
+                 f"for its subtypes (ChEMBL) include {_join(names)}{_more(len(sub), len(names))}.")
+        q = f"What drugs are approved for {title}?"
+        prev = [i for i, (qq, _) in enumerate(qas) if qq == q]
+        if prev:
+            qas[prev[0]] = (q, qas[prev[0]][1] + " " + extra)
+        else:
+            qas.append((q, extra))
     return qas
 
 

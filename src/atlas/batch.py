@@ -164,6 +164,23 @@ def render_one(spec):
             # indications of its own, surface the PARENT term's indicated drugs
             # (clearly attributed in the render) so the Therapeutics zone isn't an
             # empty placeholder next to a parent that carries real therapeutic data.
+            # Umbrella roll-up: no approved drug of its own, but its subtypes have
+            # some (breast cancer: 0, breast carcinoma: 47; 517 such diseases).
+            # Rendered as "approved for its subtypes", attributed per subtype.
+            if not any(r.get("approved") for r in bundle["_indicated_drugs"]):
+                rolled = {}
+                for ch in (bundle.get("1") or {}).get("children") or []:
+                    cslug = links._lookup("disease", ch.get("id"), ch.get("name"))
+                    if not cslug or cslug == slug:
+                        continue
+                    for r in links.indicated_drugs(dist_dir, cslug):
+                        if r.get("approved") and r.get("name"):
+                            slot = rolled.setdefault(r["url"], {"name": r["name"], "url": r["url"],
+                                                                "subtypes": []})
+                            slot["subtypes"].append(ch.get("name"))
+                if rolled:
+                    bundle["_subtype_approved_drugs"] = sorted(
+                        rolled.values(), key=lambda r: (-len(r["subtypes"]), r["name"]))
             if not bundle["_indicated_drugs"]:
                 parent = (bundle.get("1") or {}).get("parent") or {}
                 pslug = (links._lookup("disease", parent.get("id"), parent.get("name"))

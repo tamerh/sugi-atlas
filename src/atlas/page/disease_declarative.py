@@ -111,7 +111,7 @@ def _name_list(names):
     return ", ".join(names[:-1]) + ", and " + names[-1]
 
 
-def _drugs_clause(b13, indicated=None):
+def _drugs_clause(b13, indicated=None, subtype_drugs=None):
     """Treatment sentence. Approved drugs first (disease-direct phase-4 ChEMBL
     indications), ranked by how many of THIS disease's trials use them; else
     approved drugs with phase-3 evidence here; else the drugs most tested in its
@@ -131,6 +131,9 @@ def _drugs_clause(b13, indicated=None):
     late = [r for r in rows if not r.get("approved") and r.get("late")]
     if appr:
         return f" Approved drugs (ChEMBL) include {_name_list(_top(appr))}."
+    if subtype_drugs:
+        return (f" Drugs approved for its subtypes include "
+                f"{_name_list([display_name(r['name']).lower() for r in subtype_drugs[:3]])}.")
     if late:
         return (f" Approved drugs with phase-3 evidence for it include "
                 f"{_name_list(_top(late))}.")
@@ -366,7 +369,7 @@ def declarative_sentence(bundle):
     # sickle cell → "Olfactory Signaling" from clustered OR genes in the GWAS tail.
     # The enrichment table stays in the body with its statistics.)
     sentence += _civic_subtype_clause(b13)
-    sentence += _drugs_clause(b13, bundle.get("_indicated_drugs"))
+    sentence += _drugs_clause(b13, bundle.get("_indicated_drugs"), bundle.get("_subtype_approved_drugs"))
     sentence += _parent_clause(b1, b5)
     return sentence
 

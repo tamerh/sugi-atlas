@@ -137,8 +137,10 @@ def at_a_glance(bundle) -> str:
     rows = [r for r in (bundle.get("_indicated_drugs") or []) if r.get("name")]
     appr = [r for r in rows if r.get("approved")]
     late = [r for r in rows if not r.get("approved") and r.get("late")]
+    sub = [r for r in (bundle.get("_subtype_approved_drugs") or []) if r.get("name")]
     for label, grp in (("Approved drugs (ChEMBL indications)", appr),
-                       ("Approved drugs with phase-3 evidence here", late)):
+                       ("Approved drugs with phase-3 evidence here", late),
+                       ("Approved drugs for its subtypes", sub if not appr else [])):
         if grp:
             names = [display_name(r["name"]) for r in grp[:3]]
             more = f", +{_format_int(len(grp) - 3)} more" if len(grp) > 3 else ""

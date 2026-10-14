@@ -1504,6 +1504,23 @@ def parent_is_clinical_entity(xref_counts):
     return any((xc.get(k) or 0) > 0 for k in _CLINICAL_ENTITY_XREFS)
 
 
+def _subtype_drugs_block(bundles):
+    """Approved drugs of the term's direct subtypes (batch roll-up), for an
+    umbrella with none of its own — breast cancer had no approved drug while
+    breast carcinoma lists 47. Each row names the subtype(s) it is approved for."""
+    rows = bundles.get("_subtype_approved_drugs") or []
+    if not rows:
+        return ""
+    return "\n".join([
+        f"**{_i(len(rows))} drug{'s' if len(rows) != 1 else ''} approved for its subtypes** "
+        "— ChEMBL phase-4 indications recorded on the subtypes below, not on this broader "
+        "term itself.", "",
+        capped_table(["Drug", "Approved for (subtype)"],
+                     [(links.maybe_link(r.get("name"), r.get("url")),
+                       _trunc("; ".join(r.get("subtypes") or []), 90)) for r in rows],
+                     ROW_CAP, noun="drugs")])
+
+
 def _parent_drugs_indicated(bundles):
     """Sparse-subtype Therapeutics fallback: render the PARENT term's indicated
     drugs (injected as `_parent_indicated_drugs` in batch), clearly attributed to
@@ -1551,18 +1568,16 @@ def r_drugs_indicated(bundles):
     / clinical-only diseases (anti-NMDA aside — off-label drugs aren't ChEMBL
     indications) can still surface real registered drugs.
 
-    TIERED so "indicated" never overstates: approved indications (phase 4, or an
-    anticancer drug at phase 3 vs a cancer — see atlas.indication) in the main
-    table; the rest (phase 2-3) listed separately as investigational candidates
-    (efficacy unproven). Phase ≤1 is excluded upstream. Empty → '' so the
-    Therapeutics zone elides cleanly."""
+    TIERED so "indicated" never overstates: approved indications (phase 4), an
+    approved drug's phase-3 evidence for this disease, then investigational
+    trials (phase 2–3). An umbrella with no approved drug of its own lists its
+    subtypes' approved drugs, attributed. Phase ≤1 is excluded upstream. Empty →
+    '' so the Therapeutics zone elides cleanly."""
     rows = bundles.get("_indicated_drugs") or []
+    sub = _subtype_drugs_block(bundles)
     if not rows:
-        return _parent_drugs_indicated(bundles)
-    # Tier on the index's `approved` flag (atlas.indication.approved_indication):
-    # phase 4, or an anticancer drug at phase 3 vs this cancer (ChEMBL logs
-    # imatinib→CML at phase 3 though approved). Everything else is investigational
-    # (the aspirin-vs-cancer class). Phase ≤1 isn't in the index.
+        return (("## Drugs indicated or in trials for this disease\n\n" + sub) if sub
+                else _parent_drugs_indicated(bundles))
     approved = [r for r in rows if r.get("approved")]
     late = [r for r in rows if not r.get("approved") and r.get("late")]
     trials = [r for r in rows if not r.get("approved") and not r.get("late")
@@ -1590,6 +1605,8 @@ def r_drugs_indicated(bundles):
     if not approved and not late:
         out += ["No drug has an approved disease-direct ChEMBL indication for this "
                 "disease.", ""]
+    if sub:
+        out += ["", sub]
     if trials:
         out += ["",
                 f"**{_i(len(trials))} drug{'s' if len(trials) != 1 else ''} in clinical "
