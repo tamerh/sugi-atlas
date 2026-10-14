@@ -133,14 +133,16 @@ def at_a_glance(bundle) -> str:
     # merge-phase index, injected at render as `_indicated_drugs`; the same tiered
     # `approved` flag the #indicated table uses). Disease-direct only — never the
     # parent-term fallback.
-    appr = [r for r in (bundle.get("_indicated_drugs") or [])
-            if r.get("approved") and r.get("name")]
-    if appr:
-        from atlas.render_common import display_name
-        names = [display_name(r["name"]) for r in appr[:3]]
-        more = f", +{_format_int(len(appr) - 3)} more" if len(appr) > 3 else ""
-        bullets.append(f"**Approved drugs (ChEMBL indications):** {_format_int(len(appr))} — "
-                       + ", ".join(names) + more)
+    from atlas.render_common import display_name
+    rows = [r for r in (bundle.get("_indicated_drugs") or []) if r.get("name")]
+    appr = [r for r in rows if r.get("approved")]
+    late = [r for r in rows if not r.get("approved") and r.get("late")]
+    for label, grp in (("Approved drugs (ChEMBL indications)", appr),
+                       ("Approved drugs with phase-3 evidence here", late)):
+        if grp:
+            names = [display_name(r["name"]) for r in grp[:3]]
+            more = f", +{_format_int(len(grp) - 3)} more" if len(grp) > 3 else ""
+            bullets.append(f"**{label}:** {_format_int(len(grp))} — " + ", ".join(names) + more)
 
     # Precision-medicine evidence (CIViC, §13) — subtype–drug associations.
     civ = b13.get("civic_association_total") or 0

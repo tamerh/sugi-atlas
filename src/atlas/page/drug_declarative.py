@@ -106,18 +106,24 @@ def _mechanism_names(b2, k=2):
     return [_lc_first(t) for t in out[:k]], len(out)
 
 
+def lead_target_genes(b2):
+    """Target genes shown for a drug (lead, at-a-glance, FAQ — one rule). With a
+    curated ChEMBL mechanism, only its genes: GtoPdb's primary-target list can
+    contradict it (bepridil, a calcium-channel blocker, "targeting KCNT1";
+    carbamazepine → FZD8). Without one, the curated GtoPdb targets."""
+    moa, _ = _mechanism_names(b2)
+    genes = ([g.get("gene_symbol") for g in (b2 or {}).get("mechanism_genes") or []
+              if g.get("gene_symbol")] if moa else _curated_target_genes(b2))
+    return list(dict.fromkeys(genes))
+
+
 def _targets_clause(b2):
     """'that acts as a solute carrier family 12 member 1 inhibitor, targeting
     SLC12A1' — the curated ChEMBL mechanism first (what the drug DOES; it also
     names family/complex targets such as VEGFR or GABA-A that resolve to no single
     gene), then the target genes."""
     moa, n_moa = _mechanism_names(b2)
-    # With a curated mechanism, name only its genes: GtoPdb's primary-target list
-    # can contradict it (bepridil, a calcium-channel blocker, "targeting KCNT1 and
-    # KCNQ4"). Without one, the GtoPdb targets are the best available.
-    genes = ([g.get("gene_symbol") for g in (b2 or {}).get("mechanism_genes") or []
-              if g.get("gene_symbol")] if moa else _curated_target_genes(b2))
-    genes = list(dict.fromkeys(genes))
+    genes = lead_target_genes(b2)
     s = ""
     if moa:
         art = "an" if moa[0][:1].lower() in "aeiou" else "a"
@@ -173,14 +179,16 @@ def _indication_names(inds, k=2):
 
 
 def _indications_clause(b4, molecule_approved=True):
-    """Approved indications and trial-stage diseases are reported separately: the
-    ChEMBL indication list mixes phase-4 approvals with phase 1–3 trial diseases,
-    and "indicated across 9 conditions" on a phase-3 drug (poziotinib) claimed
-    approvals that don't exist."""
+    """Approved (phase 4), phase-3 evidence of an approved drug, and trials are
+    reported separately. ChEMBL carries no label source, so only phase-4 rows are
+    called approvals; an approved drug's phase-3 rows are its "most advanced
+    recorded uses" (imatinib → CML, abacavir → HIV) — neither over-claimed as
+    approvals (v1.12: palbociclib "approved for 9") nor demoted to "investigated
+    in clinical trials" (v1.12: 464 approved drugs read trial-only)."""
     from atlas.indication import indication_tiers
-    appr, trial = indication_tiers(b4)        # same rows/counts as the table
-    na, nt = len(appr), len(trial)
-    if not na and not nt:
+    appr, late, trial = indication_tiers(b4)        # same rows/counts as the table
+    na, nl, nt = len(appr), len(late), len(trial)
+    if not (na or nl or nt):
         return ""
     if na:
         names = _indication_names(appr)
@@ -193,8 +201,20 @@ def _indications_clause(b4, molecule_approved=True):
         if names:
             s += (" including " if na > len(names) else " (") + _join(names) + \
                  ("" if na > len(names) else ")")
+        more = []
+        if nl:
+            more.append(f"phase-3 evidence for {nl} other condition" + ("s" if nl != 1 else ""))
         if nt:
-            s += f", and in clinical trials for {nt} other condition" + ("s" if nt != 1 else "")
+            more.append(f"clinical trials for {nt} other condition" + ("s" if nt != 1 else ""))
+        if more:
+            s += ", with " + " and ".join(more)
+        return s
+    if nl:
+        names = _indication_names(late)
+        s = "; its most advanced recorded uses (phase 3) include " + _join(names) if names else \
+            f"; phase-3 evidence for {nl} condition" + ("s" if nl != 1 else "")
+        if nt:
+            s += f", with clinical trials for {nt} other condition" + ("s" if nt != 1 else "")
         return s
     names = _indication_names(trial)
     s = f"; investigated in clinical trials for {nt} condition" + ("s" if nt != 1 else "")

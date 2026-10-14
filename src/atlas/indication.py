@@ -11,10 +11,10 @@ for ~20% of approved drugs (measured on the v1.1.3 corpus).
 We can't recover "approved for THIS disease" in general from this data, and ATC
 matching across all 14 therapeutic classes is fragile (a third of the affected
 drugs carry no ATC code at all). But it IS reliable for ONCOLOGY: cancer disease
-names are unambiguous and ATC L01/L02 = anticancer. So we upgrade a phase-3
-indication to "approved" only when the drug is an antineoplastic AND the disease
-is a cancer. Everything else is reported honestly by phase (see the renderers'
-caveat) — never falsely "approved", never falsely "in trials only".
+names are unambiguous and ATC L01/L02 = anticancer. v1.12 upgraded such phase-3
+rows to "approved"; that over-claimed (see approved_indication), so v1.13 keeps
+three tiers instead: approved (phase 4), approved drug with phase-3 evidence for
+the use (late), and investigational trials.
 """
 
 # ATC 1st/2nd level for anticancer therapy: L01 (antineoplastic agents),
@@ -63,8 +63,8 @@ def molecule_approved(b1, b5=None):
     Approved when PubChem says so, or ChEMBL max_phase is 4, or the drug is
     late-stage (max_phase >= 3) AND has a registered Phase-4 trial — the last
     branch catches drugs ChEMBL under-phases. Conservative: it only ever upgrades
-    to approved. NOTE: this is molecule-level; per-indication "approved for THIS
-    disease" tiering stays oncology-only (see approved_indication)."""
+    to approved. NOTE: this is molecule-level; per-indication tiering is
+    approved_indication (phase 4) / late_stage_use (phase 3 of an approved drug)."""
     if b1.get("is_fda_approved") or _int_phase(b1.get("max_phase")) == 4:
         return True
     mp = _int_phase(b1.get("max_phase"))
@@ -77,22 +77,24 @@ def is_cancer_disease(name):
 
 
 def approved_indication(atc_codes, phase, disease_name, molecule_approved):
-    """True if this drug→disease indication counts as an APPROVED indication.
+    """True if this drug→disease indication is recorded at approval phase (4).
 
-    A phase-4 indication is always approved. A phase-3 indication is upgraded to
-    approved only when ALL of: the molecule is FDA-approved (PubChem
-    is_fda_approved, or ChEMBL molecule max_phase 4), it is an anticancer drug
-    (ATC L01/L02), and the disease is a cancer. The molecule-approval gate is
-    load-bearing: without it an *experimental* anticancer drug in phase-3 cancer
-    trials would be falsely marked approved. Phase <3 is never approved.
-    """
-    p = phase or 0
-    if p >= 4:
-        return True
-    if (p >= 3 and molecule_approved and is_oncology_drug(atc_codes)
-            and is_cancer_disease(disease_name)):
-        return True
-    return False
+    v1.13: the oncology upgrade (approved L01/L02 drug × phase-3 cancer row →
+    "approved") is gone. ChEMBL carries no label source per indication, and the
+    upgrade turned every phase-3 cancer trial of an approved cancer drug into an
+    approval — palbociclib "approved for 9" (label: HR+/HER2− breast cancer),
+    cisplatin 100; 28% of all approved rows. Phase-3 uses of an approved drug are
+    the separate `late` tier (late_stage_use) — reported as phase-3 evidence,
+    never as approval. Signature kept for callers."""
+    return (phase or 0) >= 4
+
+
+def late_stage_use(phase, molecule_approved):
+    """True for a phase-3 indication of an APPROVED molecule — ChEMBL often caps
+    real labelled uses at phase 3 (imatinib→CML, abacavir→HIV), but the same tier
+    holds phase-3 trials of other uses, so it's reported as "approved drug,
+    phase-3 evidence for this use", not as an approval."""
+    return (phase or 0) == 3 and bool(molecule_approved)
 
 
 def named_indications(b4):
@@ -113,12 +115,14 @@ def named_indications(b4):
 
 
 def indication_tiers(b4):
-    """(approved, trials) — the drug's named indications deduped by (name, MONDO)
-    and tiered on the per-indication `approved` flag; trials are phase 2–3 (the
-    disease-side index's floor). The single source for the indications table,
-    the lead's counts, the FAQ and JSON-LD `treats`, so they can't disagree
-    (v1.12 QA: 88 leads counted raw rows — acetaminophen "12" vs a table of 5)."""
+    """(approved, late, trials) — the drug's named indications deduped by (name,
+    MONDO): approved = phase 4; late = phase 3 of an approved molecule (the
+    `late` flag set in s04); trials = the remaining phase 2–3 (the disease-side
+    index's floor). The single source for the indications table, the lead's
+    counts, the FAQ and JSON-LD `treats`, so they can't disagree."""
     named = named_indications(b4)
     approved = [i for i in named if i.get("approved")]
-    trials = [i for i in named if not i.get("approved") and 2 <= (i.get("max_phase") or 0) <= 3]
-    return approved, trials
+    late = [i for i in named if not i.get("approved") and i.get("late")]
+    trials = [i for i in named if not i.get("approved") and not i.get("late")
+              and 2 <= (i.get("max_phase") or 0) <= 3]
+    return approved, late, trials

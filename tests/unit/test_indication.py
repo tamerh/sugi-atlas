@@ -22,10 +22,14 @@ def test_phase_le2_is_never_approved():
     assert not approved_indication([], 2, "asthma", True)
 
 
-def test_imatinib_phase3_cancer_is_approved():
-    # THE regression: APPROVED anticancer drug (ATC L01) + cancer + phase 3 ⇒ approved.
-    assert approved_indication(["L01EA01"], 3, "chronic myeloid leukemia", True)
-    assert approved_indication(["L01EA01"], 3, "gastrointestinal stromal tumor", True)
+def test_imatinib_phase3_cancer_is_late_not_approved():
+    # v1.13: no oncology upgrade (palbociclib "approved for 9" — every phase-3
+    # cancer trial became an approval). An approved drug's phase-3 rows are the
+    # `late` tier: phase-3 evidence, not a claimed approval.
+    from atlas.indication import late_stage_use
+    assert not approved_indication(["L01EA01"], 3, "chronic myeloid leukemia", True)
+    assert late_stage_use(3, True)
+    assert not late_stage_use(3, False) and not late_stage_use(2, True) and not late_stage_use(4, True)
 
 
 def test_experimental_anticancer_phase3_cancer_is_NOT_approved():

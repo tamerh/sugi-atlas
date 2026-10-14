@@ -354,15 +354,22 @@ def _build_indication_index(collected, dist_dir, cache_dir):
             if not d_url or d_url == drug_url:
                 continue
             slot = idx.setdefault(d_url, {}).setdefault(
-                drug_url, {"name": drug_name, "url": drug_url, "max_phase": 0, "approved": False})
+                drug_url, {"name": drug_name, "url": drug_url, "max_phase": 0,
+                           "approved": False, "late": False})
             slot["max_phase"] = max(slot["max_phase"], phase)   # best phase per drug↔disease
-            # `approved` (set in s04): phase 4, or an anticancer drug at phase 3 vs
-            # a cancer (ChEMBL logs imatinib→CML at phase 3 though approved).
+            # Tiers set in s04 (atlas.indication): `approved` = phase 4; `late` =
+            # phase 3 of an approved drug (imatinib→CML — often an under-phased
+            # labelled use, but not claimed as one).
             if i.get("approved"):
                 slot["approved"] = True
-    # Approved-first, then phase, then name — deterministic ordering.
+            if i.get("late"):
+                slot["late"] = True
+    for drugs in idx.values():
+        for d in drugs.values():
+            d["late"] = d["late"] and not d["approved"]
+    # Approved, then approved-drug phase-3, then phase, then name — deterministic.
     out = {d_url: sorted(drugs.values(),
-                         key=lambda x: (not x["approved"], -x["max_phase"], x["name"]))
+                         key=lambda x: (not x["approved"], not x["late"], -x["max_phase"], x["name"]))
            for d_url, drugs in idx.items()}
     write_json(os.path.join(dist_dir, "atlas", "indicated_drugs.json"),
                out, indent=0, sort_keys=True)

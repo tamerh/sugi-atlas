@@ -102,35 +102,28 @@ def _associated_anatomy(b1: dict) -> list:
 
 
 def _drugs(bundle: dict) -> list:
-    """schema.org `drug` array — top 5 trial drugs by disease-scoped trial
-    count. Source: §13 trial_drugs (already deduplicated via the chembl
-    parent/child fold). Each entry is a shallow Drug node with name +
-    ChEMBL link. AI agents asking 'drugs used for X' key off this."""
+    """schema.org `drug` array — drugs USED for the condition: approved
+    disease-direct ChEMBL indications (phase 4), else approved drugs with phase-3
+    evidence for it, ranked by this disease's trial count. Trial-only drugs are
+    not asserted (v1.12 listed the top trial drugs — an anaesthetic for
+    tonsillitis, an imaging agent for Alzheimer's — on 3,923 pages). AI agents
+    asking 'drugs used for X' key off this."""
+    from atlas.render_common import display_name
     b13 = bundle.get("13") or {}
-    drugs = b13.get("trial_drugs") or []
+    tc = {(d.get("name") or "").strip().lower(): d for d in (b13.get("trial_drugs") or [])}
+    rows = [r for r in (bundle.get("_indicated_drugs") or []) if r.get("name")]
+    pick = [r for r in rows if r.get("approved")] or [r for r in rows if r.get("late")]
+    pick.sort(key=lambda r: (-((tc.get(r["name"].strip().lower()) or {}).get("trial_count") or 0),
+                             r["name"]))
     out = []
-    for d in drugs[:5]:
-        name = d.get("name")
-        mid = d.get("molecule_id")
-        if not name and not mid:
-            continue
-        # Substance, not Drug — Drug ⊂ Product trips Google's product validator
-        # (see drug_jsonld.py). Substance reads naturally as a treatment reference.
-        from atlas.render_common import display_name
-        rec = {"@type": "Substance", "name": display_name(name) or mid}
-        sameas = []
+    for r in pick[:10]:
+        rec = {"@type": "Substance", "name": display_name(r["name"])}
+        mid = (tc.get(r["name"].strip().lower()) or {}).get("molecule_id")
         if mid:
             rec["identifier"] = mid
-            sameas.append(f"https://www.ebi.ac.uk/chembl/compound_report_card/{mid}/")
-        # Canonical url = the Atlas drug page when built, else the ChEMBL card;
-        # the authority link is always preserved under sameAs.
-        internal = links.drug_url(chembl_id=mid, name=name)
-        if internal:
-            rec["url"] = _HOST + internal
-        elif sameas:
-            rec["url"] = sameas[0]
-        if sameas:
-            rec["sameAs"] = sameas
+            rec["sameAs"] = [f"https://www.ebi.ac.uk/chembl/compound_report_card/{mid}/"]
+        if r.get("url"):
+            rec["url"] = _HOST + r["url"]
         out.append(rec)
     return out
 

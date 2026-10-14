@@ -245,7 +245,7 @@ def r_indications(b):
     # here also appears on that disease's page). Heavily-trialed drugs (aspirin's
     # phase-2/3 cancers) stay investigational — they must NOT read as approved.
     from atlas.indication import indication_tiers, named_indications
-    approved, trials = indication_tiers(b)
+    approved, late, trials = indication_tiers(b)
     named = named_indications(b)
 
     def _efo(i):
@@ -263,21 +263,24 @@ def r_indications(b):
 
     L = ["## Indications", ""]
     if approved:
-        # The "anticancer cancer-use at phase 3" caveat only applies when an
-        # approved row is actually phase 3 — don't leak it onto non-cancer drugs
-        # whose approvals are all phase 4 (e.g. insulin-icodec).
-        cancer_caveat = (", plus an anticancer drug's labelled cancer uses "
-                         "(which ChEMBL often logs at phase 3)"
-                         if any((i.get("max_phase") or 0) == 3 for i in approved) else "")
         L += [f"**{_i(len(approved))} approved indication"
-              f"{'s' if len(approved) != 1 else ''}.** FDA phase 4{cancer_caveat}.", "",
+              f"{'s' if len(approved) != 1 else ''}** (ChEMBL phase 4).", "",
               _tbl(approved, "Indication")]
+    if late:
+        # An approved drug's phase-3 rows: ChEMBL caps many real labelled uses at
+        # phase 3 (imatinib→CML, abacavir→HIV), but this tier also holds phase-3
+        # trials of other uses — so it's evidence, not a claimed approval.
+        L += ["",
+              f"**{_i(len(late))} condition{'s' if len(late) != 1 else ''} with phase-3 "
+              "evidence** for this approved drug. ChEMBL records these uses at phase 3: "
+              "some are labelled indications it under-phases (common for cancer drugs), "
+              "others phase-3 trials — check the label before reading one as an approval.", "",
+              _tbl(late, "Condition (phase 3)")]
     if trials:
         L += ["",
               f"**{_i(len(trials))} disease{'s' if len(trials) != 1 else ''} in clinical "
               f"trials** (phase 2–3, investigational — *not* approved indications). Highest "
-              "ChEMBL trial phase per disease; a non-cancer approved use is occasionally "
-              "logged at phase 3 here.", "",
+              "ChEMBL trial phase per disease.", "",
               _tbl(trials, "Disease (in trials)")]
     if not named:
         n = b.get("indication_count") or 0

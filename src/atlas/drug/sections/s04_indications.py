@@ -3,7 +3,7 @@ chembl_molecule `indications` field (each {efo, mesh, highestDevelopmentPhase}),
 deduped + cross-walked to MONDO on the anchor. Grouped by max phase; the MONDO
 id + slug become /atlas/disease/ links once links.py exists."""
 from atlas.section import Section
-from atlas.indication import approved_indication
+from atlas.indication import approved_indication, late_stage_use
 
 
 def collect(a):
@@ -19,6 +19,7 @@ def collect(a):
         "name": i.name, "efo_id": i.efo_id, "mesh_id": i.mesh_id,
         "mondo_id": i.mondo_id, "slug": i.slug, "max_phase": i.max_phase,
         "approved": approved_indication(atc, i.max_phase, i.name, mol_approved),
+        "late": late_stage_use(i.max_phase, mol_approved),
     } for i in a.indications]
     approved = [i for i in inds if i["approved"]]
     return {

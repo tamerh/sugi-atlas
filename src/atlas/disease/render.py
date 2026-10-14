@@ -1509,6 +1509,8 @@ def _parent_drugs_indicated(bundles):
     CAP = 30
     appr = [r for r in prows if r.get("approved")]
     trial = [r for r in prows if not r.get("approved") and (r.get("max_phase") or 0) in (2, 3)]
+    # (the parent block keeps two tiers: approved-drug phase-3 rows read as trials
+    # here — it's already a broader-term fallback, not this subtype's evidence)
     pname = links.maybe_link(pdis.get("name"), pdis.get("url"))
     out = ["## Drugs indicated or in trials for this disease", "",
            f"*This subtype has no disease-direct ChEMBL indication of its own. The "
@@ -1555,17 +1557,30 @@ def r_drugs_indicated(bundles):
     # imatinib→CML at phase 3 though approved). Everything else is investigational
     # (the aspirin-vs-cancer class). Phase ≤1 isn't in the index.
     approved = [r for r in rows if r.get("approved")]
-    trials = [r for r in rows if not r.get("approved") and (r.get("max_phase") or 0) in (2, 3)]
+    late = [r for r in rows if not r.get("approved") and r.get("late")]
+    trials = [r for r in rows if not r.get("approved") and not r.get("late")
+              and (r.get("max_phase") or 0) in (2, 3)]
 
     out = ["## Drugs indicated or in trials for this disease", ""]
     if approved:
         out += [f"**{_i(len(approved))} approved drug{'s' if len(approved) != 1 else ''}** "
-                "— disease-direct ChEMBL indications, not inferred from the associated-gene "
-                "cohort below.", "",
+                "— disease-direct ChEMBL indications at approval phase (4), not inferred "
+                "from the associated-gene cohort below.", "",
                 table(["Drug", "Status"],
                       [(links.maybe_link(r.get("name"), r.get("url")),
                         f"Approved (phase {r.get('max_phase')})") for r in approved])]
-    else:
+    if late:
+        # Approved drugs whose use for THIS disease ChEMBL records at phase 3 —
+        # often an under-phased labelled use (imatinib→CML), sometimes a trial.
+        out += ["",
+                f"**{_i(len(late))} approved drug{'s' if len(late) != 1 else ''} with phase-3 "
+                "evidence for this disease** — ChEMBL records the use at phase 3: often a "
+                "labelled indication it under-phases (common for cancer drugs), sometimes a "
+                "phase-3 trial. Check the label before reading one as approved for this disease.", "",
+                table(["Drug", "Status"],
+                      [(links.maybe_link(r.get("name"), r.get("url")),
+                        "Approved drug · phase 3 for this disease") for r in late])]
+    if not approved and not late:
         out += ["No drug has an approved disease-direct ChEMBL indication for this "
                 "disease.", ""]
     if trials:

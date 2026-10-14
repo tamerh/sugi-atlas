@@ -70,12 +70,21 @@ def _disease(bundle, title):
             a = f"Commonly reported symptoms of {title} (Wikidata) include {_join(terms)}."
         qas.append((f"What are the symptoms of {title}?", a))
 
-    appr = [r for r in (bundle.get("_indicated_drugs") or []) if r.get("approved") and r.get("name")]
-    if appr:
-        names = [display_name(r["name"]) for r in appr[:8]]
-        qas.append((f"What drugs are approved for {title}?",
-                    f"Drugs with an approved indication for {title} in ChEMBL: "
-                    f"{_join(names)}{_more(len(appr), len(names))}."))
+    rows = [r for r in (bundle.get("_indicated_drugs") or []) if r.get("name")]
+    appr = [r for r in rows if r.get("approved")]
+    late = [r for r in rows if not r.get("approved") and r.get("late")]
+    if appr or late:
+        a = ""
+        if appr:
+            names = [display_name(r["name"]) for r in appr[:8]]
+            a = (f"Drugs with an approved indication for {title} in ChEMBL (phase 4): "
+                 f"{_join(names)}{_more(len(appr), len(names))}.")
+        if late:
+            names = [display_name(r["name"]) for r in late[:8]]
+            a += ((" " if a else "") + f"Approved drugs with phase-3 evidence for {title} "
+                  f"(often labelled uses ChEMBL records at phase 3; check the label): "
+                  f"{_join(names)}{_more(len(late), len(names))}.")
+        qas.append((f"What drugs are approved for {title}?", a))
     return qas
 
 
@@ -110,29 +119,41 @@ def _drug(bundle, title):
             parts.append(f"Target organism: {_join(orgs[:3])}.")
         qas.append((f"What is the mechanism of action of {title}?", " ".join(parts)))
 
+    # Approval status is the MOLECULE's (FDA flag / ChEMBL phase 4 / phase-4
+    # trial) — the per-indication phases can't say "not approved" for an approved
+    # drug (v1.12: 77 FDA-approved drugs answered "no approved indication").
     from atlas.indication import indication_tiers
-    appr, trial = indication_tiers(b4)
+    from atlas.page.drug_at_a_glance import _status
+    appr, late, trial = indication_tiers(b4)
+    status = _status(b1, bundle.get("5"), bundle.get("14"))
+    approved_mol = status.startswith(("FDA-approved", "Approved"))
     if appr:
         names = _indication_names(appr, k=8)
-        qas.append((f"What is {title} approved for?",
-                    f"Approved indications of {title} (ChEMBL): {_join(names)}"
-                    f"{_more(len(appr), len(names))}."
-                    + (f" It is also in clinical trials for {len(trial)} other condition"
-                       + ("s" if len(trial) != 1 else "") + "." if trial else "")))
-    else:
-        phase = b1.get("max_phase")
-        try:
-            phase = int(float(phase))
-        except (TypeError, ValueError):
-            phase = None
-        if phase is not None and phase < 4:
-            a = f"No approved indication is recorded for {title} in ChEMBL; its highest development phase is {phase}."
-            if trial:
-                names = _indication_names(trial, k=3)
-                a += (f" It has been investigated in clinical trials for {len(trial)} condition"
-                      + ("s" if len(trial) != 1 else "")
+        a = (f"Approved indications of {title} (ChEMBL phase 4): {_join(names)}"
+             f"{_more(len(appr), len(names))}.")
+        if late:
+            a += (f" ChEMBL also records phase-3 evidence for {len(late)} other condition"
+                  + ("s" if len(late) != 1 else "") + ".")
+        qas.append((f"What is {title} approved for?", a))
+    elif late and approved_mol:
+        names = _indication_names(late, k=6)
+        qas.append((f"What is {title} used for?",
+                    f"{title} is an approved drug ({status}). ChEMBL records its uses only up "
+                    f"to phase 3 — often how it logs labelled uses — including {_join(names)}"
+                    f"{_more(len(late), len(names))}; check the drug label for the exact "
+                    "approved indications."))
+    if status:
+        if approved_mol:
+            a = f"Yes. {title} status: {status}."
+        else:
+            a = f"No. {title} status: {status}."
+            if trial or late:
+                rows = late + trial
+                names = _indication_names(rows, k=3)
+                a += (f" It has been investigated in clinical trials for {len(rows)} condition"
+                      + ("s" if len(rows) != 1 else "")
                       + (f", including {_join(names)}" if names else "") + ".")
-            qas.append((f"Is {title} an approved drug?", a))
+        qas.append((f"Is {title} an approved drug?", a))
     return qas
 
 

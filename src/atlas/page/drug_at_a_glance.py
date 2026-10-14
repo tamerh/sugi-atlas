@@ -82,8 +82,8 @@ def at_a_glance(bundle) -> str:
     # Targets (§2 primary targets) — count + top symbols. Fall back to curated MOA
     # target genes for RNA therapeutics (inclisiran → PCSK9), which have no GtoPdb/
     # bioactivity target.
-    from atlas.page.drug_declarative import _curated_target_genes
-    genes = _curated_target_genes(b2)
+    from atlas.page.drug_declarative import lead_target_genes
+    genes = lead_target_genes(b2)
     if genes:
         shown = ", ".join(genes[:3])
         extra = f" ({shown}…)" if len(genes) > 3 else f" ({shown})"
@@ -93,12 +93,16 @@ def at_a_glance(bundle) -> str:
         bullets.append(f"**Targets:** {len(genes)}{extra}"
                        + evidence.rank_clause("drug", "target_count", tgt))
 
-    # Indications (§4).
-    ind = b4.get("indication_count") or 0
-    if ind:
-        bullets.append(f"**Indications:** {_format_int(ind)} condition"
-                       f"{'s' if ind != 1 else ''}"
-                       + evidence.rank_clause("drug", "indication_count", ind))
+    # Indications (§4) — the same tiers as the lead and the table (a raw record
+    # count disagreed with the lead on 2,704 drugs: imatinib "52" vs 7 + 27).
+    from atlas.indication import indication_tiers
+    ia, il, it = indication_tiers(b4)
+    if ia or il or it:
+        parts = ([f"{_format_int(len(ia))} approved"] if ia else []) + \
+                ([f"{_format_int(len(il))} with phase-3 evidence"] if il else []) + \
+                ([f"{_format_int(len(it))} in trials"] if it else [])
+        bullets.append("**Indications (ChEMBL):** " + " · ".join(parts)
+                       + evidence.rank_clause("drug", "indication_count", b4.get("indication_count") or 0))
 
     # Clinical trials (§5).
     tr = b5.get("trial_count") or 0

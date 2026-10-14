@@ -49,7 +49,7 @@ def test_drug_lead_separates_approved_from_trials():
     from atlas.page.drug_declarative import _indications_clause
     s = _indications_clause(_inds(("diabetes mellitus", True), ("obesity", False),
                                   ("pcos", False)))
-    assert s == "; approved for 1 indication (diabetes mellitus), and in clinical trials for 2 other conditions"
+    assert s == "; approved for 1 indication (diabetes mellitus), with clinical trials for 2 other conditions"
     s = _indications_clause(_inds(("non-small cell lung carcinoma", False), ("breast cancer", False)))
     assert s.startswith("; investigated in clinical trials for 2 conditions including")
     assert "approved" not in s and "indicated" not in s
@@ -193,7 +193,7 @@ def test_faq_drug_unapproved_and_gene_exons():
             "4": _inds(("lung carcinoma", False))}
     qas = dict(intent_qas("drug", drug, "Poziotinib"))
     assert qas["Is Poziotinib an approved drug?"].startswith(
-        "No approved indication is recorded for Poziotinib in ChEMBL; its highest development phase is 3.")
+        "No. Poziotinib status: Max clinical phase 3 (not approved).")
     assert "EGFR inhibitor" in qas["What is the mechanism of action of Poziotinib?"]
     gene = {"2": {"canonical_exon_count": 11, "canonical_transcript": "ENST00000269305",
                   "ensembl_transcript_count": 40}}
@@ -268,9 +268,9 @@ def test_drug_indications_render_matches_lead_counts():
         {"name": "EFO:0000001", "max_phase": 2, "approved": False},
         {"name": None, "max_phase": 4, "approved": True}]}
     md = r_indications(b4)
-    assert "**1 approved indication.**" in md and "**1 disease in clinical trials**" in md
+    assert "**1 approved indication** (ChEMBL phase 4)" in md and "**1 disease in clinical trials**" in md
     assert _indications_clause(b4) == ("; approved for 1 indication (diabetes mellitus), "
-                                       "and in clinical trials for 1 other condition")
+                                       "with clinical trials for 1 other condition")
 
 
 # ── biobtree v2.16 data ─────────────────────────────────────────────────────

@@ -62,7 +62,7 @@ def _treats(b4: dict) -> list:
     pages asserted trial diseases, 1,944 of them for drugs with no approval)."""
     from atlas.indication import indication_tiers
     out = []
-    for i in indication_tiers(b4)[0][:10]:
+    for i in indication_tiers(b4)[0][:10]:      # phase-4 approvals only
         name = i.get("name")
         mondo = i.get("mondo_id")
         if not name and not mondo:

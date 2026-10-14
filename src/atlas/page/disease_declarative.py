@@ -17,6 +17,8 @@ silently rather than emitting "None"):
   dostarlimab, and medroxyprogesterone acetate.
 """
 
+import re
+
 _CANCER_PHRASE = "cancer"
 
 
@@ -88,50 +90,56 @@ def _trials_clause(b1, b13, joined=False):
     return f"{lead}{_format_int(n)} registered clinical trial" + ("s" if n != 1 else "")
 
 
-def _drugs_clause(b13):
-    drugs = (b13 or {}).get("trial_drugs") or []
-    if not drugs:
-        return ""
-    # Pick top 3 by trial_count (already sorted in the bundle).
-    names = [(d.get("name") or "").strip() for d in drugs[:3]]
-    names = [n.lower() for n in names if n]
+# Perioperative / supportive / diagnostic agents that top trial counts for
+# procedures done ON patients with the disease (tonsillectomy → dexmedetomidine),
+# not treatments OF it. Name-matched: trial_drugs carry no ATC code.
+_PROCEDURAL = re.compile(
+    r"^(dexmedetomidine|propofol|midazolam|ketamine|esketamine|fentanyl|remifentanil|"
+    r"sufentanil|alfentanil|morphine|sevoflurane|desflurane|isoflurane|lidocaine|bupivacaine|"
+    r"levobupivacaine|ropivacaine|mepivacaine|ondansetron|granisetron|palonosetron|"
+    r"droperidol|sugammadex|rocuronium|cisatracurium|vecuronium|neostigmine|"
+    r"sodium chloride|dextrose|glucose|water|placebo|fluorodeoxyglucose.*|"
+    r"florbetapir.*|flutemetamol.*|florbetaben.*|gadolinium.*|gado\w+|iohexol|iodixanol|"
+    r"technetium.*|indocyanine green|fluorescein.*|methylene blue)\b", re.I)
+
+
+def _name_list(names):
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return " and ".join(names)
+    return ", ".join(names[:-1]) + ", and " + names[-1]
+
+
+def _drugs_clause(b13, indicated=None):
+    """Treatment sentence. Approved drugs first (disease-direct phase-4 ChEMBL
+    indications), ranked by how many of THIS disease's trials use them; else
+    approved drugs with phase-3 evidence here; else the drugs most tested in its
+    trials — labelled as such, never as "therapeutic interventions" (v1.12 put an
+    anaesthetic first on tonsillitis and listed trial drugs as treatments on
+    3,896 pages)."""
+    from atlas.render_common import display_name
+    trials = {(d.get("name") or "").strip().lower(): d.get("trial_count") or 0
+              for d in (b13 or {}).get("trial_drugs") or []}
+    rows = [r for r in (indicated or []) if r.get("name")]
+
+    def _top(grp, k=3):
+        grp = sorted(grp, key=lambda r: (-trials.get(r["name"].strip().lower(), 0), r["name"]))
+        return [display_name(r["name"]).lower() for r in grp[:k]]
+
+    appr = [r for r in rows if r.get("approved")]
+    late = [r for r in rows if not r.get("approved") and r.get("late")]
+    if appr:
+        return f" Approved drugs (ChEMBL) include {_name_list(_top(appr))}."
+    if late:
+        return (f" Approved drugs with phase-3 evidence for it include "
+                f"{_name_list(_top(late))}.")
+    drugs = [d for d in (b13 or {}).get("trial_drugs") or []
+             if (d.get("name") or "").strip() and not _PROCEDURAL.match(d["name"].strip())]
+    names = [display_name(d["name"].strip()).lower() for d in drugs[:3]]
     if not names:
         return ""
-    if len(names) == 1:
-        joined = names[0]
-    elif len(names) == 2:
-        joined = " and ".join(names)
-    else:
-        joined = ", ".join(names[:-1]) + ", and " + names[-1]
-    return f" Top therapeutic interventions include {joined}."
-
-
-def _pathway_clause(b14):
-    """When there's a clearly-dominant pathway (≥3 cohort genes), name it."""
-    tp = (b14 or {}).get("top_pathways") or []
-    if not tp:
-        return ""
-    top = tp[0]
-    if (top.get("gene_count") or 0) < 3:
-        return ""
-    name = (top.get("name") or "").strip()
-    if not name:
-        return ""
-    # Avoid Reactome's broad-umbrella names that aren't informative.
-    NOISE = {"disease", "signal transduction", "metabolism", "metabolism of proteins"}
-    if name.lower() in NOISE:
-        return ""
-    return f" The dominant Reactome pathway is *{name}* ({top['gene_count']} associated genes)."
-
-
-# Polygenic test, calibrated on real bundles (biobtree v2.12.0): Mendelian
-# diseases carry up to ~60 GWAS associations (sickle cell 60, DMD 47, CF 37) but
-# are anchored by a GenCC-Definitive gene; complex traits start at ~60 (epilepsy
-# 61 → SHROOM4, ALS 169, SLE 1,562). So: ≥100 GWAS hits is polygenic outright;
-# ≥20 is polygenic unless a causal gene is GenCC Definitive.
-_POLYGENIC_GWAS = 100
-_POLYGENIC_GWAS_SOFT = 20
-_UMBRELLA_SUBTYPES = 5    # ≥ this many Mondo subtypes → an umbrella/grouping term
+    return f" Drugs most tested in its clinical trials include {_name_list(names)}."
 
 
 def _gene_list(syms, cg):
@@ -327,9 +335,12 @@ def declarative_sentence(bundle):
             sentence += " " + _with_source(defn, src)
     sentence += _features_clause(b1)
     sentence += _evidence_sentence(b1, b2, b4, b5, b13)
-    sentence += _pathway_clause(b14)
+    # (No "dominant Reactome pathway" sentence: on the summary it read as a
+    # finding, yet it was cohort-enrichment noise on many pages — Huntington and
+    # sickle cell → "Olfactory Signaling" from clustered OR genes in the GWAS tail.
+    # The enrichment table stays in the body with its statistics.)
     sentence += _civic_subtype_clause(b13)
-    sentence += _drugs_clause(b13)
+    sentence += _drugs_clause(b13, bundle.get("_indicated_drugs"))
     sentence += _parent_clause(b1, b5)
     return sentence
 
