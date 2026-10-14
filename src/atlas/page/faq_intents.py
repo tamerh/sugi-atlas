@@ -56,7 +56,14 @@ def _disease(bundle, title):
             cause += f" It is {phrase} ({src})."
         qas.append((f"What causes {title}?", cause))
     if phrase:
-        if phrase.startswith("with "):
+        n_gwas = (bundle.get("2") or {}).get("assoc_total") or 0
+        if kind == "forms" or (kind is None and n_gwas >= 20) or (b1.get("is_cancer") and kind != "caused"):
+            # A complex disease: Orphanet's modes describe its familial forms
+            # (ALS, moyamoya, cataract answered a flat "Yes" in v1.12).
+            a = (f"Mostly not: {title} is usually sporadic or multifactorial. Its familial "
+                 f"forms are {phrase.replace('with ', 'of ', 1) if phrase.startswith('with ') else phrase} "
+                 f"({src}).")
+        elif phrase.startswith("with "):
             a = f"According to {src}, {title} has {phrase[5:]}."
         else:
             a = f"Yes. According to {src}, {title} is {phrase}."

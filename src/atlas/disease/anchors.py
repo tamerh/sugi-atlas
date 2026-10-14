@@ -408,7 +408,10 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
                 evidence[hid] = {f: False for f, _ in _COHORT_ROUTES}
                 evidence[hid]["alliance"] = False
                 evidence[hid]["orphanet"] = True
-                evidence[hid]["orphanet_causing"] = (g.get("evidence") or "").lower().startswith("disease-causing")
+                # Germline only: "Disease-causing somatic mutation(s) in" is a tumour
+                # driver, not the cause of the disease (mycosis fungoides → TNFRSF1B).
+                ev = (g.get("evidence") or "").lower()
+                evidence[hid]["orphanet_causing"] = ev.startswith("disease-causing") and "somatic" not in ev
                 seeded.append(hid)
         cohort_full = tuple(seeded)
 

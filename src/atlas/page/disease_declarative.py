@@ -228,6 +228,8 @@ def _subtype_gene_clause(bundle):
         return ""
     total = max(b4.get("subtype_gene_total") or 0, len(st))
     syms = st[:3] + [""] * (total - min(3, len(st)))
+    if b1.get("is_cancer"):          # germline predisposition, not "the cause"
+        return f" whose hereditary forms are linked to {_gene_list(syms, None)}"
     return f" whose subtypes are caused by variants in {_gene_list(syms, None)}"
 
 

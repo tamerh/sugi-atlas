@@ -20,6 +20,7 @@ DATASETS = ("mondo", "orphanet", "mim", "gencc", "hgnc", "intogen", "civic")
 _SUBTYPE_MIN = 5
 _SUBTYPE_DEPTH = 3
 _SUBTYPE_TOP = 25
+_SUBTYPE_FLOOD = 30
 
 
 def _subtype_genes(mondo_id):
@@ -30,7 +31,7 @@ def _subtype_genes(mondo_id):
             return [], 0
     except Exception:
         return [], 0
-    per_gene = {}
+    per_gene, per_dis = {}, {}
     for depth in range(1, _SUBTYPE_DEPTH + 1):
         chain = ">>mondo" + ">>mondochild" * depth + ">>gencc"
         try:
@@ -43,6 +44,13 @@ def _subtype_genes(mondo_id):
             sym, dis = r.get("gene_symbol"), (r.get("disease_title") or "").strip()
             if sym and dis:
                 per_gene.setdefault(sym, set()).add(dis)
+                per_dis.setdefault(dis, set()).add(sym)
+    # A catch-all child (itself a grouping term curated with dozens of genes)
+    # floods the parent — "inborn disorder of amino acid transport" got AARS1 and
+    # CACNA1A. Drop subtypes carrying ≥ _SUBTYPE_FLOOD genes, then genes left
+    # with no subtype.
+    flood = {d for d, gs in per_dis.items() if len(gs) >= _SUBTYPE_FLOOD}
+    per_gene = {g: ds - flood for g, ds in per_gene.items() if ds - flood}
     ranked = sorted(per_gene.items(), key=lambda kv: (-len(kv[1]), kv[0]))
     return [{"symbol": g, "subtypes": len(ds), "examples": sorted(ds)[:3]}
             for g, ds in ranked[:_SUBTYPE_TOP]], len(per_gene)

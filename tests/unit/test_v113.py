@@ -84,3 +84,19 @@ def test_clinvar_tier_needs_two_records_and_mendelian_anchor():
     assert causal_genes(b({"NEU1": 7, "SGCB": 1, "MIR181A1HG": 3})) == [("NEU1", "ClinVar-linked")]
     assert causal_genes(b({"NEU1": 7}, orphanet_ids=[])) == []          # no Mendelian anchor
     assert causal_genes(b({"NEU1": 7}, is_cancer=True)) == []
+
+
+def test_faq_inherited_for_complex_disease_is_not_a_flat_yes():
+    from atlas.page.faq_intents import intent_qas
+    b = _dz("amyotrophic lateral sclerosis", "Amyotrophic lateral sclerosis",
+            ["Autosomal dominant", "Autosomal recessive"])
+    b["2"] = {"assoc_total": 169}
+    a = dict(intent_qas("disease", b, "Amyotrophic lateral sclerosis"))["Is Amyotrophic lateral sclerosis inherited?"]
+    assert a.startswith("Mostly not:") and "familial forms are inherited in an autosomal dominant or autosomal recessive pattern" in a
+
+
+def test_subtype_genes_cancer_wording():
+    from atlas.page.disease_declarative import _subtype_gene_clause
+    b = {"1": {"child_count": 9, "is_cancer": True},
+         "4": {"subtype_genes": [{"symbol": "EGFR"}], "subtype_gene_total": 1}}
+    assert _subtype_gene_clause(b) == " whose hereditary forms are linked to EGFR"
