@@ -18,8 +18,10 @@ def collect(a):
     inds = [{
         "name": i.name, "efo_id": i.efo_id, "mesh_id": i.mesh_id,
         "mondo_id": i.mondo_id, "slug": i.slug, "max_phase": i.max_phase,
-        "approved": approved_indication(atc, i.max_phase, i.name, mol_approved),
-        "late": late_stage_use(i.max_phase, mol_approved),
+        # Approved = ChEMBL phase 4 OR a DrugCentral on-label use (biobtree v2.17).
+        "approved": approved_indication(atc, i.max_phase, i.name, mol_approved) or bool(i.label),
+        "label": bool(i.label),
+        "late": late_stage_use(i.max_phase, mol_approved) and not i.label,
     } for i in a.indications]
     approved = [i for i in inds if i["approved"]]
     return {
@@ -27,6 +29,9 @@ def collect(a):
         "indication_count": len(inds),
         "approved_count": len(approved),
         "indications": inds,
+        # DrugCentral's on-label indications as labelled (free text; those with an
+        # exact Mondo term are also rows above, flagged `label`).
+        "label_indications": list(getattr(a, "label_indications", ()) or ()),
     }
 
 
@@ -35,8 +40,8 @@ SECTION = Section(
     description=("Drug indications (chembl_molecule.indications → efo/mesh, "
                  "cross-walked to MONDO), grouped by max development phase"),
     needs=("indications",),
-    produces=("indication_count", "approved_count", "indications"),  # indications carry `approved`
-    datasets=("chembl_molecule", "efo", "mesh", "mondo"),
-    chains=(">>efo>>mondo", ">>mesh>>mondo"),
+    produces=("indication_count", "approved_count", "indications", "label_indications"),  # indications carry `approved`
+    datasets=("chembl_molecule", "efo", "mesh", "mondo", "drugcentral"),
+    chains=(">>efo>>mondo", ">>mesh>>mondo", ">>chembl_molecule>>drugcentral>>mondo"),
     collect_fn=collect,
 )

@@ -380,20 +380,22 @@ def _build_indication_index(collected, dist_dir, cache_dir):
         drug_name = r.get("canonical") or payload.get("title") or r["slug"]
         for i in (payload["bundle"].get("4") or {}).get("indications") or []:
             phase = i.get("max_phase") or 0
-            if phase < 2:                          # ≤1: exploratory noise, excluded
-                continue
+            if phase < 2 and not i.get("approved"):   # ≤1: exploratory noise, excluded
+                continue                               # (a DrugCentral label row has no phase)
             d_url = links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))
             if not d_url or d_url == drug_url:
                 continue
             slot = idx.setdefault(d_url, {}).setdefault(
                 drug_url, {"name": drug_name, "url": drug_url, "max_phase": 0,
-                           "approved": False, "late": False})
+                           "approved": False, "late": False, "label": False})
             slot["max_phase"] = max(slot["max_phase"], phase)   # best phase per drug↔disease
             # Tiers set in s04 (atlas.indication): `approved` = phase 4; `late` =
             # phase 3 of an approved drug (imatinib→CML — often an under-phased
             # labelled use, but not claimed as one).
             if i.get("approved"):
                 slot["approved"] = True
+            if i.get("label"):
+                slot["label"] = True
             if i.get("late"):
                 slot["late"] = True
     for drugs in idx.values():

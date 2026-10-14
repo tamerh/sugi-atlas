@@ -304,7 +304,25 @@ def inheritance_modes(bundle):
             if shared:
                 return shared, "Orphanet, consistent with GenCC"
         return orph, "Orphanet"
+    # HPO's mode-of-inheritance annotation of the disease's (single) OMIM entry —
+    # only for a disease that IS one Mendelian condition: a complex trait or an
+    # umbrella maps to one specific OMIM entry whose mode isn't the disease's
+    # (type 2 diabetes ↔ OMIM 125853 "autosomal dominant"; schizophrenia's
+    # subtypes "autosomal dominant").
+    hpo = [m for m in (b1.get("hpo_inheritance") or [])
+           if m.strip().lower() not in _HPO_INHERITANCE_SKIP] \
+        if inheritance_scope(bundle) == "disease" else []
+    if hpo:
+        if gm and len(hpo) > 1:
+            shared = [m for m in hpo if any(_same_mode(m, g) for g in gm)]
+            if shared:
+                return shared, "HPO, consistent with GenCC"
+        return hpo, "HPO"
     return gm, ("GenCC" if gm else "")
+
+
+# HPO inheritance-subtree terms that aren't a transmission mode.
+_HPO_INHERITANCE_SKIP = {"inheritance", "contiguous gene syndrome", "sporadic"}
 
 
 def _with_source(text, src):

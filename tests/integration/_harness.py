@@ -85,7 +85,7 @@ H4_IDS = {
              # §pathways / §interactions / §regulation
              "reactome", "reactome-categories", "go-categories", "go-experimental",
              "string", "intact", "signor", "corum", "cellphonedb", "interactome-enrichment",
-             "collectri", "jaspar", "mirdb",
+             "collectri", "jaspar", "mirdb", "mirdb-targets",
              # §expression / §disease-assoc / §ncrna
              "fantom5-promoters", "tissue-expression", "gtex-egene", "regional-constraint", "scxa", "hpa-expression",
              "cross-species-homologs", "mouse-phenotypes", "ncrna-go",

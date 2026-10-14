@@ -1101,8 +1101,8 @@ def r_tf_regulation(b):
     # JASPAR PMIDs — evidence trail for the motifs above.
     pmids = b.get("jaspar_pmids") or []
     if pmids:
-        links = ", ".join(f"PMID:{p}" for p in pmids[:10])
-        L.append(f"\n*JASPAR matrix evidence (PMIDs):* {links}")
+        pm = ", ".join(f"PMID:{p}" for p in pmids[:10])
+        L.append(f"\n*JASPAR matrix evidence (PMIDs):* {pm}")
     L.append(_labeled("Upstream regulators (CollecTRI, top)",
                       (r.get("regulator") for r in b.get("upstream_regulators", [])[:40])))
     # miRDB miRNAs targeting this gene — post-transcriptional regulators.
@@ -1117,6 +1117,18 @@ def r_tf_regulation(b):
                               [(m["id"], m.get("max_score"), m.get("avg_score"),
                                 m.get("target_count")) for m in b.get("mirna_regulators", [])],
                               None, total=n_mir, noun="miRNAs"))
+    prods = b.get("mirna_products") or []
+    if prods:
+        L.append("\n### Predicted targets of this miRNA (miRDB) {#mirdb-targets}\n")
+        L.append(f"Mature miRNA{'s' if len(prods) != 1 else ''} encoded by {b.get('symbol')} and "
+                 "their highest-scoring predicted target genes (miRDB target score, 50–100; "
+                 "computational predictions, not validated interactions).\n")
+        for m in prods:
+            tg = m.get("targets") or []
+            n = m.get("target_count")
+            L.append(f"- **{m['id']}** ({n:,} predicted targets): " if isinstance(n, int)
+                     else f"- **{m['id']}**: ")
+            L[-1] += ", ".join(f"{links.maybe_link(t['symbol'], links.gene_url(symbol=t['symbol']))} ({t['score']})" for t in tg) or "—"
     return "\n".join(L)
 
 
@@ -1672,7 +1684,10 @@ def r_cancer_overview(bundle):
 def r_diseases(b):
     L = ["## Disease associations", ""]
     L.append(f"**OMIM:** gene `{', '.join(b.get('gene_omim', []))}` | "
-             f"disease phenotypes: {', '.join(b.get('disease_omim', [])[:40])}")
+             f"disease phenotypes: "
+             + ", ".join(f"{m} ({(b.get('disease_omim_names') or {})[m]})"
+                         if (b.get("disease_omim_names") or {}).get(m) else m
+                         for m in b.get("disease_omim", [])[:40]))
     L.append("\n### GenCC curated gene-disease {#gencc}\n")
     # Collapse to one row per disease (audit #13: GenCC has many submissions per
     # gene–disease pair — FANCB ×4); keep the strongest classification.

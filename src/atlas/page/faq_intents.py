@@ -36,7 +36,8 @@ def _disease(bundle, title):
 
     kind, cg = causal_kind(bundle)
     modes, src = inheritance_modes(bundle)
-    src = {"Orphanet, consistent with GenCC": "Orphanet and GenCC"}.get(src, src)
+    src = {"Orphanet, consistent with GenCC": "Orphanet and GenCC",
+           "HPO, consistent with GenCC": "HPO and GenCC"}.get(src, src)
     phrase = S.inheritance_phrase(modes)
     genes = _join([f"{s} ({l})" for s, l in cg[:5]]) + _more(len(cg), 5)
     cause = {"caused": f"{title} is caused by variants in {genes}.",
@@ -96,7 +97,7 @@ def _disease(bundle, title):
     if appr:
         names = [display_name(r["name"]) for r in appr[:8]]
         qas.append((f"What drugs are approved for {title}?",
-                    f"Drugs with an approved indication for {title} in ChEMBL (phase 4): "
+                    f"Drugs approved for {title} (DrugCentral on-label use or ChEMBL phase 4): "
                     f"{_join(names)}{_more(len(appr), len(names))}."))
     if late:
         names = [display_name(r["name"]) for r in late[:8]]
@@ -169,7 +170,7 @@ def _drug(bundle, title):
         molecule_approved(b1, bundle.get("5"))
     if appr:
         names = _indication_names(appr, k=8)
-        a = (f"Approved indications of {title} (ChEMBL phase 4): {_join(names)}"
+        a = (f"Approved indications of {title} ({'DrugCentral label / ' if any(i.get('label') for i in appr) else ''}ChEMBL phase 4): {_join(names)}"
              f"{_more(len(appr), len(names))}.")
         if late:
             a += (f" ChEMBL also records phase-3 evidence for {len(late)} other condition"

@@ -258,14 +258,29 @@ def r_indications(b):
         return table([col0, "Phase", "MONDO", "EFO"],
                      [(links.maybe_link(i.get("name"),
                                         links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
-                       i.get("max_phase"), i.get("mondo_id") or "", _efo(i))
+                       i.get("max_phase") or "", i.get("mondo_id") or "", _efo(i))
                       for i in sorted(items, key=lambda i: -(i.get("max_phase") or 0))])
 
+    def _src(i):
+        ph4 = (i.get("max_phase") or 0) >= 4
+        return ("DrugCentral label; ChEMBL phase 4" if i.get("label") and ph4
+                else "DrugCentral label" if i.get("label") else "ChEMBL phase 4")
+
     L = ["## Indications", ""]
+    labels = b.get("label_indications") or []
+    if labels:
+        L += [f"**On-label indications (DrugCentral):** {'; '.join(labels[:15])}"
+              + (f" (+{len(labels) - 15} more)" if len(labels) > 15 else "") + ".", ""]
     if approved:
+        has_label = any(i.get("label") for i in approved)
         L += [f"**{_i(len(approved))} approved indication"
-              f"{'s' if len(approved) != 1 else ''}** (ChEMBL phase 4).", "",
-              _tbl(approved, "Indication")]
+              f"{'s' if len(approved) != 1 else ''}** "
+              + ("(DrugCentral on-label use or ChEMBL phase 4)." if has_label else "(ChEMBL phase 4)."), "",
+              table(["Indication", "Source", "Phase", "MONDO", "EFO"],
+                    [(links.maybe_link(i.get("name"),
+                                       links.disease_url(mondo_id=i.get("mondo_id"), name=i.get("name"))),
+                      _src(i), i.get("max_phase") or "", i.get("mondo_id") or "", _efo(i))
+                     for i in sorted(approved, key=lambda i: (not i.get("label"), -(i.get("max_phase") or 0)))])]
     if late:
         # An approved drug's phase-3 rows: ChEMBL caps many real labelled uses at
         # phase 3 (imatinib→CML, abacavir→HIV), but this tier also holds phase-3

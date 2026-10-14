@@ -17,6 +17,7 @@ def collect(a):
         "pubchem_cid": a.pubchem_cid,
         "chebi_id": a.chebi_id,
         "atc_codes": list(a.atc_codes),
+        "atc_classes": list(getattr(a, "atc_classes", ()) or ()),   # DrugCentral WHO ATC names
         "alt_names": list(a.alt_names),
         "parent_chembl": a.parent_chembl,
         "child_chembls": list(a.child_chembls),
@@ -37,7 +38,7 @@ SECTION = Section(
     needs=("chembl_id", "canonical_name", "molecule_type", "max_phase",
            "pubchem_cid", "chebi_id", "atc_codes", "smiles", "inchi_key"),
     produces=("chembl_id", "canonical_name", "molecule_type", "max_phase",
-              "pubchem_cid", "chebi_id", "atc_codes", "alt_names",
+              "pubchem_cid", "chebi_id", "atc_codes", "atc_classes", "alt_names",
               "parent_chembl", "child_chembls", "inchi_key", "smiles",
               "molecular_formula", "molecular_weight", "chebi_definition"),
     datasets=("chembl_molecule", "pubchem", "chebi"),

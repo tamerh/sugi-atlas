@@ -11,7 +11,7 @@ Two output forms (mirror atlas.page.jsonld / disease_jsonld):
 """
 import json
 from atlas.page import links
-from atlas.drug.roles import pharma_class  # audit #9: skip non-pharma roles
+from atlas.drug.roles import pharma_class, drug_class  # audit #9: skip non-pharma roles
 
 BASE_URL = "https://sugi.bio/atlas"
 _HOST = BASE_URL.rsplit("/atlas", 1)[0]  # "https://sugi.bio" — prefix for internal links
@@ -82,7 +82,7 @@ def _description(b1: dict, b2: dict, b6: dict) -> str:
     name = display_name(b1.get("canonical_name") or b1.get("chembl_id") or "?")
     roles = (b6 or {}).get("chebi_roles") or []
     mt = b1.get("molecule_type") or ""
-    klass = pharma_class(roles, fallback=(mt if mt.lower() != "unknown" else "") or "drug")
+    klass = drug_class(roles, b1.get("atc_classes"), fallback=(mt if mt.lower() != "unknown" else "") or "drug")
     genes = [t.get("gene_symbol") for t in (b2.get("primary_targets") or [])
              if t.get("gene_symbol")][:3]
     tgt = (" targeting " + ", ".join(genes)) if genes else ""
@@ -130,7 +130,7 @@ def build_jsonld(bundle: dict, slug: str, base_url: str = BASE_URL) -> dict:
         "url": page,
         "description": _lead_description(bundle) or _description(b1, b2, b6),
         "alternateName": alts[:12] or None,
-        "drugClass": pharma_class(roles),  # audit #9: None if no pharma role
+        "drugClass": drug_class(roles, b1.get("atc_classes")),  # ATC-checked; None if no class
         "sameAs": same_as_urls(b1) or None,
         "target": _targets(b2) or None,
         "treats": _treats(b4) or None,

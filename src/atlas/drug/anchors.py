@@ -44,6 +44,7 @@ class IndicationRecord:
     name: Optional[str]             # mondo canonical name where resolved
     max_phase: int                  # phase for THIS indication
     slug: Optional[str]             # cross-link key to Atlas disease page
+    label: bool = False             # an on-label (approved) use per DrugCentral
 
 
 @dataclass(frozen=True)
@@ -73,6 +74,10 @@ class DrugAnchors:
     chebi_definition: Optional[str]
     chebi_roles: Tuple[str, ...]    # decoded role names (drug-class semantics)
     is_fda_approved: Optional[bool]
+    # DrugCentral (biobtree v2.17): on-label indications (free text, as labelled)
+    # and WHO ATC class names (level 2-4, single-substance codes only).
+    label_indications: Tuple[str, ...] = ()
+    atc_classes: Tuple[str, ...] = ()
 
 
 # Chemistry IUPAC strings pollute chembl_molecule.altNames; keep human-facing
@@ -326,7 +331,84 @@ def _ontology_name(src_id: str, src: str) -> Optional[str]:
     return (nm or "").strip() or None
 
 
-def _resolve_indications(mol: dict, extra=()) -> Tuple[IndicationRecord, ...]:
+def _split(v):
+    if isinstance(v, (list, tuple)):
+        return [x.strip() for x in v if x and x.strip()]
+    return [x.strip() for x in (v or "").split(";") if x.strip()]
+
+
+def _drugcentral_label(chembl_id: str) -> dict:
+    """DrugCentral on-label indications: {names: [free text], mondo: {id: name},
+    atc_classes: [...]}. The label diseases DrugCentral resolves to an exact
+    Mondo term arrive as drugcentral>>mondo links (donepezil → Alzheimer
+    disease); the rest stay free text (memantine: "Moderate to Severe
+    Alzheimer's Type Dementia")."""
+    out = {"names": [], "mondo": {}, "atc_classes": []}
+    try:
+        hits = map_all(chembl_id, ">>chembl_molecule>>drugcentral")
+    except Exception:
+        return out
+    hit = next((r for r in hits if (r.get("id") or "").strip()), None)
+    if not hit:
+        return out
+    out["names"] = list(dict.fromkeys(_split(hit.get("indications"))))
+    out["atc_classes"] = list(dict.fromkeys(_split(hit.get("atc_classes"))))
+    if out["names"]:
+        try:
+            out["mondo"] = {r["id"]: r.get("name") for r in map_all(hit["id"], ">>drugcentral>>mondo")
+                            if r.get("id")}
+        except Exception:
+            pass
+    return out
+
+
+# Words that don't identify a disease on their own — a ChEMBL indication only
+# matches a free-text label when its DISTINCTIVE words all appear in it.
+_LABEL_STOP = {"disease", "diseases", "disorder", "disorders", "syndrome", "condition", "type",
+               "of", "the", "and", "or", "in", "with", "to", "due", "for", "a", "an", "s"}
+_LABEL_GENERIC = {"cancer", "carcinoma", "neoplasm", "tumor", "tumour", "leukemia", "lymphoma",
+                  "infection", "infectious", "bacterial", "viral", "pain", "inflammation",
+                  "malignant", "chronic", "acute", "primary", "secondary"}
+
+
+def _tokens(s):
+    out = set()
+    for w in re.findall(r"[a-z0-9]+", (s or "").lower().replace("'s", "")):
+        if w in _LABEL_STOP:
+            continue
+        out.add(w[:-1] if len(w) > 4 and w.endswith("s") and not w.endswith("ss") else w)
+    return out
+
+
+# Words a label may add without naming a different disease (severity, stage,
+# line of therapy, population).
+_LABEL_QUALIFIER = {"moderate", "severe", "mild", "phase", "accelerated", "blastic", "blast",
+                    "advanced", "metastatic", "refractory", "treatment", "recurrent", "relapsed",
+                    "adult", "pediatric", "paediatric", "early", "late", "stage", "positive",
+                    "negative", "philadelphia", "chromosome", "newly", "diagnosed", "prevention",
+                    "maintenance", "adjunct", "adjunctive", "therapy", "symptomatic", "management",
+                    "chronic", "acute", "persistent", "uncontrolled", "resistant", "patient"}
+
+
+def label_match(name, label_names) -> bool:
+    """True when a (ChEMBL) indication name is one of DrugCentral's free-text
+    on-label indications: its distinctive words all occur in one label string,
+    and the label adds only qualifiers ("chronic myeloid leukemia" ~ "Chronic
+    phase chronic myeloid leukemia", "type 2 diabetes mellitus" ~ "Diabetes
+    mellitus type 2"; NOT "hypertension" ~ "Pulmonary hypertension"). A name made
+    only of generic words ("cancer", "bacterial infectious disease") never
+    matches."""
+    t = _tokens(name)
+    if not t or t <= _LABEL_GENERIC:
+        return False
+    for l in label_names or ():
+        lt = _tokens(l)
+        if t <= lt and all(w in _LABEL_QUALIFIER or w.isdigit() for w in lt - t):
+            return True
+    return False
+
+
+def _resolve_indications(mol: dict, extra=(), label=None) -> Tuple[IndicationRecord, ...]:
     """entry.indications[] = [{highestDevelopmentPhase, efo, mesh}] of the
     molecule plus `extra` rows (its salt forms). Dedupe by efo (many rows
     repeat), cross-walk efo→mondo (fallback mesh→mondo), keep the max phase
@@ -367,9 +449,17 @@ def _resolve_indications(mol: dict, extra=()) -> Tuple[IndicationRecord, ...]:
         out.append(IndicationRecord(
             efo_id=rec["efo"], mesh_id=rec["mesh"], mondo_id=mondo_id,
             name=name, max_phase=rec["phase"], slug=slug,
+            label=bool(label) and ((mondo_id in label["mondo"]) or label_match(name, label["names"])),
         ))
+    # Label diseases ChEMBL doesn't list for this drug at all (donepezil →
+    # Alzheimer disease is phase 3 in ChEMBL; some have no ChEMBL row).
+    have = {r.mondo_id for r in out if r.mondo_id}
+    for mid, nm in ((label or {}).get("mondo") or {}).items():
+        if mid not in have and nm:
+            out.append(IndicationRecord(efo_id=None, mesh_id=None, mondo_id=mid, name=nm,
+                                        max_phase=0, slug=disease_slug(nm), label=True))
     # highest-phase indications first
-    return tuple(sorted(out, key=lambda r: -r.max_phase))
+    return tuple(sorted(out, key=lambda r: (not r.label, -r.max_phase)))
 
 
 def _reconcile_fda(chembl_id: str, pubchem_flag: Optional[bool]) -> Optional[bool]:
@@ -451,6 +541,7 @@ def resolve(name_or_id: str) -> DrugAnchors:
     canonical = re.sub(r"[,\s]+ANHYDROUS$", "", (mol.get("name") or ""), flags=re.I) or chembl_id
 
     chem = _resolve_chemistry(chembl_id)
+    label = _drugcentral_label(chembl_id)
     targets, bioactivity_targets = _resolve_targets(canonical, chembl_id)
 
     return DrugAnchors(
@@ -471,7 +562,7 @@ def resolve(name_or_id: str) -> DrugAnchors:
         child_chembls=tuple(mol.get("childs") or ()),
         targets=targets,
         bioactivity_targets=bioactivity_targets,
-        indications=_resolve_indications(mol, _salt_indications(mol.get("childs"))),
+        indications=_resolve_indications(mol, _salt_indications(mol.get("childs")), label),
         xref_counts=xc,
         pubchem_cid=chem["pubchem_cid"],
         chebi_id=chem["chebi_id"],
@@ -483,6 +574,8 @@ def resolve(name_or_id: str) -> DrugAnchors:
         chebi_definition=chem["chebi_definition"],
         chebi_roles=chem["chebi_roles"],
         is_fda_approved=_reconcile_fda(chembl_id, chem["is_fda_approved"]),
+        label_indications=tuple(label["names"]),
+        atc_classes=tuple(label["atc_classes"]),
     )
 
 

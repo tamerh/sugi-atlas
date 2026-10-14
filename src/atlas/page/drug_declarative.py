@@ -46,8 +46,8 @@ def _class_clause(b1, b6, b5=None):
     # Lead with the best PHARMACOLOGICAL ChEBI role as the functional class
     # (audit #9: roles[0] can be 'environmental contaminant'/'mutagen'); molecule
     # type as adjective (small-molecule / antibody). Avoid duplicating "agent".
-    from atlas.drug.roles import pharma_class
-    klass = pharma_class(roles, fallback=(mtype or "drug"))
+    from atlas.drug.roles import drug_class
+    klass = drug_class(roles, b1.get("atc_classes"), fallback=(mtype or "drug"))
     if mtype and mtype not in klass:
         bits.append(mtype.replace("small molecule", "small-molecule"))
     bits.append(klass)

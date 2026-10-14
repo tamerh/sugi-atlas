@@ -86,11 +86,22 @@ def collect(a):
                   for p in (oa.get("phenotypes") or [])]
     seen_hpo = {p.get("hpo_id") for p in phenotypes if p.get("hpo_id")}
 
+    hpo_inheritance = {}                 # MIM id -> [mode names] (HPO aspect I)
+
     def _add_hpo(term_id, chain):
         # OMIM/Mondo HPO carry id + name + definition but no frequency.
         try:
             for r in map_all(term_id, chain):
                 hid = r.get("id")
+                # biobtree v2.17 adds mode-of-inheritance terms (aspect I) on the
+                # same edge — a mode, not a clinical feature.
+                if "aspect=inheritance" in (r.get("evidence") or ""):
+                    nm = (r.get("name") or "").strip()
+                    if nm.lower().endswith("inheritance"):
+                        hpo_inheritance.setdefault(term_id, [])
+                        if nm not in hpo_inheritance[term_id]:
+                            hpo_inheritance[term_id].append(nm)
+                    continue
                 if hid and hid not in seen_hpo:
                     seen_hpo.add(hid)
                     phenotypes.append({"hpo_id": hid, "hpo_term": r.get("name"),
@@ -237,6 +248,15 @@ def collect(a):
                 seen_q.add(q)
                 symptoms.append({"qid": q, "name": nm})
 
+    # Phenotype MIM titles (biobtree v2.17 names mim entries from HPO labels).
+    omim_names = {}
+    if a.omim_ids and a.mondo_id:
+        try:
+            omim_names = {r["id"]: r.get("name") for r in map_all(a.mondo_id, ">>mondo>>mim")
+                          if r.get("id") and r.get("name")}
+        except Exception:
+            omim_names = {}
+
     bundle = {
         "section": "01_disease_ids",
         "name": a.name,
@@ -246,6 +266,11 @@ def collect(a):
         "efo_id": a.efo_id,
         "mesh_ids": list(a.mesh_ids),
         "omim_ids": list(a.omim_ids),
+        # HPO mode-of-inheritance annotations, only when the disease maps to ONE
+        # OMIM entry (an umbrella's several MIMs would mix their modes).
+        "hpo_inheritance": (hpo_inheritance.get(a.omim_ids[0], [])
+                            if len(a.omim_ids or ()) == 1 else []),
+        "omim_names": omim_names,
         "orphanet_ids": list(a.orphanet_ids),
         # Cross-ontology xrefs from Mondo OBO ingest. {prefix: [ids,...]} —
         # only keys with data present.
@@ -297,6 +322,7 @@ SECTION = Section(
            "orphanet_ids", "orphanet_attrs", "obo_xrefs", "anatomy_uberon_ids",
            "xref_counts", "is_cancer"),
     produces=("mondo_id", "canonical_name", "synonyms", "efo_id", "mesh_ids", "omim_ids",
+              "hpo_inheritance", "omim_names",
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
               "orphanet_name", "orphanet_mondo", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",

@@ -158,7 +158,9 @@ def r_disease_ids(b):
         ("Mondo ID", b.get("mondo_id") or None),
         ("EFO", b.get("efo_id")),
         ("MeSH", ", ".join(b.get("mesh_ids") or []) or None),
-        ("OMIM", ", ".join(b.get("omim_ids") or []) or None),
+        ("OMIM", ", ".join(f"{o} ({(b.get('omim_names') or {}).get(o)})"
+                           if (b.get("omim_names") or {}).get(o) else o
+                           for o in b.get("omim_ids") or []) or None),
         ("Orphanet", ", ".join(b.get("orphanet_ids") or []) or None),
         # Mondo-OBO cross-ontology xrefs — keys present only if data exists.
         ("DOID",     ", ".join((b.get("obo_xrefs") or {}).get("doid")    or []) or None),
@@ -1585,12 +1587,16 @@ def r_drugs_indicated(bundles):
 
     out = ["## Drugs indicated or in trials for this disease", ""]
     if approved:
+        def _st(r):
+            ph4 = (r.get("max_phase") or 0) >= 4
+            return ("On-label (DrugCentral) · ChEMBL phase 4" if r.get("label") and ph4
+                    else "On-label (DrugCentral)" if r.get("label")
+                    else f"Approved (ChEMBL phase {r.get('max_phase')})")
         out += [f"**{_i(len(approved))} approved drug{'s' if len(approved) != 1 else ''}** "
-                "— disease-direct ChEMBL indications at approval phase (4), not inferred "
-                "from the associated-gene cohort below.", "",
+                "— disease-direct: an on-label use per DrugCentral or a ChEMBL indication at "
+                "approval phase (4), not inferred from the associated-gene cohort below.", "",
                 table(["Drug", "Status"],
-                      [(links.maybe_link(r.get("name"), r.get("url")),
-                        f"Approved (phase {r.get('max_phase')})") for r in approved])]
+                      [(links.maybe_link(r.get("name"), r.get("url")), _st(r)) for r in approved])]
     if late:
         # Approved drugs whose use for THIS disease ChEMBL records at phase 3 —
         # often an under-phased labelled use (imatinib→CML), sometimes a trial.
@@ -1603,8 +1609,8 @@ def r_drugs_indicated(bundles):
                       [(links.maybe_link(r.get("name"), r.get("url")),
                         "Approved drug · phase 3 for this disease") for r in late])]
     if not approved and not late:
-        out += ["No drug has an approved disease-direct ChEMBL indication for this "
-                "disease.", ""]
+        out += ["No drug has an approved disease-direct indication (DrugCentral label or "
+                "ChEMBL phase 4) for this disease.", ""]
     if sub:
         out += ["", sub]
     if trials:

@@ -170,17 +170,17 @@ def test_r_drugs_indicated_empty_elides():
 
 
 def test_r_drugs_indicated_uses_approved_flag_incl_oncology_phase3():
-    # `approved` is precomputed (s04 / atlas.indication): phase-4, AND anticancer
-    # phase-3 (imatinib→CML) — the latter shown honestly as "Approved (phase 3)".
+    # `approved` is precomputed (s04 / atlas.indication): phase 4, or a DrugCentral
+    # on-label use (imatinib→CML, ChEMBL phase 3 on the parent) — shown as "On-label".
     # A phase-3 indication NOT flagged approved stays in the trials block.
     md = r_drugs_indicated({"_indicated_drugs": [
         {"name": "Rituximab", "url": "/atlas/drug/rituximab/", "max_phase": 4, "approved": True},
-        {"name": "Imatinib", "url": "/atlas/drug/imatinib/", "max_phase": 3, "approved": True},
+        {"name": "Imatinib", "url": "/atlas/drug/imatinib/", "max_phase": 3, "approved": True, "label": True},
         {"name": "Belimumab", "url": "/atlas/drug/belimumab/", "max_phase": 3, "approved": False},
     ]})
     assert "Drugs indicated or in trials for this disease" in md
     assert "2 approved drug" in md
-    assert "Approved (phase 4)" in md and "Approved (phase 3)" in md   # imatinib upgraded
+    assert "Approved (ChEMBL phase 4)" in md and "| On-label (DrugCentral) |" in md
     assert "in clinical trials for this disease" in md and "not* an indication" in md
     approved_part, trials_part = md.split("in clinical trials for this disease")
     assert "Rituximab" in approved_part and "Imatinib" in approved_part
@@ -193,7 +193,7 @@ def test_r_drugs_indicated_tiers_investigational_separately():
         {"name": "Atorvastatin", "url": "/atlas/drug/atorvastatin/", "max_phase": 2, "approved": False},
     ]})
     # approved table; phase-2 in the investigational block, never "indicated"
-    assert "Approved (phase 4)" in md
+    assert "Approved (ChEMBL phase 4)" in md
     approved_part, trials_part = md.split("in clinical trials for this disease")
     assert "Belimumab" in approved_part and "Atorvastatin" not in approved_part
     assert "Atorvastatin" in trials_part

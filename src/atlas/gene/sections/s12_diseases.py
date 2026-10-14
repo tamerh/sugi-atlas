@@ -138,7 +138,10 @@ def collect(a):
     bundle["gene_omim"] = [f"MIM:{t['id']}" for t in map_all(a.hgnc_id, ">>hgnc>>mim")]
     # Disease-phenotype OMIM IDs come through MONDO (gene>>mim is only the gene).
     cv_mondo = _clinvar_mondo(a.hgnc_id)
-    bundle["disease_omim"] = [f"MIM:{t['id']}" for t in _via_mondo(cv_mondo, ">>mim")]
+    dmim = _via_mondo(cv_mondo, ">>mim")
+    bundle["disease_omim"] = list(dict.fromkeys(f"MIM:{t['id']}" for t in dmim))
+    # Phenotype MIM titles (biobtree v2.17, from HPO's license-clean labels).
+    bundle["disease_omim_names"] = {f"MIM:{t['id']}": t["name"] for t in dmim if t.get("name")}
     gencc_rows = map_all(a.hgnc_id, ">>hgnc>>gencc")
     bundle["gencc"] = [{"disease": t.get("disease_title"),
                         "classification": t.get("classification_title"),
@@ -254,7 +257,7 @@ SECTION = Section(
                  "Orphanet, HPO phenotypes, GWAS (gene-mapped + disease-associated), "
                  "MeSH descriptors (NLM disease vocabulary with tree-number category paths)"),
     needs=("hgnc_id", "hgnc_entry"),
-    produces=("gene_omim", "disease_omim", "gencc", "mondo", "orphanet", "hpo",
+    produces=("gene_omim", "disease_omim", "disease_omim_names", "gencc", "mondo", "orphanet", "hpo",
               "gwas", "gwas_studies", "efo_traits", "mesh_descriptors", "intogen", "civic",
               "clingen_validity", "panelapp", "panelapp_green"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
