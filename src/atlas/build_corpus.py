@@ -63,7 +63,7 @@ def _gate_one(cid: str) -> dict:
                    or any(_is_pharma_role(r) for r in roles))
     return {"id": cid, "ok": True, "name": a.canonical_name,
             "therapeutic": therapeutic, "parent": a.parent_chembl,
-            "had_roles": bool(roles)}
+            "had_roles": bool(roles), "atc_or_target": bool(a.atc_codes) or bool(a.targets)}
 
 
 def gate_drugs(ids, workers=16):
@@ -73,13 +73,20 @@ def gate_drugs(ids, workers=16):
     with Pool(workers) as p:
         res = p.map(_gate_one, ids)
     present = {r["id"] for r in res if r.get("ok")}
+    # A parent is therapeutic if it or any of its salts is: leucovorin's parent
+    # failed the gate while its salts (ATC on the calcium salt) collapsed onto it,
+    # so the drug vanished entirely (9 approved drugs).
+    ther = {r["id"] for r in res if r.get("ok") and r["therapeutic"]}
+    # (rescue only on a salt's ATC code / curated target — not a salt that merely
+    # lacks ChEBI roles, which would bring back water via "sterile water")
+    ther |= {r["parent"] for r in res if r.get("ok") and r.get("atc_or_target") and r["parent"]}
     kept, dropped = [], []
     for r in res:
         if not r.get("ok"):
             dropped.append((r["id"], "", f"resolve-failed: {r.get('err','')}"))
         elif r["parent"] and r["parent"] in present:   # salt check first → correct label
             dropped.append((r["id"], r["name"], f"salt/child of {r['parent']}"))
-        elif not r["therapeutic"]:
+        elif r["id"] not in ther:
             dropped.append((r["id"], r["name"], "non-therapeutic (no ATC / target / pharma ChEBI role)"))
         else:
             kept.append(r["id"])
