@@ -258,6 +258,7 @@ def collect(a):
         # numeric frequency_value (drives JSON-LD `signOrSymptom`).
         # Empty for non-rare-disease conditions (most cancers, common dz).
         "orphanet_name": oa.get("name") or "",
+        "orphanet_mondo": oa.get("mondo_back"),       # None = unknown
         "orphanet_disorder_type": oa.get("disorder_type") or "",
         "prevalences": list(oa.get("prevalences") or []),
         "phenotypes": phenotypes,
@@ -297,7 +298,7 @@ SECTION = Section(
            "xref_counts", "is_cancer"),
     produces=("mondo_id", "canonical_name", "synonyms", "efo_id", "mesh_ids", "omim_ids",
               "orphanet_ids", "obo_xrefs", "anatomy_uberon_ids",
-              "orphanet_name", "orphanet_disorder_type",
+              "orphanet_name", "orphanet_mondo", "orphanet_disorder_type",
               "prevalences", "phenotypes", "phenotype_count", "mesh_scope_note",
               "mondo_definition", "doid_definition", "wikidata_symptoms", "doid_ids",
               "wikidata_qid",

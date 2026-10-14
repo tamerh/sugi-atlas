@@ -201,7 +201,7 @@ def _cell(c):
     return _FAKE_LINK.sub(r"\\]", s)
 
 
-_FAKE_LINK = re.compile(r"\](?=\((?!/|#|https?://))")
+_FAKE_LINK = re.compile(r"(?<!\\)\](?=\((?!/|#|https?://))")   # not already escaped
 
 
 def more_line(total, shown, by=None):
@@ -223,6 +223,16 @@ def more_line(total, shown, by=None):
     return f"\n*+{total - shown} more (showing top {shown}{tail}).*"
 
 
+def _singular(noun):
+    """'drugs via a complex' → 'drug via a complex' (first word only)."""
+    w, sep, rest = noun.partition(" ")
+    lo = w.lower()
+    if lo in ("species", "series") or not lo.endswith("s") or lo.endswith("ss"):
+        return noun
+    w = w[:-3] + "y" if lo.endswith("ies") else w[:-1]
+    return w + sep + rest
+
+
 def capped_table(headers, rows, cap, total=None, noun=""):
     """The one-stop capped table — the single source of truth for "this table is
     truncated" across the corpus. Slices `rows` to `cap`, renders, and prefixes
@@ -242,6 +252,8 @@ def capped_table(headers, rows, cap, total=None, noun=""):
         return ""
     shown = max(0, md.count("\n") - 1)               # lines = N data + header + sep
     noun = (noun or "").strip()
+    if t == 1:
+        noun = _singular(noun)
     lead = f"showing {shown:,} of {t:,}" if t > shown else f"{t:,}"
     head = f"{lead} {noun}".rstrip()
     return f"{head}:\n\n{md}"

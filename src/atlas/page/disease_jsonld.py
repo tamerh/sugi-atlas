@@ -103,8 +103,10 @@ def _associated_anatomy(b1: dict) -> list:
 
 def _drugs(bundle: dict) -> list:
     """schema.org `drug` array — drugs USED for the condition: approved
-    disease-direct ChEMBL indications (phase 4), else approved drugs with phase-3
-    evidence for it, ranked by this disease's trial count. Trial-only drugs are
+    disease-direct ChEMBL indications (phase 4) only, ranked by this disease's
+    trial count. Phase-3 uses of approved drugs are not asserted either (v1.13
+    QA: IPF listed ambrisentan, whose IPF trial stopped for harm; the drug-side
+    `treats` is phase-4 only, so the two sides now agree). Trial-only drugs are
     not asserted (v1.12 listed the top trial drugs — an anaesthetic for
     tonsillitis, an imaging agent for Alzheimer's — on 3,923 pages). AI agents
     asking 'drugs used for X' key off this."""
@@ -112,7 +114,7 @@ def _drugs(bundle: dict) -> list:
     b13 = bundle.get("13") or {}
     tc = {(d.get("name") or "").strip().lower(): d for d in (b13.get("trial_drugs") or [])}
     rows = [r for r in (bundle.get("_indicated_drugs") or []) if r.get("name")]
-    pick = [r for r in rows if r.get("approved")] or [r for r in rows if r.get("late")]
+    pick = [r for r in rows if r.get("approved")]
     pick.sort(key=lambda r: (-((tc.get(r["name"].strip().lower()) or {}).get("trial_count") or 0),
                              r["name"]))
     out = []

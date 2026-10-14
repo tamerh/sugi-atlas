@@ -56,7 +56,7 @@ def is_chromosomal_anomaly(name):
 
 # Antisense / divergent / intronic transcripts overlapping a coding gene pick up
 # its ClinVar records ("CFTR-related disorder … CFTR, CFTR-AS1, and CFTR-AS2").
-_NONCODING_NEIGHBOR = re.compile(r"-(AS|DT|IT|OT)\d*$|^(MIR\d|LINC\d|SNOR[AD]\d)|HG$|HG\d*$")
+_NONCODING_NEIGHBOR = re.compile(r"-(AS|DT|IT|OT)\d*$|^(MIR\d|LINC\d|SNOR[AD]\d)|^SNHG\d")
 
 
 def _clinvar_tier_applies(bundle):

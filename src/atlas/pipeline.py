@@ -349,6 +349,19 @@ def prune_empty(md):
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines))
 
 
+_PROTECTED = re.compile(r"(```.*?```|<script\b.*?</script>)", re.S)
+
+
+def escape_fake_links(md):
+    """Escape "](" that isn't a real link target ("/…", "#…", "http…") in prose
+    too, not just table cells: chemistry text like "[Ca(2+)](i)" or
+    "…ethyl](methyl)amino" rendered as relative links (crawler 404s). Code
+    fences and <script> blocks are left alone (JSON can't hold "\\]")."""
+    from atlas.render_common import _FAKE_LINK
+    parts = _PROTECTED.split(md)
+    return "".join(p if i % 2 else _FAKE_LINK.sub(r"\\]", p) for i, p in enumerate(parts))
+
+
 def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     """Hugo-frontmatter + declarative lead + (optional) AI summary + body.
 
@@ -356,7 +369,7 @@ def assemble_page(symbol, summary_text, body_md, meta, bundle=None):
     the deterministic declarative lead sentence and Updated-date line are
     prepended above the LLM summary. Required for the AI-friendly page shape;
     legacy callers that don't pass it get the prior (no-lead) layout."""
-    body_md = prune_empty(body_md).translate(_CP1252_C1)
+    body_md = escape_fake_links(prune_empty(body_md)).translate(_CP1252_C1)
     fm = ["---"]
     for k in ("title", "identifier", "symbol", "entity_type", "description",
               "generated_at", "atlas_version", "atlas_commit", "biobtree_version",

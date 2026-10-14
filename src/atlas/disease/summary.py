@@ -81,7 +81,9 @@ _MARKER = re.compile(r"\b(?:\d+[a-z]?|(?:type|group|form|class)\s+[a-z0-9]{1,4})
 
 
 def _markers(name):
-    return {re.sub(r"\s+", " ", m.group(0).lower()) for m in _MARKER.finditer(name or "")}
+    """Subtype markers, normalised so "type 11" == "11"."""
+    return {re.sub(r"^(?:type|form|class)\s+(?=\d)", "", re.sub(r"\s+", " ", m.group(0).lower()))
+            for m in _MARKER.finditer(name or "")}
 
 
 def orphanet_is_parent(b1):
@@ -93,7 +95,17 @@ def orphanet_is_parent(b1):
     then describe the group, not this disease (~650 pages)."""
     b1 = b1 or {}
     on, cn = b1.get("orphanet_name") or "", b1.get("canonical_name") or b1.get("name") or ""
-    return bool(on and cn and (_markers(cn) - _markers(on)))
+    if not on:
+        return False
+    # Authoritative when known: does the Orphanet record map back to THIS Mondo
+    # id? (The name diff misfired on renamed nomenclature — LGMD 2A vs
+    # "Calpain-3-related LGMD R1", HSP 11 vs "… type 11": ~150 pages.)
+    back = b1.get("orphanet_mondo")
+    if back and b1.get("mondo_id") and b1["mondo_id"] in back:
+        return False
+    # Otherwise a subtype marker this name has and Orphanet's lacks (a mapping to
+    # another Mondo id alone isn't enough: Birt-Hogg-Dubé maps to a sibling id).
+    return bool(cn and (_markers(cn) - _markers(on)))
 
 
 def definition(b1):
@@ -140,12 +152,21 @@ def definition_predicate(text, name):
 
 
 def _article(p):
-    """Fix a/an agreement the source got wrong ("An disease or disorder …")."""
-    m = re.match(r"(a|an) (\w+)", p)
+    """Fix a/an agreement the source got clearly wrong ("An disease or disorder
+    …"). Only unambiguous cases change: letter-only rules broke correct text
+    ("a urea cycle disorder" → "an urea", "an X-linked" → "a X-linked")."""
+    m = re.match(r"(a|an) (\w[\w-]*)", p)
     if not m:
         return p
-    want = "an" if m.group(2)[0].lower() in "aeiou" else "a"
-    return want + p[len(m.group(1)):]
+    art, w = m.group(1), m.group(2)
+    lo = w.lower()
+    if art == "a" and lo[0] in "aeio" and not lo.startswith(("one", "once")):
+        want = "an"
+    elif art == "an" and w == lo and lo[0] not in "aeiouh":
+        want = "a"           # lowercase consonant word (acronyms keep "an": an RNA, an X-linked)
+    else:
+        return p
+    return want + p[len(art):]
 
 
 _INHERITANCE_SKIP = {"not applicable", "unknown", "not yet documented", "no data available", ""}

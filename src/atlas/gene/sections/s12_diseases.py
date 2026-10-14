@@ -31,7 +31,7 @@ def _clinvar_mondo(hgnc_id):
         for _ in range(20):
             resp = bbmap(",".join(ids[i:i + 100]), ">>clinvar>>mondo", page)
             for m in resp.get("mappings") or []:
-                for t in set(m.get("targets") or []):
+                for t in dict.fromkeys(m.get("targets") or []):    # ordered (set order varied per run)
                     mid, _, nm = t.partition("|")
                     counts[mid] = counts.get(mid, 0) + 1
                     names.setdefault(mid, nm)
@@ -39,7 +39,32 @@ def _clinvar_mondo(hgnc_id):
             page = pg.get("next_token")
             if not pg.get("has_next") or not page:
                 break
-    return {m: names[m] for m, n in counts.items() if n >= _CV_MIN_RECORDS}
+    keep = sorted((m for m, n in counts.items() if n >= _CV_MIN_RECORDS), key=lambda m: (-counts[m], m))
+    return {m: (names[m], counts[m]) for m in keep}
+
+
+def _gencc_mondo(rows):
+    """{MONDO id: (name, best classification)} — per GenCC row (row id →
+    mondo), so each disease carries its own curation strength."""
+    from atlas.render_common import gencc_rank
+    by_id = {r["id"]: r for r in rows if r.get("id")}
+    ids, out = list(by_id), {}
+    for i in range(0, len(ids), 100):
+        page = None
+        for _ in range(20):
+            resp = bbmap(",".join(ids[i:i + 100]), ">>gencc>>mondo", page)
+            for m in resp.get("mappings") or []:
+                cls = (by_id.get(m.get("input")) or {}).get("classification_title")
+                for t in m.get("targets") or []:
+                    mid, _, nm = t.partition("|")
+                    old = out.get(mid)
+                    if old is None or gencc_rank(cls) > gencc_rank(old[1]):
+                        out[mid] = (nm or (old or ("", ""))[0], cls)
+            pg = resp.get("pagination") or {}
+            page = pg.get("next_token")
+            if not pg.get("has_next") or not page:
+                break
+    return out
 
 
 def _via_mondo(mondo_ids, tail):
@@ -114,16 +139,29 @@ def collect(a):
     # Disease-phenotype OMIM IDs come through MONDO (gene>>mim is only the gene).
     cv_mondo = _clinvar_mondo(a.hgnc_id)
     bundle["disease_omim"] = [f"MIM:{t['id']}" for t in _via_mondo(cv_mondo, ">>mim")]
+    gencc_rows = map_all(a.hgnc_id, ">>hgnc>>gencc")
     bundle["gencc"] = [{"disease": t.get("disease_title"),
                         "classification": t.get("classification_title"),
                         "inheritance": t.get("moi_title")}
-                       for t in map_all(a.hgnc_id, ">>hgnc>>gencc")]
+                       for t in gencc_rows]
 
-    # MONDO: union curated (gencc) + clinical (clinvar) routes.
-    mondo = dict(cv_mondo)
-    for t in map_all(a.hgnc_id, ">>hgnc>>gencc>>mondo"):
-        mondo[t["id"]] = t.get("name") or mondo.get(t["id"])
-    bundle["mondo"] = [{"id": k, "name": v} for k, v in mondo.items()]
+    # MONDO: union curated (gencc) + clinical (clinvar) routes. A disease GenCC
+    # only calls Refuted / Disputed / No Known Disease Relationship / animal-only
+    # is not a link (TPM1 → ARVC read as an associated disease); it stays in the
+    # GenCC table with its classification. Strongest curation first, then the
+    # number of supporting ClinVar records.
+    from atlas.render_common import gencc_rank
+    gm = _gencc_mondo(gencc_rows)
+    mondo = {}
+    for mid in list(cv_mondo) + [m for m in gm if m not in cv_mondo]:
+        cls = gm.get(mid, (None, None))[1]
+        cv = cv_mondo.get(mid, (None, 0))[1]
+        if not cv and gencc_rank(cls) <= gencc_rank("disputed evidence"):
+            continue
+        mondo[mid] = {"id": mid, "name": (cv_mondo.get(mid) or gm.get(mid))[0] or None,
+                      "gencc": cls, "clinvar_records": cv}
+    bundle["mondo"] = sorted(mondo.values(),
+                             key=lambda m: (-gencc_rank(m["gencc"]), -m["clinvar_records"], m["id"]))
 
     # Orphanet: union direct (clinvar) + via-mondo (carries names).
     orph = {}

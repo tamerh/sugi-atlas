@@ -13,9 +13,10 @@ per gene instead of up to 60 pages of pagination per source per gene.
 For TP53 (14,764 STRING rows): ~150 → 3 biobtree calls for the PPI block.
 No content change — page renders the same top-30 + true total count.
 """
+import functools
 import re
 
-from atlas.biobtree import map_all, entry, xref_counts
+from atlas.biobtree import map_all, entry, xref_counts, search, rows as rows_of
 from atlas.gene.sections.base import Section
 
 CHAINS = (
@@ -126,6 +127,46 @@ def _hgnc_symbols():
     return _HGNC_SYMBOLS
 
 
+@functools.lru_cache(maxsize=None)
+def _renamed(symbol):
+    """Current HGNC symbol for a symbol missing from the (possibly stale) seed:
+    itself if HGNC approves it, the new one if it's a PREVIOUS symbol IntAct
+    still uses (NCL → NUCLEOLIN, TRAF3IP1 → IFT54); None otherwise (viral
+    E6/E7). Aliases are not followed (ambiguous)."""
+    try:
+        for r in rows_of(search(symbol, source="hgnc"))[:3]:
+            at = (entry(r["id"], "hgnc").get("Attributes") or {})
+            h = next(iter(at.values()), {}) if at else {}
+            cur = (h.get("symbols") or [None])[0]
+            if cur and (cur == symbol or symbol in (h.get("prev_symbols") or [])):
+                return cur
+    except Exception:
+        pass
+    return None
+
+
+_PARTNER_CACHE = {}
+
+
+def _seedless_partner(gene, record_id):
+    """A partner symbol missing from the seed, kept only if the IntAct record
+    says that side is human (taxid 9606 — the lite rows carry no taxon; "NS1"
+    is influenza yet also PTPN11's previous symbol) and HGNC knows the symbol.
+    Returns the current symbol or None; cached per symbol."""
+    if gene in _PARTNER_CACHE:
+        return _PARTNER_CACHE[gene]
+    out = None
+    try:
+        r = (entry(record_id, "intact").get("Attributes") or {}).get("Intact") or {}
+        side = "a" if r.get("protein_a_gene") == gene else "b" if r.get("protein_b_gene") == gene else None
+        if side and str(r.get(f"taxid_{side}")) == "9606":
+            out = _renamed(gene)
+    except Exception:
+        out = None
+    _PARTNER_CACHE[gene] = out
+    return out
+
+
 def _intact_partners(rows, symbol, uniprot=None):
     """One row per human IntAct partner of THIS gene, best MIscore first.
 
@@ -156,7 +197,9 @@ def _intact_partners(rows, symbol, uniprot=None):
         # symbol when the list is available.
         hs = _hgnc_symbols()
         if hs and gene not in hs:
-            continue
+            gene = _seedless_partner(gene, t.get("id"))
+            if not gene or gene.upper() == sym:
+                continue
         m = _MI_TERM.search(t.get("interaction_type") or "")
         kind = m.group(1) if m else (t.get("interaction_type") or "")
         cur = out.get(gene)

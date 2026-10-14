@@ -83,7 +83,21 @@ def at_a_glance(bundle) -> str:
                 f" (+{len(cg) - len(shown)} more)" if len(cg) > len(shown) else "")
             bullets.append(f"**Genes with pathogenic ClinVar variants:** {items}")
         else:
-            bullets.append(f"**Causal gene{'s' if len(cg) != 1 else ''}:** {items}")
+            # Same reading as the lead (causal_kind): a complex trait's curated
+            # genes are its monogenic/hereditary forms, an umbrella's its
+            # subtypes' — type 2 diabetes showed "Causal gene: GCK".
+            from atlas.page.disease_declarative import causal_kind, hereditary_named
+            kind = causal_kind(bundle)[0]
+            s_ = "s" if len(cg) != 1 else ""
+            if kind == "forms":
+                which = ("hereditary" if b1.get("is_cancer") and not hereditary_named(b1)
+                         else "monogenic")
+                label = f"Gene{s_} of its {which} forms"
+            elif kind == "subtypes":
+                label = f"Causal gene{s_} of its subtypes"
+            else:
+                label = f"Causal gene{s_}"
+            bullets.append(f"**{label}:** {items}")
 
     # Umbrella / grouping term — many Mondo children (cardiomyopathy: 12) vs a
     # leaf disease (1). Tells the reader this page spans subtypes.
@@ -127,7 +141,7 @@ def at_a_glance(bundle) -> str:
     tr = b13.get("trial_count") or 0
     if tr:
         from atlas.page.faq_intents import recruiting
-        nrec, _ = recruiting(b13.get("status_counts"), b13.get("top_trials"))
+        nrec, _ = recruiting(b13.get("status_counts"), b13.get("top_trials"), strict=True)
         bullets.append(f"**Clinical trials:** {_format_int(tr)}"
                        + (f" (≥{_format_int(nrec)} recruiting)" if nrec else "")
                        + evidence.rank_clause("disease", "trial_count", tr))

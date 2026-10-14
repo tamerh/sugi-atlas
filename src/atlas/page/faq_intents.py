@@ -26,7 +26,9 @@ def _more(n_total, n_shown):
 # ── disease ─────────────────────────────────────────────────────────────────
 
 def _disease(bundle, title):
-    from atlas.page.disease_declarative import causal_kind, inheritance_modes
+    from atlas.page.disease_declarative import (causal_kind, inheritance_modes,
+                                                inheritance_scope, inheritance_predicate,
+                                                hereditary_named)
     from atlas.disease import summary as S
     from atlas.render_common import display_name
     b1 = bundle.get("1") or {}
@@ -39,7 +41,7 @@ def _disease(bundle, title):
     genes = _join([f"{s} ({l})" for s, l in cg[:5]]) + _more(len(cg), 5)
     cause = {"caused": f"{title} is caused by variants in {genes}.",
              "forms": (f"{title} is a cancer; its hereditary forms are linked to germline "
-                       f"variants in {genes}." if b1.get("is_cancer") else
+                       f"variants in {genes}." if b1.get("is_cancer") and not hereditary_named(b1) else
                        f"{title} is a complex (multifactorial) disease; its rare monogenic "
                        f"forms are linked to {genes}."),
              "subtypes": f"{title} is an umbrella term; its subtypes are caused by "
@@ -52,22 +54,24 @@ def _disease(bundle, title):
         cause = (f"{title} is an umbrella term covering {b1.get('child_count')} Mondo subtypes. "
                  f"GenCC curates {tot} gene{'s' if tot != 1 else ''} as Definitive or Strong causes of its subtypes; "
                  f"the most frequent are {top}.")
+    scope = inheritance_scope(bundle)
     if cause:
         if phrase:
-            if kind in ("forms", "subtypes"):
-                cause += f" Its {'subtypes' if kind == 'subtypes' else 'familial forms'} are {phrase} ({src})."
+            if scope != "disease":
+                cause += (f" Its {'subtypes' if scope == 'subtypes' else 'familial forms'} "
+                          f"{inheritance_predicate(phrase)} ({src}).")
             else:
                 cause += (f" It has {phrase[5:]} ({src})." if phrase.startswith("with ")
                           else f" It is {phrase} ({src}).")
         qas.append((f"What causes {title}?", cause))
     if phrase:
-        n_gwas = (bundle.get("2") or {}).get("assoc_total") or 0
-        if kind == "forms" or (kind is None and n_gwas >= 20) or (b1.get("is_cancer") and kind != "caused"):
-            # A complex disease: Orphanet's modes describe its familial forms
-            # (ALS, moyamoya, cataract answered a flat "Yes" in v1.12).
+        if scope == "forms":
+            # A complex disease or sporadic cancer: Orphanet's modes describe its
+            # familial forms (ALS, moyamoya, cataract answered a flat "Yes" in v1.12).
             a = (f"Mostly not: {title} is usually sporadic or multifactorial. Its familial "
-                 f"forms are {phrase.replace('with ', 'of ', 1) if phrase.startswith('with ') else phrase} "
-                 f"({src}).")
+                 f"forms {inheritance_predicate(phrase)} ({src}).")
+        elif scope == "subtypes":
+            a = f"{title} is an umbrella term; its subtypes {inheritance_predicate(phrase)} ({src})."
         elif phrase.startswith("with "):
             a = f"According to {src}, {title} has {phrase[5:]}."
         else:
@@ -86,18 +90,20 @@ def _disease(bundle, title):
     rows = [r for r in (bundle.get("_indicated_drugs") or []) if r.get("name")]
     appr = [r for r in rows if r.get("approved")]
     late = [r for r in rows if not r.get("approved") and r.get("late")]
-    if appr or late:
-        a = ""
-        if appr:
-            names = [display_name(r["name"]) for r in appr[:8]]
-            a = (f"Drugs with an approved indication for {title} in ChEMBL (phase 4): "
-                 f"{_join(names)}{_more(len(appr), len(names))}.")
-        if late:
-            names = [display_name(r["name"]) for r in late[:8]]
-            a += ((" " if a else "") + f"Approved drugs with phase-3 evidence for {title} "
-                  f"(often labelled uses ChEMBL records at phase 3; check the label): "
-                  f"{_join(names)}{_more(len(late), len(names))}.")
-        qas.append((f"What drugs are approved for {title}?", a))
+    # Only phase-4 rows answer "approved for" (v1.13 QA: IPF listed ambrisentan,
+    # whose IPF trial stopped for harm); phase-3 uses of approved drugs get their
+    # own, hedged question.
+    if appr:
+        names = [display_name(r["name"]) for r in appr[:8]]
+        qas.append((f"What drugs are approved for {title}?",
+                    f"Drugs with an approved indication for {title} in ChEMBL (phase 4): "
+                    f"{_join(names)}{_more(len(appr), len(names))}."))
+    if late:
+        names = [display_name(r["name"]) for r in late[:8]]
+        qas.append((f"Which approved drugs have been tested in phase 3 for {title}?",
+                    f"Drugs approved for other uses that reached phase 3 for {title} in ChEMBL "
+                    f"(phase-3 evidence, not an approval for this disease): "
+                    f"{_join(names)}{_more(len(late), len(names))}."))
     b13 = bundle.get("13") or {}
     n, ids = recruiting(b13.get("status_counts"), b13.get("top_trials"))
     if n:
@@ -156,7 +162,11 @@ def _drug(bundle, title):
     from atlas.page.drug_at_a_glance import _status
     appr, late, trial = indication_tiers(b4)
     status = _status(b1, bundle.get("5"), bundle.get("14"))
-    approved_mol = status.startswith(("FDA-approved", "Approved"))
+    from atlas.indication import molecule_approved
+    # ChEMBL phase 4 is an approval somewhere, even when DrugCentral says "not
+    # FDA" (cefamandole: "No" beside "approved for 1 indication").
+    approved_mol = status.startswith(("FDA-approved", "Approved")) or \
+        molecule_approved(b1, bundle.get("5"))
     if appr:
         names = _indication_names(appr, k=8)
         a = (f"Approved indications of {title} (ChEMBL phase 4): {_join(names)}"
@@ -168,12 +178,15 @@ def _drug(bundle, title):
     elif late and approved_mol:
         names = _indication_names(late, k=6)
         qas.append((f"What is {title} used for?",
-                    f"{title} is an approved drug ({status}). ChEMBL records its uses only up "
-                    f"to phase 3 — often how it logs labelled uses — including {_join(names)}"
-                    f"{_more(len(late), len(names))}; check the drug label for the exact "
-                    "approved indications."))
+                    f"{title} is an approved drug ({re.sub(r' [(](.*)[)]$', r'; \1', status)}). ChEMBL records no phase-4 "
+                    f"indication for it; its most advanced recorded uses (phase 3) include "
+                    f"{_join(names)}{_more(len(late), len(names))}. Check the drug label for "
+                    "the approved indications."))
     if status:
-        if approved_mol:
+        if approved_mol and status.startswith("Not FDA-approved"):
+            a = (f"Yes — ChEMBL records {title} as an approved drug (max phase 4), "
+                 "though DrugCentral lists no FDA approval.")
+        elif approved_mol:
             a = f"Yes. {title} status: {status}."
         else:
             a = f"No. {title} status: {status}."
@@ -260,7 +273,10 @@ def _gene(bundle, title):
         d = (g.get("disease") or "").strip()
         if d and gencc_rank(g.get("classification")) >= gencc_rank("Strong") and d.lower() not in {x.lower() for x in cur}:
             cur.append(d)
+    # Other = ≥2 pathogenic ClinVar records or GenCC Moderate+ (a Limited /
+    # Refuted GenCC call alone is not "linked").
     other = [m.get("name") for m in b12.get("mondo") or [] if m.get("name")
+             and (m.get("clinvar_records") or gencc_rank(m.get("gencc")) >= gencc_rank("Moderate"))
              and m["name"].lower() not in {x.lower() for x in cur}]
     if cur or other:
         a = ""
@@ -350,9 +366,11 @@ def adverse_events(b13, k=8):
     return rows[:k]
 
 
-def recruiting(status_counts, trials):
-    n = sum(v for k, v in (status_counts or {}).items()
-            if str(k).upper() in ("RECRUITING", "NOT_YET_RECRUITING", "ENROLLING_BY_INVITATION"))
+def recruiting(status_counts, trials, strict=False):
+    """(n, example ids): trials recruiting or about to (strict: recruiting only,
+    for a bare "N recruiting" label)."""
+    want = ("RECRUITING",) if strict else ("RECRUITING", "NOT_YET_RECRUITING")
+    n = sum(v for k, v in (status_counts or {}).items() if str(k).upper() in want)
     ids = [t.get("id") for t in (trials or []) if str(t.get("status") or "").upper() == "RECRUITING"
            and t.get("id")]
     return n, ids

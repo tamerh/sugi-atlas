@@ -294,13 +294,46 @@ def _resolve_targets(canonical_name: str, chembl_id: str):
     return primary, bioactivity
 
 
-def _resolve_indications(mol: dict) -> Tuple[IndicationRecord, ...]:
-    """entry.indications[] = [{highestDevelopmentPhase, efo, mesh}]. Dedupe by
-    efo (many rows repeat), cross-walk efo→mondo (fallback mesh→mondo), keep
-    the max phase seen per indication."""
+def _salt_indications(child_ids) -> list:
+    """Indication rows of the salt/child forms. ChEMBL often records the
+    phase-4 approval on the salt, not the parent: IMATINIB (CHEMBL941) has CML
+    at phase 3 only, IMATINIB MESYLATE (CHEMBL1642) at phase 4; metformin HCl
+    carries type 2 diabetes at phase 4. Read without them, approved drugs
+    looked phase-3/trial-only."""
+    out = []
+    for cid in child_ids or ():
+        try:
+            out.extend(_mol_attrs(entry(cid, "chembl_molecule")).get("indications") or [])
+        except Exception:
+            continue
+    return out
+
+
+def _ontology_name(src_id: str, src: str) -> Optional[str]:
+    """Display name of an EFO/MeSH indication that has no Mondo cross-walk
+    (pentazocine's phase-4 'pain' row was dropped as nameless). MeSH descriptor
+    names are clean; EFO names flagged obsolete are skipped."""
+    try:
+        at = entry(src_id, src).get("Attributes") or {}
+    except Exception:
+        return None
+    if src == "mesh":
+        nm = (at.get("Mesh") or {}).get("descriptor_name")
+    else:
+        nm = (at.get("Ontology") or {}).get("name")
+        if nm and nm.lower().startswith("obsolete"):
+            nm = None
+    return (nm or "").strip() or None
+
+
+def _resolve_indications(mol: dict, extra=()) -> Tuple[IndicationRecord, ...]:
+    """entry.indications[] = [{highestDevelopmentPhase, efo, mesh}] of the
+    molecule plus `extra` rows (its salt forms). Dedupe by efo (many rows
+    repeat), cross-walk efo→mondo (fallback mesh→mondo), keep the max phase
+    seen per indication."""
     from atlas.disease.slug import slugify as disease_slug
 
-    raw = mol.get("indications") or []
+    raw = list(mol.get("indications") or []) + list(extra or ())
     by_efo: Dict[str, dict] = {}
     for ind in raw:
         efo = ind.get("efo")
@@ -325,10 +358,15 @@ def _resolve_indications(mol: dict) -> Tuple[IndicationRecord, ...]:
                 mondo_id = mres[0].get("id")
                 name = mres[0].get("name")
                 break
+        slug = disease_slug(name) if name else None
+        if not name:
+            # no Mondo page to link — keep the row under its MeSH/EFO label
+            for src_id, src in ((rec["mesh"], "mesh"), (rec["efo"], "efo")):
+                if src_id and (name := _ontology_name(src_id, src)):
+                    break
         out.append(IndicationRecord(
             efo_id=rec["efo"], mesh_id=rec["mesh"], mondo_id=mondo_id,
-            name=name, max_phase=rec["phase"],
-            slug=disease_slug(name) if name else None,
+            name=name, max_phase=rec["phase"], slug=slug,
         ))
     # highest-phase indications first
     return tuple(sorted(out, key=lambda r: -r.max_phase))
@@ -433,7 +471,7 @@ def resolve(name_or_id: str) -> DrugAnchors:
         child_chembls=tuple(mol.get("childs") or ()),
         targets=targets,
         bioactivity_targets=bioactivity_targets,
-        indications=_resolve_indications(mol),
+        indications=_resolve_indications(mol, _salt_indications(mol.get("childs"))),
         xref_counts=xc,
         pubchem_cid=chem["pubchem_cid"],
         chebi_id=chem["chebi_id"],

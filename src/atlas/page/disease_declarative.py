@@ -193,6 +193,47 @@ def causal_kind(bundle):
     return "caused", cg
 
 
+# A name that itself says the disease is inherited — never "mostly sporadic",
+# and its subtype genes cause it rather than being "hereditary forms" of it.
+_HEREDITARY_NAME = re.compile(
+    r"\b(hereditary|familial|inherited|syndrome|congenita|congenital|predisposition|"
+    r"multiple endocrine neoplasia|polyposis)\b", re.I)
+
+
+def hereditary_named(b1):
+    return bool(_HEREDITARY_NAME.search((b1 or {}).get("canonical_name") or (b1 or {}).get("name") or ""))
+
+
+def inheritance_scope(bundle):
+    """What the inheritance modes describe — one rule for the lead and the FAQ:
+      "disease"   the disease itself ("Cystic fibrosis is inherited in …")
+      "forms"     a complex trait or sporadic cancer: only its familial forms
+      "subtypes"  an umbrella term: its subtypes
+    v1.13 QA: the FAQ answered "Mostly not … usually sporadic" for Lynch
+    syndrome, HBOC and MEN2 while the lead said "autosomal dominant"."""
+    b1 = bundle.get("1") or {}
+    kind = causal_kind(bundle)[0]
+    hered = hereditary_named(b1)
+    if kind == "forms":
+        return "forms"
+    if kind == "caused":
+        return "disease"
+    umbrella = kind == "subtypes" or bool(_subtype_gene_clause(bundle))
+    if umbrella:
+        return "forms" if b1.get("is_cancer") and not hered else "subtypes"
+    if ((bundle.get("2") or {}).get("assoc_total") or 0) >= _POLYGENIC_GWAS_SOFT:
+        return "forms"
+    if b1.get("is_cancer") and not hered:
+        return "forms"
+    return "disease"
+
+
+def inheritance_predicate(phrase):
+    """'inherited in an X pattern' → 'are inherited in …'; 'with Y inheritance'
+    → 'have Y inheritance' (glioblastoma read "familial forms are with …")."""
+    return f"have {phrase[5:]}" if phrase.startswith("with ") else f"are {phrase}"
+
+
 def _causal_clause(bundle):
     """Causal-gene clause for the lead, driven by causal_kind(). '' when none.
 
@@ -207,7 +248,8 @@ def _causal_clause(bundle):
     if kind == "forms":
         # Cancers: the curated genes are germline predisposition genes →
         # "hereditary forms" (breast cancer → BRCA1/BARD1, prostate → HOXB13).
-        k = "hereditary" if (bundle.get("1") or {}).get("is_cancer") else "monogenic"
+        b1 = bundle.get("1") or {}
+        k = "hereditary" if b1.get("is_cancer") and not hereditary_named(b1) else "monogenic"
         return f" whose {k} forms are linked to {genes}"
     if kind == "subtypes":
         # Prefer the genes curated across the subtypes (ranked by how many they
@@ -232,7 +274,7 @@ def _subtype_gene_clause(bundle):
         return ""
     total = max(b4.get("subtype_gene_total") or 0, len(st))
     syms = st[:3] + [""] * (total - min(3, len(st)))
-    if b1.get("is_cancer"):          # germline predisposition, not "the cause"
+    if b1.get("is_cancer") and not hereditary_named(b1):   # germline predisposition, not "the cause"
         return f" whose hereditary forms are linked to {_gene_list(syms, None)}"
     return f" whose subtypes are caused by variants in {_gene_list(syms, None)}"
 
@@ -349,14 +391,14 @@ def declarative_sentence(bundle):
     if causal or inh:
         what = f"a form of {form_of}" if form_of else f"a {klass}"
         sentence = f"{head} is {what}{umbrella}{causal}"
-        complex_ = causal_kind(bundle)[0] in ("forms", "subtypes") or \
-            ((b2.get("assoc_total") or 0) >= _POLYGENIC_GWAS_SOFT and not causal)
-        if inh and complex_:
+        scope = inheritance_scope(bundle)
+        if inh and scope != "disease":
             # A complex disease / umbrella: the modes describe its familial forms or
             # subtypes, not the disease as a whole (ALS "… linked to FUS, inherited in
             # an autosomal dominant …" read as if ALS itself were inherited).
-            who = "subtypes" if causal_kind(bundle)[0] == "subtypes" else "familial forms"
-            sentence += f"; its {who} are {inh}" if causal else f" whose familial forms are {inh}"
+            who = "subtypes" if scope == "subtypes" else "familial forms"
+            pred_inh = inheritance_predicate(inh)
+            sentence += f"; its {who} {pred_inh}" if causal else f" whose {who} {pred_inh}"
         elif inh:
             sentence += ("," if causal else "") + f" {inh}"
         sentence += "."

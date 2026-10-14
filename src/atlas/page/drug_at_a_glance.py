@@ -108,7 +108,7 @@ def at_a_glance(bundle) -> str:
     tr = b5.get("trial_count") or 0
     if tr:
         from atlas.page.faq_intents import recruiting, pgx_summary
-        nrec, _ = recruiting(b5.get("status_counts"), b5.get("top_trials"))
+        nrec, _ = recruiting(b5.get("status_counts"), b5.get("top_trials"), strict=True)
         bullets.append(f"**Clinical trials:** {_format_int(tr)}"
                        + (f" (≥{_format_int(nrec)} recruiting)" if nrec else ""))
     # Pharmacogenomics — label PGx level + CPIC/DPWG guidelines (1,142 drugs had

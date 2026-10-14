@@ -18,7 +18,7 @@ def test_three_tier_indications_lead_table_faq():
     assert "approved indication" not in md.split("phase-3 evidence")[0]
     qas = dict(intent_qas("drug", {"1": {"is_fda_approved": True, "max_phase": 4}, "4": b4}, "Imatinib"))
     assert qas["Is Imatinib an approved drug?"] == "Yes. Imatinib status: FDA-approved."
-    assert "ChEMBL records its uses only up to phase 3" in qas["What is Imatinib used for?"]
+    assert "ChEMBL records no phase-4 indication" in qas["What is Imatinib used for?"]
 
 
 def test_faq_fda_approved_drug_never_answered_not_approved():

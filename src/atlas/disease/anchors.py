@@ -14,6 +14,7 @@ Cancer somatic data flows in through the CIViC-evidence route — the
 partially lifts the somatic-coverage blocker noted in
 /data/biobtree-content/biobtree/disease/NOTES.md.
 """
+import functools
 import re, sys
 from dataclasses import dataclass, field
 from typing import Optional, Tuple, Dict, Set
@@ -38,7 +39,7 @@ def _name_overlap(a, b):
 # Heuristic — used when neither mondo definition nor parent ancestry helps.
 _CANCER_RX = re.compile(
     r"\b(cancer|carcinoma|leukemia|leukaemia|lymphoma|sarcoma|"
-    r"glioma|melanoma|myeloma|neoplasm|tumou?r|adenoma)\b", re.I)
+    r"glioma|melanoma|myeloma|neoplasms?|neoplastic|tumou?rs?|adenoma)\b", re.I)
 
 # Cap for the per-disease gene cohort. The migrated pages all rendered
 # "TOP 50" sections; we mirror that. Cohort genes feed gene-collector
@@ -119,18 +120,42 @@ def _mondo_attrs(mondo_entry: dict) -> dict:
     return attrs.get("Ontology") or attrs.get("Mondo") or {}
 
 
+# Mondo roots whose descendants are neoplasms: "neoplasm" and "cancer".
+_NEOPLASM_ROOTS = {"MONDO:0005070", "MONDO:0004992"}
+
+
+@functools.lru_cache(maxsize=None)
+def _mondo_parents(mondo_id: str) -> Tuple[str, ...]:
+    try:
+        return tuple(r.get("id") for r in map_all(mondo_id, ">>mondo>>mondoparent") if r.get("id"))
+    except Exception:
+        return ()
+
+
+def _under_neoplasm(mondo_id: str, max_nodes: int = 400) -> bool:
+    """True if any Mondo ancestor (all parents, not just the breadcrumb path) is
+    a neoplasm/cancer root. Shared ancestors are cached across the run."""
+    seen, stack = set(), [mondo_id]
+    while stack and len(seen) < max_nodes:
+        for p in _mondo_parents(stack.pop()):
+            if p in _NEOPLASM_ROOTS:
+                return True
+            if p not in seen:
+                seen.add(p)
+                stack.append(p)
+    return False
+
+
 def _is_cancer(mondo_id: str, mondo_entry: dict, canonical_name: Optional[str]) -> bool:
-    """Cheap is-cancer heuristic. Mondo's parent ancestry would be more rigorous
-    but isn't surfaced via single-call traversal; the name regex catches the
-    common cancer terms (carcinoma, leukemia, sarcoma, ...). Refine when biobtree
-    exposes mondo ancestry."""
+    """A cancer-term name, or a Mondo neoplasm ancestor. The definition text is
+    NOT scanned: any definition that merely mentions cancer matched ("Heavy
+    metal poisoning … is a cancer", peripheral neuropathy, dyskeratosis
+    congenita), and v1.13 keys the hereditary-forms wording, the inheritance
+    scope and the ClinVar tier on this flag."""
     if canonical_name and _CANCER_RX.search(canonical_name):
         return True
-    # Definition string sometimes has 'malignant neoplasm of ...' — check it too.
-    definition = _mondo_attrs(mondo_entry).get("definition") or ""
-    if _CANCER_RX.search(definition):
-        return True
-    return False
+    return bool(mondo_id) and _under_neoplasm(mondo_id)
+
 
 def resolve_mondo(name_or_id: str) -> Tuple[str, dict, Optional[str]]:
     """name_or_id -> (mondo_id, full_entry, canonical_name). If the input is
@@ -363,13 +388,13 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
             return True
         return _name_overlap(canonical_name, attrs.get("name")) >= 0.6
 
-    orphanet_attrs = {}
+    orphanet_attrs, orph_pick = {}, None
     for r in orph_rows:
         try:
             e = entry(r["id"], "orphanet")
             attrs = (e.get("Attributes") or {}).get("Orphanet") or {}
             if attrs.get("disorder_type") == "Disease" and _name_ok(attrs):
-                orphanet_attrs = attrs
+                orphanet_attrs, orph_pick = attrs, r["id"]
                 break
         except Exception:
             continue
@@ -383,8 +408,18 @@ def resolve(name_or_id: str) -> DiseaseAnchors:
             except Exception:
                 continue
             if _name_ok(attrs):
-                orphanet_attrs = attrs
+                orphanet_attrs, orph_pick = attrs, r["id"]
                 break
+    # Which Mondo terms the chosen Orphanet record maps back to: this page's id
+    # → the same disease under Orphanet's name ("Calpain-3-related LGMD R1" =
+    # LGMD 2A); only other ids → a broader group (long QT syndrome 2 →
+    # "Congenital long QT syndrome"). Read by summary.orphanet_is_parent.
+    if orphanet_attrs:
+        try:
+            back = [x.get("id") for x in map_all(orph_pick, ">>orphanet>>mondo") if x.get("id")]
+        except Exception:
+            back = None
+        orphanet_attrs = dict(orphanet_attrs, mondo_back=back)
 
     cohort_full, evidence = _build_cohort(mondo_id)
 

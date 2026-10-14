@@ -69,3 +69,19 @@ def test_is_name_junk():
     assert links._is_name_junk("12345")
     assert not links._is_name_junk("panobinostat")
     assert not links._is_name_junk("suberoylanilide hydroxamic acid")
+
+
+@pytest.mark.parametrize("salt_last", [True, False])
+def test_salt_page_never_claims_parent_id(salt_last, tmp_path):
+    os.makedirs(tmp_path / "atlas")
+    parent = dict(_rec("drug", "leucovorin", "Leucovorin", id_keys=["CHEMBL1679"]),
+                  rel_keys=["CHEMBL1200731"])
+    salt = dict(_rec("drug", "leucovorin-calcium", "Leucovorin calcium", id_keys=["CHEMBL1200731"]),
+                rel_keys=["CHEMBL1679"])
+    only_parent = dict(_rec("drug", "imatinib", "Imatinib", id_keys=["CHEMBL941"]),
+                       rel_keys=["CHEMBL1642"])
+    recs = [parent, only_parent, salt] if salt_last else [salt, only_parent, parent]
+    m = _merge_manifest(recs, str(tmp_path))
+    assert m["drug"]["CHEMBL1679"] == "leucovorin"
+    assert m["drug"]["CHEMBL1200731"] == "leucovorin-calcium"
+    assert m["drug"]["CHEMBL1642"] == "imatinib"          # salt without a page → parent

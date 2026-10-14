@@ -55,6 +55,7 @@ def collect_one(spec):
     etype, ident, dist_dir, cache_dir = spec
     try:
         CALLS.clear()
+        rel_keys = []
         if etype == "gene":
             slug = ident
             bundle = P.collect_all(ident)   # includes the non-coding scrub
@@ -86,7 +87,10 @@ def collect_one(spec):
                         "error": "unnamed drug (no pref_name — ChEMBL-id-only shell)"}
             slug = drug_slug(a.canonical_name or ident)
             bundle = {sid: DRC.REGISTRY[sid].collect_fn(a) for sid in DRC.REGISTRY}
-            id_keys = [a.chembl_id, a.parent_chembl, *(a.child_chembls or ())]
+            id_keys = [a.chembl_id]
+            # parent/salt ids route here only when they have no page of their own
+            # (a salt page claimed its parent's id: last writer won, 13 in sample)
+            rel_keys = [a.parent_chembl, *(a.child_chembls or ())]
             raw = ((a.chembl_entry or {}).get("Attributes") or {})
             raw = (((raw.get("Chembl") or {}).get("molecule") or {}).get("name"))
             # + the raw ChEMBL name ("DASATINIB ANHYDROUS"), which other pages'
@@ -130,6 +134,7 @@ def collect_one(spec):
                 "canonical": canonical, "evidence_raw": ev_raw,
                 "evidence_components": ev_comps,
                 "id_keys": [str(k) for k in id_keys if k],
+                "rel_keys": [str(k) for k in rel_keys if k],
                 "name_keys": [k for k in name_keys if k]}
     except (Exception, SystemExit) as e:   # SystemExit too — see harden M1
         return {"ok": False, "entity": etype, "ident": ident, "error": repr(e)}
@@ -268,6 +273,12 @@ def _merge_manifest(collected, dist_dir):
             bucket[cnk] = r["slug"]
         if r.get("canonical"):                       # audit #13 destination name
             manifest["canon"][r["entity"]][r["slug"]] = r["canonical"]
+    # Pass 1b — related ids (a drug's parent/salt forms): fill-only, so an id
+    # with its own page is never routed to a sibling form.
+    for r in collected:
+        bucket = manifest[r["entity"]]
+        for k in r.get("rel_keys") or ():
+            bucket.setdefault(k, r["slug"])
     # Pass 2 — synonyms: fill-only, never shadow an authoritative key; keep-first.
     for r in collected:
         bucket = manifest[r["entity"]]
