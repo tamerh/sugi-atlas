@@ -34,6 +34,7 @@ def _disease(bundle, title):
 
     kind, cg = causal_kind(bundle)
     modes, src = inheritance_modes(bundle)
+    src = {"Orphanet, consistent with GenCC": "Orphanet and GenCC"}.get(src, src)
     phrase = S.inheritance_phrase(modes)
     genes = _join([f"{s} ({l})" for s, l in cg[:5]]) + _more(len(cg), 5)
     cause = {"caused": f"{title} is caused by variants in {genes}.",

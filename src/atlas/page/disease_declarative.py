@@ -231,19 +231,31 @@ def _subtype_gene_clause(bundle):
     return f" whose subtypes are caused by variants in {_gene_list(syms, None)}"
 
 
+def _same_mode(a, b):
+    """'Autosomal recessive' ~ 'Autosomal recessive'; GenCC's 'X-linked' matches
+    Orphanet's 'X-linked recessive/dominant'."""
+    a, b = (a or "").lower().replace(" inheritance", ""), (b or "").lower().replace(" inheritance", "")
+    return a == b or a.startswith(b) or b.startswith(a)
+
+
 def inheritance_modes(bundle):
     """(modes, source): Orphanet's disease-level inheritance, else — only for a
     disease its causal genes actually cause — their GenCC mode (type 2 diabetes
     must not inherit GCK-MODY's "autosomal dominant")."""
-    from atlas.disease.summary import inheritance
+    from atlas.disease.summary import inheritance, orphanet_is_parent
     b1 = bundle.get("1") or {}
-    orph = inheritance(b1)
-    if orph:
-        return orph, "Orphanet"
     kind, cg = causal_kind(bundle)
-    if kind != "caused":
-        return [], ""
-    gm = inheritance({}, bundle.get("4"), cg)
+    gm = inheritance({}, bundle.get("4"), cg) if kind == "caused" else []
+    orph = [] if orphanet_is_parent(b1) else inheritance(b1)
+    if orph:
+        # Orphanet lists every mode seen across a disease's forms; when the causal
+        # gene's own curated modes are known, keep only the modes they share
+        # (Fanconi anemia group C: Orphanet "AR or X-linked", FANCC is AR).
+        if gm and len(orph) > 1:
+            shared = [m for m in orph if any(_same_mode(m, g) for g in gm)]
+            if shared:
+                return shared, "Orphanet, consistent with GenCC"
+        return orph, "Orphanet"
     return gm, ("GenCC" if gm else "")
 
 
@@ -321,7 +333,9 @@ def declarative_sentence(bundle):
     causal = _causal_clause(bundle)          # " caused by CFTR (GenCC Definitive)"
     inh = S.inheritance_phrase(inheritance_modes(bundle)[0])
     defn, src = S.definition(b1)
-    pred = S.definition_predicate(defn, name)
+    # A parent-group Orphanet definition ("A rare group of …") never becomes the
+    # predicate of "<this subtype> is …"; it's quoted with its attribution.
+    pred = "" if src.startswith("Orphanet, for") else S.definition_predicate(defn, name)
     form_of = S.templated_class(defn)        # "Any <class> in which … the X gene"
     if form_of:
         defn = pred = ""                     # restates the causal gene: use the class

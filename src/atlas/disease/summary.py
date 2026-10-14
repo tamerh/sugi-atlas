@@ -51,17 +51,43 @@ def _first_sentences(text, limit=_DEF_MAX):
     return out
 
 
+_MARKER = re.compile(r"\b(?:\d+[a-z]?|(?:type|group|form|class)\s+[a-z0-9]{1,4})\b", re.I)
+
+
+def _markers(name):
+    return {re.sub(r"\s+", " ", m.group(0).lower()) for m in _MARKER.finditer(name or "")}
+
+
+def orphanet_is_parent(b1):
+    """True when the page's Orphanet record is the broader GROUP, not this
+    subtype: the Mondo name carries a subtype marker (a number, "type 4",
+    "group C") the Orphanet name lacks — long QT syndrome 2 → Orphanet "Congenital
+    long QT syndrome"; Stickler syndrome type 4 → "Stickler syndrome". Its
+    definition ("A rare group of …") and union of inheritance modes ("AD or AR")
+    then describe the group, not this disease (~650 pages)."""
+    b1 = b1 or {}
+    on, cn = b1.get("orphanet_name") or "", b1.get("canonical_name") or b1.get("name") or ""
+    return bool(on and cn and (_markers(cn) - _markers(on)))
+
+
 def definition(b1):
     """(text, source) — the best curated definition, trimmed to its opening
-    sentence(s); ('', '') when none."""
+    sentence(s); ('', '') when none. A parent-group Orphanet definition is used
+    only as a last resort, attributed to the group."""
     b1 = b1 or {}
+    parent = orphanet_is_parent(b1)
     for key, src in _DEF_SOURCES:
+        if parent and key == "orphanet_definition":
+            continue
         t = (b1.get(key) or "").strip()
         if len(t) < 20:
             continue
         if src == "MeSH":
             t = _uncap_mesh(t)
         return _first_sentences(t), src
+    t = (b1.get("orphanet_definition") or "").strip()
+    if parent and len(t) >= 20:
+        return _first_sentences(t), f"Orphanet, for the broader {b1.get('orphanet_name')}"
     return "", ""
 
 
@@ -79,7 +105,7 @@ def definition_predicate(text, name):
     return ""
 
 
-_INHERITANCE_SKIP = {"not applicable", "unknown", "not yet documented", ""}
+_INHERITANCE_SKIP = {"not applicable", "unknown", "not yet documented", "no data available", ""}
 
 
 def inheritance(b1, b4=None, causal=None):
@@ -88,6 +114,8 @@ def inheritance(b1, b4=None, causal=None):
     gate the GenCC fallback on the disease actually being caused by those genes
     (disease_declarative.inheritance_modes)."""
     out = []
+    if orphanet_is_parent(b1):
+        return [] if not causal else inheritance({}, b4, causal)
     for m in (b1 or {}).get("orphanet_inheritance") or []:
         if m and m.strip().lower() not in _INHERITANCE_SKIP and m not in out:
             out.append(m.strip())

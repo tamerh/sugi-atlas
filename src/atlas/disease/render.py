@@ -279,9 +279,14 @@ def r_clinical_description(b, bundles=None):
     inheritance / age-of-onset line (Orphanet). '' when nothing is available."""
     b = b or {}
     parts = []
+    from atlas.disease.summary import orphanet_is_parent
+    parent = orphanet_is_parent(b)
     orph = (b.get("orphanet_definition") or "").strip()
     if orph:
-        parts.append(f"**Orphanet:** {orph}")
+        # A subtype linked to its Orphanet GROUP (long QT syndrome 2 → "Congenital
+        # long QT syndrome") — say so, the text describes the group.
+        label = (f"Orphanet (broader group: {b.get('orphanet_name')})" if parent else "Orphanet")
+        parts.append(f"**{label}:** {orph}")
     # Mondo's own definition (biobtree v2.14.0) — every disease gets a curated
     # description, not only those with Orphanet/MeSH text. Skipped when it merely
     # repeats Orphanet's (Mondo often imports it verbatim).
@@ -300,15 +305,17 @@ def r_clinical_description(b, bundles=None):
     io = []
     inh = b.get("orphanet_inheritance") or []
     onset = b.get("orphanet_onset") or []
-    if inh:
-        io.append(f"**Inheritance:** {', '.join(inh)}")
-    elif bundles:
-        # No Orphanet annotation: the GenCC mode of inheritance recorded for the
-        # disease's Definitive/Strong genes (2,483 pages had it only in a table).
+    if bundles:
+        # One decision with the lead (parent-group Orphanet modes dropped, Orphanet
+        # narrowed to the causal gene's GenCC modes, GenCC fallback).
         from atlas.page.disease_declarative import inheritance_modes
-        gm, _src = inheritance_modes(bundles)
-        if gm:
-            io.append(f"**Inheritance:** {', '.join(gm)} (GenCC)")
+        modes, src = inheritance_modes(bundles)
+        if modes:
+            io.append(f"**Inheritance:** {', '.join(modes)}"
+                      + ("" if src == "Orphanet" else f" ({src})"))
+        inh = None
+    if inh:                                  # no bundles: plain Orphanet value
+        io.append(f"**Inheritance:** {', '.join(inh)}")
     if onset:
         io.append(f"**Onset:** {', '.join(onset)}")
     if io:
