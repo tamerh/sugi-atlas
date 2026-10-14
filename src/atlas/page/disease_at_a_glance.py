@@ -126,7 +126,10 @@ def at_a_glance(bundle) -> str:
     # mondo→clinical_trials edge. 0 is a valid answer for a rare disease.
     tr = b13.get("trial_count") or 0
     if tr:
+        from atlas.page.faq_intents import recruiting
+        nrec, _ = recruiting(b13.get("status_counts"), b13.get("top_trials"))
         bullets.append(f"**Clinical trials:** {_format_int(tr)}"
+                       + (f" (≥{_format_int(nrec)} recruiting)" if nrec else "")
                        + evidence.rank_clause("disease", "trial_count", tr))
 
     # Approved drugs indicated for THIS disease (ChEMBL drug_indication via the

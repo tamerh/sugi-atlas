@@ -95,6 +95,12 @@ def _disease(bundle, title):
                   f"(often labelled uses ChEMBL records at phase 3; check the label): "
                   f"{_join(names)}{_more(len(late), len(names))}.")
         qas.append((f"What drugs are approved for {title}?", a))
+    b13 = bundle.get("13") or {}
+    n, ids = recruiting(b13.get("status_counts"), b13.get("top_trials"))
+    if n:
+        qas.append((f"Are there recruiting clinical trials for {title}?",
+                    f"Yes — at least {n:,} registered trial{'s are' if n != 1 else ' is'} recruiting or about "
+                    f"to recruit (ClinicalTrials.gov)" + (f", e.g. {', '.join(ids[:3])}" if ids else "") + "."))
     sub = [r for r in (bundle.get("_subtype_approved_drugs") or []) if r.get("name")]
     if sub and not appr:
         names = [f"{display_name(r['name'])} ({r['subtypes'][0]})" for r in sub[:8]]
@@ -175,6 +181,35 @@ def _drug(bundle, title):
                       + ("s" if len(rows) != 1 else "")
                       + (f", including {_join(names)}" if names else "") + ".")
         qas.append((f"Is {title} an approved drug?", a))
+
+    labels, guide, pgenes = pgx_summary(bundle.get("9"))
+    if labels or guide:
+        parts = []
+        if labels:
+            parts.append("Drug labels with pharmacogenomic content (PharmGKB): " + "; ".join(
+                f"{src} — {lvl}" + (f" ({', '.join(gs[:3])})" if gs else "") for src, lvl, gs in labels[:4]) + ".")
+        if guide:
+            parts.append(f"Dosing guidelines: {', '.join(guide)}"
+                         + (f" ({', '.join(pgenes[:4])})" if pgenes else "") + ".")
+        top = labels[0][1].lower() if labels else ""
+        lead = ("Yes — genetic testing is required by at least one label. " if top == "testing required"
+                else "Genetic testing is recommended by at least one label. " if top == "testing recommended"
+                else "Pharmacogenomic guidance exists. ")
+        qas.append((f"Is genetic testing recommended before taking {title}?", lead + " ".join(parts)))
+
+    ae = adverse_events(bundle.get("13"))
+    tot = (bundle.get("13") or {}).get("total_reports") or 0
+    if ae:
+        qas.append((f"What adverse events are reported for {title}?",
+                    f"Most frequently reported reactions in FDA FAERS spontaneous reports "
+                    f"({tot:,} reports; reports do not establish causation): "
+                    f"{_join([r['reaction'] for r in ae])}."))
+
+    n, ids = recruiting((bundle.get("5") or {}).get("status_counts"), (bundle.get("5") or {}).get("top_trials"))
+    if n:
+        qas.append((f"Are there recruiting clinical trials for {title}?",
+                    f"Yes — at least {n:,} registered trial{'s are' if n != 1 else ' is'} recruiting or about "
+                    f"to recruit (ClinicalTrials.gov)" + (f", e.g. {', '.join(ids[:3])}" if ids else "") + "."))
     return qas
 
 
@@ -203,6 +238,44 @@ def _gene(bundle, title):
             a += f" {title} has {nt} annotated Ensembl transcript" + ("s" if nt != 1 else "") + "."
         qas.append((f"How many exons does {title} have?", a))
 
+    # Where is it expressed? (HPA RNA tissue specificity + top tissues + location)
+    hpa = (bundle.get("13") or {}).get("hpa") or {}
+    tops = [t.split("|")[0] for t in hpa.get("top_tissues") or [] if t][:4]
+    if hpa.get("rna_tissue_specificity") or tops:
+        a = (f"Human Protein Atlas RNA tissue specificity: {hpa.get('rna_tissue_specificity') or 'not classified'}"
+             + (f"; highest in {_join([t.lower() for t in tops])}" if tops else "") + ".")
+        loc = hpa.get("subcellular_main") or []
+        if loc:
+            a += f" Main subcellular location: {_join(loc[:3])}."
+        qas.append((f"Where is {title} expressed?", a))
+
+    # Which diseases? curated validity first, then pathogenic-ClinVar-supported.
+    b12 = bundle.get("12") or {}
+    from atlas.render_common import gencc_rank
+    cur = []
+    for g in (b12.get("clingen_validity") or []) + (b12.get("gencc") or []):
+        d = (g.get("disease") or "").strip()
+        if d and gencc_rank(g.get("classification")) >= gencc_rank("Strong") and d.lower() not in {x.lower() for x in cur}:
+            cur.append(d)
+    other = [m.get("name") for m in b12.get("mondo") or [] if m.get("name")
+             and m["name"].lower() not in {x.lower() for x in cur}]
+    if cur or other:
+        a = ""
+        if cur:
+            a = (f"Diseases with Definitive or Strong curated gene–disease validity (GenCC / ClinGen): "
+                 f"{_join(cur[:8])}{_more(len(cur), 8)}.")
+        if other:
+            a += ((" " if a else "") + f"{'Other diseases' if cur else 'Diseases'} linked through curated or "
+                  f"pathogenic ClinVar evidence: {_join(other[:6])}{_more(len(other), 6)}.")
+        qas.append((f"What diseases is {title} associated with?", a))
+
+    mp = (bundle.get("5") or {}).get("mouse_phenotypes") or []
+    if mp:
+        n = (bundle.get("5") or {}).get("mouse_phenotype_total") or len(mp)
+        qas.append((f"Is there a mouse model for {title}?",
+                    f"Yes — MGI records {n:,} phenotype{'s' if n != 1 else ''} for mutant alleles of the "
+                    f"mouse orthologue, including {_join([p['statement'] for p in mp[:4] if p.get('statement')])}."))
+
     moa = [d for d in (b10.get("moa_drugs") or []) if d.get("name")]
     if moa and any(_phase(d.get("phase")) > 0 for d in moa):
         appr = [d for d in moa if _phase(d.get("phase")) >= 4]
@@ -230,6 +303,56 @@ def _gene(bundle, title):
         else:
             qas.append((f"What drugs target {title}?", a))
     return qas
+
+
+# ── shared: PGx, adverse events, recruiting trials ──────────────────────────
+
+_PGX_RANK = {"testing required": 4, "testing recommended": 3, "actionable pgx": 2,
+             "informative pgx": 1}
+
+
+def pgx_summary(b9):
+    """(labels ≥ Actionable as [(agency, level, genes)], guideline sources, genes)
+    from PharmGKB drug-label + guideline annotations; ([], [], []) if none."""
+    b9 = b9 or {}
+    labels = []
+    for l in b9.get("drug_labels") or []:
+        lvl = (l.get("level") or "").strip()
+        if _PGX_RANK.get(lvl.lower(), 0) >= 2:
+            labels.append((l.get("source") or "", lvl, [g for g in l.get("genes") or [] if g]))
+    labels.sort(key=lambda x: (-_PGX_RANK.get(x[1].lower(), 0), x[0] != "FDA", x[0]))
+    guide = sorted({(g.get("source") or "").strip() for g in b9.get("guidelines") or []} - {""})
+    genes = []
+    for _, _, gs in labels:
+        genes += [g for g in gs if g not in genes]
+    for g in b9.get("guidelines") or []:
+        genes += [x.strip() for x in str(g.get("genes") or "").split(",") if x.strip() and x.strip() not in genes]
+    return labels, guide, genes
+
+
+# FAERS terms that are not adverse reactions (36% of drugs led with one).
+_NON_REACTION = re.compile(
+    r"drug ineffective|off label|product |no adverse event|death|inappropriate|incorrect|"
+    r"wrong |dose omission|intentional|unapproved|medication error|exposure|"
+    r"condition aggravated|disease progression|therapeutic (response|product)|"
+    r"treatment (failure|noncompliance)|drug interaction|drug intolerance|"
+    r"not effective|lack of efficacy|underdose|overdose|poor quality|"
+    r"device|malaise$|general physical health deterioration|"
+    r"^(pain|fall|illness)$", re.I)
+
+
+def adverse_events(b13, k=8):
+    rows = [r for r in (b13 or {}).get("most_reported") or []
+            if r.get("reaction") and not _NON_REACTION.search(r["reaction"])]
+    return rows[:k]
+
+
+def recruiting(status_counts, trials):
+    n = sum(v for k, v in (status_counts or {}).items()
+            if str(k).upper() in ("RECRUITING", "NOT_YET_RECRUITING", "ENROLLING_BY_INVITATION"))
+    ids = [t.get("id") for t in (trials or []) if str(t.get("status") or "").upper() == "RECRUITING"
+           and t.get("id")]
+    return n, ids
 
 
 _BUILDERS = {"disease": _disease, "drug": _drug, "gene": _gene}

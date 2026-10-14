@@ -194,6 +194,14 @@ def at_a_glance(bundle) -> str:
         n, k, share = rs
         bullets.append(f"**Regional missense constraint (gnomAD):** {k} of {n} regions constrained"
                        + (f" (≈{share:.0%} of expected missense variation)" if share else ""))
+    # Where it's expressed (HPA RNA tissue specificity) — the eQTL line below is
+    # about genetic regulation, not where the gene is expressed.
+    hpa = (bundle.get("13") or {}).get("hpa") or {}
+    spec = hpa.get("rna_tissue_specificity")
+    tops = [t.split("|")[0].lower() for t in hpa.get("top_tissues") or [] if t][:3]
+    if spec or tops:
+        bullets.append(f"**Expression (HPA):** {spec or 'tissue specificity not classified'}"
+                       + (f" — highest in {', '.join(tops)}" if tops else ""))
     # GTEx eGene — tissues where the gene's expression / splicing is genetically
     # regulated (eQTL / sQTL).
     ne, ns = gtex_counts((bundle.get("11") or {}).get("gtex_egene"))

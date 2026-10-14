@@ -131,3 +131,41 @@ def test_umbrella_subtype_approved_drugs():
     assert a.startswith("No drug is recorded as approved for Breast cancer as a whole")
     assert _drugs_clause({}, b["_indicated_drugs"], b["_subtype_approved_drugs"]) == \
         " Drugs approved for its subtypes include palbociclib."
+
+
+def test_drug_pgx_adverse_events_recruiting_faq():
+    from atlas.page.faq_intents import intent_qas
+    b = {"1": {"is_fda_approved": True},
+         "9": {"drug_labels": [{"source": "FDA", "level": "Actionable PGx", "genes": ["CYP2C19"]},
+                               {"source": "EMA", "level": "Informative PGx", "genes": ["CYP2C19"]}],
+               "guidelines": [{"source": "CPIC", "genes": "CYP2C19"}, {"source": "DPWG", "genes": "CYP2C19"}]},
+         "13": {"total_reports": 1000, "most_reported": [
+             {"reaction": "drug ineffective"}, {"reaction": "dyspnoea"}, {"reaction": "off label use"},
+             {"reaction": "myocardial infarction"}]},
+         "5": {"status_counts": {"RECRUITING": 3, "COMPLETED": 9},
+               "top_trials": [{"id": "NCT1", "status": "RECRUITING"}]}}
+    q = dict(intent_qas("drug", b, "Clopidogrel"))
+    assert q["Is genetic testing recommended before taking Clopidogrel?"] == (
+        "Pharmacogenomic guidance exists. Drug labels with pharmacogenomic content (PharmGKB): "
+        "FDA — Actionable PGx (CYP2C19). Dosing guidelines: CPIC, DPWG (CYP2C19).")
+    assert q["What adverse events are reported for Clopidogrel?"].endswith(": dyspnoea and myocardial infarction.")
+    assert q["Are there recruiting clinical trials for Clopidogrel?"] == (
+        "Yes — at least 3 registered trials are recruiting or about to recruit (ClinicalTrials.gov), e.g. NCT1.")
+
+
+def test_gene_expression_disease_mouse_faq_and_glance():
+    from atlas.page.faq_intents import intent_qas
+    from atlas.page.at_a_glance import at_a_glance
+    b = {"13": {"hpa": {"rna_tissue_specificity": "Tissue enriched", "top_tissues": ["Liver|198523.8", "Pancreas|1480"],
+                        "subcellular_main": ["endoplasmic reticulum"]}},
+         "12": {"gencc": [{"disease": "analbuminemia", "classification": "Definitive"},
+                          {"disease": "x", "classification": "Limited"}],
+                "mondo": [{"name": "familial dysalbuminemic hyperthyroxinemia"}]},
+         "5": {"mouse_phenotypes": [{"statement": "decreased circulating serum albumin level"}],
+               "mouse_phenotype_total": 4}}
+    q = dict(intent_qas("gene", b, "ALB"))
+    assert q["Where is ALB expressed?"] == ("Human Protein Atlas RNA tissue specificity: Tissue enriched; "
+                                           "highest in liver and pancreas. Main subcellular location: endoplasmic reticulum.")
+    assert "analbuminemia" in q["What diseases is ALB associated with?"] and " x" not in q["What diseases is ALB associated with?"]
+    assert q["Is there a mouse model for ALB?"].startswith("Yes — MGI records 4 phenotypes")
+    assert "**Expression (HPA):** Tissue enriched — highest in liver, pancreas" in at_a_glance(b)

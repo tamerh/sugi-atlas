@@ -107,7 +107,22 @@ def at_a_glance(bundle) -> str:
     # Clinical trials (§5).
     tr = b5.get("trial_count") or 0
     if tr:
-        bullets.append(f"**Clinical trials:** {_format_int(tr)}")
+        from atlas.page.faq_intents import recruiting, pgx_summary
+        nrec, _ = recruiting(b5.get("status_counts"), b5.get("top_trials"))
+        bullets.append(f"**Clinical trials:** {_format_int(tr)}"
+                       + (f" (≥{_format_int(nrec)} recruiting)" if nrec else ""))
+    # Pharmacogenomics — label PGx level + CPIC/DPWG guidelines (1,142 drugs had
+    # them and the summary mentioned it on 2).
+    from atlas.page.faq_intents import pgx_summary
+    labels, guide, pgenes = pgx_summary(bundle.get("9"))
+    if labels or guide:
+        bits = []
+        if labels:
+            src, lvl, gs = labels[0]
+            bits.append(f"{src} label: {lvl}" + (f" ({', '.join(gs[:3])})" if gs else ""))
+        if guide:
+            bits.append(f"{', '.join(guide)} guideline{'s' if len(guide) != 1 else ''}")
+        bullets.append("**Pharmacogenomics:** " + " · ".join(bits))
 
     # Precision-oncology evidence (CIViC, §10) — variant–indication associations.
     civ = b10.get("civic_association_total") or 0
