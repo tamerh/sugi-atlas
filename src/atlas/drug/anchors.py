@@ -406,7 +406,11 @@ def resolve(name_or_id: str) -> DrugAnchors:
     mol = _mol_attrs(en)
     xc = {r.split("|")[0]: int(r.split("|")[1])
           for r in (en.get("xrefs", {}).get("data") or [])}
-    canonical = mol.get("name") or chembl_id
+    # ChEMBL names some parents "DASATINIB ANHYDROUS" — the page title/URL use
+    # the generic name (56 drugs had no /atlas/drug/<generic>/ URL; disease
+    # leads read "docetaxel anhydrous"). No collisions in the corpus; the old
+    # slug redirects via the slug history.
+    canonical = re.sub(r"\s+ANHYDROUS$", "", (mol.get("name") or ""), flags=re.I) or chembl_id
 
     chem = _resolve_chemistry(chembl_id)
     targets, bioactivity_targets = _resolve_targets(canonical, chembl_id)

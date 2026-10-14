@@ -87,7 +87,11 @@ def collect_one(spec):
             slug = drug_slug(a.canonical_name or ident)
             bundle = {sid: DRC.REGISTRY[sid].collect_fn(a) for sid in DRC.REGISTRY}
             id_keys = [a.chembl_id, a.parent_chembl, *(a.child_chembls or ())]
-            name_keys = [a.canonical_name, *(getattr(a, "alt_names", None) or ())]
+            raw = ((a.chembl_entry or {}).get("Attributes") or {})
+            raw = (((raw.get("Chembl") or {}).get("molecule") or {}).get("name"))
+            # + the raw ChEMBL name ("DASATINIB ANHYDROUS"), which other pages'
+            # data still carry, so name-based links keep resolving.
+            name_keys = [a.canonical_name, raw, *(getattr(a, "alt_names", None) or ())]
             title = a.canonical_name or ident
         elif etype == "pathway":
             from atlas.pathway.collect import collect as pcollect

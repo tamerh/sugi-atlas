@@ -169,3 +169,16 @@ def test_gene_expression_disease_mouse_faq_and_glance():
     assert "analbuminemia" in q["What diseases is ALB associated with?"] and " x" not in q["What diseases is ALB associated with?"]
     assert q["Is there a mouse model for ALB?"].startswith("Yes — MGI records 4 phenotypes")
     assert "**Expression (HPA):** Tissue enriched — highest in liver, pancreas" in at_a_glance(b)
+
+
+def test_chemistry_brackets_not_links():
+    from atlas.render_common import _cell
+    assert _cell("{[3-(dimethylamino)propyl](methyl)amino}") == "{[3-(dimethylamino)propyl\\](methyl)amino}"
+    assert _cell("[EGFR](/atlas/gene/EGFR/)") == "[EGFR](/atlas/gene/EGFR/)"
+
+
+def test_anhydrous_dropped_from_display_names():
+    from atlas.render_common import display_name
+    assert display_name("DOCETAXEL ANHYDROUS") == "Docetaxel"
+    assert display_name("Lisinopril anhydrous") == "Lisinopril"
+    assert display_name("ABT199") == "ABT199"

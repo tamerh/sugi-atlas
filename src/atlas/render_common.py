@@ -69,7 +69,11 @@ def display_name(s):
     leave drug development CODES alone — anything containing a digit (N6022,
     K-877, F19 131I, ABT199) is an identifier, not a shouting word, and must
     keep its exact case."""
-    if not (s and isinstance(s, str) and s.isupper()):
+    if not (s and isinstance(s, str)):
+        return s
+    # ChEMBL's "DOCETAXEL ANHYDROUS" parent names: show the generic name.
+    s = re.sub(r"\s+anhydrous$", "", s, flags=re.I) or s
+    if not s.isupper():
         return s
     if " " not in s and any(c.isdigit() for c in s):   # single-token code — preserve
         return s                                        # (multi-word names w/ digits ARE names)
@@ -189,7 +193,15 @@ def _cell(c):
     # carry data + links only, never intentional bold/italic (verified corpus-
     # wide: zero legitimate '**' cells), and no cell URL contains '*', so escaping
     # every '*' in a cell is safe and closes the whole class at the one choke point.
-    return s.replace("|", "\\|").replace("*", "\\*")
+    s = s.replace("|", "\\|").replace("*", "\\*")
+    # A bracketed chemistry fragment followed by a parenthesis — "…[3-(dimethyl-
+    # amino)propyl](methyl)amino…" — is read as a markdown link to a relative URL
+    # (690 crawler 404s from 163 gene pages). Real links in cells point to "/…",
+    # "#…" or "http…"; escape the bracket of anything else.
+    return _FAKE_LINK.sub(r"\\]", s)
+
+
+_FAKE_LINK = re.compile(r"\](?=\((?!/|#|https?://))")
 
 
 def more_line(total, shown, by=None):
