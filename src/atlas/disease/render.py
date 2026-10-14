@@ -998,7 +998,7 @@ def r_mechanism_synthesis(bundles):
         ["## Mechanistic alignment (indicated drugs × cohort genes)", "",
          f"{_i(len(aligned))} of the {_i(len(indicated))} drug"
          f"{'s' if len(indicated) != 1 else ''} indicated for this disease also "
-         f"target a gene in its associated-gene cohort ({_i(gene_count)} genes) — a "
+         f"target a gene in its associated-gene cohort ({_i(gene_count)} gene{'s' if gene_count != 1 else ''}) — a "
          "mechanistic rationale linking the disease-direct indication to the "
          "disease's genetics. *Atlas-derived cross-reference.*", "",
          table(["Indicated drug", "Cohort targets", "Genes"],

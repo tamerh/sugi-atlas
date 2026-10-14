@@ -47,13 +47,15 @@ def _disease(bundle, title):
     st = [g for g in ((bundle.get("4") or {}).get("subtype_genes") or []) if g.get("symbol")]
     if st and kind in ("subtypes", None) and (b1.get("child_count") or 0) >= 5:
         tot = max((bundle.get("4") or {}).get("subtype_gene_total") or 0, len(st))
-        top = _join([f"{g['symbol']} ({g['subtypes']} subtypes)" for g in st[:5]])
+        top = _join([f"{g['symbol']} ({g['subtypes']} subtype{'s' if g['subtypes'] != 1 else ''})"
+                     for g in st[:5]])
         cause = (f"{title} is an umbrella term covering {b1.get('child_count')} Mondo subtypes. "
-                 f"GenCC curates {tot} genes as Definitive or Strong causes of its subtypes; "
+                 f"GenCC curates {tot} gene{'s' if tot != 1 else ''} as Definitive or Strong causes of its subtypes; "
                  f"the most frequent are {top}.")
     if cause:
         if phrase:
-            cause += f" It is {phrase} ({src})."
+            cause += (f" It has {phrase[5:]} ({src})." if phrase.startswith("with ")
+                      else f" It is {phrase} ({src}).")
         qas.append((f"What causes {title}?", cause))
     if phrase:
         n_gwas = (bundle.get("2") or {}).get("assoc_total") or 0

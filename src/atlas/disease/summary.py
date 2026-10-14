@@ -31,10 +31,33 @@ def _uncap_mesh(text):
     return _CAPS_RUN.sub(fix, text)
 
 
+# Disease Ontology logical-definition relations leak into its text
+# ("… that has_material_basis_in mutation of …", 740 pages).
+_DO_RELATIONS = {"has_material_basis_in": "is caused by", "located_in": "is located in",
+                 "transmitted_by": "is transmitted by", "realized_by": "is realized by",
+                 "has_material_basis_in_mutation_in": "is caused by mutation in"}
+_REL = re.compile(r"\b[a-z]+(?:_[a-z]+)+\b")
+
+
+def clean_text(text):
+    """Source-definition cleanup: HTML entities / tags (Orphanet '&lt;i&gt;' —
+    143 pages), DO relation tokens, whitespace and space-before-punctuation."""
+    import html
+    t = text or ""
+    for _ in range(2):                         # double-escaped '&amp;lt;i&amp;gt;'
+        t = html.unescape(t)
+    t = re.sub(r"</?[a-zA-Z][^>]{0,40}>", "", t)
+    t = _REL.sub(lambda m: _DO_RELATIONS.get(m.group(0), m.group(0).replace("_", " ")), t)
+    t = " ".join(t.split())
+    return re.sub(r"\s+([,;:.])", r"\1", t)
+
+
 def _first_sentences(text, limit=_DEF_MAX):
     """Leading sentence(s) of a definition, within `limit` characters. A sentence
-    ends at '. ' followed by a capital (abbreviations like "e.g. the" don't)."""
-    text = " ".join((text or "").split())
+    ends at '. ' followed by a capital (abbreviations like "e.g. the" don't). An
+    over-long first sentence is cut at a clause boundary (', which', '; ', ', ')
+    rather than mid-phrase."""
+    text = clean_text(text)
     text = re.sub(r"\s+([,;:.])", r"\1", text)   # source text: "fatal , epileptic"
     parts = re.split(r"(?<=[.!?])\s+(?=[A-Z(])", text)
     out = ""
@@ -44,8 +67,11 @@ def _first_sentences(text, limit=_DEF_MAX):
         out = f"{out} {p}".strip()
         if len(out) >= 120:
             break
-    if len(out) > limit:                       # one over-long sentence: cut at a word
-        out = out[:limit].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    if len(out) > limit:                       # one over-long sentence
+        head = out[:limit]
+        cut = max(head.rfind(", which"), head.rfind("; "), head.rfind(", "), head.rfind(" (")) \
+            if len(head) > 120 else -1
+        out = (head[:cut] if cut >= 120 else head.rsplit(" ", 1)[0]).rstrip(",;: (") + "…"
     if out and out[-1] not in ".!?…":
         out += "."
     return out
@@ -76,6 +102,7 @@ def definition(b1):
     only as a last resort, attributed to the group."""
     b1 = b1 or {}
     parent = orphanet_is_parent(b1)
+    cands = []
     for key, src in _DEF_SOURCES:
         if parent and key == "orphanet_definition":
             continue
@@ -84,7 +111,14 @@ def definition(b1):
             continue
         if src == "MeSH":
             t = _uncap_mesh(t)
-        return _first_sentences(t), src
+        cands.append((_first_sentences(t), src))
+    # The first source whose opening sentence fits whole; else the first one
+    # (clause-cut). v1.12: 3,177 leads ended mid-sentence with "…".
+    for txt, src in cands:
+        if not txt.endswith("…"):
+            return txt, src
+    if cands:
+        return cands[0]
     t = (b1.get("orphanet_definition") or "").strip()
     if parent and len(t) >= 20:
         return _first_sentences(t), f"Orphanet, for the broader {b1.get('orphanet_name')}"
@@ -99,10 +133,19 @@ def definition_predicate(text, name):
     t = (text or "").strip()
     nm = (name or "").strip()
     if nm and t.lower().startswith(nm.lower() + " is "):
-        return t[len(nm) + 4:]
+        return _article(t[len(nm) + 4:])
     if re.match(r"(A|An|The)\s", t):
-        return t[0].lower() + t[1:]
+        return _article(t[0].lower() + t[1:])
     return ""
+
+
+def _article(p):
+    """Fix a/an agreement the source got wrong ("An disease or disorder …")."""
+    m = re.match(r"(a|an) (\w+)", p)
+    if not m:
+        return p
+    want = "an" if m.group(2)[0].lower() in "aeiou" else "a"
+    return want + p[len(m.group(1)):]
 
 
 _INHERITANCE_SKIP = {"not applicable", "unknown", "not yet documented", "no data available", ""}

@@ -100,3 +100,17 @@ def test_subtype_genes_cancer_wording():
     b = {"1": {"child_count": 9, "is_cancer": True},
          "4": {"subtype_genes": [{"symbol": "EGFR"}], "subtype_gene_total": 1}}
     assert _subtype_gene_clause(b) == " whose hereditary forms are linked to EGFR"
+
+
+def test_definition_text_cleanup():
+    from atlas.disease.summary import clean_text
+    assert clean_text("A disease that has_material_basis_in mutation of the &amp;lt;i&amp;gt;CFTR&amp;lt;/i&amp;gt; "
+                      "gene and results_in fatigue , fatal .") == \
+        "A disease that is caused by mutation of the CFTR gene and results in fatigue, fatal."
+
+
+def test_article_agreement_in_definition_predicate():
+    from atlas.disease.summary import definition_predicate
+    assert definition_predicate("An disease or disorder caused by a helminth.", "x") == \
+        "a disease or disorder caused by a helminth."
+    assert definition_predicate("A inherited disorder of the eye.", "x") == "an inherited disorder of the eye."

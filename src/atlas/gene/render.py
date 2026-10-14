@@ -333,7 +333,9 @@ def _regional_constraint(rmc):
                      f"{r['obs']:.0f} / {r['exp']:.1f}" if r.get("obs") is not None and r.get("exp") else "—",
                      f"{oe:.2f}" if oe is not None else "—",
                      ("yes" + (f" (p {r['p']:.1e})" if r.get("p") is not None else "")) if r.get("constrained") else "no"))
-    return head + "\n" + table(["Region (GRCh38)", "Missense obs / exp", "o/e", "Constrained"], rows)
+    # trailing blank line: without it a Markdown renderer folds the next
+    # paragraph (ClinGen dosage) into the table (1,976 pages)
+    return head + "\n" + table(["Region (GRCh38)", "Missense obs / exp", "o/e", "Constrained"], rows) + "\n"
 
 
 def r_functional_genomics(b):
