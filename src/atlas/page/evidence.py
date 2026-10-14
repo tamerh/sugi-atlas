@@ -38,6 +38,11 @@ _SPEC = {
         ("trial_count",       "10", "disease_trial_count",   1.0),
         ("gwas_count",        "12", "gwas_total",            0.7),
         ("interaction_count", "8",  "string_count",          0.5),
+        # Curated mechanism-of-action drugs (single protein + complex/family).
+        # Weight 0.0: reported, not scored — it lets illumination count genes whose
+        # only drugs are biologics/oligonucleotides absent from bioactivity data
+        # (SOD1 ← tofersen read "not yet drugged" on the ALS page).
+        ("moa_count",         "10", "moa_count",             0.0),
     ],
     "disease": [
         ("civic_count",   "13", "civic_evidence_total", 2.0),
@@ -170,10 +175,11 @@ def illumination(comps):
     it as illumination and never borrow the "Tdark" label."""
     def g(k):
         return int((comps or {}).get(k) or 0)
-    if g("drug_count") and g("civic_count"):
+    drugged = g("drug_count") or g("moa_count")
+    if drugged and g("civic_count"):
         return "drug-illuminated"          # has a drug AND curated precision evidence
-    if g("drug_count"):
-        return "chemically-probed"         # ChEMBL molecules but no curated actionability
+    if drugged:
+        return "chemically-probed"         # ChEMBL molecules / MoA drug, no curated actionability
     if g("gwas_count") or g("variant_count") or g("interaction_count"):
         return "functionally-characterized"
     return "understudied"

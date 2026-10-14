@@ -285,6 +285,7 @@ def collect(a):
             _add_moa(m)
     bundle["moa_drugs"] = sorted(moa.values(), key=lambda d: (-_phase(d["phase"]), d["name"]))
     bundle["complex_moa_drugs"] = _complex_moa_drugs(targets, set(moa))
+    bundle["moa_count"] = len(bundle["moa_drugs"]) + len(bundle["complex_moa_drugs"])
     # Bioactivity list: within a phase, curated-MOA drugs first, then by patent
     # intensity — instead of CHEMBL-id order (which put levodopa/clotrimazole at
     # the top of EGFR's phase-4 rows and pushed gefitinib past the row cap).
@@ -716,7 +717,7 @@ SECTION = Section(
                  "clickable CID/AID), clinical trials via disease route, CIViC "
                  "clinical evidence (drug × variant × indication precision triple)"),
     needs=("hgnc_id", "canonical_uniprot"),
-    produces=("canonical_uniprot", "chembl_targets", "molecules", "moa_drugs", "complex_moa_drugs", "civic_assertions", "chembl_activities",
+    produces=("canonical_uniprot", "chembl_targets", "molecules", "moa_drugs", "complex_moa_drugs", "moa_count", "civic_assertions", "chembl_activities",
               "chembl_assay_total", "chembl_assay_type_counts",
               "chembl_assay_samples", "patent_total",
               "cellosaurus_total", "cellosaurus_category_counts",
