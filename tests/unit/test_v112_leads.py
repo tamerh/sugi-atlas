@@ -102,7 +102,7 @@ def test_common_disease_gets_no_clinvar_monogenic_claim():
 
 def test_clinvar_only_rare_disease_reports_evidence_not_cause():
     from atlas.page.disease_declarative import declarative_sentence, causal_kind
-    b = _bundle("Harel-Tora syndrome", clinvar=("ANKLE2",))
+    b = _bundle("Harel-Tora syndrome", clinvar=("ANKLE2",), omim_ids=["MIM:1"])
     assert causal_kind(b)[0] == "clinvar"
     s = declarative_sentence(b)
     assert "with pathogenic variants reported in ANKLE2 (ClinVar)" in s

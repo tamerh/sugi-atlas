@@ -72,3 +72,15 @@ def test_orphanet_modes_narrowed_to_causal_gene():
     b = _dz("cystinosis", "Cystinosis", ["Autosomal recessive", "X-linked recessive"],
             [("CTNS", "Definitive", ["Autosomal recessive"])])
     assert inheritance_modes(b) == (["Autosomal recessive"], "Orphanet, consistent with GenCC")
+
+
+def test_clinvar_tier_needs_two_records_and_mendelian_anchor():
+    from atlas.disease.cohort import causal_genes
+    def b(plp, **b1):
+        return {"1": {"canonical_name": "sialidosis", "orphanet_ids": ["Orphanet:1"], **b1},
+                "2": {}, "4": {}, "3": {"clinvar_plp_by_gene": plp},
+                "5": {"genes": [{"symbol": s, "evidence": {"clinvar": True}}
+                                for s in ("NEU1", "SGCB", "MIR181A1HG")]}}
+    assert causal_genes(b({"NEU1": 7, "SGCB": 1, "MIR181A1HG": 3})) == [("NEU1", "ClinVar-linked")]
+    assert causal_genes(b({"NEU1": 7}, orphanet_ids=[])) == []          # no Mendelian anchor
+    assert causal_genes(b({"NEU1": 7}, is_cancer=True)) == []

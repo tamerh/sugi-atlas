@@ -312,19 +312,19 @@ def test_causal_genes_clinvar_fallback():
     """When GenCC/OMIM are empty, a small ClinVar-route cohort becomes the causal
     tier; a large (polygenic) cohort does not overclaim."""
     from atlas.disease.cohort import causal_genes
-    b = {"4": {}, "5": {"genes": [
+    b = {"1": {"omim_ids": ["MIM:302950"]}, "4": {}, "5": {"genes": [
         {"symbol": "ARSL", "evidence": {"clinvar": True}},
         {"symbol": "ARSD", "evidence": {"clinvar": True}},
         {"symbol": "G", "evidence": {"gwas": True}}]}}
     assert causal_genes(b) == [("ARSD", "ClinVar-linked"), ("ARSL", "ClinVar-linked")]
-    big = {"4": {}, "5": {"genes": [{"symbol": f"G{i}", "evidence": {"clinvar": True}}
+    big = {"1": {"omim_ids": ["MIM:1"]}, "4": {}, "5": {"genes": [{"symbol": f"G{i}", "evidence": {"clinvar": True}}
                                     for i in range(8)]}}
     assert causal_genes(big) == []                 # >5 → no causal overclaim
 
 
 def test_molecular_basis_block():
     from atlas.disease import render as DR
-    b = {"4": {}, "5": {
+    b = {"1": {"omim_ids": ["MIM:302950"]}, "4": {}, "5": {
         "genes": [{"symbol": "ARSL", "evidence": {"clinvar": True}}],
         "molecular_basis": [{"symbol": "ARSL", "protein_name": "Arylsulfatase L",
             "uniprot": "P51690", "family": "Belongs to the sulfatase family.",

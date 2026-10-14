@@ -56,7 +56,7 @@ def is_chromosomal_anomaly(name):
 
 # Antisense / divergent / intronic transcripts overlapping a coding gene pick up
 # its ClinVar records ("CFTR-related disorder … CFTR, CFTR-AS1, and CFTR-AS2").
-_NONCODING_NEIGHBOR = re.compile(r"-(AS|DT|IT|OT)\d*$")
+_NONCODING_NEIGHBOR = re.compile(r"-(AS|DT|IT|OT)\d*$|^(MIR\d|LINC\d|SNOR[AD]\d)|HG$|HG\d*$")
 
 
 def _clinvar_tier_applies(bundle):
@@ -66,6 +66,14 @@ def _clinvar_tier_applies(bundle):
     umbrella term (its genes belong to the subtypes)."""
     b1 = bundle.get("1") or {}
     if is_chromosomal_anomaly(b1.get("canonical_name") or b1.get("name")):
+        return False
+    # Cancers: ClinVar germline records on a tumour type are predisposition or
+    # somatic noise, not "the" gene (AML with maturation → MIR181A1HG).
+    if b1.get("is_cancer"):
+        return False
+    # A disease with no OMIM / Orphanet record has no Mendelian anchor — the
+    # common/acquired tail (first-degree AV block → KCNJ16).
+    if not (b1.get("omim_ids") or b1.get("orphanet_ids")):
         return False
     if ((bundle.get("2") or {}).get("assoc_total") or 0) >= 20:
         return False
@@ -122,10 +130,14 @@ def causal_genes(bundle):
             out = [(s, "Orphanet disease-causing") for s in orph]
     if not out and _clinvar_tier_applies(bundle):
         b5 = bundle.get("5") or {}
+        # ≥2 (likely) pathogenic non-CNV records for THIS disease (v1.12.2 audit:
+        # 16/25 correct with any single record), coding genes only.
+        plp = (bundle.get("3") or {}).get("clinvar_plp_by_gene")
         clinvar_genes = sorted(
             g.get("symbol") for g in (b5.get("genes") or [])
             if g.get("symbol") and (g.get("evidence") or {}).get("clinvar")
-            and not _NONCODING_NEIGHBOR.search(g["symbol"]))
+            and not _NONCODING_NEIGHBOR.search(g["symbol"])
+            and (plp is None or plp.get(g["symbol"], 0) >= 2))
         if 0 < len(clinvar_genes) <= 5:
             out = [(s, "ClinVar-linked") for s in clinvar_genes]
     return out

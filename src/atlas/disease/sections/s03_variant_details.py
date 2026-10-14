@@ -194,6 +194,17 @@ def collect(a):
             "classification": cls,
             "review_status": r.get("review_status"),
         })
+    # (Likely) pathogenic, non-region-CNV ClinVar records per gene for THIS
+    # disease — the evidence weight behind the ClinVar-only causal tier (a single
+    # stray submission put SGCB on sialidosis; a deletion's bystander, UQCRB, on
+    # Leri pleonosteosis).
+    from atlas.gene.sections.s06_variants import _is_region_cnv
+    plp = {}
+    for v in cv_variants:
+        c = (v["classification"] or "").lower()
+        if ("pathogenic" in c and "conflicting" not in c and "benign" not in c
+                and v.get("gene") and not _is_region_cnv(v["hgvs"])):
+            plp[v["gene"]] = plp.get(v["gene"], 0) + 1
     cv_variants.sort(key=lambda v: (_cv_rank(v["classification"]),
                                     -clinvar_stars(v["review_status"]), clinvar_id_num(v["id"])))
 
@@ -207,6 +218,7 @@ def collect(a):
         "clinvar_total": len(seen_cv),
         "clinvar_class_counts": cv_class_counts,
         "clinvar_variants": cv_variants[:30],
+        "clinvar_plp_by_gene": plp,
     }
 
 SECTION = Section(
@@ -217,6 +229,6 @@ SECTION = Section(
     needs=("mondo_id",),
     produces=("top_variants", "tier_counts", "maf_distribution",
               "consequence_distribution", "clinvar_total",
-              "clinvar_class_counts", "clinvar_variants"),
+              "clinvar_class_counts", "clinvar_variants", "clinvar_plp_by_gene"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
