@@ -198,6 +198,7 @@ def _f(x):
 # (9). Larger groups — GABA-A (19 subunits), proteasome, ribosome, complex I —
 # would hand every subunit the class's drug list (the v1.11.7 noise), so skip.
 _COMPLEX_MAX_MEMBERS = 10
+_ASSEMBLY_TYPES = {"PROTEIN COMPLEX", "PROTEIN COMPLEX GROUP", "PROTEIN FAMILY", "SELECTIVITY GROUP"}
 
 
 def _complex_moa_drugs(targets, single_keys):
@@ -206,7 +207,10 @@ def _complex_moa_drugs(targets, single_keys):
     complex named. Drugs already on the single-protein list are skipped."""
     out = {}
     for t in targets:
-        if (t.get("type") or "").upper() == "SINGLE PROTEIN" or not t.get("id"):
+        # Assemblies only: a CHIMERIC PROTEIN target hands the fusion partner the
+        # kinase drug (BCR → imatinib, EML4 → alectinib), and a PROTEIN-PROTEIN
+        # INTERACTION target the interactor's drug (TP53 → MDM2 inhibitors).
+        if (t.get("type") or "").upper() not in _ASSEMBLY_TYPES or not t.get("id"):
             continue
         members = len(map_all(t["id"], ">>chembl_target>>uniprot", cap=1))
         if not members or members > _COMPLEX_MAX_MEMBERS:

@@ -1,6 +1,6 @@
 """§12 — diseases: Mendelian (OMIM/GenCC/MONDO/Orphanet), phenotypes (HPO),
 complex disease (GWAS). Multi-hop disease routes are the showcase of this section."""
-from atlas.biobtree import map_all, xref_counts
+from atlas.biobtree import map_all, xref_counts, bbmap
 from atlas.gene.sections.base import Section
 
 # Disease links via ClinVar only from this gene's own (likely) pathogenic records —
@@ -10,6 +10,44 @@ from atlas.gene.sections.base import Section
 _CV_PATHOGENIC = ('[germline_classification.contains("athogenic") && '
                   '!germline_classification.contains("onflicting") && '
                   '!type.contains("copy number")]')
+# A disease reached through ClinVar needs ≥2 of this gene's own (likely)
+# pathogenic, non-region records: one record's condition list can carry unrelated
+# conditions (CAPN3 → type 2 diabetes, migraine), and large deletions typed
+# "Deletion" (AK1 → HHT) slip past the copy-number filter.
+_CV_MIN_RECORDS = 2
+_CV_RECORD_PAGES = 10             # ≤ ~1,000 P/LP records sampled per gene
+
+
+def _clinvar_mondo(hgnc_id):
+    """{MONDO id: name} supported by ≥_CV_MIN_RECORDS of the gene's own
+    pathogenic, non-region ClinVar records (per-record clinvar>>mondo, batched)."""
+    from atlas.gene.sections.s06_variants import _is_region_cnv
+    recs = [r for r in map_all(hgnc_id, ">>hgnc>>clinvar" + _CV_PATHOGENIC, cap=_CV_RECORD_PAGES)
+            if r.get("id") and not _is_region_cnv(r.get("name"))]
+    counts, names = {}, {}
+    ids = [r["id"] for r in recs]
+    for i in range(0, len(ids), 100):
+        page = None
+        for _ in range(20):
+            resp = bbmap(",".join(ids[i:i + 100]), ">>clinvar>>mondo", page)
+            for m in resp.get("mappings") or []:
+                for t in set(m.get("targets") or []):
+                    mid, _, nm = t.partition("|")
+                    counts[mid] = counts.get(mid, 0) + 1
+                    names.setdefault(mid, nm)
+            pg = resp.get("pagination") or {}
+            page = pg.get("next_token")
+            if not pg.get("has_next") or not page:
+                break
+    return {m: names[m] for m, n in counts.items() if n >= _CV_MIN_RECORDS}
+
+
+def _via_mondo(mondo_ids, tail):
+    """Targets of `>>mondo>>…` for a set of MONDO ids (batched)."""
+    ids, out = sorted(mondo_ids), []
+    for i in range(0, len(ids), 50):
+        out += map_all(",".join(ids[i:i + 50]), ">>mondo" + tail)
+    return out
 
 
 CHAINS = (
@@ -74,32 +112,29 @@ def collect(a):
 
     bundle["gene_omim"] = [f"MIM:{t['id']}" for t in map_all(a.hgnc_id, ">>hgnc>>mim")]
     # Disease-phenotype OMIM IDs come through MONDO (gene>>mim is only the gene).
-    bundle["disease_omim"] = [f"MIM:{t['id']}" for t in
-                              map_all(a.hgnc_id, ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>mim")]
+    cv_mondo = _clinvar_mondo(a.hgnc_id)
+    bundle["disease_omim"] = [f"MIM:{t['id']}" for t in _via_mondo(cv_mondo, ">>mim")]
     bundle["gencc"] = [{"disease": t.get("disease_title"),
                         "classification": t.get("classification_title"),
                         "inheritance": t.get("moi_title")}
                        for t in map_all(a.hgnc_id, ">>hgnc>>gencc")]
 
     # MONDO: union curated (gencc) + clinical (clinvar) routes.
-    mondo = {}
-    for ch in (">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo", ">>hgnc>>gencc>>mondo"):
-        for t in map_all(a.hgnc_id, ch):
-            mondo[t["id"]] = t.get("name") or mondo.get(t["id"])
+    mondo = dict(cv_mondo)
+    for t in map_all(a.hgnc_id, ">>hgnc>>gencc>>mondo"):
+        mondo[t["id"]] = t.get("name") or mondo.get(t["id"])
     bundle["mondo"] = [{"id": k, "name": v} for k, v in mondo.items()]
 
     # Orphanet: union direct (clinvar) + via-mondo (carries names).
     orph = {}
-    for ch in (">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>orphanet", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>orphanet"):
-        for t in map_all(a.hgnc_id, ch):
-            orph[t["id"]] = t.get("name") or orph.get(t["id"])
+    for t in _via_mondo(cv_mondo, ">>orphanet"):
+        orph[t["id"]] = t.get("name") or orph.get(t["id"])
     bundle["orphanet"] = [{"id": f"Orphanet:{k}", "name": v} for k, v in orph.items()]
 
     # HPO: gene-level (hgnc>>hpo) + disease-level (via mondo).
     hpo = {}
-    for ch in (">>hgnc>>hpo", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>hpo"):
-        for t in map_all(a.hgnc_id, ch):
-            hpo[t["id"]] = t.get("name") or hpo.get(t["id"])
+    for t in map_all(a.hgnc_id, ">>hgnc>>hpo") + _via_mondo(cv_mondo, ">>hpo"):
+        hpo[t["id"]] = t.get("name") or hpo.get(t["id"])
     bundle["hpo"] = [{"id": k, "name": v} for k, v in hpo.items()]
     bundle["hpo_total"] = xc.get("hpo", len(hpo))
 
@@ -128,9 +163,8 @@ def collect(a):
     # (mondo>>gwas_study). The disease route catches genes whose GWAS aren't
     # gene-mapped directly (e.g. AR: hgnc>>gwas empty) but reach studies via disease.
     gws = {}
-    for ch in (">>hgnc>>gwas>>gwas_study", ">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>gwas_study"):
-        for t in map_all(a.hgnc_id, ch):
-            gws[t["id"]] = 1
+    for t in map_all(a.hgnc_id, ">>hgnc>>gwas>>gwas_study") + _via_mondo(cv_mondo, ">>gwas_study"):
+        gws[t["id"]] = 1
     bundle["gwas_studies"] = list(gws)
 
     # MeSH disease descriptors — union of clinvar and gencc disease routes.
@@ -139,9 +173,8 @@ def collect(a):
     # Tree numbers (e.g. C04.700.600) classify the descriptor into the MeSH
     # category hierarchy — useful for rollup to top-level disease groupings.
     mesh = {}
-    for ch in (">>hgnc>>clinvar" + _CV_PATHOGENIC + ">>mondo>>mesh", ">>hgnc>>gencc>>mondo>>mesh"):
-        for t in map_all(a.hgnc_id, ch):
-            mesh[t["id"]] = t  # later route wins on dupes (gencc carries class info too)
+    for t in _via_mondo(cv_mondo, ">>mesh") + map_all(a.hgnc_id, ">>hgnc>>gencc>>mondo>>mesh"):
+        mesh[t["id"]] = t  # later route wins on dupes (gencc carries class info too)
     def _msort(t):
         # Main descriptors first (descriptor_class=1), then alphabetical by name.
         return (0 if t.get("descriptor_class") == "1" else 1,

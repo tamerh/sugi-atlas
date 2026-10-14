@@ -107,6 +107,25 @@ _MI_TERM = re.compile(r'\(([^()]*)\)\s*$')
 _HUMAN_SYMBOL = re.compile(r"[A-Z0-9][A-Z0-9-]*|C[0-9XY]+orf[0-9]+[A-Z0-9-]*")
 
 
+_HGNC_SYMBOLS = None
+
+
+def _hgnc_symbols():
+    """Approved HGNC symbols (the gene seed list), loaded once; empty set if the
+    seed file is unavailable (then the shape check alone applies)."""
+    global _HGNC_SYMBOLS
+    if _HGNC_SYMBOLS is None:
+        import os
+        p = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                         "data", "corpus", "seeds", "genes_hgnc.txt")
+        try:
+            with open(p) as f:
+                _HGNC_SYMBOLS = {l.strip() for l in f if l.strip() and not l.startswith("#")}
+        except OSError:
+            _HGNC_SYMBOLS = set()
+    return _HGNC_SYMBOLS
+
+
 def _intact_partners(rows, symbol, uniprot=None):
     """One row per human IntAct partner of THIS gene, best MIscore first.
 
@@ -131,6 +150,12 @@ def _intact_partners(rows, symbol, uniprot=None):
         else:
             continue
         if not gene or gene.upper() == sym or not _HUMAN_SYMBOL.fullmatch(gene):
+            continue
+        # The lite projection has no taxon; viral partners carry plausible-looking
+        # symbols (HPV "E6", "E7" — 1,521 rows shown as human). Require an HGNC
+        # symbol when the list is available.
+        hs = _hgnc_symbols()
+        if hs and gene not in hs:
             continue
         m = _MI_TERM.search(t.get("interaction_type") or "")
         kind = m.group(1) if m else (t.get("interaction_type") or "")
