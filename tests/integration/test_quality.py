@@ -25,7 +25,8 @@ _FLOAT_ARTIFACT = re.compile(r"\.\d*(?:9{6,}\d|0{5,}[1-9]\d)")
 # knee" or (in source prose) "SARS-CoV and SARS-CoV-2" are different things. The
 # negative lookahead requires the repeat to end on a real boundary, not a
 # continuing word char / hyphen / comma.
-_DUP_INCLUDING = re.compile(r"including (\w[\w '-]+?) and \1(?![\w,-])", re.I)
+# The repeat must end the item: "X and X induced morbidity" names two MGI terms.
+_DUP_INCLUDING = re.compile(r"including (\w[\w '-]+?) and \1(?=\s*(?:[.,;:)]|$))", re.I | re.M)
 _NONE_CELL = re.compile(r"\|\s*None\s*\|")
 _BAD_ATTR = re.compile(r"\{#")                             # {#id} only belongs on headings
 
