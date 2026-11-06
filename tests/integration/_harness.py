@@ -99,7 +99,7 @@ H4_IDS = {
     "disease": {  # clinical / genetics
               "prevalence", "hpo-features", "wikidata-symptoms", "subtype-genes", "gwas-associations", "gwas-studies",
               "clinvar-variants", "tier-distribution", "maf-distribution",
-              "consequences", "top-variants",
+              "consequences", "top-variants", "structural-variants",
               # genes & proteins
               "dual-evidence", "somatic-drivers", "gencc-validity", "orphanet-linkage",
               "omim-shared", "evidence-partition", "cohort-genes-full", "cohort-function",

@@ -142,6 +142,14 @@ subtype lists are capped to built-page links.
   via dbSNP, plus ClinVar germline (`>>mondo>>gwas>>dbsnp`, `>>mondo>>clinvar`).
   The fetched `clinvar_total` is presented as a *floor* so it never contradicts
   the accurate xref total.
+- **§3 structural variants (dbVar)** — clinical CNV/SV calls
+  (`>>mondo>>dbvar`), the structural counterpart to ClinVar's SNV/indels.
+  dbVar is per-*submission* (Duchenne's 1,066 records are 685 overlapping
+  deletions of one region), so records are clustered into loci by
+  (chromosome, svtype, ≥50% reciprocal overlap); the table shows loci with
+  their submission count, majority significance and a ClinVar accession.
+  The authoritative total comes from the Mondo xref count, and the block
+  elides when a disease has none.
 - **§4 Mendelian & somatic overlap** — which cohort genes also cause Mendelian
   forms (GenCC/Orphanet/OMIM) or carry somatic-driver evidence (intOGen/CIViC, for
   cancers). GWAS + Mendelian = highest confidence. GenCC is deduped to one row per

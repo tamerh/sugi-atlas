@@ -15,6 +15,7 @@ from collections import Counter
 from atlas.render_common import table, fnum, gencc_rank, phase_label, more_line, capped_table, display_name
 from atlas.civic import therapy_label, LEGEND as CIVIC_LEGEND
 from atlas.page import links
+from atlas.disease.sections.s03_variant_details import DBVAR_CAP, dbvar_size
 
 # Display cap for curated, naturally bounded tables (cohort/Mendelian/pathway/
 # structure/therapeutic). Most disease pages show their whole cohort; the cap only
@@ -606,9 +607,11 @@ def r_variant_details(b, clinvar_first=False):
     md = b.get("maf_distribution") or {}
     cd = b.get("consequence_distribution") or {}
     cv = b.get("clinvar_variants") or []
+    dbvar = b.get("dbvar_loci") or []
     gwas_present = bool(tv) or any((tc or {}).values())
-    if not gwas_present and not cv:
-        out.append("*No tiered GWAS variants or ClinVar records for this disease.*")
+    if not gwas_present and not cv and not dbvar:
+        out.append("*No tiered GWAS variants, ClinVar records or structural "
+                   "variants for this disease.*")
         return "\n".join(out)
 
     # ClinVar germline variants — the rare/coding genetic evidence (primary for
@@ -648,8 +651,43 @@ def r_variant_details(b, clinvar_first=False):
                    "frequency — on Sugi Variant.*"]
         return bl
 
+    # dbVar structural variants — the CNV/SV counterpart to ClinVar's SNV/indels.
+    # Records are per-submission and heavily overlapping, so the collector
+    # clusters them into loci; this block shows the loci, not the raw rows.
+    def _dbvar_block():
+        loci = b.get("dbvar_loci") or []
+        if not loci:
+            return []
+        names = {"DEL": "deletions", "DUP": "duplications", "INV": "inversions",
+                 "INS": "insertions", "CPX": "complex"}
+        kinds = ", ".join(f"{n} {names.get(t, t.lower())}"
+                          for t, n in list((b.get("dbvar_svtype_counts") or {}).items())[:3])
+        total = b.get("dbvar_total") or 0
+        retrieved = b.get("dbvar_retrieved") or 0
+        head = (f"{_i(total)} structural variants "
+                f"({_i(b.get('dbvar_plp'))} pathogenic/likely pathogenic)")
+        if retrieved and total and retrieved < total:
+            head += f", {_i(retrieved)} retrieved"
+        head += f" across {len(loci)} loci" + (f"; {kinds}" if kinds else "") + "."
+        rows = []
+        for c in loci:
+            loc = (f"{c['chrom']}:{c['start']:,}-{c['end']:,}" if c.get("chrom")
+                   else f"{c['start']:,}-{c['end']:,}")
+            rows.append([c.get("svtype"), loc,
+                         dbvar_size(c.get("size")), c.get("sig"),
+                         c.get("n"), c.get("clinvar") or ""])
+        return ["",
+                "### Structural variants (dbVar) {#structural-variants}", "",
+                head, "",
+                "*Overlapping submissions are grouped into loci (same type and "
+                "chromosome, ≥50% reciprocal overlap); \"Records\" is the number of "
+                "submissions behind each locus.*", "",
+                capped_table(["Type", "Locus", "Size", "Significance", "Records", "ClinVar"],
+                             rows, DBVAR_CAP, total=len(loci), noun="loci")]
+
     if cv and not gwas_present:
         out += _clinvar_block()
+        out += _dbvar_block()
         return "\n".join(out)
     # Mendelian disease (GenCC-Definitive causal gene): the curated ClinVar
     # variants ARE the genetics headline — lead with them, GWAS tiers after
@@ -682,6 +720,7 @@ def r_variant_details(b, clinvar_first=False):
                              30, noun="variants")]
     if cv:  # both GWAS and ClinVar present → ClinVar after the GWAS tiers
         out += ["", *_clinvar_block()]
+    out += _dbvar_block()
     return "\n".join(out)
 
 

@@ -2,12 +2,14 @@
 classification (Tier 1 coding / Tier 2 splice-UTR / Tier 3 regulatory /
 Tier 4 intronic-intergenic)."""
 import re, html
+from collections import Counter
+from urllib.parse import unquote
 from atlas.section import Section
 from atlas.biobtree import map_all, entry
 from atlas.render_common import clinvar_stars, clinvar_id_num
 
-CHAINS   = (">>mondo>>gwas>>dbsnp", ">>mondo>>clinvar")
-DATASETS = ("mondo", "gwas", "dbsnp", "clinvar")
+CHAINS   = (">>mondo>>gwas>>dbsnp", ">>mondo>>clinvar", ">>mondo>>dbvar")
+DATASETS = ("mondo", "gwas", "dbsnp", "clinvar", "dbvar")
 
 # ClinVar germline-classification ranking — clinically actionable first.
 # Order matters: more-specific phrases first (substring match, first hit wins),
@@ -75,6 +77,121 @@ def _maf_bucket(maf):
     if maf >= 0.01:
         return "low_freq (0.01-0.05)"
     return "rare (<0.01)"
+
+# ── dbVar structural variants ───────────────────────────────────────────────
+# dbVar is per-SUBMISSION, not per-locus: Duchenne's 1,066 records are 685
+# overlapping deletions of the same region. Rendering the raw rows gives 15
+# near-identical multi-Mb deletions, so records are clustered into loci by
+# (chromosome, svtype, >=50% reciprocal overlap). "Records" then carries the
+# submission count behind each locus. Same discipline as the ClinVar block:
+# clinically actionable first, honest counts, no per-row source links.
+_DBVAR_RANK = [("conflicting", 3), ("pathogenic/likely pathogenic", 0),
+               ("likely pathogenic", 1), ("pathogenic", 0),
+               ("uncertain", 4), ("likely benign", 5), ("benign", 5),
+               ("not provided", 6)]
+_DBVAR_OVERLAP = 0.5
+DBVAR_CAP = 10          # loci rendered per page
+
+
+def _dbvar_rank(sig):
+    s = (sig or "").lower()
+    for key, r in _DBVAR_RANK:
+        if key in s:
+            return r
+    return 4
+
+
+def _dbvar_int(v):
+    try:
+        return int(float(v))
+    except (TypeError, ValueError):
+        return 0
+
+
+def dbvar_size(n):
+    if not n or n <= 0:
+        return "—"
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.1f} Mb"
+    if n >= 1_000:
+        return f"{n / 1_000:.0f} kb"
+    return f"{n} bp"
+
+
+def _dbvar_cluster(records, frac=_DBVAR_OVERLAP):
+    """Group overlapping dbVar records into loci. Same chromosome + same svtype
+    + >=frac reciprocal overlap merges; the locus span is the union. Each locus
+    keeps its submission count, its majority significance (or an honest 'mixed'
+    label), and the best record's ClinVar accession."""
+    loci = []
+    for r in sorted(records, key=lambda x: (x["chrom"], x["start"])):
+        span = max(1, r["end"] - r["start"])
+        for c in loci:
+            if c["chrom"] != r["chrom"] or c["svtype"] != r["svtype"]:
+                continue
+            ov = min(c["end"], r["end"]) - max(c["start"], r["start"])
+            if ov > 0 and ov / min(span, max(1, c["end"] - c["start"])) >= frac:
+                c["start"] = min(c["start"], r["start"])
+                c["end"] = max(c["end"], r["end"])
+                c["members"].append(r)
+                break
+        else:
+            loci.append({"chrom": r["chrom"], "start": r["start"], "end": r["end"],
+                         "svtype": r["svtype"], "members": [r]})
+    for c in loci:
+        best = sorted(c["members"], key=lambda m: (_dbvar_rank(m["sig"]),
+                                                   -(m["end"] - m["start"])))
+        ranks = Counter(_dbvar_rank(m["sig"]) for m in c["members"])
+        cnt = ranks[min(ranks)]
+        c["n"] = len(c["members"])
+        c["sig"] = (best[0]["sig"] if cnt * 2 >= c["n"]
+                    else f"mixed ({cnt}/{c['n']} pathogenic/likely pathogenic)")
+        c["clinvar"] = best[0]["clinvar"]
+        # Union span; insertions have start == end, so fall back to svlen.
+        c["size"] = c["end"] - c["start"] or abs(_dbvar_int(c["members"][0].get("svlen")))
+        del c["members"]                      # keep the cached bundle small
+    loci.sort(key=lambda c: (-c["n"], c["chrom"], c["start"]))
+    return loci
+
+
+def _collect_dbvar(a):
+    """dbVar structural variants for this disease. The authoritative total comes
+    from the Mondo entry's xref counts (no call when zero); the paginated fetch
+    is disclosed as a floor when it falls short."""
+    total = int((a.xref_counts or {}).get("dbvar") or 0)
+    empty = {"dbvar_total": 0, "dbvar_retrieved": 0, "dbvar_plp": 0,
+             "dbvar_loci": [], "dbvar_svtype_counts": {}}
+    if total <= 0:
+        return empty
+    cap = min(40, total // 100 + 2)           # ~100 rows/page + headroom
+    rows = map_all(a.mondo_id, ">>mondo>>dbvar", cap=cap)
+    seen, recs = set(), []
+    for r in rows:
+        vid = r.get("id")
+        if not vid or vid in seen:
+            continue
+        seen.add(vid)
+        recs.append({
+            "id": vid,
+            "chrom": str(r.get("chromosome") or ""),
+            "start": _dbvar_int(r.get("start")),
+            "end": _dbvar_int(r.get("end")),
+            "svlen": r.get("svlen"),
+            "svtype": (r.get("svtype") or "?").strip(),
+            "sig": unquote(r.get("clinical_significance") or "not provided").strip(),
+            "origin": r.get("origin"),
+            "clinvar": (r.get("clinvar_accessions") or "").split(",")[0] or None,
+        })
+    if not recs:
+        return empty
+    return {
+        "dbvar_total": total,
+        "dbvar_retrieved": len(recs),
+        "dbvar_plp": sum(1 for r in recs if _dbvar_rank(r["sig"]) <= 1),
+        "dbvar_loci": _dbvar_cluster(recs),
+        "dbvar_svtype_counts": dict(Counter(r["svtype"] for r in recs).most_common()),
+    }
+
 
 def collect(a):
     # 1) All GWAS associations for the disease (already cheap, paginated).
@@ -208,6 +325,8 @@ def collect(a):
     cv_variants.sort(key=lambda v: (_cv_rank(v["classification"]),
                                     -clinvar_stars(v["review_status"]), clinvar_id_num(v["id"])))
 
+    dbvar = _collect_dbvar(a)
+
     return {
         "section": "03_variant_details",
         "mondo_id": a.mondo_id,
@@ -219,16 +338,20 @@ def collect(a):
         "clinvar_class_counts": cv_class_counts,
         "clinvar_variants": cv_variants[:30],
         "clinvar_plp_by_gene": plp,
+        **dbvar,
     }
 
 SECTION = Section(
     id="3", name="variant_details",
     description=("Top GWAS variants with dbSNP details (rsID / chr / pos / "
                  "alleles / MAF / functional consequence) + genetic-evidence "
-                 "tier classification."),
-    needs=("mondo_id",),
+                 "tier classification; ClinVar germline variants; dbVar "
+                 "structural variants grouped into loci."),
+    needs=("mondo_id", "xref_counts"),
     produces=("top_variants", "tier_counts", "maf_distribution",
               "consequence_distribution", "clinvar_total",
-              "clinvar_class_counts", "clinvar_variants", "clinvar_plp_by_gene"),
+              "clinvar_class_counts", "clinvar_variants", "clinvar_plp_by_gene",
+              "dbvar_total", "dbvar_retrieved", "dbvar_plp", "dbvar_loci",
+              "dbvar_svtype_counts"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
