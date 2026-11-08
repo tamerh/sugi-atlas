@@ -3,7 +3,8 @@
 universe size (N) — for the disease cohort enrichment sections. Each background
 fans the SAME chain/classifier the cohort uses over every protein-coding HGNC
 gene, so K and the cohort's overlap k are counted identically (the hypergeometric
-test stays self-consistent). Refresh per biobtree DATA release (alongside seed
+test stays self-consistent). The GO background is counted over GOA (the GO
+Consortium GAF), not the older UniProt-GO projection. Refresh per biobtree DATA release (alongside seed
 regeneration), since the biobtree version stamp does not move on a data-only
 re-index.
 
@@ -40,9 +41,12 @@ def _reactome(sym):
 
 
 def _go_bp(sym):
+    # GOA (GAF 2.2, dataset 828) is the canonical human GO annotation source and
+    # a strict superset of the old >>hgnc>>uniprot>>go projection; the ORA
+    # background must be counted with the same chain the cohort/enrichment uses.
     try:
-        ids = sorted({t["id"] for t in map_all(sym, ">>hgnc>>uniprot>>go", cap=10)
-                      if t.get("id") and t.get("type") == "biological_process"})
+        ids = sorted({t["id"] for t in map_all(sym, ">>hgnc>>goa", cap=10)
+                      if t.get("id") and t.get("collection") == "GOA:BP"})
     except Exception:
         ids = []
     return (bool(ids), ids)
@@ -74,7 +78,8 @@ def build(name):
                 sizes[cid] += 1
             if i % 5000 == 0:
                 print(f"  {i}/{len(syms)} — {annotated} annotated, {len(sizes)} categories", flush=True)
-    out = {"chain": name, "biobtree_version": pipeline.biobtree_version(),
+    out = {"chain": ">>hgnc>>goa" if name == "go" else name,
+           "biobtree_version": pipeline.biobtree_version(),
            "universe_n": annotated, "sizes": dict(sizes)}
     os.makedirs(OUTDIR, exist_ok=True)
     path = os.path.join(OUTDIR, f"{name}.json")
@@ -89,8 +94,8 @@ def _membership(sym):
     partner set is looked up against this table — no per-gene fan at corpus build."""
     try:
         rc = [(p["id"], p.get("name")) for p in map_all(sym, ">>hgnc>>ensembl>>reactome", cap=10) if p.get("id")]
-        go = [(t["id"], t.get("name")) for t in map_all(sym, ">>hgnc>>uniprot>>go", cap=10)
-              if t.get("id") and t.get("type") == "biological_process"]
+        go = [(t["id"], t.get("standard_name")) for t in map_all(sym, ">>hgnc>>goa", cap=10)
+              if t.get("id") and t.get("collection") == "GOA:BP"]
     except Exception:
         rc, go = [], []
     return (sym, rc, go)

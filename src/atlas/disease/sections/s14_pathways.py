@@ -12,8 +12,8 @@ from atlas.section import Section
 from atlas.disease.cohort import enrichment_fan
 from atlas.ora import enrich, background
 
-CHAINS   = (">>hgnc>>ensembl>>reactome", ">>hgnc>>uniprot>>go")
-DATASETS = ("hgnc", "ensembl", "reactome", "uniprot", "go")
+CHAINS   = (">>hgnc>>ensembl>>reactome", ">>hgnc>>goa")
+DATASETS = ("hgnc", "ensembl", "reactome", "goa")
 
 TOP_N = 30
 
@@ -24,7 +24,7 @@ def _rank(it):                           # tested (lowest FDR) first; else by co
             -(it["fold"] or 0.0), -it["k"], it["id"])
 
 
-def _tally(rows_per_gene, predicate=None):
+def _tally(rows_per_gene, predicate=None, name_key="name"):
     """Count a fanned chain into (counts, names, to_genes, genes_with_any) — one
     count per (gene, category)."""
     counts: Counter = Counter()
@@ -42,8 +42,8 @@ def _tally(rows_per_gene, predicate=None):
                 continue
             seen.add(cid)
             counts[cid] += 1
-            if r.get("name") and cid not in names:
-                names[cid] = r.get("name")
+            if r.get(name_key) and cid not in names:
+                names[cid] = r.get(name_key)
             if sym and sym not in to_genes[cid]:
                 to_genes[cid].append(sym)
     return counts, names, to_genes, with_any
@@ -67,8 +67,9 @@ def collect(a):
     top_pathways = _ora_table(rc, rn, rg, genes_with_pathways, "reactome")
 
     gc, gn, gg, genes_with_go = _tally(
-        enrichment_fan(a.enrichment_cohort, ">>hgnc>>uniprot>>go"),
-        predicate=lambda r: r.get("type") == "biological_process")
+        enrichment_fan(a.enrichment_cohort, ">>hgnc>>goa"),
+        predicate=lambda r: r.get("collection") == "GOA:BP",
+        name_key="standard_name")
     top_go = _ora_table(gc, gn, gg, genes_with_go, "go")
 
     return {

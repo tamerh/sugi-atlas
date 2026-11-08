@@ -46,10 +46,17 @@ def collect(a):
 
     bundle["ccds"] = [t["id"] for t in map_all(a.ensembl_id, ">>ensembl>>ccds")]
 
-    # MANE-Select via dedicated filter (never missed for high-RefSeq genes)
+    # MANE-Select via dedicated filter (never missed for high-RefSeq genes).
+    # v2.20 added the RefSeq version + Ensembl transcript to the lite rows;
+    # v2.20.2 added the MANE Plus Clinical flag — both are citation-grade.
     mane = map_all(a.ensembl_id, ">>ensembl>>refseq[is_mane_select==true]")
-    mane_nm = next((t["id"] for t in mane if t.get("type") == "mRNA"), None)
-    bundle["mane_select_refseq"] = mane_nm
+    mane_row = next((t for t in mane if t.get("type") == "mRNA"), None)
+    bundle["mane_select_refseq"] = mane_row["id"] if mane_row else None
+    if mane_row:
+        bundle["mane_select_refseq_version"] = mane_row.get("version") or mane_row["id"]
+        bundle["mane_select_refseq_ensembl"] = mane_row.get("ensembl_transcript") or ""
+    bundle["mane_plus_refseq"] = [t["id"] for t in rs
+                                  if str(t.get("is_mane_plus_clinical")).lower() == "true"]
     bundle["canonical_transcript"] = a.canonical_transcript or (tr[0]["id"] if tr else None)
     if bundle["canonical_transcript"]:
         ex = map_all(bundle["canonical_transcript"], ">>transcript>>exon")
@@ -79,6 +86,7 @@ SECTION = Section(
     description="Ensembl transcripts, RefSeq mRNAs, CCDS, MANE-Select, canonical-transcript exons",
     needs=("ensembl_id", "canonical_transcript", "symbol", "hgnc_id"),
     produces=("ensembl_transcripts", "refseq_mrna", "ccds", "mane_select_refseq",
+              "mane_select_refseq_version", "mane_select_refseq_ensembl", "mane_plus_refseq",
               "canonical_transcript", "canonical_exons",
               "genomic_neighbors", "genomic_neighbor_count"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,

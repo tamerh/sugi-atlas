@@ -315,7 +315,7 @@ def collect(a):
     # disease — the evidence weight behind the ClinVar-only causal tier (a single
     # stray submission put SGCB on sialidosis; a deletion's bystander, UQCRB, on
     # Leri pleonosteosis).
-    from atlas.gene.sections.s06_variants import _is_region_cnv
+    from atlas.gene.sections.s06_variants import _is_region_cnv, _mane_transcript
     plp = {}
     for v in cv_variants:
         c = (v["classification"] or "").lower()
@@ -324,6 +324,17 @@ def collect(a):
             plp[v["gene"]] = plp.get(v["gene"], 0) + 1
     cv_variants.sort(key=lambda v: (_cv_rank(v["classification"]),
                                     -clinvar_stars(v["review_status"]), clinvar_id_num(v["id"])))
+    # Attach the MANE Select consequence to the rows we actually render (after
+    # the sort — enriching the pre-sort slice put them on the wrong variants).
+    cv_top = cv_variants[:30]
+    for v in cv_top:
+        try:
+            at = (entry(v["id"], "clinvar").get("Attributes") or {}).get("Clinvar") or {}
+        except Exception:
+            continue
+        rec = _mane_transcript(at)
+        if rec:
+            v["consequence"] = rec.get("consequence")
 
     dbvar = _collect_dbvar(a)
 
@@ -336,7 +347,7 @@ def collect(a):
         "consequence_distribution": consequence_distribution,
         "clinvar_total": len(seen_cv),
         "clinvar_class_counts": cv_class_counts,
-        "clinvar_variants": cv_variants[:30],
+        "clinvar_variants": cv_top,
         "clinvar_plp_by_gene": plp,
         **dbvar,
     }

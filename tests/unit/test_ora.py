@@ -42,3 +42,18 @@ def test_interactome_enrichment_degrades_gracefully():
     # too few partners → [] (caller shows a 'not enough partners' note, no crash)
     assert interactome_enrichment([], "reactome") == []
     assert interactome_enrichment(["ONLYONE"], "go") == []
+
+
+def test_tally_reads_goa_standard_name():
+    from atlas.disease.sections.s14_pathways import _tally
+    rows = [("HGNC:1", "TP53", [
+        {"id": "GO:0006915", "standard_name": "apoptotic process",
+         "collection": "GOA:BP"},
+        {"id": "GO:0003674", "standard_name": "molecular function",
+         "collection": "GOA:MF"}])]
+    counts, names, to_genes, with_any = _tally(
+        rows, predicate=lambda r: r.get("collection") == "GOA:BP",
+        name_key="standard_name")
+    assert counts["GO:0006915"] == 1 and "GO:0003674" not in counts
+    assert names["GO:0006915"] == "apoptotic process"
+    assert to_genes["GO:0006915"] == ["TP53"] and with_any == 1

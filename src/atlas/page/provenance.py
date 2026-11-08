@@ -62,11 +62,13 @@ UPSTREAM = {
     "clinvar":           ("ClinVar",                               "https://www.ncbi.nlm.nih.gov/clinvar/"),
     "spliceai":          ("SpliceAI",                              "https://spliceailookup.broadinstitute.org/"),
     "alphamissense":     ("AlphaMissense",                         "https://alphamissense.hegelab.org/"),
+    "alphamissense_aa":  ("AlphaMissense (protein)",                "https://alphamissense.hegelab.org/"),
     "dbsnp":             ("dbSNP",                                 "https://www.ncbi.nlm.nih.gov/snp/"),
     # pathways
     "reactome":          ("Reactome",                              "https://reactome.org/"),
     "msigdb":            ("MSigDB",                                "https://www.gsea-msigdb.org/gsea/msigdb/"),
     "go":                ("Gene Ontology",                         "http://geneontology.org/"),
+    "goa":               ("GO Consortium annotations (GOA)",       "https://www.ebi.ac.uk/GOA/"),
     # interactions
     "string_interaction":("STRING",                                "https://string-db.org/"),
     "intact":            ("IntAct",                                "https://www.ebi.ac.uk/intact/"),
@@ -80,6 +82,7 @@ UPSTREAM = {
     "jaspar":            ("JASPAR",                                "https://jaspar.genereg.net/"),
     "pubmed":            ("PubMed (NCBI)",                         "https://pubmed.ncbi.nlm.nih.gov/"),
     "mirdb":             ("miRDB",                                 "https://mirdb.org/"),
+    "chip_atlas_tfbs":   ("ChIP-Atlas",                            "https://chip-atlas.org/"),
     # drugs
     "chembl_target":     ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),
     "chembl_molecule":   ("ChEMBL",                                "https://www.ebi.ac.uk/chembl/"),

@@ -137,7 +137,15 @@ def r_transcripts(b):
     n = b.get("refseq_mrna_count", 0)
     mane = b.get("mane_select_refseq")
     mane = mane if mane and str(mane) not in ("None", "nan") else None   # v1.11.7: "`None`"
-    L.append(f"\n**RefSeq mRNA: {n}{_cap(n)}**" + (f" — MANE Select: `{mane}`" if mane else ""))
+    mane_v = b.get("mane_select_refseq_version") or mane
+    mane_e = b.get("mane_select_refseq_ensembl") or ""
+    mp_ref = b.get("mane_plus_refseq") or []
+    line = f"\n**RefSeq mRNA: {n}{_cap(n)}**"
+    if mane_v:
+        line += f" — MANE Select: `{mane_v}`" + (f" (`{mane_e}`)" if mane_e else "")
+    if mp_ref:
+        line += " · **MANE Plus Clinical:** " + ", ".join(f"`{x}`" for x in mp_ref)
+    L.append(line)
     L.append(", ".join(f"`{x}`" for x in b.get("refseq_mrna", [])))
     L.append(_labeled("CCDS", (f"`{x}`" for x in b.get("ccds", []))))
     ct = b.get("canonical_transcript")
@@ -755,10 +763,24 @@ def r_variants(b, summary=""):
         u = variant_page_url(v.get("hgvs"))       # gene comes from the HGVS transcript
         return links.maybe_link(v.get("hgvs"), u) if u else v.get("hgvs")
     sub = any(v.get("submitters") for v in tp)
-    L.append(table(["Variant ID", "HGVS", "Classification", "Review"] + (["Submitters"] if sub else []),
-                   [(v["id"], _tp_hgvs(v), v.get("classification"), v.get("review_status"))
+
+    def _am_cell(v):
+        s = v.get("am_score")
+        if s is None:
+            return ""
+        try:
+            return f"{float(s):.2f} ({v.get('am_class') or '?'})"
+        except (TypeError, ValueError):
+            return ""
+
+    L.append(table(["Variant ID", "HGVS", "Consequence", "AlphaMissense",
+                    "Classification", "Review"] + (["Submitters"] if sub else []),
+                   [(v["id"], _tp_hgvs(v), v.get("consequence") or "", _am_cell(v),
+                     v.get("classification"), v.get("review_status"))
                     + ((v.get("submitters") or "",) if sub else ())
                     for v in tp]))
+    L.append("\n*Consequence is the MANE Select transcript's; AlphaMissense is "
+             "the protein-level missense score for that substitution.*")
     # Sugi Variant cross-link — the sibling per-variant reference (sugi.bio/variant),
     # directly under the ClinVar sample it extends (it used to sit at the end of
     # the section, under a 50-row dbSNP table). Gated to genes in its corpus.
@@ -1091,6 +1113,23 @@ def r_tf_regulation(b):
         L.append(capped_table(["Target", "Regulation"],
                               [(t.get("target"), t.get("regulation")) for t in dt],
                               30, total=b.get("downstream_count"), noun="targets"))
+    # ChIP-Atlas — experimentally called targets (ChIP-seq peaks at the target's
+    # promoter). The experimental counterpart to the curated CollecTRI table.
+    ca = b.get("chip_atlas_targets") or []
+    if ca:
+        n_t = int(b.get("chip_atlas_target_count") or 0)
+        n_e = int(b.get("chip_atlas_experiment_count") or 0)
+        n_c = int(b.get("chip_atlas_cell_type_count") or 0)
+        L.append("\n### ChIP-Atlas experimental targets {#chip-atlas-targets}\n")
+        L.append(f"Top {len(ca)} of {n_t:,} promoter targets from {n_e:,} ChIP-seq "
+                 f"experiments across {n_c:,} cell types "
+                 f"({b.get('chip_atlas_genome') or 'hg38'}), ranked by average MACS2 "
+                 "score. Experimental binding evidence — the counterpart to the "
+                 "curated CollecTRI targets above, not a claim of functional effect.\n")
+        L.append(table(["Target", "Avg MACS2 score"],
+                       [(links.maybe_link(t.get("symbol"),
+                                          links.gene_url(symbol=t.get("symbol"))),
+                         fnum(t.get("score"), 1)) for t in ca]))
     # JASPAR motifs — only render when present (most non-TF genes have none,
     # which would otherwise leave an empty header-only table).
     motifs = b.get("jaspar_motifs") or []

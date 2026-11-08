@@ -183,7 +183,8 @@ ground-truth); a fold-enrichment + FDR column is added. The background sizes are
 counted via the SAME chain/classifier the cohort uses over all protein-coding
 genes (`atlas.build_background` → `data/background/{reactome,go,family}.json`,
 refreshed per biobtree data release); the statistics are pure + deterministic
-(`atlas.ora`, no scipy).
+(`atlas.ora`, no scipy). The GO half is counted over **GOA** (the GO Consortium's
+human GAF, dataset 828) — the same chain the cohort fan uses.
 
 ### Therapeutics
 - **Disease-direct indicated drugs (`#indicated`)** — drugs with a registered

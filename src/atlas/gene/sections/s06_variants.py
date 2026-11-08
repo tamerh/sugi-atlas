@@ -43,6 +43,86 @@ def _is_region_cnv(name):
 
 _PROT_VAR = re.compile(r"^(?:p\.)?([A-Z])(\d+)([A-Z])$")
 
+# ClinVar's per-transcript protein HGVS uses the 3-letter code + a RefSeq
+# protein accession: "NP_000537.3:p.Glu294Lys". AlphaMissense (protein, 829)
+# is keyed "<uniprot>:<one-letter substitution>" ("P04637:E294K"), so a
+# missense row needs this translation (via >>refseq>>uniprot).
+_AA3TO1 = {"Ala": "A", "Arg": "R", "Asn": "N", "Asp": "D", "Cys": "C",
+           "Gln": "Q", "Glu": "E", "Gly": "G", "His": "H", "Ile": "I",
+           "Leu": "L", "Lys": "K", "Met": "M", "Phe": "F", "Pro": "P",
+           "Ser": "S", "Thr": "T", "Trp": "W", "Tyr": "Y", "Val": "V"}
+_P_SUB = re.compile(r"p\.\(?([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})\)?$")
+
+
+def _protein_substitution(hgvs_p):
+    """'NP_000537.3:p.Glu294Lys' -> ('NP_000537', 'E294K'); (None, None) for
+    anything that isn't a simple missense (del/dup/fs/ter/synonymous)."""
+    if not hgvs_p:
+        return None, None
+    acc, _, expr = hgvs_p.rpartition(":")
+    expr = (expr if acc else hgvs_p).strip()
+    m = _P_SUB.match(expr)
+    if not m:
+        return None, None
+    wt, pos, mut = m.groups()
+    if wt not in _AA3TO1 or mut not in _AA3TO1:
+        return None, None
+    return (acc.split(".")[0] or None), f"{_AA3TO1[wt]}{pos}{_AA3TO1[mut]}"
+
+
+def _mane_transcript(attrs):
+    """The MANE Select per-transcript record from a ClinVar entry, else the
+    first record carrying a consequence. None when the entry has neither."""
+    recs = attrs.get("hgvs_transcripts") or []
+    for r in recs:
+        if r.get("mane_select"):
+            return r
+    for r in recs:
+        if r.get("consequence"):
+            return r
+    return None
+
+
+def _enrich_clinvar_rows(rows):
+    """Attach the MANE Select consequence and the AlphaMissense protein score to
+    the rendered ClinVar rows. Bounded to the table cap (15) so the per-gene
+    cost is fixed; one RefSeq→UniProt map per protein accession, cached."""
+    np_uni = {}
+    for v in rows:
+        vid = v.get("id")
+        if not vid:
+            continue
+        try:
+            at = (entry(vid, "clinvar").get("Attributes") or {}).get("Clinvar") or {}
+        except Exception:
+            continue
+        rec = _mane_transcript(at)
+        if not rec:
+            continue
+        v["consequence"] = rec.get("consequence")
+        v["hgvs_p"] = rec.get("hgvs_p")
+        np_acc, sub = _protein_substitution(rec.get("hgvs_p"))
+        if not (np_acc and sub):
+            continue
+        if np_acc not in np_uni:
+            try:
+                hit = map_all(np_acc, ">>refseq>>uniprot", cap=1)
+            except Exception:
+                hit = []
+            np_uni[np_acc] = hit[0].get("id") if hit else None
+        uni = np_uni[np_acc]
+        if not uni:
+            continue
+        try:
+            am = (entry(f"{uni}:{sub}", "alphamissense_aa")
+                  .get("Attributes") or {}).get("Alphamissense") or {}
+        except Exception:
+            continue
+        if am.get("am_pathogenicity") is not None:
+            v["am_score"] = am.get("am_pathogenicity")
+            v["am_class"] = am.get("am_class")
+
+
 
 def am_hotspots(rows):
     """Group AlphaMissense likely-pathogenic substitutions by residue → hotspot
@@ -75,8 +155,10 @@ CHAINS = (
     '>>hgnc>>clinvar[germline_classification=="<class>"]',  # 5 classes
     ">>hgnc>>spliceai",
     '>>transcript>>alphamissense[am_class=="likely_pathogenic"]',
+    ">>refseq>>uniprot",
 )
-DATASETS = ("clinvar", "spliceai", "alphamissense", "transcript", "hgnc", "clingen_variant")
+DATASETS = ("clinvar", "spliceai", "alphamissense", "alphamissense_aa",
+            "transcript", "hgnc", "refseq", "clingen_variant")
 
 def _int(x):
     try:
@@ -128,6 +210,7 @@ def collect(a):
                             clinvar_id_num(v["id"])))
     bundle["top_pathogenic_total"] = len(plp)
     bundle["top_pathogenic"] = plp[:TOP_PATHOGENIC_CAP]
+    _enrich_clinvar_rows(bundle["top_pathogenic"])
 
     sp = sorted(map_all(a.hgnc_id, ">>hgnc>>spliceai"),
                 key=lambda t: float(t.get("score") or 0), reverse=True)

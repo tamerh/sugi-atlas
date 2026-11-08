@@ -641,9 +641,10 @@ def r_variant_details(b, clinvar_first=False):
                     return links.maybe_link(name, u)
             return name
 
-        bl += ["", table(["ClinVar", "Variant (HGVS)", "Gene", "Classification", "Review"],
-                         [(v.get("id") or "",
-                           _cv_hgvs(v), _glink(v.get("gene")), v.get("classification"),
+        bl += ["", table(["ClinVar", "Variant (HGVS)", "Consequence", "Gene",
+                          "Classification", "Review"],
+                         [(v.get("id") or "", _cv_hgvs(v), v.get("consequence") or "",
+                           _glink(v.get("gene")), v.get("classification"),
                            v.get("review_status")) for v in cv])]
         if any(in_variant_corpus(v.get("classification")) for v in cv):
             bl += ["", "*Pathogenic / likely-pathogenic variants link to their full "

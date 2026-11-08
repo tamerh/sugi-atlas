@@ -121,7 +121,12 @@ non-coding genes. Chains: `>>hgnc>>mim`, `>>hgnc>>entrez`, `>>hgnc>>rnacentral`.
   symbol interpolated into the filter: `>>hgnc>>collectri[tf_gene=="TP53"]` for
   downstream targets and `[target_gene=="TP53"]` for upstream regulators, plus
   JASPAR motifs and miRDB miRNAs. A gene is flagged a TF when it has downstream
-  targets or JASPAR motifs.
+  targets or JASPAR motifs. When it is, the ChIP-Atlas promoter entry
+  (`CHIPATLAS:hg38:<TF>:1`, hg19 fallback) adds the **experimental** target set
+  — the top 20 genes by average MACS2 score from called ChIP-seq peaks, with
+  the experiment and cell-type counts. It is the experimental counterpart to
+  the curated CollecTRI edges, labelled as binding evidence rather than a
+  functional effect.
 - **§5 orthologs** — Ensembl Compara orthologs and paralogs
   (`>>ensembl>>ortholog`, `>>ensembl>>paralog`), emitted as returned (no species
   filter — see the correction in §4), plus **cross-species homologs** from

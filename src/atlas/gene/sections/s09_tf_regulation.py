@@ -12,11 +12,16 @@ CHAINS = (
     ">>hgnc>>refseq>>mirdb",
     ">>hgnc>>mirdb>>refseq",                      # MIR gene → its miRNAs' targets
 )
-DATASETS = ("collectri", "jaspar", "mirdb", "hgnc", "uniprot", "refseq", "pubmed")
+DATASETS = ("collectri", "jaspar", "mirdb", "hgnc", "uniprot", "refseq", "pubmed",
+            "chip_atlas_tfbs")
 
 def _f(x):
     try: return float(x)
     except (TypeError, ValueError): return 0.0
+
+def _int(x):
+    try: return int(float(x))
+    except (TypeError, ValueError): return 0
 
 def collect(a):
     bundle = {"section": "09_tf_regulation", "symbol": a.symbol}
@@ -40,6 +45,12 @@ def collect(a):
                                if a.canonical_uniprot else [])
                               if t.get("id")]
     bundle["is_transcription_factor"] = bool(down or bundle["jaspar_motifs"])
+
+    # ChIP-Atlas — experimentally called TF targets (ChIP-seq peaks at the
+    # target's promoter). The experimental counterpart to CollecTRI's curated
+    # TF→target edges; only meaningful when this gene is itself a TF.
+    if bundle["is_transcription_factor"]:
+        bundle.update(_chip_atlas_targets(a.symbol))
 
     # miRDB — miRNAs that target this gene (post-transcriptional regulators).
     # Sort by max_score (miRDB confidence, 0-100); show top-N. target_count
@@ -91,14 +102,59 @@ def _mirna_products(hgnc_id):
                     "targets": targets})
     return sorted(out, key=lambda m: m["id"])
 
+
+_CHIP_GENOMES = ("HG38", "HG19")   # current assembly first, older as fallback
+
+
+def _parse_chip_targets(raw):
+    """'SYMBOL|avg_score' rows -> [{symbol, score}], source order preserved
+    (ChIP-Atlas already ranks by average MACS2 score)."""
+    out = []
+    for t in raw or []:
+        if not t:
+            continue
+        sym, _, score = str(t).partition("|")
+        sym = sym.strip()
+        if sym:
+            out.append({"symbol": sym, "score": score.strip()})
+    return out
+
+
+def _chip_atlas_targets(symbol):
+    """Top experimental target genes from ChIP-Atlas for a TF gene. Entries are
+    keyed (genome, TF, TSS window); the ±1 kb (promoter) window is the relevant
+    one. hg38 is preferred, hg19 is the fallback for TFs without a current
+    build. {} when the gene has no TF entry (or the lookup fails)."""
+    for genome in _CHIP_GENOMES:
+        try:
+            at = (entry(f"CHIPATLAS:{genome}:{symbol}:1", "chip_atlas_tfbs")
+                  .get("Attributes") or {})
+        except Exception:
+            continue
+        d = at.get("ChipAtlasTfbs") or {}
+        if not d.get("tf"):
+            continue
+        return {
+            "chip_atlas_genome": d.get("genome") or genome.lower(),
+            "chip_atlas_targets": _parse_chip_targets(d.get("top_targets"))[:20],
+            "chip_atlas_target_count": _int(d.get("target_count")),
+            "chip_atlas_experiment_count": _int(d.get("experiment_count")),
+            "chip_atlas_cell_type_count": _int(d.get("cell_type_count")),
+        }
+    return {}
+
+
 SECTION = Section(
     id="9", name="regulation",
     description=("Regulators of the gene — transcriptional (CollecTRI upstream TFs + "
                  "JASPAR motifs) and post-transcriptional (miRDB miRNAs targeting "
-                 "the gene), plus the CollecTRI downstream-target fan-out when this "
-                 "gene is itself a TF."),
+                 "the gene), plus the CollecTRI downstream-target fan-out and "
+                 "ChIP-Atlas experimental targets when this gene is itself a TF."),
     needs=("hgnc_id", "canonical_uniprot", "symbol"),
     produces=("downstream_targets", "upstream_regulators", "jaspar_motifs",
-              "jaspar_pmids", "mirna_regulators", "mirna_products", "is_transcription_factor"),
+              "jaspar_pmids", "mirna_regulators", "mirna_products", "is_transcription_factor",
+              "chip_atlas_targets", "chip_atlas_target_count",
+              "chip_atlas_experiment_count", "chip_atlas_cell_type_count",
+              "chip_atlas_genome"),
     datasets=DATASETS, chains=CHAINS, collect_fn=collect,
 )
